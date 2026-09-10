@@ -1,4 +1,4 @@
-# Interviewer.ai
+# Crucible
 
 AI mock interview platform with a real-time video avatar interviewer, a five-agent reasoning pipeline, resume/JD-driven personalization, and cross-session memory that reshapes future interviews around your actual weak spots.
 
