@@ -1,4 +1,5 @@
 from pathlib import Path
+from agents.untrusted import wrap_untrusted
 from models.contracts import AnswerEvaluation, PlannedQuestion
 
 _PROMPT = (Path(__file__).resolve().parent.parent / "prompts" / "evaluator.md").read_text()
@@ -15,7 +16,7 @@ class EvaluatorAgent:
             f"Question Type: {question.type}\n"
             f"Difficulty: {question.target_difficulty}\n"
             f"Question: {question.prompt}\n\n"
-            f"Candidate Answer:\n{transcript}\n\n"
+            f"Candidate Answer:\n{wrap_untrusted('candidate_answer', transcript)}\n\n"
             f"Follow-up count: {follow_up_count}"
         )
         return self._llm.structured(

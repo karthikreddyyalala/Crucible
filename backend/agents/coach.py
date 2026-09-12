@@ -1,4 +1,5 @@
 from pathlib import Path
+from agents.untrusted import wrap_untrusted
 from models.contracts import CoachResponse, PlannedQuestion
 
 _PROMPT = (Path(__file__).resolve().parent.parent / "prompts" / "coach.md").read_text()
@@ -24,7 +25,7 @@ class CoachAgent:
             f"Question Type: {question.type}\n"
             f"Difficulty: {question.target_difficulty}\n"
             f"Question: {question.prompt}\n\n"
-            f"Candidate Answer (their attempt):\n{transcript}\n\n"
+            f"Candidate Answer (their attempt):\n{wrap_untrusted('candidate_answer', transcript)}\n\n"
             f"Weakness tags to fix: {tags}"
         )
         return self._llm.structured(

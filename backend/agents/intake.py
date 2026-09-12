@@ -1,4 +1,5 @@
 from pathlib import Path
+from agents.untrusted import wrap_untrusted
 from models.contracts import IntakeProfile
 
 _PROMPT = (Path(__file__).resolve().parent.parent / "prompts" / "intake.md").read_text()
@@ -10,7 +11,10 @@ class IntakeAgent:
         self._model = model
 
     def run(self, *, resume_text: str, jd_text: str) -> IntakeProfile:
-        user = f"RESUME:\n{resume_text}\n\nJOB DESCRIPTION:\n{jd_text}"
+        user = (
+            f"RESUME:\n{wrap_untrusted('resume', resume_text)}\n\n"
+            f"JOB DESCRIPTION:\n{wrap_untrusted('job_description', jd_text)}"
+        )
         return self._llm.structured(
             model=self._model, system=_PROMPT, user=user, schema=IntakeProfile,
         )
