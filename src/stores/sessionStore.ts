@@ -88,7 +88,9 @@ function warmGreeting(name: string): string {
   return `Hi${who}, good to meet you — thanks for making the time. Before we dive in, how are you doing today?`;
 }
 
-// Said after the candidate's small-talk reply, then straight into Q1.
+// Said after the candidate's small-talk reply, then straight into Q1. Deliberately
+// neutral: this line is scripted, not generated from what the candidate actually said,
+// so it must not presume a sentiment ("Glad to hear it" landed on "I'm exhausted").
 function warmIntro(mode: InterviewMode, level: InterviewLevel): string {
   const modeDesc: Record<InterviewMode, string> = {
     full: `a few questions across behavioral, technical, and system design`,
@@ -96,7 +98,7 @@ function warmIntro(mode: InterviewMode, level: InterviewLevel): string {
     technical: `a few technical questions`,
     system_design: `a couple of system design questions`,
   };
-  return `Glad to hear it. So today I'll take you through ${modeDesc[mode]} — pitched at the ${level} level. Just talk me through your thinking out loud, and I'll follow up where I'm curious. Let's start with the first one.`;
+  return `Thanks for that. So today I'll take you through ${modeDesc[mode]} — pitched at the ${level} level. Just talk me through your thinking out loud, and I'll follow up where I'm curious. Let's start with the first one.`;
 }
 
 // UUID message ids so rehydrating a saved session never collides with new
