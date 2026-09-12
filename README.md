@@ -1,23 +1,20 @@
 # Crucible
 
-AI mock interview platform with a real-time video avatar interviewer, a five-agent reasoning pipeline, resume/JD-driven personalization, and cross-session memory that reshapes future interviews around your actual weak spots.
+AI mock interview platform with a real-time video avatar interviewer, a six-agent reasoning pipeline, resume/JD-driven personalization, and cross-session memory that reshapes future interviews around your actual weak spots.
 
 **Live app:** https://dvbk879zy1q2l.cloudfront.net
 
-## Why this exists
+Most AI mock interviewers forget you between sessions. This one doesn't — and it pushes back on vague answers instead of saying "great answer."
 
-I was using Claude's and ChatGPT's voice mode to practice for interviews. No matter what I said, it kept telling me "that's great," "you're acing it." It felt good in the moment, but it was building a false sense of confidence — the kind that falls apart the second an actual interviewer pushes back on a vague answer instead of validating it.
+- **It remembers.** A dedicated Memory Agent aggregates weaknesses across every session and feeds them straight into the next session's question plan — not a score trend line, an actual change in what gets asked.
+- **It pushes back.** The Interviewer Agent is instructed to never accept a vague answer, probes with "why" and "how," and is banned from saying "great answer" unless the response actually meets the rubric.
+- **It's measured, not vibes.** A 35-case golden-dataset eval (23 regression, 12 adversarial) against the real agents on live Bedrock calls: **100% decision accuracy**. 100+ backend tests. Details below.
 
-That gap is the whole reason this exists. Practice that only ever agrees with you isn't practice, it's a confidence trick. So instead of another voice mode, I set out to build something closer to a real interviewer: a video avatar, real voice, and infrastructure to back it — and after looking at what the existing competitors in this space (Revarta, OphyAI, Final Round AI, HireMindPro, and others) actually shipped, I built around two things almost none of them do:
-
-1. **It remembers.** A dedicated Memory Agent aggregates weaknesses across every session and feeds them straight back into the next session's question plan — not a score trend line, an actual change in what gets asked next.
-2. **It pushes back.** The Interviewer Agent is instructed to never accept a vague answer, to probe with "why" and "how," and is explicitly banned from saying "great answer" unless the response actually meets the rubric — the exact behavior I wished the voice-mode tools I was using had, instead of cheerleading me into a false sense of readiness.
-
-Every evaluated answer also gets a `wouldSurviveRealInterview` verdict with reasoning — a sharper, more honest signal than a 1–10 score, and the thing this product leads with instead of a numeric grade.
+Every evaluated answer gets a `wouldSurviveRealInterview` verdict with reasoning — a sharper, more honest signal than a 1–10 score, and what this product leads with instead of a numeric grade.
 
 ## Architecture
 
-The avatar and voice are what make a session feel real, but they're not the point — the reasoning underneath them is. That's a five-agent pipeline orchestrated with LangGraph, each agent with exactly one job:
+The avatar and voice make a session feel real, but the reasoning underneath is the point. Six agents orchestrated with LangGraph, each with exactly one job:
 
 | Agent | Responsibility |
 |---|---|
@@ -26,10 +23,15 @@ The avatar and voice are what make a session feel real, but they're not the poin
 | **Interviewer** | Holds live session state, asks questions, and decides in real time whether to follow up, push back, or advance — never passively accepts a vague answer. |
 | **Evaluator** | Scores each answer against a rubric (STAR for behavioral, correctness/complexity/edge-cases for technical) and outputs a `wouldSurviveRealInterview` verdict with reasoning. |
 | **Memory** | A retrieval/write layer, not a chat agent. Aggregates evaluations into a persistent profile of recurring weaknesses, strengths, and improvement trend that the Planner reads at the start of every future session. |
-
-A sixth agent, **Coach**, reworks a candidate's own weak answer into a model answer grounded in their actual content — an on-demand addition to the core five.
+| **Coach** | Reworks a candidate's own weak answer into a model answer grounded in their actual content — an on-demand complement to live evaluation. |
 
 Every agent's output is validated against a Pydantic schema before it's passed to the next stage; no raw LLM text crosses an agent boundary.
+
+## Why this exists
+
+I was using Claude's and ChatGPT's voice mode to practice for interviews. No matter what I said, it kept telling me "that's great," "you're acing it." It felt good in the moment, but it was building a false sense of confidence — the kind that falls apart the second a real interviewer pushes back on a vague answer instead of validating it.
+
+That gap is the whole reason this exists: practice that only ever agrees with you isn't practice. After looking at what existing competitors in this space (Revarta, OphyAI, Final Round AI, HireMindPro, and others) actually ship, almost none of them do the two things above — remember you, or push back — so I built around exactly those two gaps.
 
 ## Engineering depth
 
