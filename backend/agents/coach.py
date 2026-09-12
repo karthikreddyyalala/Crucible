@@ -18,6 +18,7 @@ class CoachAgent:
         question: PlannedQuestion,
         transcript: str,
         weakness_tags: list[str],
+        usage_sink: list | None = None,
     ) -> CoachResponse:
         tags = ", ".join(weakness_tags) if weakness_tags else "(none flagged)"
         user = (
@@ -29,6 +30,6 @@ class CoachAgent:
             f"Weakness tags to fix: {tags}"
         )
         return self._llm.structured(
-            agent="coach",
+            agent="coach", sink=usage_sink,
             model=self._model, system=_PROMPT, user=user, schema=CoachResponse,
         )

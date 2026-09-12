@@ -29,7 +29,8 @@ class LLMClient:
 
     def structured(self, *, agent: str, model: str, system: str, user: str,
                    schema: type[T], max_tokens: int = 2000,
-                   max_retries: int = 2) -> T:
+                   max_retries: int = 2,
+                   sink: list[CallUsage] | None = None) -> T:
         """Call the model and validate its output into `schema`.
 
         A single malformed response (unparseable JSON or wrong shape) must not
@@ -41,6 +42,10 @@ class LLMClient:
         cost/latency logging — passed explicitly rather than inferred from the
         call stack, since stack inference would silently mis-attribute cost the
         moment a caller wraps this in a helper.
+
+        `sink`, if given, additionally collects this call's CallUsage so a
+        caller spanning several agent calls (a request handler, a graph run)
+        can sum a total — every call is always logged to CloudWatch regardless.
         """
         client = self._ensure_client()
         base_user = user
@@ -70,19 +75,25 @@ class LLMClient:
                     output_tokens = message.usage.output_tokens
                 text = message.content[0].text
                 result = schema.model_validate(extract_json(text))
-                log_call_usage(CallUsage(
+                usage = CallUsage(
                     agent=agent, model=model, latency_s=time.monotonic() - t0,
                     attempts=attempt + 1, success=True,
                     input_tokens=input_tokens, output_tokens=output_tokens,
-                ))
+                )
+                log_call_usage(usage)
+                if sink is not None:
+                    sink.append(usage)
                 return result
             except Exception as e:  # noqa: BLE001 — network/parse/validation, retry
                 last_error = e
 
-        log_call_usage(CallUsage(
+        usage = CallUsage(
             agent=agent, model=model, latency_s=time.monotonic() - t0,
             attempts=max_retries + 1, success=False,
             input_tokens=input_tokens, output_tokens=output_tokens,
-        ))
+        )
+        log_call_usage(usage)
+        if sink is not None:
+            sink.append(usage)
         assert last_error is not None
         raise last_error

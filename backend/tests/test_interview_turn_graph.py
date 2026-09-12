@@ -7,7 +7,7 @@ class _ScriptedLLM:
     def __init__(self, *payloads: dict):
         self._payloads = list(payloads)
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000):
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
         return schema.model_validate(self._payloads.pop(0))
 
 

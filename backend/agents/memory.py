@@ -17,6 +17,7 @@ class MemoryAgent:
         session_date: str,
         evaluations: list[AnswerEvaluation],
         existing_memory: MemoryProfile,
+        usage_sink: list | None = None,
     ) -> MemoryProfile:
         evals_json = json.dumps(
             [e.model_dump(by_alias=True) for e in evaluations], indent=2
@@ -28,6 +29,6 @@ class MemoryAgent:
             f"evaluations:\n{evals_json}"
         )
         return self._llm.structured(
-            agent="memory",
+            agent="memory", sink=usage_sink,
             model=self._model, system=_PROMPT, user=user, schema=MemoryProfile,
         )

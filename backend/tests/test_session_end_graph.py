@@ -6,7 +6,7 @@ class _FakeLLM:
     def __init__(self, payload: dict):
         self._payload = payload
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000):
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
         return schema.model_validate(self._payload)
 
 

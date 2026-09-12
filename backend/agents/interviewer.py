@@ -17,6 +17,7 @@ class InterviewerAgent:
         candidate_answer: str,
         follow_up_count: int,
         is_last_question: bool,
+        usage_sink: list | None = None,
     ) -> InterviewDecision:
         user = (
             f"Question ID: {question.id}\n"
@@ -28,6 +29,6 @@ class InterviewerAgent:
             f"isLastQuestion: {'true' if is_last_question else 'false'}"
         )
         return self._llm.structured(
-            agent="interviewer",
+            agent="interviewer", sink=usage_sink,
             model=self._model, system=_PROMPT, user=user, schema=InterviewDecision,
         )

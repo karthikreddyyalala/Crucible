@@ -12,7 +12,8 @@ class PlannerAgent:
 
     def run(self, *, session_id: str, profile: IntakeProfile,
             memory: MemoryProfile, competency_map: CompetencyMap,
-            mode: str = "full", level: str = "mid") -> QuestionPlan:
+            mode: str = "full", level: str = "mid",
+            usage_sink: list | None = None) -> QuestionPlan:
         user = (
             f"sessionId: {session_id}\n"
             f"mode: {mode}\n"
@@ -22,6 +23,6 @@ class PlannerAgent:
             f"CompetencyMap:\n{competency_map.model_dump_json(by_alias=True, indent=2)}"
         )
         return self._llm.structured(
-            agent="planner",
+            agent="planner", sink=usage_sink,
             model=self._model, system=_PROMPT, user=user, schema=QuestionPlan,
         )

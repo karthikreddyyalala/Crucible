@@ -10,7 +10,8 @@ class EvaluatorAgent:
         self._llm = llm
         self._model = model
 
-    def run(self, *, question: PlannedQuestion, transcript: str, follow_up_count: int) -> AnswerEvaluation:
+    def run(self, *, question: PlannedQuestion, transcript: str, follow_up_count: int,
+            usage_sink: list | None = None) -> AnswerEvaluation:
         user = (
             f"Question ID: {question.id}\n"
             f"Question Type: {question.type}\n"
@@ -20,6 +21,6 @@ class EvaluatorAgent:
             f"Follow-up count: {follow_up_count}"
         )
         return self._llm.structured(
-            agent="evaluator",
+            agent="evaluator", sink=usage_sink,
             model=self._model, system=_PROMPT, user=user, schema=AnswerEvaluation,
         )

@@ -16,6 +16,7 @@ class SessionStartState(TypedDict, total=False):
     memory: MemoryProfile
     profile: IntakeProfile
     plan: QuestionPlan
+    usage: list
 
 
 def build_session_start_graph(*, llm, intake_model: str, planner_model: str):
@@ -23,7 +24,10 @@ def build_session_start_graph(*, llm, intake_model: str, planner_model: str):
     planner = PlannerAgent(llm=llm, model=planner_model)
 
     def intake_node(state: SessionStartState) -> SessionStartState:
-        profile = intake.run(resume_text=state["resume_text"], jd_text=state["jd_text"])
+        profile = intake.run(
+            resume_text=state["resume_text"], jd_text=state["jd_text"],
+            usage_sink=state.get("usage"),
+        )
         return {"profile": profile}
 
     def planner_node(state: SessionStartState) -> SessionStartState:
@@ -34,6 +38,7 @@ def build_session_start_graph(*, llm, intake_model: str, planner_model: str):
             competency_map=load_competency_map(state["role_key"]),
             mode=state.get("mode", "full"),
             level=state.get("level", "mid"),
+            usage_sink=state.get("usage"),
         )
         return {"plan": plan}
 

@@ -163,7 +163,7 @@ class _ScriptedLLM:
         self._script = script
         self._idx = 0
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000):
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
         entry = self._script[self._idx % len(self._script)]
         self._idx += 1
         return schema.model_validate(entry)
@@ -300,12 +300,12 @@ class TestFullSessionFlow:
         captured: dict = {}
 
         class _CapturingLLM(_ScriptedLLM):
-            def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000):
+            def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
                 if schema.__name__ == "QuestionPlan":
                     captured["planner_input"] = user
                 return super().structured(
                     agent=agent, model=model, system=system, user=user,
-                    schema=schema, max_tokens=max_tokens,
+                    schema=schema, max_tokens=max_tokens, sink=sink,
                 )
 
         # Seed session 1 memory into the store

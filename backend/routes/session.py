@@ -9,6 +9,7 @@ from pydantic.alias_generators import to_camel
 from auth import current_sub
 
 from config.settings import Settings
+from llm.usage import CallUsage
 from models.contracts import (
     AnswerEvaluation,
     AvatarSessionResponse,
@@ -45,6 +46,11 @@ class StartSessionRequest(_Base):
 class StartSessionResponse(_Base):
     profile: IntakeProfile
     plan: QuestionPlan
+    # Estimated cost of this call's LLM usage — the client sums these across
+    # start + every turn and echoes the running total back in FinalizeRequest,
+    # since /start, /turn, and /finalize are separate stateless requests with
+    # no shared process memory to accumulate a session total server-side.
+    cost_usd: float = 0.0
 
 
 class TurnRequest(_Base):
@@ -57,6 +63,7 @@ class TurnRequest(_Base):
 class TurnResponse(_Base):
     decision: InterviewDecision
     evaluation: AnswerEvaluation | None = None
+    cost_usd: float = 0.0
 
 
 class FinalizeRequest(_Base):
@@ -68,6 +75,10 @@ class FinalizeRequest(_Base):
     mode: str = "full"
     level: str = "mid"
     questions: list[PlannedQuestion] = []
+    # Client-accumulated total from this session's start + turn responses'
+    # cost_usd (see StartSessionResponse). The finalize call's own Memory
+    # Agent cost is added server-side before this lands on SessionRecord.
+    cost_usd: float = 0.0
 
 
 class CoachRequest(_Base):
@@ -134,6 +145,7 @@ def build_session_router(*, llm, settings: Settings, store: MemoryStore, tavus_c
     def start(req: StartSessionRequest, sub: str | None = Depends(current_sub)) -> StartSessionResponse:
         cid = sub or req.candidate_id
         prior = store.get_memory(cid) or _empty_memory(cid)
+        usage: list[CallUsage] = []
         result = start_graph.invoke(
             {
                 "session_id": str(uuid4()),
@@ -143,27 +155,35 @@ def build_session_router(*, llm, settings: Settings, store: MemoryStore, tavus_c
                 "mode": req.mode,
                 "level": req.level,
                 "memory": prior,
+                "usage": usage,
             }
         )
-        return StartSessionResponse(profile=result["profile"], plan=result["plan"])
+        return StartSessionResponse(
+            profile=result["profile"], plan=result["plan"],
+            cost_usd=sum(u.cost_usd for u in usage),
+        )
 
     @router.post("/session/turn")
     def turn(req: TurnRequest, _sub: str | None = Depends(current_sub)) -> TurnResponse:
+        usage: list[CallUsage] = []
         decision = interviewer.run_turn(
             question=req.question,
             candidate_answer=req.answer,
             follow_up_count=req.follow_up_count,
             is_last_question=req.is_last,
+            usage_sink=usage,
         )
         if decision.action == "follow_up":
-            return TurnResponse(decision=decision)
+            return TurnResponse(decision=decision, cost_usd=sum(u.cost_usd for u in usage))
 
         evaluation = evaluator.run(
             question=req.question,
             transcript=req.answer,
             follow_up_count=req.follow_up_count,
+            usage_sink=usage,
         )
-        return TurnResponse(decision=decision, evaluation=evaluation)
+        return TurnResponse(decision=decision, evaluation=evaluation,
+                             cost_usd=sum(u.cost_usd for u in usage))
 
     @router.post("/coach")
     def coach_answer(req: CoachRequest, _sub: str | None = Depends(current_sub)) -> CoachResponse:
@@ -209,6 +229,7 @@ def build_session_router(*, llm, settings: Settings, store: MemoryStore, tavus_c
         today = date.today().isoformat()
 
         updated: MemoryProfile | None = None
+        usage: list[CallUsage] = []
         for attempt in range(_MAX_MEMORY_FINALIZE_ATTEMPTS):
             existing, version = store.get_memory_with_version(cid)
             existing = existing or _empty_memory(cid)
@@ -217,6 +238,7 @@ def build_session_router(*, llm, settings: Settings, store: MemoryStore, tavus_c
                 session_date=today,
                 evaluations=req.evaluations,
                 existing_memory=existing,
+                usage_sink=usage,
             )
             try:
                 store.put_memory_cas(updated, expected_version=version)
@@ -239,6 +261,7 @@ def build_session_router(*, llm, settings: Settings, store: MemoryStore, tavus_c
                     level=req.level,
                     questions=req.questions,
                     evaluations=req.evaluations,
+                    cost_usd=req.cost_usd + sum(u.cost_usd for u in usage),
                 )
             )
         return updated

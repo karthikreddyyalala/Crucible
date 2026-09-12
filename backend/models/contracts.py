@@ -96,6 +96,10 @@ class SessionRecord(_Base):
     level: str
     questions: list[PlannedQuestion]
     evaluations: list[AnswerEvaluation]
+    # Estimated LLM cost for the whole session (client-accumulated across
+    # start + turns, plus this finalize call's own Memory Agent cost). Default
+    # keeps deserializing session records written before this field existed.
+    cost_usd: float = 0.0
 
     def summary(self) -> SessionSummary:
         survived = sum(1 for e in self.evaluations if e.would_survive_real_interview)

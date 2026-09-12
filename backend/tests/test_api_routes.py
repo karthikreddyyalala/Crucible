@@ -3,7 +3,16 @@ from fastapi.testclient import TestClient
 
 import auth
 from app import create_app
+from llm.usage import CallUsage
 from store.in_memory import InMemoryStore
+
+# One deterministic call's cost, for tests that assert cost_usd summation
+# across multiple agent calls rather than the cost math itself (that's
+# covered in test_usage.py).
+_ONE_CALL_COST = CallUsage(
+    agent="test", model="claude-haiku-4-5", latency_s=0.1,
+    attempts=1, success=True, input_tokens=1000, output_tokens=1000,
+).cost_usd
 
 
 @pytest.fixture(autouse=True)
@@ -19,7 +28,12 @@ class _FakeLLM:
     def __init__(self, payloads: dict):
         self._payloads = payloads
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000):
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
+        if sink is not None:
+            sink.append(CallUsage(
+                agent=agent, model="claude-haiku-4-5", latency_s=0.1,
+                attempts=1, success=True, input_tokens=1000, output_tokens=1000,
+            ))
         return schema.model_validate(self._payloads[schema.__name__])
 
 
@@ -103,6 +117,16 @@ def test_start_session_returns_profile_and_plan():
     assert body["plan"]["questions"][0]["id"] == "q0"
 
 
+def test_start_session_sums_cost_across_intake_and_planner_calls():
+    client = _client({"IntakeProfile": _INTAKE, "QuestionPlan": _PLAN})
+    res = client.post(
+        "/api/session/start",
+        json={"resumeText": "resume here", "jdText": "jd here", "role": "sde"},
+    )
+    body = res.json()
+    assert body["costUsd"] == pytest.approx(2 * _ONE_CALL_COST)
+
+
 def test_turn_follow_up_returns_no_evaluation():
     client = _client({"InterviewDecision": _DECISION_FOLLOW_UP})
     res = client.post(
@@ -119,6 +143,8 @@ def test_turn_follow_up_returns_no_evaluation():
     assert body["decision"]["action"] == "follow_up"
     assert body["decision"]["followUpPrompt"]
     assert body["evaluation"] is None
+    # Only the interviewer was called — the evaluator never runs on a follow-up.
+    assert body["costUsd"] == pytest.approx(_ONE_CALL_COST)
 
 
 def test_turn_advance_returns_evaluation():
@@ -137,6 +163,8 @@ def test_turn_advance_returns_evaluation():
     assert body["decision"]["action"] == "advance"
     assert body["evaluation"]["wouldSurviveRealInterview"] is True
     assert body["evaluation"]["survivalReasoning"]
+    # Both the interviewer and the evaluator ran.
+    assert body["costUsd"] == pytest.approx(2 * _ONE_CALL_COST)
 
 
 def test_finalize_returns_memory_profile():
@@ -238,10 +266,10 @@ class _CountingMemoryLLM(_FakeLLM):
         super().__init__(payloads)
         self.memory_calls: list[str] = []
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000):
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
         if schema.__name__ == "MemoryProfile":
             self.memory_calls.append(user)
-        return super().structured(agent=agent, model=model, system=system, user=user, schema=schema, max_tokens=max_tokens)
+        return super().structured(agent=agent, model=model, system=system, user=user, schema=schema, max_tokens=max_tokens, sink=sink)
 
 
 def test_finalize_retries_after_one_conflict_and_does_not_lose_data():
@@ -335,11 +363,11 @@ def test_start_loads_prior_memory_from_store():
     captured: dict = {}
 
     class _CapturingLLM(_FakeLLM):
-        def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000):
+        def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
             if schema.__name__ == "QuestionPlan":
                 captured["planner_user"] = user
             return super().structured(
-                agent=agent, model=model, system=system, user=user, schema=schema, max_tokens=max_tokens
+                agent=agent, model=model, system=system, user=user, schema=schema, max_tokens=max_tokens, sink=sink
             )
 
     # seed a prior memory for this candidate
@@ -370,7 +398,7 @@ def test_start_loads_prior_memory_from_store():
 class _RaisingLLM:
     """Simulates an agent call that fails even after retries are exhausted."""
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000):
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
         raise RuntimeError("bedrock throttled: too many requests")
 
 
@@ -464,6 +492,20 @@ def test_get_session_returns_full_record_with_transcripts():
     assert len(body["questions"]) == 2
     assert body["evaluations"][0]["transcript"].startswith("Q: Tell me")
     assert body["evaluations"][1]["wouldSurviveRealInterview"] is False
+
+
+def test_finalize_adds_its_own_memory_agent_cost_to_the_clients_echoed_total():
+    """finalize's SessionRecord.cost_usd must equal what the client accumulated
+    from /start + /turn (echoed back in the request) plus this call's own
+    Memory Agent cost — not just one or the other."""
+    store = InMemoryStore()
+    client = _client({"MemoryProfile": _MEMORY}, store=store)
+    body = _finalize_body("sess-cost")
+    body["costUsd"] = 0.05  # what the client accumulated from earlier calls
+    client.post("/api/session/finalize", json=body)
+
+    res = client.get("/api/sessions/sess-cost")
+    assert res.json()["costUsd"] == pytest.approx(0.05 + _ONE_CALL_COST)
 
 
 def test_get_missing_session_returns_404():
