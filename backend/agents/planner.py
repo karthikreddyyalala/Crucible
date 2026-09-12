@@ -22,5 +22,6 @@ class PlannerAgent:
             f"CompetencyMap:\n{competency_map.model_dump_json(by_alias=True, indent=2)}"
         )
         return self._llm.structured(
+            agent="planner",
             model=self._model, system=_PROMPT, user=user, schema=QuestionPlan,
         )

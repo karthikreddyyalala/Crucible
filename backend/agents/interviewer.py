@@ -28,5 +28,6 @@ class InterviewerAgent:
             f"isLastQuestion: {'true' if is_last_question else 'false'}"
         )
         return self._llm.structured(
+            agent="interviewer",
             model=self._model, system=_PROMPT, user=user, schema=InterviewDecision,
         )

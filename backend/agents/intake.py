@@ -16,5 +16,6 @@ class IntakeAgent:
             f"JOB DESCRIPTION:\n{wrap_untrusted('job_description', jd_text)}"
         )
         return self._llm.structured(
+            agent="intake",
             model=self._model, system=_PROMPT, user=user, schema=IntakeProfile,
         )

@@ -92,7 +92,7 @@ def test_structured_validates_into_schema():
     fake = _FakeClient('{"name": "widget", "count": 3}')
     client = LLMClient(client=fake)
     result = client.structured(
-        model="m", system="s", user="u", schema=_Shape,
+        agent="test", model="m", system="s", user="u", schema=_Shape,
     )
     assert result.name == "widget" and result.count == 3
     assert fake.calls[0]["model"] == "m"
@@ -106,7 +106,8 @@ def test_structured_retries_on_unparseable_first_response():
         '{"name": "widget", "count": 7}',     # valid on retry
     ])
     client = LLMClient(client=fake)
-    result = client.structured(model="m", system="s", user="u", schema=_Shape)
+    result = client.structured(
+        agent="test", model="m", system="s", user="u", schema=_Shape)
     assert result.name == "widget" and result.count == 7
     assert len(fake.calls) == 2
 
@@ -118,7 +119,8 @@ def test_structured_retries_on_schema_validation_failure():
         '{"name": "gadget", "count": 2}',     # valid on retry
     ])
     client = LLMClient(client=fake)
-    result = client.structured(model="m", system="s", user="u", schema=_Shape)
+    result = client.structured(
+        agent="test", model="m", system="s", user="u", schema=_Shape)
     assert result.name == "gadget" and result.count == 2
     assert len(fake.calls) == 2
 
@@ -127,6 +129,7 @@ def test_structured_raises_after_exhausting_retries():
     fake = _SequenceClient(["nonsense", "still nonsense", "more nonsense", "nope"])
     client = LLMClient(client=fake)
     with pytest.raises(Exception):
-        client.structured(model="m", system="s", user="u", schema=_Shape, max_retries=2)
+        client.structured(
+            agent="test", model="m", system="s", user="u", schema=_Shape, max_retries=2)
     # 1 initial attempt + 2 retries = 3 calls
     assert len(fake.calls) == 3

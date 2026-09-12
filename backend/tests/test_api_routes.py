@@ -19,7 +19,7 @@ class _FakeLLM:
     def __init__(self, payloads: dict):
         self._payloads = payloads
 
-    def structured(self, *, model, system, user, schema, max_tokens=2000):
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000):
         return schema.model_validate(self._payloads[schema.__name__])
 
 
@@ -238,10 +238,10 @@ class _CountingMemoryLLM(_FakeLLM):
         super().__init__(payloads)
         self.memory_calls: list[str] = []
 
-    def structured(self, *, model, system, user, schema, max_tokens=2000):
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000):
         if schema.__name__ == "MemoryProfile":
             self.memory_calls.append(user)
-        return super().structured(model=model, system=system, user=user, schema=schema, max_tokens=max_tokens)
+        return super().structured(agent=agent, model=model, system=system, user=user, schema=schema, max_tokens=max_tokens)
 
 
 def test_finalize_retries_after_one_conflict_and_does_not_lose_data():
@@ -335,11 +335,11 @@ def test_start_loads_prior_memory_from_store():
     captured: dict = {}
 
     class _CapturingLLM(_FakeLLM):
-        def structured(self, *, model, system, user, schema, max_tokens=2000):
+        def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000):
             if schema.__name__ == "QuestionPlan":
                 captured["planner_user"] = user
             return super().structured(
-                model=model, system=system, user=user, schema=schema, max_tokens=max_tokens
+                agent=agent, model=model, system=system, user=user, schema=schema, max_tokens=max_tokens
             )
 
     # seed a prior memory for this candidate
@@ -370,7 +370,7 @@ def test_start_loads_prior_memory_from_store():
 class _RaisingLLM:
     """Simulates an agent call that fails even after retries are exhausted."""
 
-    def structured(self, *, model, system, user, schema, max_tokens=2000):
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000):
         raise RuntimeError("bedrock throttled: too many requests")
 
 

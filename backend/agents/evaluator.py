@@ -20,5 +20,6 @@ class EvaluatorAgent:
             f"Follow-up count: {follow_up_count}"
         )
         return self._llm.structured(
+            agent="evaluator",
             model=self._model, system=_PROMPT, user=user, schema=AnswerEvaluation,
         )

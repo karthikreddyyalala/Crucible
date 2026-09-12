@@ -29,5 +29,6 @@ class CoachAgent:
             f"Weakness tags to fix: {tags}"
         )
         return self._llm.structured(
+            agent="coach",
             model=self._model, system=_PROMPT, user=user, schema=CoachResponse,
         )

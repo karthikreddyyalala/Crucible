@@ -28,5 +28,6 @@ class MemoryAgent:
             f"evaluations:\n{evals_json}"
         )
         return self._llm.structured(
+            agent="memory",
             model=self._model, system=_PROMPT, user=user, schema=MemoryProfile,
         )
