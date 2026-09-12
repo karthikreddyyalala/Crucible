@@ -18,6 +18,13 @@ Written 2026-09-12. Self-contained: assumes no memory of the conversation that p
 
 ## Task 1 — Observability (highest leverage; everything else is smaller)
 
+**Status as of 2026-09-12: 1a–1d done and committed** (`7d32510`, `0d10422`, `a306187`).
+Every LLM call logs cost/latency/tokens to CloudWatch EMF; session-wide cost flows
+`/start` + `/turn` → frontend `sessionCostUsd` → echoed to `/finalize` → stored on
+`SessionRecord.cost_usd`. 119 backend + 55 frontend tests, all passing, including real
+assertions on the summed dollar amounts (not just plumbing). **Only 1e remains** — it
+needs live AWS/Bedrock credentials, which don't exist in this environment.
+
 **Why:** the app records nothing about its own LLM calls. "What does one interview cost?" and "what's p95 turn latency?" are unanswerable today. This is the one gap that shows up in every AI-engineer interview, and closing it yields a fourth measured number for the résumé.
 
 **Do not** infer the agent name from the call stack — pass it explicitly. Stack inference is fragile and would attribute costs to the wrong agent, which is worse than not measuring.
