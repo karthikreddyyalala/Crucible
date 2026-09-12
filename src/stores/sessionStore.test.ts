@@ -198,6 +198,7 @@ describe("sessionStore — turnError", () => {
       const { api } = await import("@/lib/api");
       vi.mocked(api.submitAnswer).mockResolvedValueOnce({
         decision: FOLLOW_UP_DECISION,
+        costUsd: 0,
       });
 
       await useSessionStore.getState().submitAnswer("retried answer");
@@ -224,7 +225,7 @@ describe("sessionStore — turnError", () => {
       expect(useSessionStore.getState().status).toBe("thinking");
 
       // Let the API call resolve so we don't leak an unresolved promise.
-      resolveCall({ decision: FOLLOW_UP_DECISION });
+      resolveCall({ decision: FOLLOW_UP_DECISION, costUsd: 0 });
       await submitPromise;
     });
   });
@@ -235,6 +236,7 @@ describe("sessionStore — turnError", () => {
       const { api } = await import("@/lib/api");
       vi.mocked(api.submitAnswer).mockResolvedValueOnce({
         decision: ADVANCE_DECISION,
+        costUsd: 0,
         evaluation: {
           questionId: "q1",
           transcript: "My answer.",
@@ -278,6 +280,7 @@ describe("sessionStore — turnError", () => {
       const { api } = await import("@/lib/api");
       vi.mocked(api.submitAnswer).mockResolvedValueOnce({
         decision: COMPLETE_DECISION,
+        costUsd: 0,
         evaluation: MOCK_EVALUATION,
       });
       vi.mocked(api.finalizeSession).mockRejectedValueOnce(new Error("Request failed (503)"));
@@ -303,6 +306,7 @@ describe("sessionStore — turnError", () => {
       const { api } = await import("@/lib/api");
       vi.mocked(api.submitAnswer).mockResolvedValueOnce({
         decision: COMPLETE_DECISION,
+        costUsd: 0,
         evaluation: MOCK_EVALUATION,
       });
       vi.mocked(api.finalizeSession).mockRejectedValueOnce("just a string error");
@@ -451,6 +455,7 @@ describe("sessionStore — turnError", () => {
       const { api } = await import("@/lib/api");
       vi.mocked(api.submitAnswer).mockResolvedValueOnce({
         decision: COMPLETE_DECISION,
+        costUsd: 0,
         evaluation: MOCK_EVALUATION,
       });
       vi.mocked(api.finalizeSession).mockRejectedValueOnce(new Error("Request failed (503)"));
@@ -491,6 +496,7 @@ describe("sessionStore — turnError", () => {
       const { api } = await import("@/lib/api");
       vi.mocked(api.submitAnswer).mockResolvedValueOnce({
         decision: COMPLETE_DECISION,
+        costUsd: 0,
         evaluation: MOCK_EVALUATION,
       });
       vi.mocked(api.finalizeSession).mockResolvedValueOnce(MOCK_MEMORY);
@@ -500,6 +506,58 @@ describe("sessionStore — turnError", () => {
       expect(useSessionStore.getState().status).toBe("complete");
       const persisted = readPersisted();
       expect(persisted.state.status).toBe("complete");
+    });
+
+    it("accumulates costUsd from start and every turn, then echoes the total to finalize", async () => {
+      const { api } = await import("@/lib/api");
+      vi.mocked(api.getMemory).mockResolvedValueOnce({
+        candidateId: "test-candidate-id",
+        recurringWeaknesses: [],
+        improvementTrend: [],
+        strongAreas: [],
+      });
+      vi.mocked(api.startSession).mockResolvedValueOnce({
+        profile: {
+          candidateSkills: [],
+          yearsExperience: 3,
+          projectHighlights: [],
+          targetRole: "sde",
+          jdRequirements: [],
+          resumeToJdGaps: [],
+        },
+        plan: MOCK_PLAN,
+        costUsd: 0.01,
+      });
+      await useSessionStore.getState().start({
+        resumeText: "resume", jdText: "jd", role: "sde", mode: "full", level: "mid",
+        candidateName: "Karthik", useVideo: false,
+      });
+      expect(useSessionStore.getState().sessionCostUsd).toBeCloseTo(0.01);
+
+      // Warm-up reply doesn't call the API, so it must not touch cost.
+      await useSessionStore.getState().submitAnswer("Doing well, thanks.");
+      expect(useSessionStore.getState().sessionCostUsd).toBeCloseTo(0.01);
+
+      vi.mocked(api.submitAnswer).mockResolvedValueOnce({
+        decision: ADVANCE_DECISION,
+        evaluation: MOCK_EVALUATION,
+        costUsd: 0.02,
+      });
+      await useSessionStore.getState().submitAnswer("A real answer.");
+      expect(useSessionStore.getState().sessionCostUsd).toBeCloseTo(0.03);
+
+      vi.mocked(api.submitAnswer).mockResolvedValueOnce({
+        decision: COMPLETE_DECISION,
+        evaluation: MOCK_EVALUATION,
+        costUsd: 0.05,
+      });
+      vi.mocked(api.finalizeSession).mockResolvedValueOnce(MOCK_MEMORY);
+      await useSessionStore.getState().submitAnswer("Final answer.");
+
+      expect(useSessionStore.getState().sessionCostUsd).toBeCloseTo(0.08);
+      expect(vi.mocked(api.finalizeSession)).toHaveBeenCalledWith(
+        expect.objectContaining({ costUsd: expect.closeTo(0.08) })
+      );
     });
   });
 
@@ -572,6 +630,7 @@ describe("sessionStore — turnError", () => {
           resumeToJdGaps: [],
         },
         plan: MOCK_PLAN,
+        costUsd: 0,
       });
 
       await useSessionStore.getState().start({

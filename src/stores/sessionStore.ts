@@ -43,6 +43,11 @@ interface SessionState {
   followUpCount: number;
   messages: ChatMessage[];
   evaluations: AnswerEvaluation[];
+  // Running total of this session's estimated LLM cost, accumulated from
+  // every start/turn response's costUsd and echoed to the backend at
+  // finalize — see StartSessionResult/TurnResult in lib/api.ts for why this
+  // can't simply be summed server-side instead.
+  sessionCostUsd: number;
   priorMemory: MemoryProfile | null;
   updatedMemory: MemoryProfile | null;
   justRestored: boolean;
@@ -139,6 +144,7 @@ export const useSessionStore = create<SessionState>()(
             mode: state.mode,
             level: state.level,
             questions: state.plan!.questions,
+            costUsd: state.sessionCostUsd,
           });
           set({ status: "complete", updatedMemory: updated, turnError: null, finalizing: false });
         } catch (e) {
@@ -163,6 +169,7 @@ export const useSessionStore = create<SessionState>()(
       followUpCount: 0,
       messages: [],
       evaluations: [],
+      sessionCostUsd: 0,
       priorMemory: null,
       updatedMemory: null,
       justRestored: false,
@@ -178,6 +185,7 @@ export const useSessionStore = create<SessionState>()(
         set({
           status: "starting", role, mode, level, candidateName, useVideo,
           warmup: false, messages: [], evaluations: [], updatedMemory: null,
+          sessionCostUsd: 0,
           // A leftover finalize error from a prior session (turnError is
           // persisted, see the partialize comment below) must not bleed
           // into a brand-new session's UI. finalizing itself always
@@ -188,7 +196,7 @@ export const useSessionStore = create<SessionState>()(
         try {
         const candidateId = getCandidateId();
         const prior = await api.getMemory(candidateId);
-        const { profile, plan } = await api.startSession({
+        const { profile, plan, costUsd } = await api.startSession({
           resumeText,
           jdText,
           role,
@@ -207,6 +215,7 @@ export const useSessionStore = create<SessionState>()(
           followUpCount: 0,
           justRestored: false,
           warmup: true,
+          sessionCostUsd: costUsd,
           messages: [
             {
               id: mkId(),
@@ -274,8 +283,9 @@ export const useSessionStore = create<SessionState>()(
 
         let decision: InterviewDecision;
         let evaluation: AnswerEvaluation | undefined;
+        let turnCostUsd = 0;
         try {
-          ({ decision, evaluation } = await api.submitAnswer({
+          ({ decision, evaluation, costUsd: turnCostUsd } = await api.submitAnswer({
             question,
             answer: thread,
             followUpCount: state.followUpCount,
@@ -294,6 +304,7 @@ export const useSessionStore = create<SessionState>()(
           set((s) => ({
             status: "live",
             followUpCount: s.followUpCount + 1,
+            sessionCostUsd: s.sessionCostUsd + turnCostUsd,
             messages: [
               ...s.messages,
               {
@@ -323,6 +334,7 @@ export const useSessionStore = create<SessionState>()(
             status: "wrapping",
             messages: [...s.messages, closing],
             evaluations: evals,
+            sessionCostUsd: s.sessionCostUsd + turnCostUsd,
           }));
           // Backend persists the aggregated memory (DynamoDB in real mode,
           // localStorage in mock mode) — it's the source of truth now. On
@@ -342,6 +354,7 @@ export const useSessionStore = create<SessionState>()(
           currentIdx: nextIdx,
           followUpCount: 0,
           evaluations: evals,
+          sessionCostUsd: s.sessionCostUsd + turnCostUsd,
           messages: [
             ...s.messages,
             {
@@ -375,6 +388,7 @@ export const useSessionStore = create<SessionState>()(
           warmup: false,
           messages: [],
           evaluations: [],
+          sessionCostUsd: 0,
           updatedMemory: null,
           justRestored: false,
           turnError: null,
@@ -412,6 +426,7 @@ export const useSessionStore = create<SessionState>()(
         followUpCount: s.followUpCount,
         messages: s.messages,
         evaluations: s.evaluations,
+        sessionCostUsd: s.sessionCostUsd,
         priorMemory: s.priorMemory,
         updatedMemory: s.updatedMemory,
         turnError: s.turnError,

@@ -99,4 +99,5 @@ export interface SessionRecord {
   level: string;
   questions: PlannedQuestion[];
   evaluations: AnswerEvaluation[];
+  costUsd: number;
 }

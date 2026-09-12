@@ -120,11 +120,13 @@ function summarize(r: SessionRecord): SessionSummary {
 export interface StartSessionResult {
   profile: IntakeProfile;
   plan: QuestionPlan;
+  costUsd: number;
 }
 
 export interface TurnResult {
   decision: InterviewDecision;
   evaluation?: AnswerEvaluation;
+  costUsd: number;
 }
 
 export const api = {
@@ -148,7 +150,7 @@ export const api = {
   }): Promise<StartSessionResult> {
     if (USE_MOCK) {
       await latency(1400);
-      return mockEngine.buildSession(input.role, input.mode);
+      return { ...mockEngine.buildSession(input.role, input.mode), costUsd: 0 };
     }
     const res = await safeFetch(apiUrl("/api/session/start"), {
       method: "POST",
@@ -166,7 +168,10 @@ export const api = {
   }): Promise<TurnResult> {
     if (USE_MOCK) {
       await latency(1100);
-      return mockEngine.decide(input.question, input.answer, input.followUpCount, input.isLast);
+      return {
+        ...mockEngine.decide(input.question, input.answer, input.followUpCount, input.isLast),
+        costUsd: 0,
+      };
     }
     const res = await safeFetch(apiUrl("/api/session/turn"), {
       method: "POST",
@@ -228,6 +233,10 @@ export const api = {
     mode: InterviewMode;
     level: InterviewLevel;
     questions: PlannedQuestion[];
+    // Client-accumulated total of this session's start + turn costUsd values
+    // (see StartSessionResult/TurnResult) — the backend adds its own
+    // finalize-call cost on top before persisting the SessionRecord.
+    costUsd: number;
   }): Promise<MemoryProfile> {
     if (USE_MOCK) {
       await latency(900);
@@ -244,6 +253,7 @@ export const api = {
         level: input.level,
         questions: input.questions,
         evaluations: input.evaluations,
+        costUsd: input.costUsd,
       });
       return updated;
     }
