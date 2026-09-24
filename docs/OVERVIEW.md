@@ -75,9 +75,8 @@ npx tsc -b --noEmit                # typecheck
 
 **Deliberate, not gaps** (don't "fix" these without a reason):
 
-- Voice is browser-native Speech APIs + Kokoro-JS, not Deepgram/ElevenLabs —
-  CLAUDE.md's stack section is stale on this point, the code is the source of
-  truth.
+- Voice is browser-native Speech APIs + Kokoro-JS, not Deepgram/ElevenLabs as
+  originally planned. CLAUDE.md's stack line now reflects what actually shipped.
 - Deploy is plain shell scripts, no Terraform/CDK — fine for a single-Lambda app.
 - Tavus avatar is optional and feature-flagged; the app must never block on it.
 
@@ -90,14 +89,17 @@ Short version, in the order we're tackling them:
 
 1. ~~Observability~~ — done (see above), except the real measurement run (needs
    live credentials).
-2. **Adversarial input eval cases** — next up. All 35 existing golden cases test
-   bad-faith answer *quality* (rambling, buzzwords). None test hostile or
-   malformed *input*: injection attempts, the fence-escape case, gibberish,
-   off-topic, another language. Now that injection fencing has shipped, this is
-   what proves it actually works.
-3. **Demo video** — deliberately last. A 60-90s recording of a full session on
-   the free stylized avatar (no live Tavus dependency to fail mid-interview),
-   showing a real push-back and the `wouldSurviveRealInterview` verdict.
+2. **Adversarial input eval cases**: written (2026-09-24), not yet run. 8 cases in
+   `backend/evals/golden/interview_turn_adversarial_input_cases.json` cover
+   injection, the fence-escape case, gibberish, off-topic, near-empty, and another
+   language, plus one case that forces the Evaluator to run so we can test that it
+   can't be talked into a passing verdict. Every label is marked unverified until
+   it's run against real Bedrock (needs credentials):
+   `cd backend && python -m evals.run_accuracy_eval adversarial_input evals/golden/interview_turn_adversarial_input_cases.json`
+3. **Demo video**: script ready and verified, see **[DEMO_SCRIPT.md](DEMO_SCRIPT.md)**.
+   Every beat (greeting by name, push-back on a vague answer, a pass, a
+   WOULDN'T SURVIVE verdict) was confirmed by driving the real session store
+   against the mock engine. You just need to record it.
 4. **GitHub "About" section** — still blank, two minutes, needs the GitHub UI.
 
 ## Resume bullets (current, verified)

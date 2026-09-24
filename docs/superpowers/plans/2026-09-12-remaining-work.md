@@ -1,14 +1,11 @@
-# Remaining work — Crucible AI (Interviewer.ai)
+# Remaining work — Crucible
 
 Written 2026-09-12. Self-contained: assumes no memory of the conversation that produced it.
 
 ## Where the repo stands right now
 
-- Branch `main`, clean tree, **3 commits ahead of `origin/main` and not yet pushed**:
-  - `b50a107` fix: fence untrusted candidate and resume text in agent prompts
-  - `c47c771` fix: drop the sentiment assumption from the scripted warm-up transition
-  - `506eddf` docs: lead README with the differentiators and fix the agent count
-- Tests green: **106 backend** (`cd backend && pytest`), **54 frontend** (`npm test`), typecheck clean (`npx tsc -b --noEmit`).
+- Branch `main`, everything pushed to https://github.com/karthikreddyyalala/Crucible (renamed from `Interview.ai`).
+- Tests green: **119 backend** (`cd backend && pytest`), **55 frontend** (`npm test`), typecheck clean (`npx tsc -b --noEmit`).
 - 55 backend tests are gated LLM evals that skip unless `INTERVIEWAI_RUN_LLM_EVALS=1`. They cost real Bedrock tokens.
 - No AWS or Tavus credentials exist locally (`.env` files absent). Anything needing live Bedrock or Tavus must run with real creds supplied by Karthik.
 
@@ -61,6 +58,8 @@ Run ~10 real sessions with live creds. Record mean cost per completed interview 
 
 ## Task 2 — 90-second demo video
 
+**Status as of 2026-09-24: script written and verified, see `docs/DEMO_SCRIPT.md`. Karthik records it.**
+
 **Why:** Karthik needs to show this in job interviews. Running a live Tavus WebRTC avatar during a screenshare depends on two networks, Tavus cold-start, and a live billing account all working inside 90 seconds. A recording cannot fail mid-interview.
 
 - Record a full session using the **stylized avatar** (`src/components/InterviewerAvatar.tsx`), i.e. `useVideo` off. Free, instant, no external dependency.
@@ -71,6 +70,12 @@ Run ~10 real sessions with live creds. Record mean cost per completed interview 
 ---
 
 ## Task 3 — Adversarial *input* eval cases
+
+**Status as of 2026-09-24: cases written, not yet run.** 8 cases in
+`backend/evals/golden/interview_turn_adversarial_input_cases.json`, each carrying a
+`label_status` field marking it unverified. The Spanish-answer case is an explicit
+judgment call, not a prediction. Remaining: run with live Bedrock credentials,
+read the model's actual reasoning on any mismatch, then fix labels or agents.
 
 **Why:** all 35 existing golden cases test bad answers from honest candidates. None test hostile or malformed input. Now that Task 0 (injection fencing, already shipped in `b50a107`) is in, this is what proves it works.
 
@@ -93,13 +98,13 @@ Run via `python -m evals.run_accuracy_eval <variant_label> <cases_file>` with li
 
 ## Task 4 — GitHub repo "About" section
 
-Two minutes, never done. Repo: `karthikreddyyalala/Interview.ai`. Add a one-line description and topics (e.g. `langgraph`, `bedrock`, `multi-agent`, `llm-evals`, `fastapi`, `aws-lambda`). Requires Karthik in the GitHub UI, or `gh` CLI (not installed locally).
+Two minutes, never done. Repo: `karthikreddyyalala/Crucible`. Add a one-line description and topics (e.g. `langgraph`, `bedrock`, `multi-agent`, `llm-evals`, `fastapi`, `aws-lambda`). Requires Karthik in the GitHub UI, or `gh` CLI (not installed locally).
 
 ---
 
-## Task 5 — Push the three commits
+## Task 5 — Push
 
-`git push origin main`. **Ask Karthik before pushing** — it is public-facing.
+Done. Everything through 2026-09-24 is on `main`.
 
 ---
 
@@ -107,7 +112,7 @@ Two minutes, never done. Repo: `karthikreddyyalala/Interview.ai`. Add a one-line
 
 Do not "fix" these; they were decided:
 
-- **Voice is browser-native Speech APIs + Kokoro-JS**, not Deepgram/ElevenLabs as CLAUDE.md's stack section still claims. Deliberate, low priority. (The CLAUDE.md line is stale and may be corrected, but the implementation should not change.)
+- **Voice is browser-native Speech APIs + Kokoro-JS**, not Deepgram/ElevenLabs as originally planned. Deliberate. CLAUDE.md's stack line was corrected on 2026-09-24 to match what shipped.
 - **Deploy is plain shell scripts, no Terraform/CDK.** Deliberate for a single-Lambda app.
 - **Tavus is optional and feature-flagged.** Never let it block agent logic. Costs real money: free tier is 25 min/month, Starter $59/mo for 100 min then $0.37/min (tavus.io/pricing, checked 2026-09-12).
 
