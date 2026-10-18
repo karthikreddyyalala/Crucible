@@ -13,6 +13,13 @@ export function useSpeechRecognition() {
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  // Chrome stops the engine on its own after a short pause in speech, even
+  // with continuous=true — that firing is indistinguishable from the user
+  // clicking stop unless we track intent separately. shouldListenRef is the
+  // user's intent; onend only treats the engine stopping as "done" when the
+  // user didn't ask for that, and auto-restarts otherwise so a pause mid-
+  // answer doesn't silently kill dictation.
+  const shouldListenRef = useRef(false);
 
   useEffect(() => {
     if (!supported) return;
@@ -31,11 +38,29 @@ export function useSpeechRecognition() {
       }
       setTranscript(text.trim());
     };
-    recognition.onend = () => setListening(false);
-    recognition.onerror = () => setListening(false);
+    recognition.onend = () => {
+      if (shouldListenRef.current) {
+        try {
+          recognition.start();
+          return;
+        } catch {
+          /* fall through to reporting stopped */
+        }
+      }
+      setListening(false);
+    };
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      // "no-speech" fires on an ordinary pause while thinking — not a real
+      // failure, so let onend's auto-restart handle it. Anything else (mic
+      // permission denied, device gone) is fatal: stop for real.
+      if (event.error === "no-speech") return;
+      shouldListenRef.current = false;
+      setListening(false);
+    };
 
     recognitionRef.current = recognition;
     return () => {
+      shouldListenRef.current = false;
       try {
         recognition.abort();
       } catch {
@@ -48,6 +73,7 @@ export function useSpeechRecognition() {
     const recognition = recognitionRef.current;
     if (!recognition) return;
     setTranscript("");
+    shouldListenRef.current = true;
     try {
       recognition.start();
       setListening(true);
@@ -59,6 +85,7 @@ export function useSpeechRecognition() {
   const stop = useCallback(() => {
     const recognition = recognitionRef.current;
     if (!recognition) return;
+    shouldListenRef.current = false;
     try {
       recognition.stop();
     } catch {
