@@ -75,8 +75,9 @@ npx tsc -b --noEmit                # typecheck
 
 **Deliberate, not gaps** (don't "fix" these without a reason):
 
-- Voice is browser-native Speech APIs + Kokoro-JS, not Deepgram/ElevenLabs as
-  originally planned. CLAUDE.md's stack line now reflects what actually shipped.
+- Interviewer voice is ElevenLabs Flash v2.5 through the backend (`/api/tts`;
+  measured ~0.9s per line, vs ~2.8s on eleven_v4 — Lambda can't stream, so the
+  fast model wins). Candidate speech is browser-native recognition, not Deepgram.
 - Deploy is plain shell scripts, no Terraform/CDK — fine for a single-Lambda app.
 - Tavus avatar is optional and feature-flagged; the app must never block on it.
 

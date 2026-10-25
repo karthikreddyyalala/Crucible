@@ -53,7 +53,7 @@ Things here that go beyond a demo wrapper around an LLM call:
 - **Persistence:** DynamoDB (session state, cross-session memory profiles)
 - **Auth:** AWS Cognito
 - **Video avatar:** Tavus (via Daily.co WebRTC), optional and gated — the app degrades gracefully to a stylized avatar if unconfigured
-- **Voice:** browser-native Speech Recognition/Synthesis APIs, with local in-browser TTS (Kokoro) for higher quality
+- **Voice:** ElevenLabs text-to-speech (Flash v2.5, "Chris" voice) via the backend's `/api/tts` — the key stays server-side — with the browser's built-in voice as fallback; browser-native Speech Recognition for the candidate, hands-free turn-taking in voice mode
 - **Infra:** API Gateway, S3 + CloudFront for the static frontend, deployed via plain shell scripts (no Terraform/CDK)
 
 ## Project structure
