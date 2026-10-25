@@ -24,10 +24,7 @@ import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
 import { useTavus } from "@/hooks/useTavus";
 import { useSessionStore } from "@/stores/sessionStore";
 import { USE_MOCK } from "@/lib/api";
-
-// How long the candidate can pause, in voice mode, before the answer is sent.
-// Long enough to think mid-sentence; short enough to feel like a conversation.
-const SILENCE_SEND_MS = 3200;
+import { silenceBeforeSendMs } from "@/lib/turnTaking";
 
 export function Interview() {
   const navigate = useNavigate();
@@ -135,13 +132,15 @@ export function Interview() {
     if (finished && voiceOn && status === "live" && stt.supported && !stt.listening) stt.start();
   }, [interviewerSpeaking, voiceOn, status, stt]);
 
+  const autoSending = voiceOn && stt.listening && !!stt.transcript.trim();
+  const sendDelayMs = silenceBeforeSendMs(stt.transcript);
   useEffect(() => {
-    if (!voiceOn || !stt.listening || !stt.transcript.trim()) return;
-    const t = setTimeout(() => sendText(stt.transcript), SILENCE_SEND_MS);
+    if (!autoSending) return;
+    const t = setTimeout(() => sendText(stt.transcript), sendDelayMs);
     return () => clearTimeout(t);
     // sendText is recreated every render; the transcript is what matters here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [voiceOn, stt.listening, stt.transcript]);
+  }, [autoSending, stt.transcript, sendDelayMs]);
 
   // No active session (e.g. refreshed straight here) — bounce to setup.
   // Delay the results navigation slightly so the closing message is visible.
@@ -318,7 +317,7 @@ export function Interview() {
                 {tts.speaking
                   ? "INTERVIEWER SPEAKING…"
                   : stt.listening
-                  ? `LISTENING — PAUSE ${Math.round(SILENCE_SEND_MS / 1000)}S WHEN YOU'RE DONE`
+                  ? "LISTENING — JUST PAUSE WHEN YOU'RE DONE"
                   : "VOICE ON"}
               </span>
             )}
@@ -424,7 +423,19 @@ export function Interview() {
       {/* composer */}
       <div className="border-t border-line bg-void/80 backdrop-blur-xl">
         <div className="mx-auto max-w-[820px] px-5 py-4 sm:px-8">
-          <div className="flex items-end gap-3 rounded-2xl border border-line bg-ink p-2.5 focus-within:border-line-bright">
+          <div className="relative flex items-end gap-3 overflow-hidden rounded-2xl border border-line bg-ink p-2.5 focus-within:border-line-bright">
+            {/* Hands-free: fills during the pause before the answer sends;
+                speaking again restarts it (keyed on the transcript). */}
+            {autoSending && (
+              <motion.span
+                key={stt.transcript}
+                aria-hidden
+                className="absolute inset-x-0 bottom-0 h-[2px] origin-left bg-survive/70"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: sendDelayMs / 1000, ease: "linear" }}
+              />
+            )}
             {stt.supported && (
               <button
                 onClick={toggleMic}
