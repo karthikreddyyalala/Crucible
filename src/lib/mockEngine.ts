@@ -13,6 +13,7 @@ import type {
   QuestionPlan,
   RecurringWeakness,
 } from "@/types/contracts";
+import type { TurnInput } from "./api";
 
 const ROLE_LABEL: Record<string, string> = {
   sde: "Software Engineer",
@@ -141,24 +142,65 @@ const INTAKE_BY_ROLE: Record<string, Omit<IntakeProfile, "targetRole">> = {
   },
 };
 
-// follow-up probes keyed loosely to question type
+// Follow-up probes keyed loosely to question type — one ask each.
 const PROBES: Record<string, string[]> = {
   behavioral: [
-    "You said 'the team' a lot — what did YOU specifically do that nobody else did?",
-    "What was the measurable outcome? Give me a number, not 'it went well.'",
-    "Walk me back to the moment it almost failed. What did you change in that moment?",
+    "What did you personally do there — not the team, you?",
+    "What was the measurable outcome? Give me a number if you have one.",
+    "Looking back, what would you do differently?",
   ],
   technical: [
-    "You named the approach but not the mechanism — explain exactly how it works under the hood.",
-    "What's the failure mode of what you just described, and how would you detect it?",
-    "What's the complexity, and where does it break at scale?",
+    "Walk me through the mechanism — how does that actually work under the hood?",
+    "What breaks it? Give me one edge case and how you'd catch it.",
+    "What's the complexity, and where does it fall over at scale?",
   ],
   system_design: [
-    "You jumped to components — what did you decide to NOT support, and why?",
-    "Name the single biggest bottleneck in your design and the tradeoff you'd make for it.",
-    "What breaks first at 10x the load you assumed?",
+    "Before the components — what would you clarify about the requirements?",
+    "Where's the bottleneck in that design, and what tradeoff would you make for it?",
+    "What happens when that component fails?",
   ],
 };
+
+// Graduated hints for "I don't know": a direction first, then a concrete case.
+const HINTS: Record<string, string[]> = {
+  behavioral: [
+    "Think of any situation that comes close — a class project, a side project, an internship. What happened?",
+    "Even a small example works. What's one time something went wrong and you had to fix it?",
+  ],
+  technical: [
+    "Forget scale for a second. If this were running on one machine, what's the first thing you'd look at?",
+    "Here's a concrete case: two requests hit the same piece of state at the same moment. What could go wrong?",
+  ],
+  system_design: [
+    "Start smaller — how would you build it for a thousand users on a single server?",
+    "Okay, say one server can't keep up. What's the first piece you'd split out, and why?",
+  ],
+};
+
+const pick = <T,>(xs: T[]): T => xs[Math.floor(Math.random() * xs.length)];
+
+// The client sends the whole thread for a question; react to the newest reply.
+function latestReply(answer: string): string {
+  const i = answer.lastIndexOf("\nA: ");
+  return (i >= 0 ? answer.slice(i + 4) : answer).trim();
+}
+
+const DONT_KNOW = /\b(i\s*don'?t\s*know|not\s*sure|no\s*idea|no\s*clue|i'?m\s*stuck|i\s*can'?t\s*think|never\s*(done|worked|had)|i\s*have\s*no)\b/i;
+const CLARIFY = /\b(repeat|rephrase|say\s*that\s*again|what\s*do\s*you\s*mean|can\s*you\s*clarify|could\s*you\s*explain\s*the\s*question|can\s*i\s*assume|should\s*i\s*assume)\b/i;
+const ASKED_BACK = /\b(what about you|how about you|and you|how are you|how'?s your day)\b/i;
+
+function firstName(name: string): string {
+  return name.trim().split(/\s+/)[0] ?? "";
+}
+
+function bridgeTo(from: PlannedQuestion, next: PlannedQuestion): string {
+  if (next.type === from.type) return pick(["Let's try another one.", "Next one.", "Okay, moving on."]);
+  return next.type === "behavioral"
+    ? "Let me switch gears to something about how you work."
+    : next.type === "technical"
+    ? "Let me switch to something more technical."
+    : "Let's do some system design.";
+}
 
 function looksVague(answer: string): boolean {
   const trimmed = answer.trim();
@@ -246,31 +288,90 @@ export const mockEngine = {
     return { profile, plan };
   },
 
-  decide(
-    question: PlannedQuestion,
-    answer: string,
-    followUpCount: number,
-    isLast: boolean
-  ): { decision: InterviewDecision; evaluation?: AnswerEvaluation } {
-    if (followUpCount < 2 && looksVague(answer)) {
-      const probes = PROBES[question.type];
-      return {
-        decision: {
-          action: "follow_up",
-          followUpPrompt: probes[Math.min(followUpCount, probes.length - 1)],
-          currentQuestionId: question.id,
-        },
-      };
+  // Offline stand-in for the Interviewer Agent: same rules as the real prompt
+  // (react honestly, probe vague answers, hint on "I don't know", answer
+  // clarifying questions), with scripted wording instead of an LLM.
+  decide(input: TurnInput): InterviewDecision {
+    const { question, followUpCount, isLast, phase, nextQuestion, candidateName } = input;
+    const reply = latestReply(input.answer);
+    const out = (action: InterviewDecision["action"], say: string, followUpPrompt: string | null = null) =>
+      ({ action, say, followUpPrompt, currentQuestionId: question.id });
+
+    if (phase === "warmup") {
+      const reaction = ASKED_BACK.test(reply)
+        ? "I'm doing well, thanks for asking."
+        : /\b(nervous|anxious|stressed)\b/i.test(reply)
+        ? "That's completely normal — we'll take it one step at a time, and it's fine to think out loud."
+        : /\b(tired|bad|not great|rough|exhausted)\b/i.test(reply)
+        ? "Sorry to hear that. We'll keep this focused."
+        : /\b(good|great|well|fine|fantastic)\b/i.test(reply)
+        ? "Glad to hear it."
+        : "Thanks.";
+      return out("advance",
+        `${reaction} So here's the plan: I'll ask you a few questions, pitched at the ${input.level} level, and I'll dig in where I'm curious. Feel free to ask me to clarify anything. To start, walk me through your background in a couple of minutes — what have you been working on most recently?`);
     }
-    const evaluation = scoreAnswer(question, answer, followUpCount);
-    return {
-      decision: {
-        action: isLast ? "complete" : "advance",
-        followUpPrompt: null,
-        currentQuestionId: question.id,
-      },
-      evaluation,
-    };
+
+    if (phase === "background") {
+      const hook = reply.match(/\b([A-Z][a-zA-Z0-9+#.]{2,})\b/g)?.find((w) => !/^(I|I'm|The|And|But|So|My|We|At|In|Then|After|Before|Currently|Right|Most|Recently)$/.test(w));
+      const reaction = hook
+        ? `Thanks — the ${hook} part is something I might come back to.`
+        : "Thanks, that's useful context.";
+      return out("advance", `${reaction} Let's get into it. ${nextQuestion?.prompt ?? question.prompt}`);
+    }
+
+    if (phase === "closing") {
+      const done = !reply.includes("?") && /\b(no|nope|nothing|that'?s (all|it)|i'?m good|all good|bye|thank)/i.test(reply);
+      if (done) {
+        const who = firstName(candidateName);
+        return out("complete", `Thanks${who ? `, ${who}` : ""} — I enjoyed this. I'll write up my feedback now; you'll see it on the next screen. Take care.`);
+      }
+      return out("clarify", /on-?call|day to day|typical|week|work like/i.test(reply)
+        ? "Day to day it's a mix of building and owning what you build in production, on-call included — a week every couple of months, with a real runbook behind it. It's a lot of responsibility early, which most people end up liking. Anything else?"
+        : "Honestly, what separates people on this team is how clearly they reason about tradeoffs out loud — more than knowing every tool. Anything else you'd like to ask?");
+    }
+
+    if (CLARIFY.test(reply) || (reply.endsWith("?") && reply.length < 160 && !DONT_KNOW.test(reply))) {
+      return /\b(repeat|again|rephrase)\b/i.test(reply)
+        ? out("clarify", `Sure. ${question.prompt}`)
+        : out("clarify", "Fair question — make whatever reasonable assumption you think is right and say it out loud. I'll tell you if it's off. Go ahead whenever you're ready.");
+    }
+
+    const resolve = (reaction: string) =>
+      isLast || !nextQuestion
+        ? out("complete", `${reaction} That's everything I wanted to cover. What questions do you have for me?`)
+        : out("advance", `${reaction} ${bridgeTo(question, nextQuestion)} ${nextQuestion.prompt}`);
+
+    if (DONT_KNOW.test(reply) && reply.length < 220) {
+      if (followUpCount < 2) {
+        const hint = HINTS[question.type][Math.min(followUpCount, 1)];
+        const opener = followUpCount === 0 ? "That's okay, let's work through it together." : "No problem — let me make it smaller.";
+        return out("follow_up", `${opener} ${hint}`, hint);
+      }
+      return resolve("Okay, let's leave that one — it's worth reviewing afterwards.");
+    }
+
+    if (followUpCount < 2 && looksVague(reply)) {
+      const probe = PROBES[question.type][Math.min(followUpCount, 2)];
+      const reaction = reply.length < 80
+        ? "Okay, that's pretty brief."
+        : pick(["Okay.", "Alright, I'm following.", "Right."]);
+      return out("follow_up", `${reaction} ${probe}`, probe);
+    }
+
+    const strong = /\d/.test(reply) && reply.length > 260;
+    return resolve(strong
+      ? pick([
+          "That's concrete — you gave real numbers and were clear about your own part.",
+          "Okay, the numbers make that easy to believe.",
+          "Right, I can follow exactly what you did there.",
+        ])
+      : followUpCount >= 2
+      ? "Okay. I still don't have the specifics I was looking for there, but let's keep going."
+      : "Okay, I've got a reasonable picture of that.");
+  },
+
+  evaluate(question: PlannedQuestion, transcript: string, followUpCount: number): AnswerEvaluation {
+    return scoreAnswer(question, transcript, followUpCount);
   },
 
   aggregate(

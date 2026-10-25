@@ -3,7 +3,8 @@ from typing import Literal
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, ConfigDict
+from fastapi.responses import Response
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
 from auth import current_sub
@@ -58,12 +59,43 @@ class TurnRequest(_Base):
     answer: str
     follow_up_count: int
     is_last: bool
+    # Conversational context so the interviewer can respond like a person:
+    # which stage of the interview this is, what to ask next if it moves on,
+    # and who it's talking to. All optional so older clients keep working.
+    phase: Literal["warmup", "background", "question", "closing"] = "question"
+    next_question: PlannedQuestion | None = None
+    candidate_name: str = ""
+    mode: str = ""
+    level: str = ""
+    profile: IntakeProfile | None = None
+
+
+class EvaluateRequest(_Base):
+    question: PlannedQuestion
+    transcript: str
+    follow_up_count: int
 
 
 class TurnResponse(_Base):
     decision: InterviewDecision
-    evaluation: AnswerEvaluation | None = None
     cost_usd: float = 0.0
+
+
+class EvaluateResponse(_Base):
+    evaluation: AnswerEvaluation
+    cost_usd: float = 0.0
+
+
+def _role_context(p: IntakeProfile | None) -> str:
+    if p is None:
+        return ""
+    highlights = "; ".join(h.title for h in p.project_highlights)
+    return (
+        f"Role: {p.target_role}. Company: {p.target_company or 'not specified'}. "
+        f"JD requirements: {'; '.join(p.jd_requirements)}. "
+        f"Candidate: {p.years_experience:g} years, skills {', '.join(p.candidate_skills)}; "
+        f"projects: {highlights}."
+    )
 
 
 class FinalizeRequest(_Base):
@@ -85,6 +117,12 @@ class CoachRequest(_Base):
     question: PlannedQuestion
     transcript: str
     weakness_tags: list[str] = []
+
+
+class TtsRequest(_Base):
+    # Cap per call: one interviewer turn is a few sentences, and this bounds
+    # what a single request can spend on the paid voice.
+    text: str = Field(min_length=1, max_length=1500)
 
 
 class AvatarEndRequest(_Base):
@@ -117,7 +155,9 @@ def _empty_memory(candidate_id: str) -> MemoryProfile:
     )
 
 
-def build_session_router(*, llm, settings: Settings, store: MemoryStore, tavus_client=None) -> APIRouter:
+def build_session_router(
+    *, llm, settings: Settings, store: MemoryStore, tavus_client=None, tts_client=None,
+) -> APIRouter:
     router = APIRouter(prefix="/api")
 
     start_graph = build_session_start_graph(
@@ -165,25 +205,34 @@ def build_session_router(*, llm, settings: Settings, store: MemoryStore, tavus_c
 
     @router.post("/session/turn")
     def turn(req: TurnRequest, _sub: str | None = Depends(current_sub)) -> TurnResponse:
+        # Only the interviewer runs here so the reply comes back fast; scoring
+        # happens in /session/evaluate, which the client calls in the background.
         usage: list[CallUsage] = []
         decision = interviewer.run_turn(
             question=req.question,
             candidate_answer=req.answer,
             follow_up_count=req.follow_up_count,
             is_last_question=req.is_last,
+            next_question=req.next_question,
+            phase=req.phase,
+            role_context=_role_context(req.profile),
+            candidate_name=req.candidate_name,
+            mode=req.mode,
+            level=req.level,
             usage_sink=usage,
         )
-        if decision.action == "follow_up":
-            return TurnResponse(decision=decision, cost_usd=sum(u.cost_usd for u in usage))
+        return TurnResponse(decision=decision, cost_usd=sum(u.cost_usd for u in usage))
 
+    @router.post("/session/evaluate")
+    def evaluate(req: EvaluateRequest, _sub: str | None = Depends(current_sub)) -> EvaluateResponse:
+        usage: list[CallUsage] = []
         evaluation = evaluator.run(
             question=req.question,
-            transcript=req.answer,
+            transcript=req.transcript,
             follow_up_count=req.follow_up_count,
             usage_sink=usage,
         )
-        return TurnResponse(decision=decision, evaluation=evaluation,
-                             cost_usd=sum(u.cost_usd for u in usage))
+        return EvaluateResponse(evaluation=evaluation, cost_usd=sum(u.cost_usd for u in usage))
 
     @router.post("/coach")
     def coach_answer(req: CoachRequest, _sub: str | None = Depends(current_sub)) -> CoachResponse:
@@ -194,6 +243,14 @@ def build_session_router(*, llm, settings: Settings, store: MemoryStore, tavus_c
             transcript=req.transcript,
             weakness_tags=req.weakness_tags,
         )
+
+    @router.post("/tts")
+    def tts(req: TtsRequest, _sub: str | None = Depends(current_sub)) -> Response:
+        # The interviewer's voice (ElevenLabs). 404 when not configured tells
+        # the browser to use its built-in voice instead.
+        if tts_client is None:
+            raise HTTPException(status_code=404, detail="Voice not configured.")
+        return Response(content=tts_client.synthesize(req.text), media_type="audio/mpeg")
 
     @router.post("/avatar/session")
     def avatar_session(_sub: str | None = Depends(current_sub)) -> AvatarSessionResponse:

@@ -8,6 +8,7 @@ import type { AnswerEvaluation, QuestionPlan, InterviewDecision, MemoryProfile }
 vi.mock("@/lib/api", () => ({
   api: {
     submitAnswer: vi.fn(),
+    evaluateAnswer: vi.fn(),
     startSession: vi.fn(),
     getMemory: vi.fn(),
     finalizeSession: vi.fn(),
@@ -78,6 +79,8 @@ const MOCK_MEMORY: MemoryProfile = {
 function seedLiveSession() {
   useSessionStore.setState({
     status: "live",
+    phase: "question",
+    pendingEvals: [],
     role: "sde",
     profile: null,
     plan: MOCK_PLAN,
@@ -100,6 +103,11 @@ describe("sessionStore — turnError", () => {
     const { api } = await import("@/lib/api");
     vi.mocked(api.submitAnswer).mockReset();
     vi.mocked(api.finalizeSession).mockReset();
+    vi.mocked(api.evaluateAnswer).mockReset();
+    vi.mocked(api.evaluateAnswer).mockImplementation(async ({ question }) => ({
+      evaluation: { ...MOCK_EVALUATION, questionId: question.id },
+      costUsd: 0,
+    }));
 
     useSessionStore.setState({
       status: "idle",
@@ -237,15 +245,6 @@ describe("sessionStore — turnError", () => {
       vi.mocked(api.submitAnswer).mockResolvedValueOnce({
         decision: ADVANCE_DECISION,
         costUsd: 0,
-        evaluation: {
-          questionId: "q1",
-          transcript: "My answer.",
-          rubricScores: { structure: 4, specificity: 3, impact: 4, ownership: 3 },
-          weaknessTags: [],
-          followUpCount: 0,
-          wouldSurviveRealInterview: true,
-          survivalReasoning: "Concrete example with measurable outcome.",
-        },
       });
 
       await useSessionStore.getState().submitAnswer("My answer.");
@@ -264,7 +263,9 @@ describe("sessionStore — turnError", () => {
         level: "mid",
         profile: null,
         plan: MOCK_PLAN,
-        currentIdx: 1, // last question — the decision below completes the session
+        phase: "closing", // candidate's questions done — the decision below ends the session
+        pendingEvals: [],
+        currentIdx: 1,
         followUpCount: 0,
         messages: [],
         evaluations: [],
@@ -281,7 +282,6 @@ describe("sessionStore — turnError", () => {
       vi.mocked(api.submitAnswer).mockResolvedValueOnce({
         decision: COMPLETE_DECISION,
         costUsd: 0,
-        evaluation: MOCK_EVALUATION,
       });
       vi.mocked(api.finalizeSession).mockRejectedValueOnce(new Error("Request failed (503)"));
 
@@ -307,7 +307,6 @@ describe("sessionStore — turnError", () => {
       vi.mocked(api.submitAnswer).mockResolvedValueOnce({
         decision: COMPLETE_DECISION,
         costUsd: 0,
-        evaluation: MOCK_EVALUATION,
       });
       vi.mocked(api.finalizeSession).mockRejectedValueOnce("just a string error");
 
@@ -323,6 +322,8 @@ describe("sessionStore — turnError", () => {
     function seedWrappingWithError() {
       useSessionStore.setState({
         status: "wrapping",
+        phase: "closing",
+        pendingEvals: [],
         role: "sde",
         mode: "full",
         level: "mid",
@@ -443,6 +444,8 @@ describe("sessionStore — turnError", () => {
         level: "mid",
         profile: null,
         plan: MOCK_PLAN,
+        phase: "closing",
+        pendingEvals: [],
         currentIdx: 1,
         followUpCount: 0,
         messages: [],
@@ -456,7 +459,6 @@ describe("sessionStore — turnError", () => {
       vi.mocked(api.submitAnswer).mockResolvedValueOnce({
         decision: COMPLETE_DECISION,
         costUsd: 0,
-        evaluation: MOCK_EVALUATION,
       });
       vi.mocked(api.finalizeSession).mockRejectedValueOnce(new Error("Request failed (503)"));
 
@@ -484,6 +486,8 @@ describe("sessionStore — turnError", () => {
         level: "mid",
         profile: null,
         plan: MOCK_PLAN,
+        phase: "closing",
+        pendingEvals: [],
         currentIdx: 1,
         followUpCount: 0,
         messages: [],
@@ -497,7 +501,6 @@ describe("sessionStore — turnError", () => {
       vi.mocked(api.submitAnswer).mockResolvedValueOnce({
         decision: COMPLETE_DECISION,
         costUsd: 0,
-        evaluation: MOCK_EVALUATION,
       });
       vi.mocked(api.finalizeSession).mockResolvedValueOnce(MOCK_MEMORY);
 
@@ -534,38 +537,36 @@ describe("sessionStore — turnError", () => {
       });
       expect(useSessionStore.getState().sessionCostUsd).toBeCloseTo(0.01);
 
-      // Warm-up reply doesn't call the API, so it must not touch cost.
-      await useSessionStore.getState().submitAnswer("Doing well, thanks.");
-      expect(useSessionStore.getState().sessionCostUsd).toBeCloseTo(0.01);
-
-      vi.mocked(api.submitAnswer).mockResolvedValueOnce({
-        decision: ADVANCE_DECISION,
-        evaluation: MOCK_EVALUATION,
-        costUsd: 0.02,
-      });
-      await useSessionStore.getState().submitAnswer("A real answer.");
-      expect(useSessionStore.getState().sessionCostUsd).toBeCloseTo(0.03);
-
-      vi.mocked(api.submitAnswer).mockResolvedValueOnce({
-        decision: COMPLETE_DECISION,
-        evaluation: MOCK_EVALUATION,
-        costUsd: 0.05,
-      });
+      // warm-up → background → Q1 (advance) → Q2 (resolved → closing) → closing (complete)
+      for (const [decision, costUsd] of [
+        [ADVANCE_DECISION, 0.01],
+        [ADVANCE_DECISION, 0.01],
+        [ADVANCE_DECISION, 0.02],
+        [COMPLETE_DECISION, 0.02],
+        [COMPLETE_DECISION, 0.01],
+      ] as const) {
+        vi.mocked(api.submitAnswer).mockResolvedValueOnce({ decision, costUsd });
+      }
       vi.mocked(api.finalizeSession).mockResolvedValueOnce(MOCK_MEMORY);
-      await useSessionStore.getState().submitAnswer("Final answer.");
+      for (const reply of ["Doing well.", "I build backends.", "A real answer.", "Final answer.", "No questions, thanks."]) {
+        await useSessionStore.getState().submitAnswer(reply);
+      }
 
       expect(useSessionStore.getState().sessionCostUsd).toBeCloseTo(0.08);
       expect(vi.mocked(api.finalizeSession)).toHaveBeenCalledWith(
-        expect.objectContaining({ costUsd: expect.closeTo(0.08) })
+        expect.objectContaining({ costUsd: expect.closeTo(0.08),
+          evaluations: [expect.objectContaining({ questionId: "q1" }), expect.objectContaining({ questionId: "q2" })],
+        })
       );
     });
   });
 
-  describe("warm-up exchange", () => {
+  describe("conversation stages", () => {
     function seedWarmup() {
       useSessionStore.setState({
         status: "live",
-        warmup: true,
+        phase: "warmup",
+        pendingEvals: [],
         mode: "full",
         level: "mid",
         plan: MOCK_PLAN,
@@ -579,29 +580,80 @@ describe("sessionStore — turnError", () => {
       });
     }
 
-    it("treats the small-talk reply as unscored and moves into Q1", async () => {
-      seedWarmup();
-      const { api } = await import("@/lib/api");
-
-      await useSessionStore.getState().submitAnswer("I'm doing great, thanks!");
-
-      const s = useSessionStore.getState();
-      expect(s.warmup).toBe(false);
-      expect(s.evaluations).toHaveLength(0); // never scored
-      expect(api.submitAnswer).not.toHaveBeenCalled(); // no pipeline call
-      // the last message is the first real question
-      const last = s.messages[s.messages.length - 1];
-      expect(last.speaker).toBe("interviewer");
-      expect(last.questionId).toBe("q1");
-      expect(last.text).toContain(MOCK_PLAN.questions[0].prompt);
+    const say = (action: InterviewDecision["action"], text: string): TurnResult => ({
+      decision: { action, followUpPrompt: null, currentQuestionId: "q1", say: text },
+      costUsd: 0,
     });
 
-    it("records the candidate's small-talk under the intro, not a question", async () => {
+    it("sends small talk to the interviewer and speaks its reply instead of a script", async () => {
       seedWarmup();
-      await useSessionStore.getState().submitAnswer("Good!");
-      const candidateMsgs = useSessionStore.getState().messages.filter((m) => m.speaker === "candidate");
-      expect(candidateMsgs).toHaveLength(1);
-      expect(candidateMsgs[0].questionId).toBe("intro");
+      const { api } = await import("@/lib/api");
+      vi.mocked(api.submitAnswer).mockResolvedValueOnce(say("advance", "I'm well, thanks for asking. Tell me about yourself."));
+
+      await useSessionStore.getState().submitAnswer("I'm doing great. What about you?");
+
+      const s = useSessionStore.getState();
+      expect(vi.mocked(api.submitAnswer).mock.calls[0][0]).toMatchObject({ phase: "warmup", nextQuestion: null });
+      expect(s.phase).toBe("background");
+      expect(s.evaluations).toHaveLength(0);
+      expect(s.messages.at(-1)?.text).toBe("I'm well, thanks for asking. Tell me about yourself.");
+      expect(s.messages.filter((m) => m.speaker === "candidate")[0].questionId).toBe("intro");
+    });
+
+    it("moves from background into Q1, passing Q1 as the next question", async () => {
+      seedWarmup();
+      useSessionStore.setState({ phase: "background" });
+      const { api } = await import("@/lib/api");
+      vi.mocked(api.submitAnswer).mockResolvedValueOnce(say("advance", "The Kafka migration sounds fun. So — debugging."));
+
+      await useSessionStore.getState().submitAnswer("I've spent 4 years on payments infra.");
+
+      const s = useSessionStore.getState();
+      expect(vi.mocked(api.submitAnswer).mock.calls[0][0]).toMatchObject({ phase: "background", nextQuestion: MOCK_PLAN.questions[0] });
+      expect(s.phase).toBe("question");
+      expect(s.messages.at(-1)?.questionId).toBe("q1");
+      expect(api.evaluateAnswer).not.toHaveBeenCalled();
+    });
+
+    it("answers a clarifying question without counting a follow-up or scoring", async () => {
+      seedLiveSession();
+      const { api } = await import("@/lib/api");
+      vi.mocked(api.submitAnswer).mockResolvedValueOnce(say("clarify", "Sure — assume a single region."));
+
+      await useSessionStore.getState().submitAnswer("Can I assume a single region?");
+
+      const s = useSessionStore.getState();
+      expect(s.followUpCount).toBe(0);
+      expect(s.currentIdx).toBe(0);
+      expect(api.evaluateAnswer).not.toHaveBeenCalled();
+    });
+
+    it("scores a resolved answer in the background and enters closing after the last question", async () => {
+      seedLiveSession();
+      useSessionStore.setState({ currentIdx: 1 });
+      const { api } = await import("@/lib/api");
+      vi.mocked(api.submitAnswer).mockResolvedValueOnce(say("complete", "That's all I had. What questions do you have for me?"));
+
+      await useSessionStore.getState().submitAnswer("My last answer.");
+
+      const s = useSessionStore.getState();
+      expect(s.phase).toBe("closing");
+      expect(s.status).toBe("live");
+      expect(api.evaluateAnswer).toHaveBeenCalledWith(expect.objectContaining({ question: MOCK_PLAN.questions[1] }));
+      expect(api.finalizeSession).not.toHaveBeenCalled();
+    });
+
+    it("endInterview finalizes once pending evaluations are scored", async () => {
+      seedLiveSession();
+      useSessionStore.setState({ phase: "closing", pendingEvals: [{ question: MOCK_PLAN.questions[1], transcript: "t", followUpCount: 0 }] });
+      const { api } = await import("@/lib/api");
+      vi.mocked(api.finalizeSession).mockResolvedValueOnce(MOCK_MEMORY);
+
+      await useSessionStore.getState().endInterview();
+
+      expect(api.evaluateAnswer).toHaveBeenCalledTimes(1);
+      expect(api.finalizeSession).toHaveBeenCalledWith(expect.objectContaining({ evaluations: [MOCK_EVALUATION] }));
+      expect(useSessionStore.getState().status).toBe("complete");
     });
   });
 

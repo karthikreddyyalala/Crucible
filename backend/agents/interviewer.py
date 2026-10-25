@@ -17,16 +17,30 @@ class InterviewerAgent:
         candidate_answer: str,
         follow_up_count: int,
         is_last_question: bool,
+        next_question: PlannedQuestion | None = None,
+        phase: str = "question",
+        role_context: str = "",
+        candidate_name: str = "",
+        mode: str = "",
+        level: str = "",
         usage_sink: list | None = None,
     ) -> InterviewDecision:
         user = (
+            f"Phase: {phase}\n"
+            # Both come from the client (resume-derived / typed by the user): fenced.
+            f"Role context:\n{wrap_untrusted('role_context', role_context)}\n"
+            f"Candidate name: {wrap_untrusted('candidate_name', candidate_name[:60])}\n"
+            f"Interview mode: {mode}\nLevel: {level}\n\n"
             f"Question ID: {question.id}\n"
             f"Question Type: {question.type}\n"
             f"Difficulty: {question.target_difficulty}\n"
             f"Question: {question.prompt}\n\n"
+            # The client sends the whole thread for this question (Q: = interviewer,
+            # A: = candidate, latest reply last) — all of it stays inside the fence.
             f"Candidate Answer:\n{wrap_untrusted('candidate_answer', candidate_answer)}\n\n"
             f"followUpCount: {follow_up_count}\n"
-            f"isLastQuestion: {'true' if is_last_question else 'false'}"
+            f"isLastQuestion: {'true' if is_last_question else 'false'}\n"
+            + (f"Next question: {next_question.prompt}\n" if next_question else "")
         )
         return self._llm.structured(
             agent="interviewer", sink=usage_sink,

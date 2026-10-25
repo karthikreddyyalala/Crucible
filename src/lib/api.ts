@@ -12,6 +12,7 @@ import type {
   InterviewDecision,
   InterviewLevel,
   InterviewMode,
+  InterviewPhase,
   MemoryProfile,
   PlannedQuestion,
   QuestionPlan,
@@ -21,7 +22,7 @@ import type {
 import { mockEngine } from "./mockEngine";
 import { authApi } from "./auth";
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK !== "false";
+export const USE_MOCK = import.meta.env.VITE_USE_MOCK !== "false";
 const MOCK_MEMORY_KEY = "crucible.memory.v1";
 const MOCK_SESSIONS_KEY = "crucible.sessions.v1";
 
@@ -123,9 +124,26 @@ export interface StartSessionResult {
   costUsd: number;
 }
 
+export interface TurnInput {
+  question: PlannedQuestion;
+  answer: string;
+  followUpCount: number;
+  isLast: boolean;
+  phase: InterviewPhase;
+  nextQuestion: PlannedQuestion | null;
+  candidateName: string;
+  mode: InterviewMode;
+  level: InterviewLevel;
+  profile: IntakeProfile | null;
+}
+
 export interface TurnResult {
   decision: InterviewDecision;
-  evaluation?: AnswerEvaluation;
+  costUsd: number;
+}
+
+export interface EvaluateResult {
+  evaluation: AnswerEvaluation;
   costUsd: number;
 }
 
@@ -160,20 +178,34 @@ export const api = {
     return res.json();
   },
 
-  async submitAnswer(input: {
-    question: PlannedQuestion;
-    answer: string;
-    followUpCount: number;
-    isLast: boolean;
-  }): Promise<TurnResult> {
+  // Interviewer only — returns as soon as the reply is decided. Scoring is a
+  // separate evaluateAnswer call the store runs in the background.
+  async submitAnswer(input: TurnInput): Promise<TurnResult> {
     if (USE_MOCK) {
-      await latency(1100);
+      await latency(700 + Math.random() * 900);
+      return { decision: mockEngine.decide(input), costUsd: 0 };
+    }
+    const res = await safeFetch(apiUrl("/api/session/turn"), {
+      method: "POST",
+      headers: await authHeaders(),
+      body: JSON.stringify(input),
+    });
+    return res.json();
+  },
+
+  async evaluateAnswer(input: {
+    question: PlannedQuestion;
+    transcript: string;
+    followUpCount: number;
+  }): Promise<EvaluateResult> {
+    if (USE_MOCK) {
+      await latency(600);
       return {
-        ...mockEngine.decide(input.question, input.answer, input.followUpCount, input.isLast),
+        evaluation: mockEngine.evaluate(input.question, input.transcript, input.followUpCount),
         costUsd: 0,
       };
     }
-    const res = await safeFetch(apiUrl("/api/session/turn"), {
+    const res = await safeFetch(apiUrl("/api/session/evaluate"), {
       method: "POST",
       headers: await authHeaders(),
       body: JSON.stringify(input),
@@ -196,6 +228,20 @@ export const api = {
       body: JSON.stringify(input),
     });
     return res.json();
+  },
+
+  // The interviewer's voice (ElevenLabs via the backend). Resolves null when
+  // no voice is configured so the caller falls back to the browser voice.
+  async tts(text: string): Promise<Blob | null> {
+    if (USE_MOCK) return null;
+    const res = await fetch(apiUrl("/api/tts"), {
+      method: "POST",
+      headers: await authHeaders(),
+      body: JSON.stringify({ text: text.slice(0, 1500) }),
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error(`Voice failed (${res.status})`);
+    return res.blob();
   },
 
   // Asks the backend to spin up a Tavus video conversation. Returns enabled:false

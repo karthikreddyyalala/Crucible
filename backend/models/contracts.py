@@ -114,6 +114,12 @@ class SessionRecord(_Base):
 
 
 class InterviewDecision(_Base):
-    action: Literal["follow_up", "advance", "complete"]
+    # clarify: the candidate asked something back (repeat that, what do you
+    # mean, how are you) — answer it and re-ask; not a follow-up, not scored.
+    action: Literal["follow_up", "clarify", "advance", "complete"]
     follow_up_prompt: str | None = None
     current_question_id: str
+    # Exactly what the interviewer says out loud this turn: a genuine reaction
+    # to what the candidate just said, then the probe / the next question /
+    # the closing line. Default keeps older payloads valid.
+    say: str = ""

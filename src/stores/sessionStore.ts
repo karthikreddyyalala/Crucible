@@ -6,6 +6,7 @@ import type {
   InterviewDecision,
   InterviewLevel,
   InterviewMode,
+  InterviewPhase,
   MemoryProfile,
   PlannedQuestion,
   QuestionPlan,
@@ -21,6 +22,8 @@ export interface ChatMessage {
   speaker: Speaker;
   kind: MessageKind;
   text: string;
+  // The thread this message belongs to: a planned question id, or one of the
+  // non-scored stages "intro" | "background" | "closing".
   questionId: string;
   weighted?: boolean;
 }
@@ -34,9 +37,13 @@ interface SessionState {
   level: InterviewLevel;
   candidateName: string;
   useVideo: boolean;
-  // True during the opening small-talk exchange (before Q1). Warm-up answers
-  // are acknowledged, never scored.
-  warmup: boolean;
+  // Where we are in the interview: small talk → "tell me about yourself" →
+  // planned questions → the candidate's questions for the interviewer. Only
+  // the "question" phase is scored.
+  phase: InterviewPhase;
+  // Answers handed to the Evaluator in the background and not yet scored.
+  // Persisted so a reload mid-interview re-scores them at finalize.
+  pendingEvals: PendingEval[];
   profile: IntakeProfile | null;
   plan: QuestionPlan | null;
   currentIdx: number;
@@ -69,42 +76,29 @@ interface SessionState {
     useVideo: boolean;
   }) => Promise<void>;
   submitAnswer: (text: string) => Promise<void>;
+  endInterview: () => Promise<void>;
   retryFinalize: () => Promise<void>;
   clearRestored: () => void;
   clearTurnError: () => void;
   reset: () => void;
 }
 
-const TRANSITIONS = [
-  "Got it, thanks.",
-  "Okay, that's helpful.",
-  "Makes sense.",
-  "Alright, appreciate that.",
-  "Good — let me shift gears.",
-];
-
-function pickTransition(): string {
-  return TRANSITIONS[Math.floor(Math.random() * TRANSITIONS.length)];
+export interface PendingEval {
+  question: PlannedQuestion;
+  transcript: string;
+  followUpCount: number;
 }
 
-// First thing the interviewer says — warm, by name, opening the small talk.
+// The only scripted line: there's nothing to react to yet. Everything after
+// this is the Interviewer Agent responding to what the candidate said.
 function warmGreeting(name: string): string {
   const who = name.trim() ? ` ${name.trim().split(/\s+/)[0]}` : "";
-  return `Hi${who}, good to meet you — thanks for making the time. Before we dive in, how are you doing today?`;
+  return `Hi${who}, I'm Marcus — I'm one of the engineers on the team. Thanks for making the time today. Before we dive in, how are you doing?`;
 }
 
-// Said after the candidate's small-talk reply, then straight into Q1. Deliberately
-// neutral: this line is scripted, not generated from what the candidate actually said,
-// so it must not presume a sentiment ("Glad to hear it" landed on "I'm exhausted").
-function warmIntro(mode: InterviewMode, level: InterviewLevel): string {
-  const modeDesc: Record<InterviewMode, string> = {
-    full: `a few questions across behavioral, technical, and system design`,
-    behavioral: `a few behavioral questions`,
-    technical: `a few technical questions`,
-    system_design: `a couple of system design questions`,
-  };
-  return `Thanks for that. So today I'll take you through ${modeDesc[mode]} — pitched at the ${level} level. Just talk me through your thinking out loud, and I'll follow up where I'm curious. Let's start with the first one.`;
-}
+// In-flight Evaluator calls by question id (not persisted — after a reload
+// the matching pendingEvals entry is simply re-scored at finalize).
+const inflightEvals = new Map<string, Promise<void>>();
 
 // UUID message ids so rehydrating a saved session never collides with new
 // messages generated after the resume.
@@ -112,10 +106,6 @@ const mkId = (): string =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
     : `m-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-
-function currentQuestion(plan: QuestionPlan | null, idx: number): PlannedQuestion | null {
-  return plan?.questions[idx] ?? null;
-}
 
 function hasMemory(m: MemoryProfile | null): boolean {
   return !!m && m.recurringWeaknesses.length > 0;
@@ -130,13 +120,48 @@ export const useSessionStore = create<SessionState>()(
       // transient agent errors) — surfaces it the same way turn-submission
       // failures already are (turnError + a way to retry) instead of leaving
       // the session stuck on "wrapping" with no feedback.
+      // Scores one answer in the background so the interviewer's reply never
+      // waits on the Evaluator. A failure leaves it in pendingEvals; finalize
+      // retries it before writing memory.
+      const scoreInBackground = (pending: PendingEval) => {
+        const id = pending.question.id;
+        set((s) => ({ pendingEvals: [...s.pendingEvals.filter((p) => p.question.id !== id), pending] }));
+        const run = api
+          .evaluateAnswer(pending)
+          .then(({ evaluation, costUsd }) => {
+            set((s) => {
+              const order = (qid: string) => s.plan?.questions.findIndex((q) => q.id === qid) ?? 0;
+              return {
+                evaluations: [...s.evaluations.filter((e) => e.questionId !== id), evaluation].sort(
+                  (a, b) => order(a.questionId) - order(b.questionId)
+                ),
+                pendingEvals: s.pendingEvals.filter((p) => p.question.id !== id),
+                sessionCostUsd: s.sessionCostUsd + costUsd,
+              };
+            });
+          })
+          .catch(() => {
+            /* stays pending — finalize retries it */
+          })
+          .finally(() => inflightEvals.delete(id));
+        inflightEvals.set(id, run);
+        return run;
+      };
+
       const runFinalize = async () => {
         // In-flight guard: a duplicate call (e.g. a double-click on RETRY)
         // must be a no-op, not a second concurrent finalize request.
         if (get().finalizing) return;
         set({ finalizing: true });
-        const state = get();
         try {
+          // Every answer must be scored before memory is written.
+          await Promise.all(
+            get().pendingEvals.map((p) => inflightEvals.get(p.question.id) ?? scoreInBackground(p))
+          );
+          if (get().pendingEvals.length > 0) {
+            throw new Error("Couldn't score every answer — tap retry.");
+          }
+          const state = get();
           const updated = await api.finalizeSession({
             candidateId: getCandidateId(),
             evaluations: state.evaluations,
@@ -162,7 +187,8 @@ export const useSessionStore = create<SessionState>()(
       level: "mid",
       candidateName: "",
       useVideo: false,
-      warmup: false,
+      phase: "warmup",
+      pendingEvals: [],
       profile: null,
       plan: null,
       currentIdx: 0,
@@ -184,7 +210,7 @@ export const useSessionStore = create<SessionState>()(
       start: async ({ resumeText, jdText, role, mode, level, candidateName, useVideo }) => {
         set({
           status: "starting", role, mode, level, candidateName, useVideo,
-          warmup: false, messages: [], evaluations: [], updatedMemory: null,
+          phase: "warmup", pendingEvals: [], messages: [], evaluations: [], updatedMemory: null,
           sessionCostUsd: 0,
           // A leftover finalize error from a prior session (turnError is
           // persisted, see the partialize comment below) must not bleed
@@ -204,8 +230,8 @@ export const useSessionStore = create<SessionState>()(
           mode,
           level,
         });
-        // Open with the warm greeting only — the first question comes after the
-        // candidate's small-talk reply (handled in submitAnswer while warmup).
+        // Open with the greeting only — background and the first question come
+        // from the interviewer reacting to the candidate's replies.
         set({
           status: "live",
           profile,
@@ -214,7 +240,7 @@ export const useSessionStore = create<SessionState>()(
           currentIdx: 0,
           followUpCount: 0,
           justRestored: false,
-          warmup: true,
+          phase: "warmup",
           sessionCostUsd: costUsd,
           messages: [
             {
@@ -234,46 +260,34 @@ export const useSessionStore = create<SessionState>()(
 
       submitAnswer: async (text) => {
         const state = get();
-        const question = currentQuestion(state.plan, state.currentIdx);
-        if (!question || state.status !== "live") return;
-
-        // Warm-up exchange: the candidate's reply to "how are you doing?" is
-        // small talk — acknowledge it and move into Q1, never score it.
-        if (state.warmup) {
-          const first = state.plan!.questions[0];
-          set((s) => ({
-            warmup: false,
-            messages: [
-              ...s.messages,
-              { id: mkId(), speaker: "candidate", kind: "answer", text, questionId: "intro" },
-              {
-                id: mkId(),
-                speaker: "interviewer",
-                kind: "question",
-                text: `${warmIntro(state.mode, state.level)}\n\n${first.prompt}`,
-                questionId: first.id,
-                weighted: first.weightedFromWeakness,
-              },
-            ],
-          }));
-          return;
-        }
+        const plan = state.plan;
+        if (!plan || state.status !== "live") return;
+        const { phase } = state;
+        const questions = plan.questions;
+        const question =
+          phase === "question" ? questions[state.currentIdx]
+          : phase === "closing" ? questions[questions.length - 1]
+          : questions[0];
+        if (!question) return;
+        const threadId = phase === "question" ? question.id : phase === "warmup" ? "intro" : phase;
+        const nextQuestion =
+          phase === "background" ? questions[0]
+          : phase === "question" ? questions[state.currentIdx + 1] ?? null
+          : null;
+        const isLast = phase === "question" && !nextQuestion;
 
         set({
           status: "thinking",
           turnError: null,
           messages: [
             ...state.messages,
-            { id: mkId(), speaker: "candidate", kind: "answer", text, questionId: question.id },
+            { id: mkId(), speaker: "candidate", kind: "answer", text, questionId: threadId },
           ],
         });
 
-        const isLast = state.currentIdx === state.plan!.questions.length - 1;
-
-        // Build the full conversation thread for this question so the Evaluator
-        // has complete context (initial answer + any follow-up exchanges), not
-        // just the final reply in isolation.
-        const priorMsgs = state.messages.filter((m) => m.questionId === question.id);
+        // The full thread for this question (or stage), so the interviewer
+        // reacts in context and the Evaluator scores the whole exchange.
+        const priorMsgs = state.messages.filter((m) => m.questionId === threadId);
         const thread =
           priorMsgs.length > 0
             ? priorMsgs
@@ -282,14 +296,19 @@ export const useSessionStore = create<SessionState>()(
             : text;
 
         let decision: InterviewDecision;
-        let evaluation: AnswerEvaluation | undefined;
         let turnCostUsd = 0;
         try {
-          ({ decision, evaluation, costUsd: turnCostUsd } = await api.submitAnswer({
+          ({ decision, costUsd: turnCostUsd } = await api.submitAnswer({
             question,
             answer: thread,
             followUpCount: state.followUpCount,
             isLast,
+            phase,
+            nextQuestion,
+            candidateName: state.candidateName,
+            mode: state.mode,
+            level: state.level,
+            profile: state.profile,
           }));
         } catch (e) {
           set((s) => ({
@@ -300,73 +319,86 @@ export const useSessionStore = create<SessionState>()(
           return;
         }
 
-        if (decision.action === "follow_up" && decision.followUpPrompt) {
+        const say = (fallback: string) => decision.say?.trim() || decision.followUpPrompt?.trim() || fallback;
+        const reply = (questionId: string, kind: MessageKind, fallback: string, weighted?: boolean): ChatMessage =>
+          ({ id: mkId(), speaker: "interviewer", kind, text: say(fallback), questionId, weighted });
+        const addCost = (s: SessionState) => s.sessionCostUsd + turnCostUsd;
+
+        if (phase === "warmup") {
+          set((s) => ({
+            status: "live", phase: "background", sessionCostUsd: addCost(s),
+            messages: [...s.messages, reply("background", "question",
+              "To start, walk me through your background — what have you been working on most recently?")],
+          }));
+          return;
+        }
+
+        if (phase === "background") {
+          const first = questions[0];
+          set((s) => ({
+            status: "live", phase: "question", currentIdx: 0, followUpCount: 0, sessionCostUsd: addCost(s),
+            messages: [...s.messages, reply(first.id, "question", first.prompt, first.weightedFromWeakness)],
+          }));
+          return;
+        }
+
+        if (phase === "closing") {
+          if (decision.action === "complete") {
+            set((s) => ({
+              status: "wrapping", sessionCostUsd: addCost(s),
+              messages: [...s.messages, reply("closing", "question", "Thanks for your time today — I'll put your feedback together now.")],
+            }));
+            await runFinalize();
+            return;
+          }
+          set((s) => ({
+            status: "live", sessionCostUsd: addCost(s),
+            messages: [...s.messages, reply("closing", "question", "Anything else you'd like to ask?")],
+          }));
+          return;
+        }
+
+        // phase === "question"
+        if (decision.action === "follow_up" || decision.action === "clarify") {
+          const probing = decision.action === "follow_up";
           set((s) => ({
             status: "live",
-            followUpCount: s.followUpCount + 1,
-            sessionCostUsd: s.sessionCostUsd + turnCostUsd,
-            messages: [
-              ...s.messages,
-              {
-                id: mkId(),
-                speaker: "interviewer",
-                kind: "follow_up",
-                text: decision.followUpPrompt!,
-                questionId: question.id,
-              },
-            ],
+            followUpCount: s.followUpCount + (probing ? 1 : 0),
+            sessionCostUsd: addCost(s),
+            messages: [...s.messages, reply(question.id, probing ? "follow_up" : "question", question.prompt)],
           }));
           return;
         }
 
-        // advance or complete — record evaluation
-        const evals = evaluation ? [...state.evaluations, evaluation] : state.evaluations;
+        // Resolved (advance / complete): score it in the background and move on
+        // without waiting. Where we go next follows the plan, not the label —
+        // an "advance" on the last question still leads into the closing.
+        void scoreInBackground({ question, transcript: thread, followUpCount: state.followUpCount });
 
-        if (decision.action === "complete") {
-          const closing: ChatMessage = {
-            id: mkId(),
-            speaker: "interviewer",
-            kind: "question",
-            text: "That's everything I wanted to cover. Give me a moment to pull together your evaluation.",
-            questionId: question.id,
-          };
+        if (!nextQuestion) {
           set((s) => ({
-            status: "wrapping",
-            messages: [...s.messages, closing],
-            evaluations: evals,
-            sessionCostUsd: s.sessionCostUsd + turnCostUsd,
+            status: "live", phase: "closing", followUpCount: 0, sessionCostUsd: addCost(s),
+            messages: [...s.messages, reply("closing", "question",
+              "That's everything I wanted to cover. What questions do you have for me?")],
           }));
-          // Backend persists the aggregated memory (DynamoDB in real mode,
-          // localStorage in mock mode) — it's the source of truth now. On
-          // failure (a real, reachable 503 from a memory-profile locking
-          // conflict, or other transient errors) runFinalize surfaces
-          // turnError and leaves status at "wrapping" so retryFinalize can
-          // be called again, instead of hanging forever with no feedback.
-          await runFinalize();
           return;
         }
 
-        const nextIdx = state.currentIdx + 1;
-        const next = state.plan!.questions[nextIdx];
-        const connector = pickTransition();
         set((s) => ({
           status: "live",
-          currentIdx: nextIdx,
+          currentIdx: s.currentIdx + 1,
           followUpCount: 0,
-          evaluations: evals,
-          sessionCostUsd: s.sessionCostUsd + turnCostUsd,
-          messages: [
-            ...s.messages,
-            {
-              id: mkId(),
-              speaker: "interviewer",
-              kind: "question",
-              text: `${connector}\n\n${next.prompt}`,
-              questionId: next.id,
-              weighted: next.weightedFromWeakness,
-            },
-          ],
+          sessionCostUsd: addCost(s),
+          messages: [...s.messages, reply(nextQuestion.id, "question", nextQuestion.prompt, nextQuestion.weightedFromWeakness)],
         }));
+      },
+
+      // Candidate skips (or is done with) their questions for the interviewer.
+      endInterview: async () => {
+        const s = get();
+        if (s.phase !== "closing" || s.status !== "live") return;
+        set({ status: "wrapping" });
+        await runFinalize();
       },
 
       retryFinalize: async () => {
@@ -385,7 +417,8 @@ export const useSessionStore = create<SessionState>()(
           plan: null,
           currentIdx: 0,
           followUpCount: 0,
-          warmup: false,
+          phase: "warmup",
+          pendingEvals: [],
           messages: [],
           evaluations: [],
           sessionCostUsd: 0,
@@ -419,7 +452,8 @@ export const useSessionStore = create<SessionState>()(
         level: s.level,
         candidateName: s.candidateName,
         useVideo: s.useVideo,
-        warmup: s.warmup,
+        phase: s.phase,
+        pendingEvals: s.pendingEvals,
         profile: s.profile,
         plan: s.plan,
         currentIdx: s.currentIdx,

@@ -179,6 +179,23 @@ Q_BODY = lambda qid, qtype, prompt: {
 }
 
 
+def _turn(client, payload: dict):
+    """Mirror the browser: /turn for the decision, then /evaluate once the
+    question is resolved. Returns a response-like object whose json() carries
+    both, with evaluation None while the question is still open."""
+    from types import SimpleNamespace
+    res = client.post("/api/session/turn", json=payload)
+    body = res.json()
+    body["evaluation"] = None
+    if res.status_code == 200 and body["decision"]["action"] in ("advance", "complete"):
+        ev = client.post("/api/session/evaluate", json={
+            "question": payload["question"], "transcript": payload["answer"],
+            "followUpCount": payload["followUpCount"],
+        })
+        body["evaluation"] = ev.json()["evaluation"]
+    return SimpleNamespace(status_code=res.status_code, json=lambda: body)
+
+
 # ── Tests ──────────────────────────────────────────────────────────────────────
 
 class TestInterviewQuality:
@@ -187,7 +204,7 @@ class TestInterviewQuality:
     def test_vague_answer_gets_probed_not_validated(self):
         """Core differentiator: vague answer must trigger a follow-up, not advance."""
         client = _make_client([DECISIONS["q0_vague"]])
-        res = client.post("/api/session/turn", json={
+        res = _turn(client, {
             "question": Q_BODY("q0", "behavioral", "Tell me about a deadline you owned."),
             "answer": "We had a deadline and I made sure the team stayed on track and we shipped it.",
             "followUpCount": 0, "isLast": False,
@@ -205,7 +222,7 @@ class TestInterviewQuality:
     def test_strong_answer_advances_without_overprobing(self):
         """Anti-pattern check: a concrete answer must advance even at followUpCount=0."""
         client = _make_client([DECISIONS["q3_strong_no_probe"], EVALS["q3"]])
-        res = client.post("/api/session/turn", json={
+        res = _turn(client, {
             "question": Q_BODY("q3", "technical", "A PR doubles read throughput but you suspect a race condition."),
             "answer": (
                 "I'd run the Go race detector under concurrent load — specifically I'd write a test "
@@ -227,7 +244,7 @@ class TestInterviewQuality:
         """After 2 follow-ups, must advance regardless of answer quality."""
         # At followUpCount=2 the backend must not return follow_up
         client = _make_client([DECISIONS["q1_force"], EVALS["q1"]])
-        res = client.post("/api/session/turn", json={
+        res = _turn(client, {
             "question": Q_BODY("q1", "technical", "Diagnose p99 latency spikes."),
             "answer": "I would look at the logs and check the metrics.",
             "followUpCount": 2, "isLast": False,  # already at cap
@@ -240,7 +257,7 @@ class TestInterviewQuality:
     def test_honest_scoring_weak_answer_fails_survival(self):
         """Core value prop: mediocre answer must get wouldSurviveRealInterview=False."""
         client = _make_client([DECISIONS["q0_strong"], EVALS["q0"]])
-        res = client.post("/api/session/turn", json={
+        res = _turn(client, {
             "question": Q_BODY("q0", "behavioral", "Tell me about a deadline you owned."),
             "answer": "I led a migration project. It was stressful but we got it done on time.",
             "followUpCount": 1, "isLast": False,
@@ -255,7 +272,7 @@ class TestInterviewQuality:
     def test_strong_answer_passes_survival(self):
         """Inverse: a specific, quantified answer must pass."""
         client = _make_client([DECISIONS["q3_strong_no_probe"], EVALS["q3"]])
-        res = client.post("/api/session/turn", json={
+        res = _turn(client, {
             "question": Q_BODY("q3", "technical", "How do you prove a race condition before merging?"),
             "answer": (
                 "Run Go's race detector with -race, write a concurrent stress test with 50 goroutines "
@@ -381,7 +398,7 @@ class TestRealisticInterviewScenarios:
         """
         # followUpCount=0 → follow_up
         client_r1 = _make_client([DECISIONS["q1_vague"]])
-        r1 = client_r1.post("/api/session/turn", json={
+        r1 = _turn(client_r1, {
             "question": Q_BODY("q1", "technical", "p99 spike during burst traffic — diagnose it."),
             "answer": "I would look at the dashboards and see what's going on.",
             "followUpCount": 0, "isLast": False,
@@ -391,7 +408,7 @@ class TestRealisticInterviewScenarios:
 
         # followUpCount=1 → still vague → another follow_up
         client_r2 = _make_client([DECISIONS["q1_incomplete"]])
-        r2 = client_r2.post("/api/session/turn", json={
+        r2 = _turn(client_r2, {
             "question": Q_BODY("q1", "technical", "p99 spike during burst traffic — diagnose it."),
             "answer": "I'd check the metrics and trace the slow requests to narrow it down.",
             "followUpCount": 1, "isLast": False,
@@ -400,7 +417,7 @@ class TestRealisticInterviewScenarios:
 
         # followUpCount=2 → MUST advance even if still weak (cap enforced)
         client_r3 = _make_client([DECISIONS["q1_force"], EVALS["q1"]])
-        r3 = client_r3.post("/api/session/turn", json={
+        r3 = _turn(client_r3, {
             "question": Q_BODY("q1", "technical", "p99 spike during burst traffic — diagnose it."),
             "answer": "I'd trace the slowest requests and check if it correlates with CPU.",
             "followUpCount": 2, "isLast": False,
@@ -418,7 +435,7 @@ class TestRealisticInterviewScenarios:
         Tests the real-interview pattern of 'clarify before building'.
         """
         client = _make_client([DECISIONS["q2_ok"], EVALS["q2"]])
-        res = client.post("/api/session/turn", json={
+        res = _turn(client, {
             "question": Q_BODY("q2", "system_design", "Design a live-stream notification service."),
             "answer": (
                 "Before I design anything — I'd clarify: are we talking push or pull? "
