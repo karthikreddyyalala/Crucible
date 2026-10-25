@@ -153,7 +153,8 @@
     "candidate_answer": "Depth-first search visits a node, then explores all of that node's neighbors before moving further, level by level, using a queue to track which nodes to visit next in order — you dequeue a node, visit it, then enqueue its unvisited neighbors, which guarantees you find the shortest path in an unweighted graph. Edge case: a disconnected graph means some nodes are never reached from the starting node.",
     "follow_up_count": 0,
     "is_last_question": false,
-    "expect_action": "advance",
+    "expect_action": "follow_up",
+    "note": "A real interviewer asks about a slip like calling BFS 'depth-first' rather than moving on silently; the evaluator still marks the answer as not surviving.",
     "expect_would_survive": false
   }
 ]
