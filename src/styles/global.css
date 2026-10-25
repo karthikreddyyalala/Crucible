@@ -27,6 +27,8 @@
 
   --font-display: "Syne", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  /* Conversation text — what the interviewer and candidate say. */
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 

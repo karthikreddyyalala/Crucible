@@ -20,9 +20,14 @@ import { TavusAvatar } from "@/components/TavusAvatar";
 import { TavusCallOverlay } from "@/components/TavusCallOverlay";
 import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
-import { useKokoroTTS } from "@/hooks/useKokoroTTS";
+import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
 import { useTavus } from "@/hooks/useTavus";
 import { useSessionStore } from "@/stores/sessionStore";
+import { USE_MOCK } from "@/lib/api";
+
+// How long the candidate can pause, in voice mode, before the answer is sent.
+// Long enough to think mid-sentence; short enough to feel like a conversation.
+const SILENCE_SEND_MS = 3200;
 
 export function Interview() {
   const navigate = useNavigate();
@@ -32,6 +37,8 @@ export function Interview() {
   const currentIdx = useSessionStore((s) => s.currentIdx);
   const followUpCount = useSessionStore((s) => s.followUpCount);
   const submitAnswer = useSessionStore((s) => s.submitAnswer);
+  const endInterview = useSessionStore((s) => s.endInterview);
+  const phase = useSessionStore((s) => s.phase);
   const useVideo = useSessionStore((s) => s.useVideo);
   const justRestored = useSessionStore((s) => s.justRestored);
   const clearRestored = useSessionStore((s) => s.clearRestored);
@@ -45,21 +52,28 @@ export function Interview() {
   const [slowThinking, setSlowThinking] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Voice: Kokoro TTS (near-human quality, loads lazily) with Web Speech API
-  // as the fallback while the model is downloading or if it fails to load.
-  const kokoro = useKokoroTTS();
+  // Voice: ElevenLabs (human-sounding, via the backend) with the browser's
+  // built-in voice as the fallback when it isn't configured or a call fails.
+  const eleven = useElevenLabsTTS();
   const webSpeech = useSpeechSynthesis();
   const stt = useSpeechRecognition();
 
   // Optional Tavus video avatar. Dormant unless the backend has a key; when it
   // becomes ready it takes over both the face and the voice (it speaks the
-  // lines itself), so we skip Kokoro to avoid doubled audio.
+  // lines itself), so we skip ElevenLabs to avoid doubled audio.
   const tavus = useTavus();
 
-  // Route to Kokoro when ready, otherwise fall back to Web Speech API.
-  const tts = kokoro.status === "ready"
-    ? { speak: kokoro.speak, cancel: kokoro.cancel, speaking: kokoro.speaking, supported: true as const }
-    : webSpeech;
+  // ElevenLabs first; the browser voice covers lines it can't (or isn't configured for).
+  const tts = {
+    speak: (text: string) => void eleven.speak(text, webSpeech.speak),
+    cancel: () => {
+      eleven.cancel();
+      webSpeech.cancel();
+    },
+    speaking: eleven.speaking || webSpeech.speaking,
+    supported: eleven.available || webSpeech.supported,
+  };
+  const interviewerSpeaking = tavus.ready ? tavus.speaking : tts.speaking;
 
   const voiceCapable = webSpeech.supported || stt.supported;
   const [voiceOn, setVoiceOn] = useState(false);
@@ -90,14 +104,14 @@ export function Interview() {
   }, [useVideo, tavus.ready]);
 
   // Speak each new interviewer message aloud when voice is on. The video avatar
-  // wins when it's live; otherwise the stylized avatar + Kokoro/Web Speech does.
+  // wins when it's live; otherwise the stylized avatar + ElevenLabs (or the browser voice) does.
   useEffect(() => {
     if (!voiceOn) return;
     const last = messages[messages.length - 1];
     if (!last || last.speaker !== "interviewer") return;
     // In video mode, wait for the avatar to connect so IT delivers the greeting
-    // (don't let Kokoro jump in first). But if it's still connecting only —
-    // once it errors or isn't configured, fall through to Kokoro immediately.
+    // (don't let ElevenLabs jump in first). But if it's still connecting only —
+    // once it errors or isn't configured, fall through to ElevenLabs immediately.
     const connecting = tavus.status === "idle" || tavus.status === "connecting";
     if (useVideo && !tavus.ready && connecting) return;
     if (lastSpokenId.current === last.id) return;
@@ -110,6 +124,24 @@ export function Interview() {
   useEffect(() => {
     if (stt.listening) setDraft(stt.transcript);
   }, [stt.listening, stt.transcript]);
+
+  // Hands-free turn-taking in voice mode: when the interviewer finishes
+  // speaking, start listening; when the candidate pauses long enough after
+  // saying something, send it — like talking to a person, not filling a form.
+  const wasSpeaking = useRef(false);
+  useEffect(() => {
+    const finished = wasSpeaking.current && !interviewerSpeaking;
+    wasSpeaking.current = interviewerSpeaking;
+    if (finished && voiceOn && status === "live" && stt.supported && !stt.listening) stt.start();
+  }, [interviewerSpeaking, voiceOn, status, stt]);
+
+  useEffect(() => {
+    if (!voiceOn || !stt.listening || !stt.transcript.trim()) return;
+    const t = setTimeout(() => sendText(stt.transcript), SILENCE_SEND_MS);
+    return () => clearTimeout(t);
+    // sendText is recreated every render; the transcript is what matters here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [voiceOn, stt.listening, stt.transcript]);
 
   // No active session (e.g. refreshed straight here) — bounce to setup.
   // Delay the results navigation slightly so the closing message is visible.
@@ -154,10 +186,16 @@ export function Interview() {
   if (!plan) return null;
 
   const question = plan.questions[currentIdx];
+  const inQuestions = phase === "question";
+  const stageLabel =
+    phase === "warmup" || phase === "background" ? "INTRODUCTIONS"
+    : phase === "closing" ? "YOUR QUESTIONS FOR THE INTERVIEWER"
+    : null;
   const thinking = status === "thinking";
   const locked = thinking || status === "wrapping" || status === "complete";
   const total = plan.questions.length;
-  const progressPct = ((currentIdx + (status === "complete" || status === "wrapping" ? 1 : 0)) / total) * 100;
+  const progressPct =
+    phase === "closing" ? 100 : inQuestions ? (currentIdx / total) * 100 : 0;
 
   const avatarState: AvatarState = tts.speaking
     ? "speaking"
@@ -169,7 +207,8 @@ export function Interview() {
     const next = !voiceOn;
     setVoiceOn(next);
     if (next) {
-      if (kokoro.status === "idle") kokoro.load(); // download the model in the background
+      // Unlock audio inside this click — browsers keep audio silent otherwise.
+      eleven.unlock();
       tavus.activate(); // no-op unless Tavus is configured server-side
     } else {
       tts.cancel();
@@ -182,57 +221,55 @@ export function Interview() {
     if (stt.listening) {
       stt.stop();
     } else {
+      eleven.unlock();
       tts.cancel();
       stt.start();
     }
   };
 
-  const send = () => {
-    if (!draft.trim() || locked) return;
+  const send = () => sendText(draft);
+
+  function sendText(raw: string) {
+    if (!raw.trim() || locked) return;
     if (stt.listening) stt.stop();
-    const text = draft.trim();
+    const text = raw.trim();
     setLastDraft(text);
     clearTurnError();
     submitAnswer(text);
     setDraft("");
-  };
+  }
 
   return (
     <div className="flex h-[100dvh] flex-col">
       <TopBar
         right={
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {voiceCapable && (
               <button
                 onClick={toggleVoice}
-                disabled={kokoro.status === "loading"}
                 className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-[0.14em] tactile transition-colors disabled:opacity-50 ${
                   voiceOn
                     ? "border-accent/50 bg-accent/10 text-accent"
                     : "border-line-bright text-fog hover:text-chalk"
                 }`}
-                title={
-                  kokoro.status === "loading"
-                    ? "Downloading voice model…"
-                    : voiceOn
-                    ? "Turn voice off"
-                    : "Turn voice on"
-                }
+                title={voiceOn ? "Turn voice off" : "Turn voice on"}
               >
-                {kokoro.status === "loading" ? (
-                  <span className="inline-block h-[13px] w-[13px] animate-spin rounded-full border border-current border-t-transparent" />
-                ) : voiceOn ? (
-                  <SpeakerHigh size={13} weight="fill" />
-                ) : (
-                  <SpeakerSlash size={13} />
-                )}
-                {kokoro.status === "loading" ? "LOADING…" : "VOICE"}
+                {voiceOn ? <SpeakerHigh size={13} weight="fill" /> : <SpeakerSlash size={13} />}
+                VOICE
               </button>
             )}
-            <span className="font-mono text-[11px] tracking-wide text-fog">
-              Q{currentIdx + 1} / {total}
+            {USE_MOCK && (
+              <span
+                className="hidden rounded-full border border-warning/40 px-2.5 py-1 font-mono text-[10px] tracking-[0.14em] text-warning sm:inline"
+                title="No backend connected — replies are scripted, not generated. Set VITE_USE_MOCK=false to use the real interviewer."
+              >
+                DEMO MODE
+              </span>
+            )}
+            <span className="whitespace-nowrap font-mono text-[11px] tracking-wide text-fog">
+              {inQuestions ? `Q${currentIdx + 1} / ${total}` : phase === "closing" ? "WRAP-UP" : "INTRO"}
             </span>
-            <div className="h-1.5 w-28 overflow-hidden rounded-full bg-surface-2">
+            <div className="hidden h-1.5 w-28 overflow-hidden rounded-full bg-surface-2 sm:block">
               <motion.div
                 className="h-full rounded-full bg-accent"
                 animate={{ width: `${progressPct}%` }}
@@ -262,25 +299,27 @@ export function Interview() {
               <InterviewerAvatar state={avatarState} size={72} />
             ))}
           <div className="flex flex-1 flex-wrap items-center gap-3">
-            <TypeChip type={question.type} />
-            <DifficultyMeter value={question.targetDifficulty} />
-            {question.weightedFromWeakness && <WeightedTag />}
-            {followUpCount > 0 && (
+            {stageLabel ? (
+              <span className="font-mono text-[11px] tracking-[0.16em] text-mist">{stageLabel}</span>
+            ) : (
+              <>
+                <TypeChip type={question.type} />
+                <DifficultyMeter value={question.targetDifficulty} />
+                {question.weightedFromWeakness && <WeightedTag />}
+              </>
+            )}
+            {inQuestions && followUpCount > 0 && (
               <span className="font-mono text-[10px] tracking-[0.16em] text-accent">
                 FOLLOW-UP {followUpCount}/2
               </span>
             )}
             {voiceOn && (
               <span className="w-full font-mono text-[10px] tracking-[0.14em] text-fog">
-                {kokoro.status === "loading"
-                  ? "DOWNLOADING VOICE MODEL — USING SYSTEM VOICE MEANWHILE…"
-                  : tts.speaking
+                {tts.speaking
                   ? "INTERVIEWER SPEAKING…"
                   : stt.listening
-                  ? "LISTENING — SPEAK YOUR ANSWER"
-                  : kokoro.status === "ready"
-                  ? "KOKORO VOICE READY"
-                  : "VOICE READY"}
+                  ? `LISTENING — PAUSE ${Math.round(SILENCE_SEND_MS / 1000)}S WHEN YOU'RE DONE`
+                  : "VOICE ON"}
               </span>
             )}
           </div>
@@ -359,11 +398,11 @@ export function Interview() {
                         m.kind === "follow_up" ? "text-accent" : "text-fog"
                       }`}
                     >
-                      {m.kind === "follow_up" ? "PUSHING BACK" : "INTERVIEWER"}
+                      {m.kind === "follow_up" ? "MARCUS · FOLLOW-UP" : "MARCUS · INTERVIEWER"}
                     </span>
                   )}
                   <div
-                    className={`rounded-2xl px-4 py-3 text-[15px] leading-relaxed ${
+                    className={`rounded-2xl px-4 py-3 font-sans text-[15.5px] leading-relaxed ${
                       m.speaker === "candidate"
                         ? "bg-surface-2 text-chalk"
                         : m.kind === "follow_up"
@@ -429,7 +468,7 @@ export function Interview() {
                   ? "Session complete — pulling your results…"
                   : "Type or speak your answer — be specific."
               }
-              className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent px-2.5 py-2 text-[15px] leading-relaxed text-chalk placeholder:text-fog focus:outline-none disabled:opacity-50"
+              className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent px-2.5 py-2 font-sans text-[15px] leading-relaxed text-chalk placeholder:text-fog focus:outline-none disabled:opacity-50"
             />
             <button
               onClick={send}
@@ -440,9 +479,25 @@ export function Interview() {
               {thinking ? <PaperPlaneTilt size={18} weight="fill" /> : <ArrowUp size={18} weight="bold" />}
             </button>
           </div>
-          <p className="mt-2 px-1 font-mono text-[10px] tracking-wide text-fog">
-            {stt.supported ? "MIC TO SPEAK · " : ""}⌘/CTRL + ENTER TO SEND · VAGUE ANSWERS WILL GET PROBED
-          </p>
+          <div className="mt-2 flex items-center justify-end gap-3 px-1 sm:justify-between">
+            <p className="hidden font-mono text-[10px] tracking-wide text-fog sm:block">
+              {voiceOn && stt.supported
+                ? "HANDS-FREE · HE LISTENS AFTER SPEAKING · PAUSE TO SEND"
+                : `${stt.supported ? "MIC TO SPEAK · " : ""}⌘/CTRL + ENTER TO SEND · VAGUE ANSWERS WILL GET PROBED`}
+            </p>
+            {phase === "closing" && status === "live" && (
+              <button
+                onClick={() => {
+                  if (stt.listening) stt.stop();
+                  tts.cancel();
+                  void endInterview();
+                }}
+                className="shrink-0 font-mono text-[10px] tracking-[0.14em] text-fog underline-offset-4 transition-colors hover:text-chalk hover:underline"
+              >
+                NO QUESTIONS — END INTERVIEW
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -474,13 +529,13 @@ export function Interview() {
           <TavusCallOverlay
             videoTrack={tavus.videoTrack}
             speaking={tavus.speaking}
-            questionText={question.prompt}
+            questionText={[...messages].reverse().find((m) => m.speaker === "interviewer")?.text ?? question.prompt}
             listening={stt.listening}
             draft={draft}
             thinking={thinking}
             sttSupported={stt.supported}
             followUpLabel={
-              followUpCount > 0 ? `PUSHING BACK · FOLLOW-UP ${followUpCount}/2` : undefined
+              inQuestions && followUpCount > 0 ? `FOLLOW-UP ${followUpCount}/2` : undefined
             }
             onToggleMic={toggleMic}
             onSend={send}

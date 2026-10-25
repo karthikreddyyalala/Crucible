@@ -142,12 +142,11 @@ def test_turn_follow_up_returns_no_evaluation():
     body = res.json()
     assert body["decision"]["action"] == "follow_up"
     assert body["decision"]["followUpPrompt"]
-    assert body["evaluation"] is None
     # Only the interviewer was called — the evaluator never runs on a follow-up.
     assert body["costUsd"] == pytest.approx(_ONE_CALL_COST)
 
 
-def test_turn_advance_returns_evaluation():
+def test_turn_advance_returns_decision_without_blocking_on_evaluation():
     client = _client({"InterviewDecision": _DECISION_ADVANCE, "AnswerEvaluation": _EVAL})
     res = client.post(
         "/api/session/turn",
@@ -161,10 +160,54 @@ def test_turn_advance_returns_evaluation():
     assert res.status_code == 200
     body = res.json()
     assert body["decision"]["action"] == "advance"
+    assert "evaluation" not in body
+    # Only the interviewer ran — scoring is a separate background call.
+    assert body["costUsd"] == pytest.approx(_ONE_CALL_COST)
+
+
+def test_evaluate_returns_structured_evaluation():
+    client = _client({"AnswerEvaluation": _EVAL})
+    res = client.post(
+        "/api/session/evaluate",
+        json={"question": _QUESTION_BODY, "transcript": "I led a 4-person team.", "followUpCount": 1},
+    )
+    assert res.status_code == 200
+    body = res.json()
     assert body["evaluation"]["wouldSurviveRealInterview"] is True
     assert body["evaluation"]["survivalReasoning"]
-    # Both the interviewer and the evaluator ran.
-    assert body["costUsd"] == pytest.approx(2 * _ONE_CALL_COST)
+    assert body["costUsd"] == pytest.approx(_ONE_CALL_COST)
+
+
+def test_turn_forwards_phase_next_question_and_role_context_to_interviewer():
+    seen: dict = {}
+
+    class _Spy(_FakeLLM):
+        def structured(self, **kw):
+            seen["user"] = kw["user"]
+            return super().structured(**kw)
+
+    client = TestClient(create_app(llm=_Spy({"InterviewDecision": {
+        **_DECISION_ADVANCE, "say": "Hi! Let's start. Tell me about a deadline you owned.",
+    }}), store=InMemoryStore()))
+    res = client.post(
+        "/api/session/turn",
+        json={
+            "question": _QUESTION_BODY,
+            "answer": "Doing great, what about you?",
+            "followUpCount": 0,
+            "isLast": False,
+            "phase": "warmup",
+            "nextQuestion": _QUESTION_BODY,
+            "candidateName": "Karthik",
+            "profile": _INTAKE,
+        },
+    )
+    assert res.status_code == 200
+    assert res.json()["decision"]["say"].startswith("Hi!")
+    assert "Phase: warmup" in seen["user"]
+    assert "Next question: Tell me about a deadline you owned." in seen["user"]
+    assert "<role_context>" in seen["user"] and "Stripe" in seen["user"]
+    assert "Karthik" in seen["user"]
 
 
 def test_finalize_returns_memory_profile():
@@ -618,3 +661,59 @@ def test_avatar_end_noop_when_disabled():
     res = client.post("/api/avatar/end", json={"conversationId": "conv-123"})
     assert res.status_code == 200
     assert res.json()["ended"] is False
+
+
+class _FakeTts:
+    def __init__(self) -> None:
+        self.texts: list[str] = []
+
+    def synthesize(self, text: str) -> bytes:
+        self.texts.append(text)
+        return b"ID3fake-mp3"
+
+
+def test_tts_returns_audio_when_configured():
+    tts = _FakeTts()
+    client = TestClient(create_app(llm=_FakeLLM({}), store=InMemoryStore(), tts_client=tts))
+    res = client.post("/api/tts", json={"text": "Hi, I'm Marcus."})
+    assert res.status_code == 200
+    assert res.headers["content-type"] == "audio/mpeg"
+    assert res.content == b"ID3fake-mp3"
+    assert tts.texts == ["Hi, I'm Marcus."]
+
+
+def test_tts_404_when_not_configured_so_browser_falls_back():
+    res = _client({}).post("/api/tts", json={"text": "Hello"})
+    assert res.status_code == 404
+
+
+def test_tts_rejects_oversized_text():
+    client = TestClient(create_app(llm=_FakeLLM({}), store=InMemoryStore(), tts_client=_FakeTts()))
+    assert client.post("/api/tts", json={"text": "x" * 1501}).status_code == 422
+
+
+def test_elevenlabs_client_sends_voice_and_model_and_joins_audio():
+    from llm.elevenlabs import ElevenLabsClient
+
+    seen: dict = {}
+
+    class _TTS:
+        def convert(self, **kw):
+            seen.update(kw)
+            return iter([b"mp", b"3"])
+
+    class _SDK:
+        text_to_speech = _TTS()
+
+    c = ElevenLabsClient(voice_id="v1", model_id="m1", client=_SDK())
+    assert c.synthesize("hello") == b"mp3"
+    assert seen["voice_id"] == "v1" and seen["model_id"] == "m1" and seen["text"] == "hello"
+
+
+def test_tts_enabled_only_when_key_in_environment(monkeypatch):
+    from config.settings import Settings
+
+    monkeypatch.delenv("ELEVENLABS_API_KEY", raising=False)
+    assert Settings().elevenlabs_enabled is False
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "x")
+    assert Settings().elevenlabs_enabled is True

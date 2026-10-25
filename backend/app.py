@@ -8,6 +8,9 @@ never touches AWS. The real app builds an LLMClient that lazily connects to
 Bedrock only on the first agent call.
 """
 import logging
+from pathlib import Path
+
+from dotenv import load_dotenv
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +24,11 @@ from store.base import MemoryStore
 from store.in_memory import InMemoryStore
 
 logger = logging.getLogger("crucible")
+
+# Local dev: the ElevenLabs CLI stores ELEVENLABS_API_KEY in the repo-root
+# .env.local (gitignored). Server-side only; never overrides a real env var,
+# and on Lambda the file doesn't exist so this is a no-op.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env.local", override=False)
 
 
 def _build_store(settings: Settings) -> MemoryStore:
@@ -39,14 +47,26 @@ def _build_tavus(settings: Settings):
     return TavusClient(api_key=settings.tavus_api_key, base_url=settings.tavus_base_url)
 
 
+def _build_tts(settings: Settings):
+    if not settings.elevenlabs_enabled:
+        return None
+    from llm.elevenlabs import ElevenLabsClient
+
+    return ElevenLabsClient(
+        voice_id=settings.elevenlabs_voice_id,
+        model_id=settings.elevenlabs_model_id,
+    )
+
+
 def create_app(
     *, llm=None, settings: Settings | None = None, store: MemoryStore | None = None,
-    tavus_client=None,
+    tavus_client=None, tts_client=None,
 ) -> FastAPI:
     settings = settings or Settings()
     llm = llm if llm is not None else LLMClient(region=settings.aws_region)
     store = store if store is not None else _build_store(settings)
     tavus_client = tavus_client if tavus_client is not None else _build_tavus(settings)
+    tts_client = tts_client if tts_client is not None else _build_tts(settings)
 
     app = FastAPI(title="Crucible API", version="0.1.0")
 
@@ -79,7 +99,9 @@ def create_app(
         )
 
     app.include_router(
-        build_session_router(llm=llm, settings=settings, store=store, tavus_client=tavus_client)
+        build_session_router(
+            llm=llm, settings=settings, store=store, tavus_client=tavus_client, tts_client=tts_client,
+        )
     )
     return app
 

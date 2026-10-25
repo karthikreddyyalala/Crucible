@@ -9,3 +9,4 @@ pydantic>=2.7
 pydantic-settings>=2.3
 python-dotenv>=1.0
 pyjwt[crypto]>=2.9
+elevenlabs>=2.74

@@ -10,3 +10,5 @@ dist/
 .vite/
 *.tsbuildinfo
 deploy/build/
+.env.local
+.env.*.local
