@@ -111,3 +111,36 @@ def test_every_competency_has_three_questions(role):
 def test_system_design_prompt_states_the_problem_only(role, q):
     assert not re.search(r"\d", q.prompt), q.prompt
     assert "clarif" not in q.prompt.lower(), q.prompt
+
+
+_LEVEL_DIFFICULTY = {"junior": {1, 2}, "mid": {2, 3, 4}, "senior": {4, 5}}
+_NEUTRAL_SD_OPENERS = {
+    "What would you want to know before you start designing?",
+    "What questions do you have before we start?",
+}
+
+
+@pytest.mark.parametrize("role,q", _ALL, ids=_IDS)
+def test_every_listed_level_fits_the_difficulty(role, q):
+    for lvl in q.levels:
+        assert q.difficulty in _LEVEL_DIFFICULTY[lvl], (lvl, q.difficulty)
+
+
+@pytest.mark.parametrize("role,q", _ALL, ids=_IDS)
+def test_ladder_and_anchor_sizes(role, q):
+    lo = 5 if q.type == "system_design" else 3
+    assert lo <= len(q.follow_up_hooks) <= 6
+    assert 3 <= len(q.ideal_answer_points) <= 6
+    assert 2 <= len(q.weak_answer_signs) <= 4
+
+
+@pytest.mark.parametrize("role,q", _ALL, ids=_IDS)
+def test_every_rung_is_one_spoken_question(role, q):
+    for hook in q.follow_up_hooks:
+        assert hook.endswith("?"), hook
+
+
+@pytest.mark.parametrize("role,q", [(r, q) for r, q in _ALL if q.type == "system_design"],
+                         ids=[q.id for _, q in _ALL if q.type == "system_design"])
+def test_system_design_first_rung_hands_over_nothing(role, q):
+    assert q.follow_up_hooks[0] in _NEUTRAL_SD_OPENERS, q.follow_up_hooks[0]

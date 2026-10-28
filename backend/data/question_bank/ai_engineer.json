@@ -6,7 +6,7 @@
       "role": "AI Engineer",
       "competency": "ML System Design & Behavioral",
       "type": "behavioral",
-      "difficulty": 3,
+      "difficulty": 4,
       "levels": [
         "mid",
         "senior"
@@ -169,11 +169,10 @@
       "role": "AI Engineer",
       "competency": "Data Pipelines & Feature Engineering",
       "type": "behavioral",
-      "difficulty": 3,
+      "difficulty": 2,
       "levels": [
         "junior",
-        "mid",
-        "senior"
+        "mid"
       ],
       "signal": "Traces model problems back to data and builds checks so they can't recur silently",
       "prompt": "Tell me about a time bad data caused a problem in a model or pipeline you worked on.",
@@ -253,9 +252,7 @@
       "type": "behavioral",
       "difficulty": 3,
       "levels": [
-        "junior",
-        "mid",
-        "senior"
+        "mid"
       ],
       "signal": "Runs experiments honestly and learns from negative results",
       "prompt": "Tell me about a modeling idea you were confident in that didn't work.",
@@ -290,7 +287,7 @@
       "source": "original"
     },
     {
-      "id": "aie-beh-ramp-up-1",
+      "id": "aie-beh-dataset-build-1",
       "role": "AI Engineer",
       "competency": "ML System Design & Behavioral",
       "type": "behavioral",
@@ -299,32 +296,34 @@
         "junior",
         "mid"
       ],
-      "signal": "Learns new AI tooling fast and separates what works from what's claimed",
-      "prompt": "Tell me about a time you had to get up to speed quickly on a new model, framework or paper to ship something.",
+      "signal": "Gets unblocked by building the data an ML problem needs, and treats label quality as engineering",
+      "prompt": "Tell me about a time you had to build a labelled dataset yourself because the one you needed didn't exist.",
       "idealAnswerPoints": [
-        "the specific technology and why speed mattered",
-        "a method: a minimal reproduction, reading the source, a small experiment on their own data",
-        "how they checked claims from docs or papers against their own results",
-        "what they shipped and how long it took"
+        "why no usable data existed and what the model or eval needed it for",
+        "how they decided what to label: sampling from real traffic, covering hard and rare cases",
+        "labelling guidelines and how they checked consistency, such as double-labelling a sample and measuring agreement",
+        "how many examples, how long it took and what it cost",
+        "what the dataset unlocked, and what they'd label differently now"
       ],
       "weakAnswerSigns": [
-        "'I watched tutorials' with no method",
-        "took the docs or paper's claims on faith",
-        "nothing shipped at the end"
+        "labelled whatever was easiest to get with no sampling plan",
+        "no check on label quality or agreement",
+        "can't say how big the dataset was or what it was used for"
       ],
       "followUpHooks": [
-        "What was new to you?",
-        "What did you do first?",
-        "How did you tell what actually worked from what the docs claimed?",
-        "What did you ship?",
-        "What would you do differently?"
+        "What did you need the data for?",
+        "How did you choose which examples to label?",
+        "How did you know the labels were consistent?",
+        "Where did labellers disagree most?",
+        "What did the dataset let you do that you couldn't before?",
+        "What would you label differently now?"
       ],
       "rubric": {
         "criteria": {
-          "structure": "Sets up what was new, how they learned it and what they shipped",
-          "specificity": "Names the technology, the experiment they ran and the timeline",
-          "impact": "States what was delivered and how quickly",
-          "ownership": "Describes their own learning steps and decisions"
+          "structure": "Moves from the missing data through how it was built to what it enabled",
+          "specificity": "Names the task, the sampling approach, the dataset size and the agreement check",
+          "impact": "States the model or eval result the dataset made possible",
+          "ownership": "Shows they personally designed the labelling and checked its quality"
         }
       },
       "source": "original"
@@ -334,7 +333,7 @@
       "role": "AI Engineer",
       "competency": "ML System Design & Behavioral",
       "type": "behavioral",
-      "difficulty": 3,
+      "difficulty": 4,
       "levels": [
         "mid",
         "senior"
@@ -415,7 +414,7 @@
       "role": "AI Engineer",
       "competency": "LLM / Prompting / RAG / Agents",
       "type": "technical",
-      "difficulty": 3,
+      "difficulty": 4,
       "levels": [
         "mid",
         "senior"
@@ -457,7 +456,7 @@
       "role": "AI Engineer",
       "competency": "LLM / Prompting / RAG / Agents",
       "type": "technical",
-      "difficulty": 3,
+      "difficulty": 4,
       "levels": [
         "mid",
         "senior"
@@ -558,6 +557,7 @@
         "switches to ROC-AUC as if that solves it"
       ],
       "followUpHooks": [
+        "What would you check first?",
         "What would a model that never predicts fraud score?",
         "Which metric would you use instead?",
         "How would you pick the decision threshold?",
@@ -639,10 +639,10 @@
         "no idea what early stopping is"
       ],
       "followUpHooks": [
+        "What would you check first?",
         "What's happening to the model?",
         "Which fix would you try first?",
         "How would you tell whether more data would help?",
-        "What if your validation set is only a few hundred examples?",
         "When would rising validation loss not mean overfitting?"
       ],
       "rubric": {
@@ -660,7 +660,7 @@
       "role": "AI Engineer",
       "competency": "Data Pipelines & Feature Engineering",
       "type": "technical",
-      "difficulty": 3,
+      "difficulty": 4,
       "levels": [
         "mid",
         "senior"
@@ -762,6 +762,7 @@
         "doesn't know the KV cache exists"
       ],
       "followUpHooks": [
+        "What would you look at first?",
         "What's stored in GPU memory besides the weights?",
         "How does that grow with conversation length?",
         "Roughly how would you estimate it per token?",
@@ -785,8 +786,7 @@
       "type": "technical",
       "difficulty": 3,
       "levels": [
-        "mid",
-        "senior"
+        "mid"
       ],
       "signal": "Applies statistics to a real launch decision",
       "prompt": "An A/B test of your new recommendation model shows a two percent lift after three days — would you ship it?",
@@ -820,7 +820,7 @@
       "source": "original"
     },
     {
-      "id": "aie-tech-bulk-embed-1",
+      "id": "aie-tech-reembed-1",
       "role": "AI Engineer",
       "competency": "Python Coding & Math/Stats",
       "type": "technical",
@@ -828,34 +828,36 @@
       "levels": [
         "mid"
       ],
-      "signal": "Writes robust, resumable data jobs in Python",
-      "prompt": "How would you write a Python job that embeds ten million documents through a rate-limited API without starting over if it crashes?",
+      "signal": "Knows embeddings from different models aren't comparable and can write a safe, resumable migration",
+      "prompt": "How would you write the job that re-embeds your document corpus when you switch to a new embedding model?",
       "idealAnswerPoints": [
-        "batches requests up to the API's batch limit",
-        "bounded concurrency (asyncio with a semaphore, or a thread pool) sized to the rate limit",
-        "retries with backoff on rate-limit and transient errors",
-        "checkpoints completed document IDs and writes idempotently to the vector store so it can resume",
-        "streams input instead of loading every document into memory",
-        "estimates runtime and cost up front"
+        "vectors from two models live in different spaces even at the same dimension, so old and new can never share an index or be compared",
+        "builds a new index alongside the old one, keeps serving from the old, and writes new or edited documents to both during the backfill",
+        "stores model name and version plus a content hash with each vector, so reruns skip unchanged documents and only changed ones are re-embedded",
+        "batched, rate-limited, checkpointed backfill with idempotent upserts so a crash resumes instead of restarting",
+        "compares retrieval recall on a labelled query set before cutting over, and keeps the old index for rollback",
+        "re-embeds queries with the same new model at cutover, since query and document vectors must match"
       ],
       "weakAnswerSigns": [
-        "a sequential loop, one document per call",
-        "no checkpoint, so a crash restarts from zero",
-        "loads everything into memory"
+        "overwrites vectors in place in the live index",
+        "assumes vectors with the same dimension are interchangeable",
+        "no evaluation before switching traffic",
+        "re-embeds everything from scratch on every run"
       ],
       "followUpHooks": [
-        "How long would a simple loop take?",
-        "How would you run requests concurrently without breaking the rate limit?",
-        "The job dies at document six million — what happens?",
-        "What if a document gets embedded twice?",
-        "How would you handle a document that always fails?"
+        "Why can't you just overwrite the vectors in place?",
+        "What if the new model has the same dimension as the old one?",
+        "How does the job know which documents still need embedding?",
+        "What happens to documents edited while the backfill is running?",
+        "How would you decide it's safe to switch queries to the new index?",
+        "The job dies halfway through — what happens?"
       ],
       "rubric": {
         "criteria": {
-          "correctness": "Produces a job that finishes, respects the limit and resumes after a crash",
-          "depth": "Explains how concurrency, batching and checkpoints each cut runtime or risk",
-          "edge_cases": "Covers duplicate writes, poison documents and rate-limit errors",
-          "communication": "Describes the job's structure clearly"
+          "correctness": "Never mixes vectors from two models and switches queries and documents together",
+          "depth": "Explains why embedding spaces are incompatible and how versioning and hashing make the job incremental",
+          "edge_cases": "Covers edits during backfill, crashes mid-run, rate limits and rollback",
+          "communication": "Describes the job's stages in a clear order"
         }
       },
       "source": "original"
@@ -927,7 +929,7 @@
         "no plan for documents changing"
       ],
       "followUpHooks": [
-        "What kinds of questions will people ask it?",
+        "What would you want to know before you start designing?",
         "How do documents get into the system?",
         "How do you stop someone getting an answer from a document they can't access?",
         "How do you know the answers are good?",
@@ -970,7 +972,7 @@
         "no online stage"
       ],
       "followUpHooks": [
-        "What does good enough mean for this product?",
+        "What questions do you have before we start?",
         "Where do your test cases come from?",
         "How do you score open-ended answers?",
         "How do you know the LLM judge agrees with people?",
@@ -1012,7 +1014,7 @@
         "no distinction between latency and throughput"
       ],
       "followUpHooks": [
-        "Which latency number matters most to users?",
+        "What would you want to know before you start designing?",
         "How do you get good GPU utilisation?",
         "A model takes minutes to load — how does that change autoscaling?",
         "How do you stop a batch job starving interactive users?",
@@ -1055,7 +1057,7 @@
         "semantic caching with no thought about wrong hits"
       ],
       "followUpHooks": [
-        "What problems are teams having without it?",
+        "What questions do you have before we start?",
         "What does the API look like to a calling team?",
         "A provider starts timing out — what happens to requests?",
         "How do you attribute cost to teams?",
@@ -1098,7 +1100,7 @@
         "evaluated by chatting with it a few times"
       ],
       "followUpHooks": [
-        "What should it be allowed to do on its own?",
+        "What would you want to know before you start designing?",
         "What does a single turn of the agent loop look like?",
         "What stops it refunding an order that isn't the customer's?",
         "How do you hand off to a human?",
@@ -1140,8 +1142,8 @@
         "accuracy measured per document only, or not at all"
       ],
       "followUpHooks": [
-        "What happens downstream if one field is wrong?",
-        "Walk me through what happens to one invoice.",
+        "What questions do you have before we start?",
+        "What happens to a single invoice from upload to output?",
         "How do you know an extracted total is wrong?",
         "Which invoices go to a human?",
         "How would you measure accuracy?",
@@ -1182,7 +1184,7 @@
         "re-embeds the whole catalog for every change"
       ],
       "followUpHooks": [
-        "What are users typing in?",
+        "What would you want to know before you start designing?",
         "Where does keyword search still beat embeddings?",
         "How do you search a huge number of vectors quickly?",
         "A product's price or stock changes — what updates?",
@@ -1206,9 +1208,7 @@
       "type": "system_design",
       "difficulty": 3,
       "levels": [
-        "junior",
-        "mid",
-        "senior"
+        "mid"
       ],
       "signal": "Balances model cost, precision, recall and human review capacity in a classification system",
       "prompt": "Design a system that flags harmful user posts for human review.",
@@ -1226,7 +1226,7 @@
         "no feedback loop from reviewers"
       ],
       "followUpHooks": [
-        "What counts as harmful here?",
+        "What questions do you have before we start?",
         "Is a post checked before or after it's visible?",
         "How do you decide what goes to a reviewer?",
         "Reviewers can only see a small fraction of posts — how do you set the threshold?",
@@ -1268,7 +1268,7 @@
         "no fallback when scoring fails"
       ],
       "followUpHooks": [
-        "How long do you have to return a score?",
+        "What would you want to know before you start designing?",
         "Which features need to be computed in real time?",
         "How do you keep online and offline features identical?",
         "You only learn about fraud weeks later — how does that affect training?",

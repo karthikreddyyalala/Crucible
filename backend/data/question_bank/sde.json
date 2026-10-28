@@ -6,7 +6,7 @@
       "role": "SDE",
       "competency": "Behavioral & Ownership",
       "type": "behavioral",
-      "difficulty": 3,
+      "difficulty": 4,
       "levels": [
         "mid",
         "senior"
@@ -132,11 +132,10 @@
       "role": "SDE",
       "competency": "Behavioral & Ownership",
       "type": "behavioral",
-      "difficulty": 3,
+      "difficulty": 2,
       "levels": [
         "junior",
-        "mid",
-        "senior"
+        "mid"
       ],
       "signal": "Owns a mistake without deflecting and can name a specific lesson it changed",
       "prompt": "Tell me about a technical decision you made that turned out to be wrong.",
@@ -173,7 +172,7 @@
       "role": "SDE",
       "competency": "Behavioral & Ownership",
       "type": "behavioral",
-      "difficulty": 3,
+      "difficulty": 4,
       "levels": [
         "mid",
         "senior"
@@ -377,9 +376,8 @@
       "role": "SDE",
       "competency": "Debugging & Testing Reasoning",
       "type": "behavioral",
-      "difficulty": 3,
+      "difficulty": 4,
       "levels": [
-        "junior",
         "mid",
         "senior"
       ],
@@ -419,7 +417,7 @@
       "role": "SDE",
       "competency": "Debugging & Testing Reasoning",
       "type": "behavioral",
-      "difficulty": 3,
+      "difficulty": 4,
       "levels": [
         "mid",
         "senior"
@@ -457,7 +455,7 @@
       "source": "original"
     },
     {
-      "id": "sde-tech-dedupe-1",
+      "id": "sde-tech-merge-bookings-1",
       "role": "SDE",
       "competency": "Data Structures & Algorithms",
       "type": "technical",
@@ -466,33 +464,34 @@
         "junior",
         "mid"
       ],
-      "signal": "Picks the right data structure and reasons about its cost",
-      "prompt": "Given a stream of user IDs, how would you find the first ID that appears exactly once?",
+      "signal": "Sees that sorting turns an interval problem into one linear sweep, then extends it",
+      "prompt": "Given a list of meeting-room bookings with start and end times, how would you merge the ones that overlap?",
       "idealAnswerPoints": [
-        "counts with a hash map and keeps arrival order (a second pass or an ordered map) to find the earliest unique",
-        "states O(n) time and O(k) space for k distinct IDs, and why",
-        "handles an empty stream and no unique ID explicitly",
-        "for answers mid-stream, keeps a linked list or ordered set of current uniques so each query is O(1)",
-        "for too many distinct IDs, partitions by hash of ID and combines per-partition results by arrival index"
+        "sorts by start time, then sweeps once, extending the current block while the next start is within it",
+        "states O(n log n) for the sort and O(n) for the sweep, and why sorting is what makes one pass enough",
+        "decides explicitly whether bookings that only touch (one ends as the next starts) should merge",
+        "for bookings arriving one at a time, keeps them in a sorted structure and merges only the neighbours of the new booking",
+        "extends to the minimum number of rooms with a min-heap of end times or a sweep over start and end events"
       ],
       "weakAnswerSigns": [
-        "nested loop with no complexity discussion",
-        "ignores the case where nothing is unique",
-        "can't say what memory grows with"
+        "compares every pair of bookings with no complexity discussion",
+        "forgets to sort, so merges depend on input order",
+        "never considers bookings that only touch or are fully contained in another"
       ],
       "followUpHooks": [
-        "What's the time and space complexity?",
-        "What does it return if every ID repeats?",
-        "What if I can ask for the answer at any point while the stream is still running?",
-        "What if the distinct IDs don't fit in memory?",
+        "What's the complexity?",
+        "Why does sorting first make one pass enough?",
+        "Should a booking ending at ten merge with one starting at ten?",
+        "What if bookings arrive one at a time and you have to keep the merged list current?",
+        "How many rooms would you need so that no two bookings clash?",
         "How would you test it?"
       ],
       "rubric": {
         "criteria": {
-          "correctness": "Returns the earliest-arriving ID with a count of one, not just any unique ID",
-          "depth": "Explains why counting plus order gives linear time and what the space depends on",
-          "edge_cases": "Handles empty input, no unique ID and an ID that stops being unique later in the stream",
-          "communication": "States the approach before the details and walks a small example"
+          "correctness": "Produces correctly merged blocks, including bookings contained inside others",
+          "depth": "Explains why sorting by start enables a single sweep and what each step costs",
+          "edge_cases": "Handles touching bookings, contained bookings, a single booking and an empty list",
+          "communication": "States the approach before details and walks a small example"
         }
       },
       "source": "original"
@@ -665,7 +664,7 @@
       "role": "SDE",
       "competency": "Coding & Implementation Quality",
       "type": "technical",
-      "difficulty": 3,
+      "difficulty": 4,
       "levels": [
         "mid",
         "senior"
@@ -726,6 +725,7 @@
         "no limit on page size"
       ],
       "followUpHooks": [
+        "Which approach would you start with?",
         "What happens if a new order arrives while someone is paging?",
         "Why does a deep page get slow with offsets?",
         "What does your cursor actually contain?",
@@ -765,7 +765,7 @@
         "can't explain why it only fails sometimes"
       ],
       "followUpHooks": [
-        "Walk me through two threads interleaving on one increment.",
+        "What happens when two threads interleave on a single increment?",
         "Why does it only fail sometimes?",
         "How would you fix it?",
         "What does that fix cost with sixty-four threads?",
@@ -786,7 +786,7 @@
       "role": "SDE",
       "competency": "Concurrency & CS Fundamentals",
       "type": "technical",
-      "difficulty": 3,
+      "difficulty": 4,
       "levels": [
         "mid",
         "senior"
@@ -867,7 +867,7 @@
       "role": "SDE",
       "competency": "Debugging & Testing Reasoning",
       "type": "technical",
-      "difficulty": 3,
+      "difficulty": 4,
       "levels": [
         "mid",
         "senior"
@@ -969,7 +969,7 @@
         "one database with no caching for a read-heavy path"
       ],
       "followUpHooks": [
-        "Before we draw anything, what does this need to support?",
+        "What would you want to know before you start designing?",
         "Roughly how many redirects per second at peak?",
         "How do you generate short codes without collisions?",
         "What does a redirect cost when the code isn't in the cache?",
@@ -993,8 +993,7 @@
       "type": "system_design",
       "difficulty": 3,
       "levels": [
-        "mid",
-        "senior"
+        "mid"
       ],
       "signal": "Picks a limiting algorithm for the right reasons and keeps counts correct across many nodes",
       "prompt": "Design a rate limiter for a public API.",
@@ -1012,7 +1011,7 @@
         "no plan for the counter store going down"
       ],
       "followUpHooks": [
-        "What exactly are we limiting on?",
+        "What questions do you have before we start?",
         "Which algorithm would you pick?",
         "Where does the counter live when you have fifty gateway nodes?",
         "How do you stop two nodes racing on the same counter?",
@@ -1055,7 +1054,7 @@
         "no pagination"
       ],
       "followUpHooks": [
-        "Is the feed chronological or ranked?",
+        "What would you want to know before you start designing?",
         "Do you build the feed when someone posts or when someone reads?",
         "What happens when an account with fifty million followers posts?",
         "What do you store in the timeline cache?",
@@ -1098,8 +1097,8 @@
         "messages are lost when the recipient is offline"
       ],
       "followUpHooks": [
+        "What would you want to know before you start designing?",
         "How does a message get from my phone to yours?",
-        "How do you know which server my connection is on?",
         "How do you keep messages in order within a conversation?",
         "What happens if I'm offline when you send it?",
         "A connection server dies — what happens to the users on it?",
@@ -1141,7 +1140,7 @@
         "ignores user preferences"
       ],
       "followUpHooks": [
-        "What kinds of notifications are we sending?",
+        "What questions do you have before we start?",
         "What happens between a service asking to notify someone and the message going out?",
         "The email provider times out — what happens?",
         "How do you make sure a user doesn't get the same SMS twice?",
@@ -1163,9 +1162,8 @@
       "role": "SDE",
       "competency": "System Design",
       "type": "system_design",
-      "difficulty": 2,
+      "difficulty": 3,
       "levels": [
-        "junior",
         "mid"
       ],
       "signal": "Moves work offline to meet a tight latency budget",
@@ -1183,7 +1181,7 @@
         "no latency target"
       ],
       "followUpHooks": [
-        "How fast does a suggestion need to appear?",
+        "What would you want to know before you start designing?",
         "What decides which suggestions come first?",
         "What data structure would you serve from?",
         "How does a newly trending search get into the suggestions?",
@@ -1226,12 +1224,12 @@
         "no plan for infinite URL spaces"
       ],
       "followUpHooks": [
+        "What questions do you have before we start?",
         "How do you decide which URL to fetch next?",
         "How do you avoid hammering one website?",
         "How do you know you've already seen a page?",
         "How do you split the work across many machines?",
-        "What happens when a site generates infinite URLs?",
-        "How do you decide how often to recrawl a page?"
+        "What happens when a site generates infinite URLs?"
       ],
       "rubric": {
         "criteria": {
@@ -1268,7 +1266,7 @@
         "no failure detection or repair"
       ],
       "followUpHooks": [
-        "What consistency does a client get?",
+        "What questions do you have before we start?",
         "How do keys map to nodes?",
         "What happens when you add a node?",
         "How do replicas stay in sync?",
@@ -1311,12 +1309,12 @@
         "no plan for the on-sale traffic spike"
       ],
       "followUpHooks": [
+        "What would you want to know before you start designing?",
         "What happens between clicking a seat and getting a ticket?",
         "How do you stop two people buying the same seat?",
         "What releases a seat if the buyer abandons checkout?",
         "A million people show up the minute sales open — what happens?",
-        "Payment succeeds but your service crashes before recording it — now what?",
-        "Where are you choosing consistency over availability?"
+        "Payment succeeds but your service crashes before recording it — now what?"
       ],
       "rubric": {
         "criteria": {
