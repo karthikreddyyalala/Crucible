@@ -12,7 +12,6 @@ interface PyProxy {
 interface Pyodide {
   runPython(code: string): unknown;
   globals: { get(name: string): ((...args: unknown[]) => PyProxy) & PyProxy };
-  toPy(value: unknown): PyProxy;
 }
 interface PyodideModule {
   loadPyodide(options: { indexURL: string }): Promise<Pyodide>;
@@ -20,6 +19,8 @@ interface PyodideModule {
 
 let pyodide: Pyodide | null = null;
 let harnessRun: ((...args: unknown[]) => PyProxy) | null = null;
+// JSON in, so null arrives as None (toPy would make it JsNull, which `is not None` lets through).
+let fromJson: ((text: string) => PyProxy) | null = null;
 
 const post = (message: RunnerResponse) => self.postMessage(message);
 const describe = (e: unknown) => (e instanceof Error ? e.message : String(e));
@@ -43,6 +44,7 @@ async function load() {
     py.runPython(harnessSource);
     pyodide = py;
     harnessRun = py.globals.get("run");
+    fromJson = py.runPython("import json\njson.loads") as (text: string) => PyProxy;
     post({ type: "ready" });
   } catch (e) {
     post({ type: "fatal", message: describe(e) });
@@ -52,8 +54,8 @@ async function load() {
 function run(request: Extract<RunnerRequest, { type: "run" }>) {
   let results: TestResult[];
   try {
-    if (!pyodide || !harnessRun) throw new Error("Python hasn't finished loading");
-    const problem = pyodide.toPy(request.problem);
+    if (!pyodide || !harnessRun || !fromJson) throw new Error("Python hasn't finished loading");
+    const problem = fromJson(JSON.stringify(request.problem));
     const rows = harnessRun(request.code, problem, request.onlyVisible);
     results = nullify(rows.toJs({ dict_converter: Object.fromEntries })) as TestResult[];
     rows.destroy();
