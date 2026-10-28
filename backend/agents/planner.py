@@ -39,7 +39,7 @@ class PlannerAgent:
             user += "\n\nCodingProblems (choose from these for coding questions):\n" + json.dumps(
                 [p.model_dump(mode="json", include=keys) for p in coding_problems], indent=2)
         if company_style:
-            mix = ", ".join(f"{k} {v}" for k, v in company_style.question_mix.items())
+            mix = ", ".join(f"{k} {v}" for k, v in dict(company_style.question_mix).items())
             user += (
                 f"\n\nCompanyStyle: {company_style.name}\n"
                 f"- Behavioral themes (weight question choice toward these themes): "

@@ -126,7 +126,7 @@ def test_planner_receives_company_style_guidance():
     assert "weight question choice toward these themes" in user
     for theme in style.behavioral_themes:
         assert theme in user
-    for kind, weight in style.question_mix.items():
+    for kind, weight in dict(style.question_mix).items():
         assert f"{kind} {weight}" in user
     assert style.interviewer_note not in user  # that one is for Marcus, not the Planner
 
