@@ -1,0 +1,66 @@
+{
+  "id": "code-longest-substring-without-repeating-characters",
+  "title": "Longest Substring Without Repeating Characters",
+  "difficulty": "medium",
+  "topics": ["string", "sliding window", "hash map"],
+  "asked": "very_common",
+  "statement": "Given a string `s`, find the longest substring (a run of consecutive characters) in which no character appears twice, and return its length. The string may be empty, in which case the answer is 0.\n\nConstraints: 0 <= len(s) <= 5 * 10^4; `s` contains printable ASCII characters (letters, digits, symbols and spaces).",
+  "functionName": "length_of_longest_substring",
+  "signature": "def length_of_longest_substring(s: str) -> int:",
+  "starterCode": "def length_of_longest_substring(s: str) -> int:\n    \"\"\"Return the length of the longest substring of s in which every character is different.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "s = \"abcbdea\"", "output": "5", "explanation": "The substring \"cbdea\" has five different characters; the earlier \"abc\" is shorter."},
+    {"input": "s = \"zzzz\"", "output": "1", "explanation": "Every character is the same letter, so the longest valid substring is a single character."},
+    {"input": "s = \"\"", "output": "0", "explanation": "An empty string has no characters, so the length is 0."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args": ["abcbdea"], "expected": 5},
+    {"args": ["zzzz"], "expected": 1},
+    {"args": [""], "expected": 0},
+    {"args": ["a"], "expected": 1},
+    {"args": ["abcdef"], "expected": 6},
+    {"args": ["abba"], "expected": 2},
+    {"args": ["tmmzuxt"], "expected": 5},
+    {"args": ["dvdf"], "expected": 3},
+    {"args": [" "], "expected": 1},
+    {"args": ["abcabcabc"], "expected": 3},
+    {"args": ["a b a"], "expected": 3},
+    {"args": ["abababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab"], "expected": 2},
+    {"args": [" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUV"], "expected": 95},
+    {"args": ["vthrcnnnfenxgdxquqliswemptyxlqcaqqrxjxweeqfzxagndwyauwacrbtyssbjghchvjsjhqygkekucvppmblfcthxvoiadbmtqdkzghbdpolbjxdqafvyctqrsuyawohabhzgiumzzktrgiipgaeobupugnxfahupszetehsrhchwwqwnksjrvuomyermxxppakvmtwpcvridkblzvmccoxnldejoqujopmvvxfqicphveoyrczowsplnmvtdfqckxxrvcpkngyryhujytojgvypeahqzgnnkqqmuwceqgtivixebqmatevrxrzpthwssegjgrisuovdzgjeubzhttsrfjimtrgjvirtqrqitgotkzwjlhwjbzkquwsunzrvakypjhczaxokldjoibtdyzrscgqdtbwkrqbbbosxmngcxydbwnlaciyjbbjiblsybpcqaqzhrntvrpzflpclgqbaaspdmhgziqqlqfdfzsazqtqzklyhgvlflkhdhjezgpuzidvtunevnnthxoqjhezruscrybgnhwsfiqkytgqxagxlpixmmdnhyigfdwulayjjpwntungibtkczjqhakhyhktrdnoaznqxnfvoyuqafhfjseypbzknnsrnkltiefsanlexwbpubnyugkwjweokrfpkigzvcevyfmhimsdpykvlpnmjwbxumnrugzpclxonadluexfydupxdmvntjgvbenpqfdjgyflbedvhzcsbmgpxlepatjujciduzqymdaymllnceqoxwouylcquggecigholbqhalatfxnuihsllgymaucnrshkfslwltnzerdegrxjkvoswslytnmghwnzzrzetquujpmuomcbnyfejeyvytlgrxoheyzgxrdavowwnvbevripefrckmkdglhhbcketezrdxwekendmiwfqgloznznqirawpveiifmfmggcusdinbpbftubyhqhtwscxxgktotkuydzhdfvbapuqwskvajsmkphxfkbokcrsvfdnrelbuczcnetrlxudgsiivstiwiojkikjvmibxpewogiuoscxpsplpxuqyphhuiybpzaqvrgcqpzidxlgbrbkiusagqsacunxvgmuxvshsviidokvxnjnbmpfhwltzyktbwxrhfxraciwocwwxqueemerajoxnakyepvjahkpisupglargcpamlmrsysmxqfozrgdbtenzwgpsdbftsdktgdvhpsgmmnkwbpphirnpvuuhyqfnhpvjynbghlcpcfrbrfmnlgecbykrtkbbuybwdaomyrnblxpcsejwzizmgvcjdpjimuhjyqhoogitymhsmiefrsuhvfzdsbekmucfzcxbgjwupiermxyjhcugqjfnfxytlloqfoqiiosapztzbyexpuplibpwxdcwwlvhxazlvshdlrvhervcypvlwctyidzspiaetfwkewiiofdtsfmyxnsgnpvpocbezbbwqoobajvgazqvpaefdbgstbfwcuvlhbgvogejraxnbmshqztojxrtzuoowcitnjlopigsrceddfgikducfvxfsxobzafhegpqqnfrxhckzjngygzhubugetzsglvweeykkapilvecigutzqssodextobxdsckxcnzakvpydmqbntmnxniowbytgveuclnmohqocswjlnrlitzhqbvhzkutpiegpukalfpscrkiikvwzsxstsotjycfcjgfvdbpmxfljgbothmabukmsukoeukmjawicduocrdstnuhmbgxgpleykeymmtcmmvjlhchmkcldhuxvsefpycsuugafbljgwqqnafvqcajmekkzsuyzzfvdqzqhjwhcmmcgoobvxynksdagjtwjsjitonqjbsmyycbhondvjlotnjrgmgcrbztzrqlinjzhuvhbzugjykxiipvakigtozxmcsbqpygpyjkugybqslqrntmyfiauyzebqbmeczljftrydhednkwyvnymsdlazfmhrugawdwelnhjdzgjrdaoqvmxorwcbjlmjhearnohdenehzfozzoawttgzkongbvxbnkmkwfdqlziwewzvqjvcadxlgpyzibmyeymrkzefqyctzwodzfokogsjxtijizhlfqwluoxjctcvgqqvsjuczapdhglktbxtffdevhqhenbpcssbozfdzcziknhknujkqvhhqbuondpnbsstbnmfpiyhsdglnormzadzahnrifxhhtftokxhdzffxsconnyfovsitclilpzksuehusnunnfsssxvtkossymxvmvxmuxayzayggxdjznoejljvierhdzcpkassjkozevwvbtwoxngjyswvtyhavqjpirvbnuwzbehgfpgtlrlrnddtebytrkroelfbntnblyytlfzyadvzzbanyylbuoofhgdgrllfcmerfiuoxotttboatribkudnebhlxjuydhuvfwpuo"], "expected": 18}
+  ],
+  "compare": "exact",
+  "referenceSolution": "def length_of_longest_substring(s: str) -> int:\n    last_seen = {}\n    start = best = 0\n    for i, ch in enumerate(s):\n        if ch in last_seen and last_seen[ch] >= start:\n            start = last_seen[ch] + 1\n        last_seen[ch] = i\n        best = max(best, i - start + 1)\n    return best\n",
+  "targetComplexity": {"time": "O(n)", "space": "O(min(n, alphabet size))"},
+  "hints": [
+    "Think of a window over the string with no repeats inside it. When you add a new character, what makes the window invalid?",
+    "Checking every substring for repeats costs O(n^2) or worse. Can the window slide forward without ever rescanning characters it already checked?",
+    "When a repeat shows up, how far must the left edge move, and could it ever need to move backwards?",
+    "Trace \"abba\" and \"tmmzuxt\". After the second 'b' (or 'm'), what happens when you later see an 'a' (or 't') whose previous position is now outside the window?",
+    "A sliding window with a map from each character to its last index: jump the left edge past the previous occurrence, but only if that occurrence is inside the window."
+  ],
+  "followUps": [
+    "What are the time and space complexity, and what bounds the extra space?",
+    "Why must the left edge never move backwards? Which input breaks an implementation that forgets this?",
+    "How would you return the substring itself, not just its length?",
+    "How does the solution change if you may allow at most two distinct characters, or at most k repeats of any character?"
+  ],
+  "idealAnswerPoints": [
+    "Maintains a window with all-distinct characters and moves the right edge once per character",
+    "Stores the last index of each character and jumps the left edge to one past the previous occurrence",
+    "Ignores a previous occurrence that lies before the window start (the \"abba\" case)",
+    "States O(n) time and O(min(n, alphabet)) space, with the O(n^2) approach as the baseline"
+  ],
+  "weakAnswerSigns": [
+    "Re-scans every substring with a set, giving O(n^2) or worse",
+    "Resets the window start to the last occurrence without taking max with the current start and moves it backwards on \"abba\"",
+    "Returns the number of distinct characters in the whole string instead of the longest substring"
+  ],
+  "rubric": {
+    "correctness": "Correct for the empty string, single characters, all-same, all-distinct, and strings where an old repeat falls outside the window.",
+    "efficiency": "O(n) time with a sliding window; O(n^2) set rescans only count as a named baseline.",
+    "code_quality": "A map of last positions and two integers; no substring slicing in the loop, no per-step set rebuilds.",
+    "communication": "Explains the window invariant and traces a stale-index case such as \"abba\" out loud."
+  }
+}

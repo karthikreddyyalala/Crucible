@@ -1,0 +1,65 @@
+{
+  "id": "code-palindromic-substrings",
+  "title": "Palindromic Substrings",
+  "difficulty": "medium",
+  "topics": ["string", "dynamic programming", "two pointers"],
+  "asked": "common",
+  "statement": "Given a string `s`, count how many of its substrings are palindromes (they read the same forwards and backwards). Substrings are counted by position, so two equal substrings taken from different places each count, and every single character counts as a palindrome of length one.\n\nConstraints: 1 <= len(s) <= 1000; `s` contains only lowercase English letters.",
+  "functionName": "count_substrings",
+  "signature": "def count_substrings(s: str) -> int:",
+  "starterCode": "def count_substrings(s: str) -> int:\n    \"\"\"Return how many substrings of s (counted by position) are palindromes.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "s = \"abc\"", "output": "3", "explanation": "Only the three single letters are palindromes, so the count is 3."},
+    {"input": "s = \"aaa\"", "output": "6", "explanation": "The palindromes are a, a, a (three positions), aa, aa (two positions) and aaa: 6 in total."},
+    {"input": "s = \"abba\"", "output": "6", "explanation": "a, b, b, a, then \"bb\" and \"abba\": 6 in total."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args": ["abc"], "expected": 3},
+    {"args": ["aaa"], "expected": 6},
+    {"args": ["abba"], "expected": 6},
+    {"args": ["a"], "expected": 1},
+    {"args": ["ab"], "expected": 2},
+    {"args": ["aa"], "expected": 3},
+    {"args": ["aba"], "expected": 4},
+    {"args": ["abab"], "expected": 6},
+    {"args": ["racecar"], "expected": 10},
+    {"args": ["zzzzzzzz"], "expected": 36},
+    {"args": ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"], "expected": 500500},
+    {"args": ["aaaaaaabbbbabbbabbaaaaaabaaabbbbaabbbaaaabaaabaaaaaaaabaabbaabbbbaaabbbabbabaabbbaaababbaaaaaabababbaababaaaabaabbabaaabaaaaababaaaaabaaaaaababbaaaaaaaabbbbabbaaabbabaabbbaababaaaaabbbababbabbbabbaaabaabbbbaaaabaabaaabbbbaabaaaabbbbbabbababbbbbabbbabababaabbabbabbbaaaabbaabaabbbaaabbaaaabbabaaabbbabbbbbabaabaaabaabbabbbabbaabbbabbaaabbbabbbbababbbbbababbababababbbbaababaaabbaaaabbbbabaaaaabaaabbbbbbaabbabbbbaaaaaabbababbaababbaabbaabbabbabaababbaaabababababbabbaabbbababbbabaaaababbaaaababbabaaaabababaaabbaabaaabbaabbbbbbaababaabaabbabbaababaabbbaaaabaababbbaabbabaabbbabaaaabaaabaaaaaaabaaaaaabbbbbbabbbaaabbabbbabbbabaababaabbaaababbabaabbababbabaabbbbbababbaababababbbbabbbbbbbaaaabbbbbbbbbabaaabbaabaaaabbaabaabaaabbbaababaabaaabbabaaaabbbbaabbbabbaabaababbbbbabbbabbaabaaababbbbaaaabbaabaaaabbabaaabbbbaaaaaaaabaaababbaabbababbababaaaabaaabbbababbbaaabbbaaaaababbbbbabbbaaabbbbbabababbbbbaaabbbbabababbbbababbababbbbabbaaaabababbbbbabbbaaabbbaaababaabababbbabbbbbbaabaaaabaaabaababaaabbbbbb"], "expected": 2959},
+    {"args": ["xribwpyqsqgnbqradpadvijiuzgvswuzzkeqdatswntkmrearxcgtmgvajlhhbsopmfdlmttjrsedovcqovndwczzlqwxxksbilbbpkpeuwttlflxuqbtsiwuygmukuiqerzjiizksbwyzyboiyxicyqlwtdktqzwmmorilbnzlscytluzptzwzcupavlljskgmjfcjafoelbhhmcxaziymmsrxpsvbgvtyzdvyaknbvflvnfqidqokbwjfdhithyswacqqgqqcdedlwqcjuwdfzizehnluvdbxrqbtshqyymedllhpjsdynjofbajmxtybohyvalosqqplfggaozkjtwqcjsyathmqbphciphnoydizwfbmphsbghhcjqmlusfisltrpakpboozmfskbyrxvfmcnqnthrupkeiwgbazbmnxbphqhkjxqqriwyofgmdlvhovynzxsllfihkoiezvpuzvfflyypetnmnjtantefxytzoevkrsgxinrbiuyhwvugrexeylasfpbkqjtdwuftclwmwyvhcezdjfsirfbbaqehglsfoefmwuaoyqzdmjcbevcebxunncspykttrrctplxmmdygnkdtvmunxacssvtpddmjasruyuxylbxflkgfbrbvgqptfdvrzssgkrsqrzmchznsylyzxnoxoaqtinkmtlrrfycgfzrzmtlguwhnufklopbcpulwmqfwnarbkppagkbvtxvbkiclbmermlffvlawwikfalxnkeeagmwhoimgfvbneotolxhocszlqjyvrbwuslofafiunjdvdkmjbfwlqndedoazyvmbafpjtnalxkugmacwmosuubpacfqteovhwlppblzedupdqxnxwcylmqdjqeifjdnjjasiiutomtxfpywzqriskkhmflweyxnuzadbgpdbrufdliesyriwukjdrjwvuowseckzegcrxljmidiiibtwvellymxmnhbzhbcjnp"], "expected": 1075}
+  ],
+  "compare": "exact",
+  "referenceSolution": "def count_substrings(s: str) -> int:\n    count = 0\n    for center in range(len(s)):\n        for lo, hi in ((center, center), (center, center + 1)):\n            while lo >= 0 and hi < len(s) and s[lo] == s[hi]:\n                count += 1\n                lo -= 1\n                hi += 1\n    return count\n",
+  "targetComplexity": {"time": "O(n^2)", "space": "O(1)"},
+  "hints": [
+    "Every palindrome has a middle. If you know the middle, how many palindromes are centred there?",
+    "Checking and reversing every substring is O(n^3). What would you do instead for each centre to avoid re-checking characters?",
+    "How many centres are there in a string of length n? Consider odd-length and even-length palindromes separately.",
+    "Try \"aaa\" by hand. Which centres produce which palindromes, and does each palindrome get counted exactly once?",
+    "Expand outward from each of the 2n - 1 centres while the two ends match, and add one to the count for every successful expansion."
+  ],
+  "followUps": [
+    "What are the time and space complexity, and which input makes the expansion do the most work?",
+    "How would you count only the distinct palindromic substrings instead of every position?",
+    "Could a dynamic programming table do the same job, and what would it cost in memory?",
+    "Is there an O(n) algorithm, and how does it reuse information from palindromes it has already found?"
+  ],
+  "idealAnswerPoints": [
+    "Counts each palindrome once by anchoring it at its centre and expanding outward",
+    "Covers both odd-length centres (a character) and even-length centres (a gap between two characters)",
+    "Increments the count on every successful expansion rather than only once per centre",
+    "States O(n^2) time and O(1) space and identifies an all-equal string as the worst case"
+  ],
+  "weakAnswerSigns": [
+    "Checks every substring by reversing it, giving O(n^3)",
+    "Counts only odd-length palindromes, or counts each centre once instead of once per matching expansion",
+    "Counts distinct palindromes with a set when the problem asks for every position"
+  ],
+  "rubric": {
+    "correctness": "Correct on single letters, all-equal strings, mixed odd and even palindromes and long random strings.",
+    "efficiency": "O(n^2) time via centre expansion or DP; the cubic substring check does not scale to n = 1000.",
+    "code_quality": "The same expansion routine for both centre types; no duplicated loops, no set to remove double counts.",
+    "communication": "Explains the 2n - 1 centres and why each palindrome is counted exactly once."
+  }
+}
