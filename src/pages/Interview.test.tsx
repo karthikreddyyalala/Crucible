@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { forwardRef } from "react";
 import { api } from "@/lib/api";
-import type { CodingProblem } from "@/hooks/useCodingProblem";
+import type { PublicProblem } from "@/lib/coding/types";
 import type { RunOutcome } from "@/lib/coding/types";
 import type { PlannedQuestion } from "@/types/contracts";
 import { useSessionStore } from "@/stores/sessionStore";
@@ -57,7 +57,7 @@ const problem = {
   visibleTestCount: 1,
   examples: [{ input: "nums = [3, 8], target = 11", output: "[0, 1]", explanation: "" }],
   tests: [{ args: [[3, 8], 11], expected: [0, 1] }],
-} as CodingProblem;
+} as PublicProblem;
 
 const coding: PlannedQuestion = {
   id: "q1", type: "coding", prompt: "Let's do a coding problem.", targetDifficulty: 2, weightedFromWeakness: false,

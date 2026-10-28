@@ -3,7 +3,7 @@ import { animate, motion, useReducedMotion } from "motion/react";
 import { ArrowClockwise, CaretRight, CheckCircle, CircleNotch, Timer, WarningCircle, XCircle } from "@phosphor-icons/react";
 import type { RunOutcome, TestResult } from "@/lib/coding/types";
 import type { RunnerStatus } from "@/hooks/usePythonRunner";
-import type { CodingProblem } from "@/hooks/useCodingProblem";
+import type { PublicProblem } from "@/lib/coding/types";
 import { describeError, designCalls, formatValue } from "./format";
 
 export interface ShownRun {
@@ -18,7 +18,7 @@ interface Props {
   /** Python has been ready at least once in this tab. */
   loadedBefore: boolean;
   run: ShownRun | null;
-  problem: CodingProblem;
+  problem: PublicProblem;
   onRetry: () => void;
   shortcut: string;
 }
@@ -126,7 +126,7 @@ export function TestResults({ status, progress, loadedBefore, run, problem, onRe
   );
 }
 
-function ResultList({ rows, problem }: { rows: TestResult[]; problem: CodingProblem }) {
+function ResultList({ rows, problem }: { rows: TestResult[]; problem: PublicProblem }) {
   const reduced = useReducedMotion();
   const { visible, hidden } = split(rows, problem.visibleTestCount);
   const firstFail = visible.find((r) => !r.passed)?.index;
@@ -176,7 +176,7 @@ function ResultList({ rows, problem }: { rows: TestResult[]; problem: CodingProb
   );
 }
 
-function TestRow({ result, problem, open, onToggle }: { result: TestResult; problem: CodingProblem; open: boolean; onToggle: () => void }) {
+function TestRow({ result, problem, open, onToggle }: { result: TestResult; problem: PublicProblem; open: boolean; onToggle: () => void }) {
   const detailId = useId();
   const label = (
     <>
@@ -221,7 +221,7 @@ interface DesignArgs {
 const isDesignArgs = (v: unknown): v is DesignArgs =>
   typeof v === "object" && v !== null && Array.isArray((v as DesignArgs).ops) && Array.isArray((v as DesignArgs).args);
 
-function Detail({ result, problem }: { result: TestResult; problem: CodingProblem }) {
+function Detail({ result, problem }: { result: TestResult; problem: PublicProblem }) {
   const args = problem.tests[result.index]?.args;
   const error = result.error ? describeError(result.error, false).text : null;
   const design = problem.kind === "design" && isDesignArgs(args);

@@ -4,7 +4,8 @@ import { Desktop } from "@phosphor-icons/react";
 import type { PlannedQuestion } from "@/types/contracts";
 import type { RunOutcome } from "@/lib/coding/types";
 import type { usePythonRunner } from "@/hooks/usePythonRunner";
-import { useCodingProblem, type CodingProblem } from "@/hooks/useCodingProblem";
+import { useCodingProblem } from "@/hooks/useCodingProblem";
+import type { PublicProblem } from "@/lib/coding/types";
 import { useSessionStore } from "@/stores/sessionStore";
 import { SplitPane } from "./SplitPane";
 import { ProblemPanel } from "./ProblemPanel";
@@ -107,7 +108,7 @@ function errorLineOf(outcome: RunOutcome, visibleCount: number): number | null {
   return row?.error ? describeError(row.error, row.index < 0).line : null;
 }
 
-function EditorPane({ problem, questionId, runner }: { problem: CodingProblem; questionId: string; runner: Runner }) {
+function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; questionId: string; runner: Runner }) {
   const stored = useSessionStore((s) => s.codeByQuestion[questionId]);
   const saveCode = useSessionStore((s) => s.setCode);
   const recordRun = useSessionStore((s) => s.recordRun);

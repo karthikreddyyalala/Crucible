@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import type { TestResult } from "@/lib/coding/types";
-import type { CodingProblem } from "@/hooks/useCodingProblem";
+import type { PublicProblem } from "@/lib/coding/types";
 import { TestResults, type ShownRun } from "./TestResults";
 
 const problem = {
@@ -26,7 +26,7 @@ const problem = {
     { args: [[1, 2], 3], expected: [0, 1] },
     { args: [[5, 5], 10], expected: [0, 1] },
   ],
-} as CodingProblem;
+} as PublicProblem;
 
 const row = (index: number, passed: boolean, extra: Partial<TestResult> = {}): TestResult => ({
   index, passed, got: passed ? [0, 1] : [1, 2], expected: [0, 1], error: null, stdout: "", ms: 0, ...extra,

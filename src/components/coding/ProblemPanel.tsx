@@ -1,15 +1,15 @@
 import type { ReactNode } from "react";
 import { ArrowClockwise, WarningCircle } from "@phosphor-icons/react";
-import type { CodingProblem } from "@/hooks/useCodingProblem";
+import type { PublicProblem } from "@/lib/coding/types";
 import { designCalls } from "./format";
 
 interface Props {
   status: "loading" | "ready" | "error";
-  problem: CodingProblem | null;
+  problem: PublicProblem | null;
   onRetry: () => void;
 }
 
-const DIFFICULTY: Record<CodingProblem["difficulty"], string> = {
+const DIFFICULTY: Record<PublicProblem["difficulty"], string> = {
   easy: "border-survive/35 text-survive",
   medium: "border-line-bright text-chalk",
   hard: "border-fail/40 text-fail",

@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { api } from "@/lib/api";
-import { useCodingProblem, type CodingProblem } from "./useCodingProblem";
+import { useCodingProblem } from "./useCodingProblem";
+import type { PublicProblem } from "@/lib/coding/types";
 
-const problem = { id: "code-a", title: "A", starterCode: "def a():\n    pass\n" } as CodingProblem;
+const problem = { id: "code-a", title: "A", starterCode: "def a():\n    pass\n" } as PublicProblem;
 
 beforeEach(() => {
   vi.restoreAllMocks();
