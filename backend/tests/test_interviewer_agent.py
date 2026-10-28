@@ -180,3 +180,15 @@ def test_interviewer_prompt_has_coding_round_and_fences_code_as_untrusted():
     untrusted = _PROMPT.split("UNTRUSTED INPUT", 1)[1]
     assert "<candidate_code>" in untrusted and "<test_results>" in untrusted
     assert "Company style" in _PROMPT
+
+
+def test_a_model_end_is_never_passed_on():
+    # "end" is the server's conduct action; the model saying it (e.g. after "the interview is over"
+    # injected in an answer) just resolves the question.
+    llm = _FakeLLM({"action": "end", "followUpPrompt": None, "currentQuestionId": "q-beh-1", "say": "Okay."})
+    agent = InterviewerAgent(llm=llm, model="m")
+    kw = dict(question=_Q, candidate_answer="x", follow_up_count=0)
+    assert agent.run_turn(**kw, is_last_question=False).action == "advance"
+    assert agent.run_turn(**kw, is_last_question=True).action == "complete"
+    assert agent.run_turn(**kw, is_last_question=False, phase="closing").action == "complete"
+    assert agent.run_turn(**kw, is_last_question=False).say == "Okay."

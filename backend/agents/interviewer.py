@@ -86,8 +86,12 @@ class InterviewerAgent:
                 f"- A strong answer covers: {'; '.join(p.ideal_answer_points)}\n"
                 f"- Weak-answer signs: {'; '.join(p.weak_answer_signs)}\n"
             )
-        return self._llm.structured(
+        decision = self._llm.structured(
             agent="interviewer", sink=usage_sink,
             model=self._model, system=_PROMPT, user=user, schema=InterviewDecision,
             temperature=self._temperature,
         )
+        if decision.action == "end":  # only the server ends a session (conduct); for the model it resolves
+            done = is_last_question or phase == "closing"
+            decision = decision.model_copy(update={"action": "complete" if done else "advance"})
+        return decision
