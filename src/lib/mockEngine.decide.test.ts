@@ -31,7 +31,7 @@ describe("mockEngine.decide — sounds like an interviewer", () => {
   });
 
   it("moves on honestly after the hints run out, still without praise", () => {
-    const d = mockEngine.decide(turn({ answer: "Q: hint\nA: Still no idea, sorry.", followUpCount: 2 }));
+    const d = mockEngine.decide(turn({ answer: "Q: hint\nA: Still no idea, sorry.", followUpCount: 3 }));
     expect(d.action).toBe("advance");
     expect(d.say).not.toMatch(PRAISE);
     expect(d.say).toContain("Prompt for q1.");
@@ -52,5 +52,14 @@ describe("mockEngine.decide — sounds like an interviewer", () => {
     const bye = mockEngine.decide(turn({ phase: "closing", answer: "No, I think I'm good. Thanks!", nextQuestion: null }));
     expect(bye.action).toBe("complete");
     expect(bye.say).toMatch(/Karthik/);
+  });
+});
+
+describe("mockEngine.decide — per-type follow-up budget", () => {
+  it("allows 6 follow-ups on system design but stops at 3 on behavioral", () => {
+    const sd = mockEngine.decide(turn({ question: q("q0", "system_design"), answer: "I don't know.", followUpCount: 5 }));
+    expect(sd.action).toBe("follow_up");
+    const beh = mockEngine.decide(turn({ question: q("q0", "behavioral"), answer: "I don't know.", followUpCount: 3 }));
+    expect(beh.action).not.toBe("follow_up");
   });
 });

@@ -27,6 +27,7 @@ from agents.coach import CoachAgent
 from agents.evaluator import EvaluatorAgent
 from agents.interviewer import InterviewerAgent
 from agents.memory import MemoryAgent
+from models.loader import find_exemplar
 from graph.session_start import build_session_start_graph
 from store.base import MemoryStore, VersionConflict
 
@@ -220,6 +221,7 @@ def build_session_router(
             mode=req.mode,
             level=req.level,
             usage_sink=usage,
+            exemplar=find_exemplar(req.question.exemplar_id),
         )
         return TurnResponse(decision=decision, cost_usd=sum(u.cost_usd for u in usage))
 

@@ -142,6 +142,9 @@ const INTAKE_BY_ROLE: Record<string, Omit<IntakeProfile, "targetRole">> = {
   },
 };
 
+// Max probing follow-ups per question; mirrors backend FOLLOW_UP_BUDGET.
+const FOLLOW_UP_BUDGET: Record<string, number> = { behavioral: 3, technical: 3, system_design: 6 };
+
 // Follow-up probes keyed loosely to question type — one ask each.
 const PROBES: Record<string, string[]> = {
   behavioral: [
@@ -336,13 +339,14 @@ export const mockEngine = {
         : out("clarify", "Fair question — make whatever reasonable assumption you think is right and say it out loud. I'll tell you if it's off. Go ahead whenever you're ready.");
     }
 
+    const budget = FOLLOW_UP_BUDGET[question.type];
     const resolve = (reaction: string) =>
       isLast || !nextQuestion
         ? out("complete", `${reaction} That's everything I wanted to cover. What questions do you have for me?`)
         : out("advance", `${reaction} ${bridgeTo(question, nextQuestion)} ${nextQuestion.prompt}`);
 
     if (DONT_KNOW.test(reply) && reply.length < 220) {
-      if (followUpCount < 2) {
+      if (followUpCount < budget) {
         const hint = HINTS[question.type][Math.min(followUpCount, 1)];
         const opener = followUpCount === 0 ? "That's okay, let's work through it together." : "No problem — let me make it smaller.";
         return out("follow_up", `${opener} ${hint}`, hint);
@@ -350,7 +354,7 @@ export const mockEngine = {
       return resolve("Okay, let's leave that one — it's worth reviewing afterwards.");
     }
 
-    if (followUpCount < 2 && looksVague(reply)) {
+    if (followUpCount < budget && looksVague(reply)) {
       const probe = PROBES[question.type][Math.min(followUpCount, 2)];
       const reaction = reply.length < 80
         ? "Okay, that's pretty brief."
@@ -365,7 +369,7 @@ export const mockEngine = {
           "Okay, the numbers make that easy to believe.",
           "Right, I can follow exactly what you did there.",
         ])
-      : followUpCount >= 2
+      : followUpCount >= budget
       ? "Okay. I still don't have the specifics I was looking for there, but let's keep going."
       : "Okay, I've got a reasonable picture of that.");
   },

@@ -717,3 +717,32 @@ def test_tts_enabled_only_when_key_in_environment(monkeypatch):
     assert Settings().elevenlabs_enabled is False
     monkeypatch.setenv("ELEVENLABS_API_KEY", "x")
     assert Settings().elevenlabs_enabled is True
+
+
+def _spy_client(payloads):
+    seen: dict = {}
+
+    class _Spy(_FakeLLM):
+        def structured(self, **kw):
+            seen["user"] = kw["user"]
+            return super().structured(**kw)
+
+    return TestClient(create_app(llm=_Spy(payloads), store=InMemoryStore())), seen
+
+
+def test_turn_and_evaluate_look_up_exemplar_server_side():
+    from models.loader import find_exemplar
+    ex = find_exemplar("sde-beh-ownership-1")
+    q = {**_QUESTION_BODY, "exemplarId": "sde-beh-ownership-1"}
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP, "AnswerEvaluation": _EVAL})
+    client.post("/api/session/turn", json={
+        "question": q, "answer": "a", "followUpCount": 0, "isLast": False, "phase": "question"})
+    assert ex.follow_up_hooks[0] in seen["user"]
+
+
+def test_unknown_exemplar_id_yields_no_notes_and_no_error():
+    q = {**_QUESTION_BODY, "exemplarId": "does-not-exist"}
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP, "AnswerEvaluation": _EVAL})
+    r = client.post("/api/session/turn", json={
+        "question": q, "answer": "a", "followUpCount": 0, "isLast": False, "phase": "question"})
+    assert r.status_code == 200 and "Interviewer notes" not in seen["user"]
