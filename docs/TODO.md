@@ -48,6 +48,22 @@ ATTRIBUTION.md. See docs/research/question-sources-and-datasets.md.
 - [ ] Gaps: strengths/weaknesses, Google Docs, message queue, backend security,
       tokenization/context windows, RLHF
 
+## Now — Phase 1 (branch `feat/phase-1`)
+
+Spec: docs/superpowers/specs/2026-10-28-phase-1-design.md · Plan: docs/superpowers/plans/2026-10-28-phase-1.md
+Roadmap for all phases: docs/ROADMAP.md
+
+- [x] Design agreed (Python in the browser, Blind 75, coding mode + 1 coding question in full
+      mocks, real-interviewer coding flow, warn → warn → end, company styles, low temperatures)
+- [~] Wave 1: moderation · temperatures + repeat agreement · coding schema/harness · company styles
+- [ ] Wave 2: 75 problems (4 parallel batches) · Python runner · backend integration
+- [ ] Wave 3: session flow + setup · coding workspace UI · Playwright end-to-end tests
+- [ ] Wave 4: live evals (coding + repeat-3) · live coding interview transcript · final review ·
+      docs · PR (no direct push to main)
+
+Found while planning: every agent was running at the default temperature (1.0), scoring
+included. Phase 1 sets 0 for scoring/planning/extraction and 0.3 for Marcus.
+
 ## Next — Voice feel (needs a Deepgram account + key)
 
 - [ ] Deepgram Flux streaming STT with semantic end-of-turn (replaces browser STT)
