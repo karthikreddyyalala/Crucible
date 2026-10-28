@@ -34,6 +34,25 @@ def keep_known_exemplars(plan: QuestionPlan, bank: list[QuestionExemplar],
     return plan.model_copy(update={"questions": qs})
 
 
+def assign_coding_problems(plan: QuestionPlan, coding: list[CodingProblem]) -> QuestionPlan:
+    """The editor needs a real problem for every coding question. One left without an id gets the
+    first unused offered problem (its slot's difficulty first); with none left it becomes technical."""
+    used = {q.exemplar_id for q in plan.questions}
+    qs = []
+    for q in plan.questions:
+        if q.type == "coding" and q.exemplar_id is None:
+            want = "easy" if q.target_difficulty <= 2 else "hard" if q.target_difficulty == 5 else "medium"
+            free = [p for p in coding if p.id not in used]
+            pick = next((p for p in free if p.difficulty == want), free[0] if free else None)
+            if pick:
+                used.add(pick.id)
+                q = q.model_copy(update={"exemplar_id": pick.id, "prompt": f"Let's do a coding problem — {pick.title}."})
+            else:
+                q = q.model_copy(update={"type": "technical"})
+        qs.append(q)
+    return plan.model_copy(update={"questions": qs})
+
+
 class SessionStartState(TypedDict, total=False):
     session_id: str
     resume_text: str
@@ -76,7 +95,7 @@ def build_session_start_graph(*, llm, intake_model: str, planner_model: str,
             coding_problems=coding,
             company_style=find_style(state.get("company_style", "general")),
         )
-        return {"plan": keep_known_exemplars(plan, bank, coding)}
+        return {"plan": assign_coding_problems(keep_known_exemplars(plan, bank, coding), coding)}
 
     g = StateGraph(SessionStartState)
     g.add_node("intake", intake_node)

@@ -853,8 +853,16 @@ def test_coding_problem_endpoint_requires_auth_when_enabled(monkeypatch):
 
 def test_turn_rejects_oversized_or_invalid_phase1_fields():
     client = _client({"InterviewDecision": _DECISION_FOLLOW_UP})
+    too_long = "That answer is too long — please keep each answer under 6,000 characters."
     assert _turn(client, answer="x" * 6000).status_code == 200
-    assert _turn(client, answer="x" * 6001).status_code == 422
+    res = _turn(client, answer="x" * 6001)
+    assert res.status_code == 422 and res.json()["detail"] == too_long
+    # The cap is per reply: a long thread of short replies is fine, a long latest reply is not.
+    thread = "Q: q\nA: " + "x" * 5000 + "\nQ: why?\nA: " + "y" * 5000
+    assert _turn(client, answer=thread).status_code == 200
+    res = _turn(client, answer="Q: q\nA: short\nQ: why?\nA: " + "y" * 6001)
+    assert res.status_code == 422 and res.json()["detail"] == too_long
+    assert _turn(client, answer="Q: q\nA: " + "x" * 39_991).status_code == 422  # whole thread > 40,000
     assert _turn(client, code="x" * 20001).status_code == 422
     assert _turn(client, testResults="x" * 4001).status_code == 422
     assert _turn(client, strikes=4).status_code == 422
@@ -896,6 +904,17 @@ def test_conduct_reply_restates_the_phase_ask_outside_the_question_phase():
     assert _QUESTION_BODY["prompt"] not in say  # never jumps ahead to the first planned question
     say = _turn(client, answer="you're an idiot", phase="closing").json()["decision"]["say"]
     assert "questions" in say and _QUESTION_BODY["prompt"] not in say
+
+
+def test_only_the_latest_reply_is_moderated():
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP})
+    thread = "Q: Tell me about a deadline.\nA: you're an idiot\nQ: Let's keep this professional.\nA: Sorry. I owned the launch."
+    res = _turn(client, answer=thread, strikes=1)
+    assert res.status_code == 200 and res.json()["strikes"] == 1
+    assert "I owned the launch." in seen["user"]
+    struck = TestClient(create_app(llm=_NoCallLLM(), store=InMemoryStore()))
+    res = _turn(struck, answer="Q: Tell me about a deadline.\nA: I owned it.\nQ: Why?\nA: shut up, bot", strikes=0)
+    assert res.json()["strikes"] == 1 and res.json()["decision"]["action"] == "clarify"
 
 
 def test_casual_swearing_reaches_the_interviewer_and_keeps_the_strike_count():

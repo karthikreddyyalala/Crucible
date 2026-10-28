@@ -144,14 +144,49 @@ def test_graph_offers_coding_problems_for_the_mode_and_level():
     assert "CodingProblems" not in user
 
 
-def test_graph_keeps_only_offered_coding_ids():
-    plan = [_coding_q(0, "code-two-sum"), _coding_q(1, "code-made-up"), _coding_q(2, "code-two-sum"),
-            _coding_q(3, "code-two-sum", "technical")]
-    result, _ = _invoke(plan, mode="coding", level="junior")
-    assert [q.exemplar_id for q in result["plan"].questions] == ["code-two-sum", None, None, None]
-    # An easy problem is never offered to a mid full mock (medium only), so it can't survive there.
-    result, _ = _invoke([_coding_q(0, "code-two-sum")], mode="full", level="mid")
-    assert result["plan"].questions[0].exemplar_id is None
+def _fake_problems(*specs):
+    from models.coding import find_problem
+    base = find_problem("code-two-sum")
+    return [base.model_copy(update={"id": i, "title": t, "difficulty": d}) for i, t, d in specs]
+
+
+_EASY_A, _EASY_B, _MEDIUM = _fake_problems(
+    ("code-easy-a", "Easy A", "easy"), ("code-easy-b", "Easy B", "easy"), ("code-medium", "Medium One", "medium"))
+
+
+def test_graph_keeps_offered_coding_ids_and_assigns_one_where_the_planner_missed(monkeypatch):
+    import graph.session_start as ss
+    monkeypatch.setattr(ss, "problems_for", lambda d: [p for p in (_EASY_A, _EASY_B, _MEDIUM) if p.difficulty in d])
+    plan = [_coding_q(0, "code-easy-b"), _coding_q(1, "code-made-up"), _coding_q(2, "code-easy-b"),
+            _coding_q(3, "code-easy-a", "technical")]
+    result, _ = _invoke(plan, mode="coding", level="mid")
+    qs = result["plan"].questions
+    assert [q.type for q in qs] == ["coding", "coding", "coding", "technical"]
+    # q1 gets the first unused easy problem (its slot is difficulty 2); q2's duplicate id was dropped,
+    # so it gets the next unused one; the problem id on a technical question never survives.
+    assert [q.exemplar_id for q in qs] == ["code-easy-b", "code-easy-a", "code-medium", None]
+    assert qs[0].prompt == "Let's do a coding problem: p."  # the Planner's own pick keeps its prompt
+    assert qs[1].prompt == "Let's do a coding problem — Easy A."
+    assert qs[2].prompt == "Let's do a coding problem — Medium One."
+
+
+def test_graph_turns_a_coding_question_technical_when_no_problem_is_offered(monkeypatch):
+    import graph.session_start as ss
+    monkeypatch.setattr(ss, "problems_for", lambda d: [p for p in (_EASY_A,) if p.difficulty in d])
+    # A mid full mock offers medium problems only — here there are none.
+    result, _ = _invoke([_coding_q(0, "code-easy-a")], mode="full", level="mid")
+    q = result["plan"].questions[0]
+    assert (q.type, q.exemplar_id, q.prompt) == ("technical", None, "Let's do a coding problem: p.")
+
+
+def test_assign_coding_problems_prefers_the_slot_difficulty_and_never_reuses_an_id():
+    from graph.session_start import assign_coding_problems
+    plan = QuestionPlan.model_validate({"sessionId": "s", "questions": [
+        _coding_q(0, None) | {"targetDifficulty": 3}, _coding_q(1, "code-easy-a"), _coding_q(2, None),
+        _coding_q(3, None)]})
+    qs = assign_coding_problems(plan, [_EASY_A, _EASY_B, _MEDIUM]).questions
+    assert [q.exemplar_id for q in qs] == ["code-medium", "code-easy-a", "code-easy-b", None]
+    assert qs[3].type == "technical"  # offered problems ran out: it can't be a coding question
 
 
 def test_keep_known_exemplars_accepts_coding_ids_only_as_coding_questions():

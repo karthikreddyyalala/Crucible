@@ -43,6 +43,13 @@ def _exemplar_for(q: PlannedQuestion) -> QuestionExemplar | None:
     return ex if ex and ex.type == q.type else None  # mismatched notes would contradict the question
 
 
+def _latest_reply(answer: str) -> str:
+    # The client sends the question's whole thread ("Q: ..." / "A: ...", latest last).
+    # Mirrors latestReply in src/lib/mockEngine.ts.
+    i = answer.rfind("\nA: ")
+    return (answer[i + 4:] if i >= 0 else answer).strip()
+
+
 def _problem_for(q: PlannedQuestion) -> CodingProblem | None:
     # Looked up by id server-side: the client's copy of the problem is never trusted.
     return find_problem(q.exemplar_id) if q.type == "coding" else None
@@ -74,7 +81,7 @@ class StartSessionResponse(_Base):
 
 class TurnRequest(_Base):
     question: PlannedQuestion
-    answer: str = Field(max_length=6000)
+    answer: str = Field(max_length=40000)  # the whole thread; each reply is capped in /turn
     follow_up_count: int = Field(ge=0)
     is_last: bool
     # Conversational context so the interviewer can respond like a person:
@@ -271,9 +278,14 @@ def build_session_router(
 
     @router.post("/session/turn")
     def turn(req: TurnRequest, _sub: str | None = Depends(current_sub)) -> TurnResponse:
-        # Screened before anything else: abuse and blocked terms never reach the model.
-        # ponytail: screens the whole thread, so the client must drop a struck reply from it.
-        if moderate(req.answer).kind != "ok":
+        reply = _latest_reply(req.answer)
+        if len(reply) > 6000:
+            raise HTTPException(
+                status_code=422,
+                detail="That answer is too long — please keep each answer under 6,000 characters.")
+        # Screened before the model: abuse and blocked terms never reach it. Only the latest
+        # reply, so an earlier struck line can't strike again (the client drops it as well).
+        if moderate(reply).kind != "ok":
             strikes = req.strikes + 1
             return TurnResponse(decision=_conduct_decision(req, strikes), strikes=strikes)
         # Only the interviewer runs here so the reply comes back fast; scoring
