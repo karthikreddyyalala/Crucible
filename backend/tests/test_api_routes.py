@@ -817,7 +817,9 @@ _CODING_Q = {
     "prompt": "Let's do a coding problem: given a list of numbers and a target, find two that add up to it.",
     "targetDifficulty": 2, "weightedFromWeakness": False, "exemplarId": "code-two-sum",
 }
-_PRIVATE_KEYS = {"referenceSolution", "hints", "followUps", "rubric", "idealAnswerPoints", "weakAnswerSigns"}
+# Target complexity is private too: showing it would hand the candidate the answer's shape.
+_PRIVATE_KEYS = {"referenceSolution", "hints", "followUps", "rubric", "idealAnswerPoints", "weakAnswerSigns",
+                 "targetComplexity"}
 
 
 class _NoCallLLM:

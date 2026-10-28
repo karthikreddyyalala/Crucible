@@ -10,7 +10,8 @@ from pydantic.alias_generators import to_camel
 _PROBLEM_DIR = Path(__file__).resolve().parent.parent / "data" / "coding" / "problems"
 RUBRIC_KEYS = frozenset({"correctness", "efficiency", "code_quality", "communication"})
 # Server-side only: Marcus and the Evaluator use these; the browser never sees them.
-_PRIVATE = {"reference_solution", "hints", "follow_ups", "ideal_answer_points", "weak_answer_signs", "rubric"}
+_PRIVATE = {"reference_solution", "hints", "follow_ups", "ideal_answer_points", "weak_answer_signs", "rubric",
+            "target_complexity"}
 
 
 class _Frozen(BaseModel):
