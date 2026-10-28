@@ -75,6 +75,13 @@ class Settings(BaseSettings):
     def elevenlabs_enabled(self) -> bool:
         return bool(os.environ.get("ELEVENLABS_API_KEY"))
 
+    # Deepgram live transcription for the candidate (optional). Read like the
+    # ElevenLabs key: DEEPGRAM_API_KEY in the environment (repo-root .env.local
+    # locally). Unset → the browser's built-in speech recognition.
+    @property
+    def deepgram_enabled(self) -> bool:
+        return bool(os.environ.get("DEEPGRAM_API_KEY"))
+
     @property
     def tavus_enabled(self) -> bool:
         return bool(self.tavus_api_key and self.tavus_replica_id)

@@ -1241,3 +1241,49 @@ def test_finalize_stores_company_style_and_conduct_end():
     client.post("/api/session/finalize", json=_finalize_body("sess-plain"))
     body = client.get("/api/sessions/sess-plain").json()
     assert body["companyStyle"] == "general" and body["endedForConduct"] is False
+
+
+class _FakeStt:
+    def __init__(self):
+        self.calls = 0
+
+    def grant(self) -> tuple[str, int]:
+        self.calls += 1
+        return "jwt-short-lived", 30
+
+
+def test_stt_token_is_short_lived_and_never_the_key():
+    stt = _FakeStt()
+    client = TestClient(create_app(llm=_FakeLLM({}), store=InMemoryStore(), stt_client=stt))
+    res = client.post("/api/stt/token")
+    assert res.status_code == 200
+    assert res.json() == {"accessToken": "jwt-short-lived", "expiresIn": 30}
+    assert stt.calls == 1
+
+
+def test_stt_token_404_when_not_configured_so_browser_falls_back():
+    assert _client({}).post("/api/stt/token").status_code == 404
+
+
+def test_deepgram_client_asks_for_a_30_second_token_with_the_server_key():
+    from llm.deepgram import DeepgramTokens
+
+    seen: dict = {}
+
+    def fake_post(url, headers, body):
+        seen.update(url=url, headers=headers, body=body)
+        return {"access_token": "jwt", "expires_in": 30}
+
+    assert DeepgramTokens(api_key="dg-key", http_post=fake_post).grant() == ("jwt", 30)
+    assert seen["url"] == "https://api.deepgram.com/v1/auth/grant"
+    assert seen["headers"] == {"Authorization": "Token dg-key"}
+    assert seen["body"] == {"ttl_seconds": 30}
+
+
+def test_stt_enabled_only_when_key_in_environment(monkeypatch):
+    from config.settings import Settings
+
+    monkeypatch.delenv("DEEPGRAM_API_KEY", raising=False)
+    assert Settings().deepgram_enabled is False
+    monkeypatch.setenv("DEEPGRAM_API_KEY", "x")
+    assert Settings().deepgram_enabled is True
