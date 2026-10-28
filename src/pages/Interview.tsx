@@ -248,10 +248,10 @@ export function Interview() {
     const text = raw.trim();
     setLastDraft(text);
     clearTurnError();
+    // Cleared now so the line reads as sent (it's already in the transcript); submitAnswer
+    // only resolves after Marcus replies. false = it wasn't sent: hand the draft back.
     setDraft("");
-    // false = the store didn't take it (nothing was sent): hand the draft back.
-    const sent: unknown = await submitAnswer(text);
-    if (sent === false) setDraft((d) => d || text);
+    if (!(await submitAnswer(text))) setDraft((d) => d || text);
   }
 
   const voiceStatus = tts.speaking

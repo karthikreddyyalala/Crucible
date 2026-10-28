@@ -92,7 +92,8 @@ export function SplitPane({ axis, storageKey, defaultPct, minFirst, minSecond, l
   };
 
   const minKey = across ? "minWidth" : "minHeight";
-  const lit = dragging ? "bg-accent" : "bg-line-bright group-hover:bg-accent/70 group-focus-visible:bg-accent";
+  // A true 1px line; ::before widens the grab area over the neighbours without covering them visually.
+  const line = dragging ? "bg-accent" : "bg-line-bright hover:bg-accent/70 focus-visible:bg-accent";
 
   return (
     <div ref={boxRef} className={`flex min-h-0 min-w-0 ${across ? "flex-row" : "flex-col"} ${className}`}>
@@ -115,14 +116,15 @@ export function SplitPane({ axis, storageKey, defaultPct, minFirst, minSecond, l
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
         onDoubleClick={() => commit(defaultPct)}
-        className={`group relative z-10 shrink-0 touch-none select-none outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent ${
-          across ? "-mx-1 w-[9px] cursor-col-resize" : "-my-1 h-[9px] cursor-row-resize"
+        className={`group relative z-10 shrink-0 touch-none select-none outline-none transition-colors focus-visible:outline-2 focus-visible:outline-accent before:absolute ${line} ${
+          across
+            ? "w-px cursor-col-resize before:inset-y-0 before:-inset-x-1"
+            : "h-px cursor-row-resize before:inset-x-0 before:-inset-y-1"
         }`}
       >
-        <span aria-hidden className={`absolute transition-colors ${lit} ${across ? "inset-y-0 left-1 w-px" : "inset-x-0 top-1 h-px"}`} />
         <span
           aria-hidden
-          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-colors ${
+          className={`pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-colors ${
             dragging ? "bg-accent" : "bg-fog group-hover:bg-accent group-focus-visible:bg-accent"
           } ${across ? "h-6 w-[3px]" : "h-[3px] w-6"}`}
         />

@@ -24,7 +24,7 @@ const theme = EditorView.theme(
   {
     "&": { height: "100%", backgroundColor: "var(--color-ink)", color: "var(--color-chalk)", fontSize: "14px" },
     "&.cm-focused": { outline: "none" },
-    ".cm-scroller": { fontFamily: "var(--font-mono)", lineHeight: "1.6" },
+    ".cm-scroller": { fontFamily: "var(--font-mono)", lineHeight: "1.6", fontVariantLigatures: "none" },
     ".cm-content": { padding: "14px 0", caretColor: "var(--color-accent)" },
     ".cm-line": { padding: "0 20px 0 14px" },
     ".cm-cursor, .cm-dropCursor": { borderLeft: "2px solid var(--color-accent)" },
