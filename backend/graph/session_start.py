@@ -1,5 +1,7 @@
 from typing import TypedDict
 from langgraph.graph import StateGraph, START, END
+from models.coding import CodingProblem, problems_for
+from models.company_style import find_style
 from models.contracts import IntakeProfile, MemoryProfile, QuestionPlan
 from models.question_data import QuestionExemplar
 from models.loader import bank_for, load_competency_map
@@ -7,13 +9,27 @@ from agents.intake import IntakeAgent
 from agents.planner import PlannerAgent
 
 
-def keep_known_exemplars(plan: QuestionPlan, bank: list[QuestionExemplar]) -> QuestionPlan:
-    """The model may invent, misspell or repeat bank ids; only the session bank's, once each, survive."""
-    allowed, types, qs = {q.id for q in bank}, {q.id: q.type for q in bank}, []
+# Coding problem difficulties offered to the Planner per (mode, level); other modes get none.
+CODING_DIFFICULTIES: dict[tuple[str, str], set[str]] = {
+    ("coding", "junior"): {"easy"},
+    ("coding", "mid"): {"easy", "medium"},
+    ("coding", "senior"): {"medium", "hard"},
+    ("full", "junior"): {"easy"},
+    ("full", "mid"): {"medium"},
+    ("full", "senior"): {"medium", "hard"},
+}
+
+
+def keep_known_exemplars(plan: QuestionPlan, bank: list[QuestionExemplar],
+                         coding: list[CodingProblem] = ()) -> QuestionPlan:
+    """The model may invent, misspell or repeat ids. Only ids offered this session (bank questions,
+    and coding problems for coding questions), on a question of the matching type, once each, survive."""
+    allowed = {q.id: q.type for q in bank} | {p.id: "coding" for p in coding}
+    qs = []
     for q in plan.questions:
-        ok = q.exemplar_id in allowed and types[q.exemplar_id] == q.type
+        ok = allowed.get(q.exemplar_id) == q.type
         if ok:
-            allowed.discard(q.exemplar_id)
+            del allowed[q.exemplar_id]
         qs.append(q.model_copy(update={"exemplar_id": q.exemplar_id if ok else None}))
     return plan.model_copy(update={"questions": qs})
 
@@ -25,6 +41,7 @@ class SessionStartState(TypedDict, total=False):
     role_key: str
     mode: str
     level: str
+    company_style: str
     memory: MemoryProfile
     profile: IntakeProfile
     plan: QuestionPlan
@@ -46,6 +63,7 @@ def build_session_start_graph(*, llm, intake_model: str, planner_model: str,
     def planner_node(state: SessionStartState) -> SessionStartState:
         mode, level = state.get("mode", "full"), state.get("level", "mid")
         bank = bank_for(state["role_key"], mode=mode, level=level)
+        coding = problems_for(CODING_DIFFICULTIES.get((mode, level), set()))
         plan = planner.run(
             session_id=state["session_id"],
             profile=state["profile"],
@@ -55,8 +73,10 @@ def build_session_start_graph(*, llm, intake_model: str, planner_model: str,
             level=level,
             usage_sink=state.get("usage"),
             bank=bank,
+            coding_problems=coding,
+            company_style=find_style(state.get("company_style", "general")),
         )
-        return {"plan": keep_known_exemplars(plan, bank)}
+        return {"plan": keep_known_exemplars(plan, bank, coding)}
 
     g = StateGraph(SessionStartState)
     g.add_node("intake", intake_node)

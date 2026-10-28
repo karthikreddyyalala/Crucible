@@ -99,3 +99,73 @@ def test_graph_passes_each_agents_temperature():
                   "memory": MemoryProfile(candidateId="c", recurringWeaknesses=[],
                                           improvementTrend=[], strongAreas=[])})
     assert temps == {"intake": 0.1, "planner": 0.2}
+
+
+# --- coding problems + company style -----------------------------------------
+
+_INTAKE_MIN = {
+    "candidateSkills": [], "yearsExperience": 1.0, "projectHighlights": [],
+    "targetRole": "SDE", "targetCompany": None, "jdRequirements": [], "resumeToJdGaps": [],
+}
+
+
+def _coding_q(i, exemplar_id, type_="coding"):
+    return {"id": f"q{i}", "type": type_, "prompt": "Let's do a coding problem: p.",
+            "targetDifficulty": 2, "weightedFromWeakness": False, "exemplarId": exemplar_id}
+
+
+def _invoke(plan_questions, **state):
+    llm = _ScriptedLLM(_INTAKE_MIN, {"sessionId": "s", "questions": plan_questions})
+    graph = build_session_start_graph(llm=llm, intake_model="im", planner_model="pm")
+    result = graph.invoke({"session_id": "s", "resume_text": "r", "jd_text": "j", "role_key": "sde",
+                           "memory": MemoryProfile(candidateId="c", recurringWeaknesses=[],
+                                                   improvementTrend=[], strongAreas=[]), **state})
+    return result, llm.users[1]
+
+
+def test_coding_difficulties_follow_the_session_shapes():
+    from graph.session_start import CODING_DIFFICULTIES as d
+    assert d[("coding", "junior")] == {"easy"}
+    assert d[("coding", "mid")] == {"easy", "medium"}
+    assert d[("coding", "senior")] == {"medium", "hard"}
+    assert d[("full", "junior")] == {"easy"}
+    assert d[("full", "mid")] == {"medium"}
+    assert d[("full", "senior")] == {"medium", "hard"}
+    assert all(mode in ("coding", "full") for mode, _ in d)
+
+
+def test_graph_offers_coding_problems_for_the_mode_and_level():
+    from models.coding import problems_for
+    _, user = _invoke([_coding_q(0, "code-two-sum")], mode="coding", level="junior")
+    assert "CodingProblems" in user
+    for p in problems_for({"easy"}):
+        assert f'"id": "{p.id}"' in user
+    _, user = _invoke([_coding_q(0, None, "behavioral")], mode="behavioral", level="junior")
+    assert "CodingProblems" not in user
+
+
+def test_graph_keeps_only_offered_coding_ids():
+    plan = [_coding_q(0, "code-two-sum"), _coding_q(1, "code-made-up"), _coding_q(2, "code-two-sum"),
+            _coding_q(3, "code-two-sum", "technical")]
+    result, _ = _invoke(plan, mode="coding", level="junior")
+    assert [q.exemplar_id for q in result["plan"].questions] == ["code-two-sum", None, None, None]
+    # An easy problem is never offered to a mid full mock (medium only), so it can't survive there.
+    result, _ = _invoke([_coding_q(0, "code-two-sum")], mode="full", level="mid")
+    assert result["plan"].questions[0].exemplar_id is None
+
+
+def test_keep_known_exemplars_accepts_coding_ids_only_as_coding_questions():
+    from models.coding import find_problem
+    coding = [find_problem("code-two-sum")]
+    bank = bank_for("sde", mode="behavioral", level="mid")
+    plan = QuestionPlan.model_validate({"sessionId": "s", "questions": [
+        _coding_q(0, "sde-beh-ownership-1"), _coding_q(1, "code-two-sum", "behavioral"), _coding_q(2, "code-two-sum")]})
+    assert _kept(plan, bank) == [None, None, None]  # nothing offered → no coding id survives
+    assert [q.exemplar_id for q in keep_known_exemplars(plan, bank, coding).questions] == [None, None, "code-two-sum"]
+
+
+def test_graph_passes_company_style_to_the_planner():
+    _, user = _invoke([_coding_q(0, None, "behavioral")], mode="behavioral", level="mid", company_style="google")
+    assert "CompanyStyle: Google-style" in user
+    _, user = _invoke([_coding_q(0, None, "behavioral")], mode="behavioral", level="mid")
+    assert "CompanyStyle: General" in user
