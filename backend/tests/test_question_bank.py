@@ -144,3 +144,22 @@ def test_every_rung_is_one_spoken_question(role, q):
                          ids=[q.id for _, q in _ALL if q.type == "system_design"])
 def test_system_design_first_rung_hands_over_nothing(role, q):
     assert q.follow_up_hooks[0] in _NEUTRAL_SD_OPENERS, q.follow_up_hooks[0]
+
+
+# What the Planner asks per mode, minus the one custom question it may write, plus spares
+# where memory weighting or diversity needs room to swap.
+_PLANNER_NEED = {
+    "behavioral": {"behavioral": 4},
+    "technical": {"technical": 4},
+    "system_design": {"system_design": 3},
+    "full": {"behavioral": 2, "technical": 3, "system_design": 2},
+}
+
+
+@pytest.mark.parametrize("role", _ROLE_KEYS)
+@pytest.mark.parametrize("mode", sorted(_PLANNER_NEED))
+@pytest.mark.parametrize("level", ["junior", "mid", "senior"])
+def test_bank_meets_planner_need_for_every_mode_and_level(role, mode, level):
+    picked = bank_for(role, mode=mode, level=level)
+    for t, need in _PLANNER_NEED[mode].items():
+        assert sum(q.type == t for q in picked) >= need, (t, need)

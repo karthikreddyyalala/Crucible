@@ -1325,6 +1325,172 @@
         }
       },
       "source": "original"
+    },
+    {
+      "id": "sde-beh-initiative-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Takes initiative on problems outside their assigned work and sees them through",
+      "prompt": "Tell me about a time you fixed a problem nobody had asked you to fix.",
+      "idealAnswerPoints": [
+        "the problem, how they noticed it and why nobody else had picked it up",
+        "how they checked it was worth fixing and that it wasn't someone else's work in progress",
+        "what they actually built or changed, and how they fitted it around their assigned work",
+        "the result: time saved, errors removed or someone who now relies on it"
+      ],
+      "weakAnswerSigns": [
+        "the 'problem' was a cosmetic preference",
+        "started it but never finished or shipped it",
+        "neglected their assigned work to do it with no conversation about priorities"
+      ],
+      "followUpHooks": [
+        "How did you notice it?",
+        "Why hadn't anyone fixed it already?",
+        "Did you tell anyone before you started?",
+        "How did you fit it around your actual work?",
+        "Who uses it now?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from noticing the problem through the fix to who benefited, in order",
+          "specificity": "Names the actual problem, the change made and the people or systems affected",
+          "impact": "States a concrete result such as time saved or failures removed",
+          "ownership": "Shows they chose to take it on and saw it through themselves"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-beh-stuck-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Knows how to work through being stuck and when to ask for help rather than spin",
+      "prompt": "Tell me about a time you were stuck on a task much longer than you expected.",
+      "idealAnswerPoints": [
+        "the task, the original estimate and how far over it went",
+        "what they tried on their own, in what order, and what each attempt ruled out",
+        "the point at which they asked for help, whom they asked and how they framed the question",
+        "what finally unblocked them and whether the estimate was communicated as it slipped",
+        "what they now do differently when they notice they're stuck"
+      ],
+      "weakAnswerSigns": [
+        "never asked for help, or asked before trying anything",
+        "nobody knew the task was slipping until it was late",
+        "the lesson is 'work harder'"
+      ],
+      "followUpHooks": [
+        "What was the task, and how long did you think it would take?",
+        "What did you try first?",
+        "When did you ask for help?",
+        "Who knew it was running late?",
+        "What finally got you unstuck?",
+        "How do you decide when to ask for help now?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Walks from the task through attempts, asking for help and the result",
+          "specificity": "Names the task, the estimate, the actual time and the person who helped",
+          "impact": "States when the task was finished and the effect of the delay",
+          "ownership": "Shows their own attempts and their own decision to escalate"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-sd-profile-photos-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 2,
+      "levels": [
+        "junior"
+      ],
+      "signal": "Separates file storage from metadata and keeps large uploads off the application servers",
+      "prompt": "Design a service that lets users upload and display profile pictures.",
+      "idealAnswerPoints": [
+        "asks about file size limits, formats, how many sizes are displayed and how often pictures are viewed",
+        "starts simple on one machine: an upload endpoint, files on disk, a database row pointing to the file",
+        "moves files to object storage with metadata in the database, and explains why files don't belong in the database",
+        "generates thumbnails in the sizes the app shows, ideally asynchronously after upload",
+        "serves images through a CDN or cache with versioned URLs so a new picture shows up immediately",
+        "validates uploads: type, size and image content"
+      ],
+      "weakAnswerSigns": [
+        "stores image bytes in the main database with no discussion",
+        "serves full-size originals everywhere",
+        "no thought about how a changed picture replaces a cached one"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "How would this work on a single server?",
+        "Where do the image files live, and where does the information about them live?",
+        "The app shows the picture in three sizes — where do those come from?",
+        "A user changes their picture — how does everyone see the new one?",
+        "What stops someone uploading something that isn't an image?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Asks about sizes, formats and view volume before designing",
+          "scalability": "Explains why images are served through a cache or CDN and how read traffic grows with views",
+          "tradeoffs": "Compares storing files in the database with object storage, and resizing on upload with resizing on request",
+          "depth": "Goes deep on thumbnail generation, cache invalidation or upload validation"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-sd-leaderboard-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 2,
+      "levels": [
+        "junior"
+      ],
+      "signal": "Picks a data structure that answers both the top of the board and one player's rank cheaply",
+      "prompt": "Design a leaderboard for an online game.",
+      "idealAnswerPoints": [
+        "asks whether it shows the overall top players, a player's own rank, friends only or time windows such as weekly",
+        "starts with one database table and an index on score, and says when that stops being enough",
+        "a sorted structure such as a Redis sorted set that gives top-N and a player's rank in logarithmic time",
+        "an explicit tie-break rule, such as whoever reached the score first",
+        "how scores reach the board, and how weekly boards reset",
+        "rebuilding the board from the source-of-truth scores if the cache is lost"
+      ],
+      "weakAnswerSigns": [
+        "sorts every player's score on every request",
+        "no answer for showing a single player's rank",
+        "ignores ties"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "How would you build it with a single database?",
+        "How do you show me my own rank if I'm not in the top hundred?",
+        "Two players have the same score — who ranks higher?",
+        "How would you add a weekly leaderboard?",
+        "The server holding the leaderboard restarts — what happens?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Asks what the board shows and over what time window before designing",
+          "scalability": "Explains when a sorted query on a table stops being fast enough and what replaces it",
+          "tradeoffs": "Compares a database index with an in-memory sorted structure on speed and durability",
+          "depth": "Goes deep on rank lookup, ties or weekly resets"
+        }
+      },
+      "source": "original"
     }
   ]
 }

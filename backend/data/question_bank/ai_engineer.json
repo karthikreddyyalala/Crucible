@@ -1284,6 +1284,173 @@
         }
       },
       "source": "original"
+    },
+    {
+      "id": "aie-beh-constrained-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Makes an ML or LLM feature work under real constraints instead of waiting for ideal conditions",
+      "prompt": "Tell me about a time you had to make a model work with much less data, compute or time than you wanted.",
+      "idealAnswerPoints": [
+        "the feature and the specific constraint: a few hundred examples, one GPU, a two-week deadline",
+        "the approach chosen because of the constraint: a pretrained model, prompting, a simpler model, a smaller scope",
+        "how they checked it was good enough with the little they had",
+        "what shipped and how it performed",
+        "what they would do with more resources, and whether that turned out to matter"
+      ],
+      "weakAnswerSigns": [
+        "complains about the constraint with no adapted approach",
+        "no check that the result was good enough",
+        "nothing shipped"
+      ],
+      "followUpHooks": [
+        "What exactly were you short of?",
+        "What did you choose to do because of that?",
+        "What did you give up?",
+        "How did you know it was good enough?",
+        "What would you have done with ten times the resources?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from the constraint through the approach chosen to what shipped",
+          "specificity": "Names the constraint in numbers and the specific technique used",
+          "impact": "States how the shipped result performed",
+          "ownership": "Shows the adapted approach was their decision"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-beh-too-good-1",
+      "role": "AI Engineer",
+      "competency": "ML Fundamentals",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Is sceptical of their own results and knows how leakage and evaluation bugs hide",
+      "prompt": "Tell me about a time a model's results looked too good to be true.",
+      "idealAnswerPoints": [
+        "the result and why it looked suspicious: far above the baseline, or perfect on a hard slice",
+        "how they investigated: checking the split, looking for leaked features, inspecting predictions by hand",
+        "what the cause turned out to be, such as leakage, duplicates across splits or a metric bug",
+        "the corrected result and how it changed the plan",
+        "a check they now run by default"
+      ],
+      "weakAnswerSigns": [
+        "celebrated the result and only found out later from someone else",
+        "can't name the actual cause",
+        "no lasting change to how they evaluate"
+      ],
+      "followUpHooks": [
+        "What was the number?",
+        "What made you suspicious?",
+        "What did you check first?",
+        "What was actually going on?",
+        "What did the real number turn out to be?",
+        "What do you check by default now?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from the suspicious result through the investigation to the corrected number",
+          "specificity": "Names the metric, the baseline and the specific cause",
+          "impact": "States the corrected result and what it changed",
+          "ownership": "Shows they personally doubted the result and ran the investigation"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-sd-handoff-summary-1",
+      "role": "AI Engineer",
+      "competency": "LLM / Prompting / RAG / Agents",
+      "type": "system_design",
+      "difficulty": 2,
+      "levels": [
+        "junior"
+      ],
+      "signal": "Scopes a simple LLM feature end to end: when it runs, what it costs and how you'd know it's good",
+      "prompt": "Design a feature that summarises a customer-support conversation for the next agent who picks it up.",
+      "idealAnswerPoints": [
+        "asks what the next agent needs from a summary, how long conversations get and when the summary must be ready",
+        "starts simple: on handoff, send the conversation to an LLM with a prompt that asks for a fixed structure",
+        "runs it in the background when the conversation is handed off, with a fallback to the raw transcript if it fails",
+        "handles conversations longer than the context window, for example by summarising in parts",
+        "evaluates with agents' ratings of real summaries and checks for invented details",
+        "estimates cost per summary and removes personal data the summary doesn't need"
+      ],
+      "weakAnswerSigns": [
+        "no plan for checking whether summaries are accurate",
+        "makes the agent wait for the model with no fallback",
+        "ignores conversations longer than the model's context window"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "What should a summary actually contain?",
+        "When does the summary get generated?",
+        "What happens with a conversation too long for the model?",
+        "The summary invents a refund that never happened — how would you catch that?",
+        "What does each summary cost?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Asks what agents need, how long conversations get and the timing before designing",
+          "scalability": "Estimates cost and latency per summary and how they grow with conversation length and volume",
+          "tradeoffs": "Weighs a larger model against cost, and generating ahead of time against generating on demand",
+          "depth": "Goes deep on long-conversation handling, hallucination checks or evaluation"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-sd-retrain-pipeline-1",
+      "role": "AI Engineer",
+      "competency": "MLOps / Deployment / Monitoring",
+      "type": "system_design",
+      "difficulty": 2,
+      "levels": [
+        "junior"
+      ],
+      "signal": "Automates retraining with a gate, so a worse model never replaces a better one",
+      "prompt": "Design a pipeline that retrains a customer churn model every week.",
+      "idealAnswerPoints": [
+        "asks where the training data comes from, how labels are defined and who uses the predictions",
+        "a scheduled job that snapshots the data, trains and saves a versioned model with its metrics",
+        "an evaluation gate that compares the new model with the current one on the same holdout before promoting it",
+        "data checks before training: row counts, missing values, label rate",
+        "deployment by switching to the new model version, with one-step rollback",
+        "an alert when the job fails or the gate rejects a model"
+      ],
+      "weakAnswerSigns": [
+        "deploys every new model automatically with no comparison",
+        "no versioning, so there's nothing to roll back to",
+        "never asks how churn labels are defined"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "How would you run it with a simple script on a schedule?",
+        "How do you decide whether this week's model is better than last week's?",
+        "What if this week's data is half the usual size?",
+        "The new model turns out to be worse in production — what do you do?",
+        "How would you know the job failed?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Asks about data sources, label definitions and consumers before designing",
+          "scalability": "Explains how the job handles growing data and how long each run can take",
+          "tradeoffs": "Weighs fully automatic promotion against a human check, and weekly retraining against cost",
+          "depth": "Goes deep on the evaluation gate, data checks or rollback"
+        }
+      },
+      "source": "original"
     }
   ]
 }
