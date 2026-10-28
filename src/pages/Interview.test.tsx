@@ -167,6 +167,22 @@ describe("Interview", () => {
     expect(screen.getByRole("textbox", { name: "Your answer" })).toBeInTheDocument();
   });
 
+  it("keeps the composer open while Marcus handles a check-in or Submit", async () => {
+    setScreen(true);
+    start(coding, { status: "thinking", eventInFlight: true });
+    const composer = await screen.findByRole("textbox", { name: "Your answer" });
+    expect(composer).toBeEnabled();
+    expect(composer).toHaveAttribute("placeholder", "Marcus is looking at your run — you can keep typing.");
+  });
+
+  it("locks the composer while Marcus answers the candidate's own message", async () => {
+    setScreen(true);
+    start(coding, { status: "thinking", eventInFlight: false });
+    const composer = await screen.findByRole("textbox", { name: "Your answer" });
+    expect(composer).toBeDisabled();
+    expect(composer).toHaveAttribute("placeholder", "Interviewer is thinking…");
+  });
+
   it("keeps the classic chat for other questions", () => {
     setScreen(true);
     start(behavioral);

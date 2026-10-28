@@ -1037,6 +1037,39 @@ describe("sessionStore — turnError", () => {
       ]);
     });
 
+    it("flags an event turn in flight, so the composer can stay open, and clears it after", async () => {
+      seedCoding({ codingStage: "coding" });
+      const { api } = await import("@/lib/api");
+      let resolveCheckin!: (v: TurnResult) => void;
+      vi.mocked(api.submitAnswer).mockReturnValueOnce(new Promise<TurnResult>((r) => { resolveCheckin = r; }));
+
+      const checkin = useSessionStore.getState().sendCheckin("c1");
+      expect(useSessionStore.getState()).toMatchObject({ status: "thinking", eventInFlight: true });
+      expect(JSON.parse(localStorage.getItem("crucible.session.v1")!).state).not.toHaveProperty("eventInFlight");
+      resolveCheckin(reply("clarify", "How's it going?"));
+      await checkin;
+      expect(useSessionStore.getState()).toMatchObject({ status: "live", eventInFlight: false });
+    });
+
+    it("clears the event flag when the event turn fails", async () => {
+      seedCoding({ codingStage: "coding" });
+      const { api } = await import("@/lib/api");
+      vi.mocked(api.submitAnswer).mockRejectedValueOnce(new Error("Request failed (503)"));
+      await useSessionStore.getState().recordRun("c1", { kind: "results", results: [passed(0)] }, "submit", 1);
+      expect(useSessionStore.getState().eventInFlight).toBe(false);
+    });
+
+    it("doesn't flag the candidate's own turn", async () => {
+      seedCoding();
+      const { api } = await import("@/lib/api");
+      let resolveTurn!: (v: TurnResult) => void;
+      vi.mocked(api.submitAnswer).mockReturnValueOnce(new Promise<TurnResult>((r) => { resolveTurn = r; }));
+      const answering = useSessionStore.getState().submitAnswer("A hash map.");
+      expect(useSessionStore.getState()).toMatchObject({ status: "thinking", eventInFlight: false });
+      resolveTurn(reply("follow_up", "Why?"));
+      await answering;
+    });
+
     it("returns false when nothing can be sent", async () => {
       seedCoding({ status: "wrapping" });
       await expect(useSessionStore.getState().submitAnswer("hello")).resolves.toBe(false);

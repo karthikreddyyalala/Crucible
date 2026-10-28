@@ -88,6 +88,9 @@ interface SessionState {
   // A Submit Marcus hasn't replied to yet (question id): queued while he was busy,
   // or in flight. Persisted, so a refresh mid-turn re-sends it once.
   pendingSubmit: string | null;
+  // True while a check-in / Submit turn the candidate didn't type is in flight: the
+  // composer stays open and an answer sent now is queued behind it. Not persisted.
+  eventInFlight: boolean;
 
   loadMemory: () => Promise<void>;
   start: (input: {
@@ -143,7 +146,6 @@ const inflightEvals = new Map<string, Promise<void>>();
 // An answer typed while an event turn (check-in / submit) was in flight: sent right
 // after it. Not persisted; a refresh loses only that one unsent line.
 let queuedAnswer: string | null = null;
-let eventInFlight = false;
 
 // UUID message ids so rehydrating a saved session never collides with new
 // messages generated after the resume.
@@ -185,6 +187,7 @@ const FRESH_ROUND = {
   lastRun: {},
   checkinSent: {},
   pendingSubmit: null,
+  eventInFlight: false,
 };
 
 export const useSessionStore = create<SessionState>()(
@@ -271,6 +274,7 @@ export const useSessionStore = create<SessionState>()(
 
         set({
           status: "thinking",
+          eventInFlight: event !== "",
           // An event turn the candidate didn't trigger leaves an existing error up.
           ...(!event && { turnError: null }),
           messages: candidateMsg ? [...state.messages, candidateMsg] : state.messages,
@@ -296,7 +300,6 @@ export const useSessionStore = create<SessionState>()(
         let decision: InterviewDecision;
         let turnCostUsd = 0;
         let strikes = state.strikes;
-        eventInFlight = event !== "";
         try {
           const result = await api.submitAnswer({
             question,
@@ -328,7 +331,7 @@ export const useSessionStore = create<SessionState>()(
           }));
           return true;
         } finally {
-          eventInFlight = false;
+          if (event) set({ eventInFlight: false });
         }
 
         const say = (fallback: string) => decision.say?.trim() || decision.followUpPrompt?.trim() || fallback;
@@ -557,7 +560,7 @@ export const useSessionStore = create<SessionState>()(
       },
 
       submitAnswer: async (text) => {
-        if (get().status === "thinking" && eventInFlight) {
+        if (get().status === "thinking" && get().eventInFlight) {
           if (queuedAnswer !== null) return false; // one queued answer at a time
           queuedAnswer = text;
           return true;

@@ -65,6 +65,7 @@ export function Interview() {
   const retryFinalize = useSessionStore((s) => s.retryFinalize);
   const finalizing = useSessionStore((s) => s.finalizing);
   const codingStage = useSessionStore((s) => s.codingStage);
+  const eventInFlight = useSessionStore((s) => s.eventInFlight);
 
   const [draft, setDraft] = useState("");
   const [lastDraft, setLastDraft] = useState("");
@@ -205,7 +206,9 @@ export function Interview() {
     : phase === "closing" ? "YOUR QUESTIONS FOR THE INTERVIEWER"
     : null;
   const thinking = status === "thinking";
-  const locked = thinking || status === "wrapping" || status === "complete";
+  // Marcus handling a check-in or Submit isn't a reply to the candidate: they can keep
+  // typing, and what they send goes out right after it.
+  const locked = (thinking && !eventInFlight) || status === "wrapping" || status === "complete";
   const total = plan.questions.length;
   const progressPct =
     phase === "closing" ? 100 : inQuestions ? (currentIdx / total) * 100 : 0;
@@ -312,6 +315,8 @@ export function Interview() {
             placeholder={
               stt.listening
                 ? "Listening…"
+                : thinking && eventInFlight
+                ? "Marcus is looking at your run — you can keep typing."
                 : thinking
                 ? "Interviewer is thinking…"
                 : status === "wrapping" && turnError
