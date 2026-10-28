@@ -61,8 +61,10 @@ Roadmap for all phases: docs/ROADMAP.md
 - [x] Wave 2: all 75 Blind 75 problems (19 easy / 49 medium / 7 hard; reference solution passes
       every test, starter fails, common wrong solutions fail) · Python runner (Pyodide 314.0.7,
       verified in Chromium) · backend integration (strikes, coding notes, company styles)
-- [~] Wave 3: session flow + setup · coding workspace UI · Playwright end-to-end tests
-- [ ] Wave 4: live evals (coding + repeat-3) · live coding interview transcript · final review ·
+- [x] Wave 3: session flow + setup (strikes, queued submits, refresh-safe) · coding workspace UI
+      (CodeMirror, Run/Submit, every runner state, 3 dividers, mobile notice) · Playwright e2e
+      (8 tests, 3 clean runs + 32/32 stress, `npm run test:e2e`)
+- [~] Wave 4: live evals (coding + repeat-3) · final review · live coding interview transcript ·
       docs · PR (no direct push to main)
 
 Found while planning: every agent was running at the default temperature (1.0), scoring
