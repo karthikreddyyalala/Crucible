@@ -254,3 +254,27 @@ def test_interviewer_prompt_talk_stage_and_live_eval_wording_fixes():
     # E6: bank notes skip rungs the answer already covers.
     notes = _flat(_PROMPT.split("=== Interviewer notes ===", 1)[1].split("\n=== ", 1)[0])
     assert "skip any rung that re-asks a strong-answer point the answer already covers" in notes
+
+
+def test_interviewer_prompt_fixes_from_the_second_live_run():
+    from agents.interviewer import _PROMPT
+    text = _flat(_PROMPT)
+    coding = _flat(_PROMPT.split("=== Coding round ===", 1)[1].split("\n=== ", 1)[0])
+    talk = coding.split("- talk (", 1)[1].split(" - ", 1)[0]
+    # Talk stage: its own go-ahead, before any review step.
+    assert 'say exactly "Okay — walk me through the code, line by line."' in talk
+    assert "before any review step" in talk
+    # Go-ahead mirror: three words at most, no list, no complexity read back.
+    assert "a mirror of at most three words" in coding and "never their complexity back to them" in coding
+    # One ask: a mechanical cut instead of quoted bad examples the model copies.
+    follow = text.split("- follow_up: acknowledgment + the probe.", 1)[1].split(" - advance:", 1)[0]
+    assert 'delete everything from that ", and" on' in follow
+    assert "What was the project, and what was the deadline" not in text
+    assert "What went wrong, and what would you do differently" not in text
+    # Rule 6: a different part of a story that held up is no reason to stay.
+    assert "A different part of the same story is not a new gap" in text
+    # Review variant: one ask; hidden failures: no value read off their code either.
+    assert "only its first ask" in coding and "not even one read off their code" in coding
+    banned = text.split("BANNED anywhere in `say`:", 1)[1].split(" - SHORT.", 1)[0]
+    for phrase in ("the key wrinkle", "the key insight", "that's the key"):
+        assert f'"{phrase}"' in banned, phrase
