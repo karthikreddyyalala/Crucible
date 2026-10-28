@@ -968,16 +968,16 @@ def test_turn_adds_the_company_style_note_server_side():
 
 
 def test_turn_uses_no_name_when_the_name_is_flagged():
-    # Real names can trip the filter ("Greg Dyke"), so a flagged name is never an error:
-    # Marcus just doesn't use a name.
+    # A flagged name is never an error: Marcus just doesn't use a name.
     client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP})
-    for name in ("Greg Dyke", "wh0re"):
-        res = _turn(client, candidateName=name, phase="warmup")
-        assert res.status_code == 200
-        assert "<candidate_name>\n\n</candidate_name>" in seen["user"]
-        assert name not in seen["user"]
-    _turn(client, candidateName="Karthik")
-    assert "<candidate_name>\nKarthik\n</candidate_name>" in seen["user"]
+    res = _turn(client, candidateName="wh0re", phase="warmup")
+    assert res.status_code == 200
+    assert "<candidate_name>\n\n</candidate_name>" in seen["user"]
+    assert "wh0re" not in seen["user"]
+    # Real names that merely contain a flagged substring are used normally.
+    for name in ("Karthik", "Greg Dyke", "Neve Bonner"):
+        _turn(client, candidateName=name)
+        assert f"<candidate_name>\n{name}\n</candidate_name>" in seen["user"]
 
 
 def test_evaluate_scores_coding_with_problem_anchors_and_fenced_code():
