@@ -48,6 +48,17 @@ def _to_linked_list(values):
     return head.next
 
 
+def _to_cycle_list(spec):
+    """{"values": [...], "pos": k}: the tail links back to node k; pos -1 means no cycle."""
+    head = _to_linked_list(spec["values"])
+    if spec["pos"] >= 0:
+        nodes = [head]
+        while nodes[-1].next is not None:
+            nodes.append(nodes[-1].next)
+        nodes[-1].next = nodes[spec["pos"]]
+    return head
+
+
 def _from_linked_list(node):
     out, seen = [], set()
     while node is not None:
@@ -78,13 +89,16 @@ def _to_tree(values):
 
 
 def _from_tree(root):
-    out, queue = [], deque([root])
+    out, queue, seen = [], deque([root]), set()
     while queue:
         node = queue.popleft()
         if node is None:
             out.append(None)
             continue
         _check_node(node, "left", "TreeNode")
+        if id(node) in seen:
+            raise ValueError("the returned tree reaches the same node twice (a cycle or a shared child)")
+        seen.add(id(node))
         out.append(node.val)
         queue.extend((node.left, node.right))
     while out and out[-1] is None:
@@ -100,25 +114,57 @@ def _to_graph(adjacency):
     return nodes[0] if nodes else None
 
 
-def _from_graph(start):
+def _graph_nodes(start):
+    """Every node reachable from start, breadth first."""
     if start is None:
         return []
     _check_node(start, "neighbors", "Node")
-    seen, queue, found = {id(start)}, deque([start]), [start]
-    while queue:
-        for neighbor in queue.popleft().neighbors:
+    seen, found = {id(start)}, [start]
+    for node in found:  # found grows while we walk it
+        for neighbor in node.neighbors:
             if id(neighbor) not in seen:
                 seen.add(id(neighbor))
-                queue.append(neighbor)
                 found.append(neighbor)
-    return [[n.val for n in node.neighbors] for node in sorted(found, key=lambda n: n.val)]
+    return found
 
 
-# structure -> (JSON value -> nodes, nodes -> JSON value)
+def _from_graph(start):
+    return [[n.val for n in node.neighbors] for node in sorted(_graph_nodes(start), key=lambda n: n.val)]
+
+
+def _node_value(node):
+    _check_node(node, "left", "TreeNode")
+    return None if node is None else node.val
+
+
+def _tree_node(root, value):
+    """The node holding `value` inside the tree `root`; None stays None."""
+    if value is None:
+        return None
+    stack = [root]
+    while stack:
+        node = stack.pop()
+        if node is not None:
+            if node.val == value:
+                return node
+            stack.extend((node.left, node.right))
+    raise ValueError(f"test data has no node with value {value} in the tree")
+
+
+# structure -> (JSON value -> nodes, nodes -> JSON value). Two names live outside this table:
+# param "tree_node" is a node inside the call's "tree" argument, written as its value
+# (resolved in _function), and "graph_copy" / "node_value" are only for "return".
 ADAPTERS = {
     "linked_list": (_to_linked_list, _from_linked_list),
+    "linked_list_list": (
+        lambda lists: [_to_linked_list(v) for v in lists],
+        lambda heads: [_from_linked_list(h) for h in heads],
+    ),
+    "linked_list_cycle": (_to_cycle_list, _from_linked_list),
     "tree": (_to_tree, _from_tree),
     "graph": (_to_graph, _from_graph),
+    "graph_copy": (_to_graph, _from_graph),  # return: also fails if any node is shared with the input
+    "node_value": (None, _node_value),  # return: a TreeNode, judged by its value
 }
 
 
@@ -132,9 +178,31 @@ def two_sum_pair(args, expected, got):
     )
 
 
+def alien_order(args, expected, got):
+    """Each letter once, in an order the sorted word list agrees with; "" only when the test expects it."""
+    words = args[0]
+    if not isinstance(got, str):
+        return False
+    if got == "":
+        return expected == ""
+    if sorted(got) != sorted(set("".join(words))):
+        return False
+    rank = {c: i for i, c in enumerate(got)}
+    for a, b in zip(words, words[1:]):
+        for x, y in zip(a, b):
+            if x != y:
+                if rank[x] > rank[y]:
+                    return False
+                break
+        else:
+            if len(a) > len(b):  # a word before its own prefix: no order works
+                return False
+    return True
+
+
 # compare == "custom": validator(original args, expected, got) -> bool. args are the test's
 # untouched JSON args, so a candidate that mutates its input can't fool the check.
-VALIDATORS = {"two_sum_pair": two_sum_pair}
+VALIDATORS = {"two_sum_pair": two_sum_pair, "alien_order": alien_order}
 
 
 def _plain(value):
@@ -231,17 +299,27 @@ def _param_names(signature):
 def _function(fn, test, problem, kinds, row):
     adapters = problem.get("adapters") or {}
     args = copy.deepcopy(test["args"])
-    for i, kind in enumerate(kinds[: len(args)]):
-        if kind:
+    kinds = kinds[: len(args)]
+    for i, kind in enumerate(kinds):
+        if kind in ADAPTERS:
             args[i] = ADAPTERS[kind][0](args[i])
-    raw = fn(*args)
+    root = args[kinds.index("tree")] if "tree" in kinds else None
+    for i, kind in enumerate(kinds):
+        if kind == "tree_node":
+            args[i] = _tree_node(root, args[i])
     out_kind = adapters.get("return")
+    originals = set()
+    if out_kind == "graph_copy":  # before the call, in case the candidate rewires the input
+        originals = {id(n) for a, k in zip(args, kinds) if k == "graph" for n in _graph_nodes(a)}
+    raw = fn(*args)
     check = problem.get("checkArg")
     if check is not None:  # in-place: judge the argument after the call, ignore the return value
         raw, out_kind = args[check], (kinds[check] if check < len(kinds) else None)
     row["got"] = _plain(raw)  # shown as-is if the conversion below rejects it
     if out_kind:
         row["got"] = _plain(ADAPTERS[out_kind][1](raw))
+    if originals and any(id(n) in originals for n in _graph_nodes(raw)):
+        raise ValueError("the returned graph reuses nodes from the input; a clone needs new Node objects")
     return matches(
         problem.get("compare", "exact"), test["expected"], row["got"],
         copy.deepcopy(test["args"]), problem.get("validator", ""),

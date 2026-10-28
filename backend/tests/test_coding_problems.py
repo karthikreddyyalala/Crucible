@@ -113,6 +113,14 @@ def test_schema_rejects_bad_data(problem_id, mutate):
         CodingProblem.model_validate(raw)
 
 
+def test_schema_accepts_every_harness_adapter_name():
+    raw = _raw("code-merge-two-sorted-lists")
+    for name in [*harness.ADAPTERS, "tree_node"]:
+        CodingProblem.model_validate({**raw, "adapters": {"l1": name}})
+    with pytest.raises(ValidationError):
+        CodingProblem.model_validate({**raw, "adapters": {"l1": "heap"}})
+
+
 def test_public_excludes_private_fields_and_is_json():
     public = _public("code-two-sum")
     assert _PRIVATE.isdisjoint(public)
@@ -248,6 +256,144 @@ def test_adapters_round_trip():
     square = [[2, 4], [1, 3], [2, 4], [1, 3]]
     assert from_graph(to_graph(square)) == square
     assert to_graph([]) is None and from_graph(None) == []
+
+
+def test_list_of_linked_lists_adapter():
+    to_lists, from_lists = harness.ADAPTERS["linked_list_list"]
+    heads = to_lists([[1, 4], [], [2]])
+    assert len(heads) == 3 and heads[1] is None and heads[0].next.val == 4
+    assert from_lists(heads) == [[1, 4], [], [2]]
+    assert to_lists([]) == []
+
+
+def test_cycle_adapter_links_the_tail_back_to_pos():
+    to_cycle, _ = harness.ADAPTERS["linked_list_cycle"]
+    head = to_cycle({"values": [3, 2, 0, -4], "pos": 1})
+    tail = head.next.next.next
+    assert tail.val == -4 and tail.next is head.next
+    single = to_cycle({"values": [7], "pos": 0})
+    assert single.next is single
+    straight = to_cycle({"values": [1, 2], "pos": -1})
+    assert straight.next.next is None
+    assert to_cycle({"values": [], "pos": -1}) is None
+
+
+def test_converting_a_cyclic_list_or_tree_raises_instead_of_looping():
+    _, from_list = harness.ADAPTERS["linked_list"]
+    to_cycle, from_cycle = harness.ADAPTERS["linked_list_cycle"]
+    for convert in (from_list, from_cycle):
+        with pytest.raises(ValueError, match="cycle"):
+            convert(to_cycle({"values": [1, 2, 3], "pos": 0}))
+    to_tree, from_tree = harness.ADAPTERS["tree"]
+    root = to_tree([1, 2, 3])
+    root.left.left = root
+    with pytest.raises(ValueError, match="same node twice"):
+        from_tree(root)
+
+
+def test_cyclic_list_argument_reaches_the_candidate():
+    problem = {
+        "functionName": "has_cycle",
+        "signature": "def has_cycle(head: Optional[ListNode]) -> bool:",
+        "adapters": {"head": "linked_list_cycle"},
+        "tests": [{"args": [{"values": [1, 2, 3], "pos": 0}], "expected": True},
+                  {"args": [{"values": [1, 2, 3], "pos": -1}], "expected": False}],
+    }
+    code = (
+        "def has_cycle(head):\n"
+        "    seen = set()\n"
+        "    while head and id(head) not in seen:\n"
+        "        seen.add(id(head))\n"
+        "        head = head.next\n"
+        "    return head is not None\n"
+    )
+    assert all(r["passed"] for r in harness.run(code, problem))
+
+
+_LCA = {
+    "functionName": "lowest_common_ancestor",
+    "signature": "def lowest_common_ancestor(root: TreeNode, p: TreeNode, q: TreeNode) -> TreeNode:",
+    "adapters": {"root": "tree", "p": "tree_node", "q": "tree_node", "return": "node_value"},
+    "tests": [{"args": [[6, 2, 8], 2, 8], "expected": 6}],
+}
+
+
+def test_tree_node_args_are_the_nodes_inside_the_tree_and_the_returned_node_becomes_its_value():
+    identity = (
+        "def lowest_common_ancestor(root, p, q):\n"
+        "    assert p is root.left and q is root.right\n"
+        "    return root\n"
+    )
+    row = harness.run(identity, _LCA)[0]
+    assert row["passed"] is True and row["got"] == 6
+
+
+def test_returning_a_value_instead_of_a_node_explains_why():
+    row = harness.run("def lowest_common_ancestor(root, p, q):\n    return root.val\n", _LCA)[0]
+    assert row["passed"] is False and row["got"] == 6
+    assert row["error"] == "TypeError: expected a TreeNode or None, got int"
+
+
+def test_tree_node_value_missing_from_the_tree_is_reported():
+    problem = {**_LCA, "tests": [{"args": [[6, 2, 8], 2, 5], "expected": 6}]}
+    row = harness.run("def lowest_common_ancestor(root, p, q):\n    return root\n", problem)[0]
+    assert row["passed"] is False and "no node with value 5" in row["error"]
+
+
+_CLONE = {
+    "functionName": "clone_graph",
+    "signature": "def clone_graph(node: Optional[Node]) -> Optional[Node]:",
+    "adapters": {"node": "graph", "return": "graph_copy"},
+    "tests": [{"args": [[[2, 4], [1, 3], [2, 4], [1, 3]]], "expected": [[2, 4], [1, 3], [2, 4], [1, 3]]},
+              {"args": [[]], "expected": []}],
+}
+
+
+def test_graph_copy_passes_a_real_clone():
+    code = (
+        "def clone_graph(node):\n"
+        "    if node is None:\n"
+        "        return None\n"
+        "    copies = {}\n"
+        "    def copy(n):\n"
+        "        if n not in copies:\n"
+        "            copies[n] = Node(n.val)\n"
+        "            copies[n].neighbors = [copy(m) for m in n.neighbors]\n"
+        "        return copies[n]\n"
+        "    return copy(node)\n"
+    )
+    assert all(r["passed"] for r in harness.run(code, _CLONE))
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "def clone_graph(node):\n    return node\n",
+        # new start node, but its neighbors are still the originals
+        "def clone_graph(node):\n    return Node(node.val, node.neighbors) if node else None\n",
+    ],
+)
+def test_graph_copy_rejects_a_graph_that_shares_nodes_with_the_input(code):
+    row = harness.run(code, _CLONE)[0]
+    assert row["passed"] is False and "reuses nodes from the input" in row["error"]
+
+
+def test_alien_order_validator():
+    words = [["wrt", "wrf", "er", "ett", "rftt"]]
+    assert harness.matches("custom", "wertf", "wertf", words, "alien_order")
+    assert not harness.matches("custom", "wertf", "wetrf", words, "alien_order")  # t must come before f
+    assert not harness.matches("custom", "wertf", "wertff", words, "alien_order")
+    assert not harness.matches("custom", "wertf", "wert", words, "alien_order")
+    assert not harness.matches("custom", "wertf", "", words, "alien_order")
+    assert not harness.matches("custom", "wertf", None, words, "alien_order")
+    assert harness.matches("custom", "xz", "xz", [["x", "z"]], "alien_order")
+    assert not harness.matches("custom", "xz", "zx", [["x", "z"]], "alien_order")
+    # equal words give no constraint: any order of their letters is right
+    assert harness.matches("custom", "ab", "ba", [["ab", "ab"]], "alien_order")
+    # impossible inputs expect "": a longer word before its own prefix, or a cycle
+    assert harness.matches("custom", "", "", [["abc", "ab"]], "alien_order")
+    assert not harness.matches("custom", "", "abc", [["abc", "ab"]], "alien_order")
+    assert not harness.matches("custom", "", "xz", [["x", "z", "x"]], "alien_order")
 
 
 def test_compare_modes():

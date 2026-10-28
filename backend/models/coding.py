@@ -60,8 +60,10 @@ class CodingProblem(_Frozen):
     tests: tuple[CodingTest, ...] = Field(min_length=10, max_length=15)
     compare: Literal["exact", "unordered", "unordered_nested", "float", "custom"] = "exact"
     validator: str = ""  # a key of VALIDATORS in data/coding/harness.py, when compare == "custom"
-    # param name, "return", or (roundtrip) "input" -> structure
-    adapters: dict[str, Literal["linked_list", "tree", "graph"]] = {}
+    # param name, "return", or (roundtrip) "input" -> structure (see ADAPTERS in data/coding/harness.py)
+    adapters: dict[str, Literal[
+        "linked_list", "linked_list_list", "linked_list_cycle", "tree", "tree_node", "node_value", "graph", "graph_copy",
+    ]] = {}
     check_arg: int | None = Field(default=None, ge=0)  # in-place: judge this argument after the call
     reference_solution: str
     target_complexity: dict[str, str]
