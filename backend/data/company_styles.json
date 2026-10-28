@@ -1,0 +1,94 @@
+[
+  {
+    "id": "general",
+    "name": "General",
+    "description": "A balanced loop across behavioral, technical, system design and coding. No company bias.",
+    "questionMix": { "behavioral": 3, "technical": 3, "system_design": 2, "coding": 2 },
+    "behavioralThemes": [
+      "Teamwork",
+      "Handling Conflict",
+      "Learning From Failure",
+      "Leadership",
+      "Prioritisation",
+      "Learning Quickly"
+    ],
+    "interviewerNote": "Marcus keeps the loop even and probes whichever answer is thinnest. He wants the candidate's own role in each story, the concrete result, and the reasoning behind each decision. A confident but vague answer gets a follow-up, not a pass."
+  },
+  {
+    "id": "amazon",
+    "name": "Amazon-style",
+    "description": "Behavioral-heavy and built around the public Leadership Principles. Inspired by publicly shared interview practices.",
+    "questionMix": { "behavioral": 6, "technical": 2, "system_design": 2, "coding": 2 },
+    "behavioralThemes": [
+      "Customer Obsession",
+      "Ownership",
+      "Dive Deep",
+      "Bias for Action",
+      "Deliver Results",
+      "Earn Trust",
+      "Are Right A Lot",
+      "Have Backbone; Disagree and Commit"
+    ],
+    "interviewerNote": "Marcus wants real stories with specific numbers: what the metric was, what changed, and by how much. He keeps asking what the candidate personally decided and did, separating \"I\" from \"we\". He pushes on the moments of disagreement, the data used to settle them, and what the candidate would do differently."
+  },
+  {
+    "id": "google",
+    "name": "Google-style",
+    "description": "Problem-solving depth, collaboration and ambiguity. Inspired by publicly shared interview practices.",
+    "questionMix": { "behavioral": 2, "technical": 3, "system_design": 2, "coding": 5 },
+    "behavioralThemes": [
+      "Problem Solving",
+      "General Cognitive Ability",
+      "Collaboration",
+      "Handling Ambiguity",
+      "Googleyness",
+      "Learning From Failure"
+    ],
+    "interviewerNote": "Marcus cares about how the candidate thinks more than the first answer they land on. He leaves problems a little underspecified to see whether they ask good clarifying questions, then pushes on complexity, edge cases and alternative approaches. In behavioral rounds he looks for humility, collaboration and comfort with not having every answer."
+  },
+  {
+    "id": "meta",
+    "name": "Meta-style",
+    "description": "Fast, fluent coding, measurable impact and product sense. Inspired by publicly shared interview practices.",
+    "questionMix": { "behavioral": 2, "technical": 2, "system_design": 3, "coding": 5 },
+    "behavioralThemes": [
+      "Moving Fast",
+      "Impact",
+      "Execution",
+      "Working With Ambiguity",
+      "Giving and Receiving Feedback",
+      "Building for Users"
+    ],
+    "interviewerNote": "Marcus expects clean, working code at a steady pace, and notices when a candidate stalls or needs heavy hints. He asks what the candidate shipped and how much it moved a number that mattered. In system design he wants the product reasoning first: who uses it, what they need, and what to build first."
+  },
+  {
+    "id": "microsoft",
+    "name": "Microsoft-style",
+    "description": "Problem solving, collaboration and a growth mindset. Inspired by publicly shared interview practices.",
+    "questionMix": { "behavioral": 3, "technical": 3, "system_design": 2, "coding": 3 },
+    "behavioralThemes": [
+      "Growth Mindset",
+      "Collaboration",
+      "Customer Focus",
+      "Problem Solving",
+      "Learning From Mistakes",
+      "Influencing Without Authority"
+    ],
+    "interviewerNote": "Marcus listens for how the candidate learns: what they got wrong, what they changed, and what they picked up from others. He asks how they work through a problem out loud and how they bring teammates along. He keeps tying answers back to the customer who benefits."
+  },
+  {
+    "id": "startup",
+    "name": "Startup",
+    "description": "Breadth, end-to-end ownership and shipping with limited resources. Pragmatism over polish.",
+    "questionMix": { "behavioral": 3, "technical": 4, "system_design": 3, "coding": 2 },
+    "behavioralThemes": [
+      "Ownership",
+      "Breadth",
+      "Shipping With Limited Resources",
+      "Pragmatism Over Perfection",
+      "Working Without Process",
+      "Wearing Many Hats"
+    ],
+    "interviewerNote": "Marcus looks for people who take a problem from idea to production without waiting to be told. He asks what the candidate cut to ship, why, and what it cost. He pushes on how they would cope with little time, little staff and shifting priorities."
+  }
+]
