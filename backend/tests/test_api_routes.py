@@ -948,12 +948,17 @@ def test_turn_adds_the_company_style_note_server_side():
     assert f"Company style: {find_style('general').name}." in seen["user"]
 
 
-def test_turn_drops_a_blocked_candidate_name_before_the_model():
+def test_turn_uses_no_name_when_the_name_is_flagged():
+    # Real names can trip the filter ("Greg Dyke"), so a flagged name is never an error:
+    # Marcus just doesn't use a name.
     client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP})
-    assert _turn(client, candidateName="wh0re").status_code == 200
-    assert "wh0re" not in seen["user"]
+    for name in ("Greg Dyke", "wh0re"):
+        res = _turn(client, candidateName=name, phase="warmup")
+        assert res.status_code == 200
+        assert "<candidate_name>\n\n</candidate_name>" in seen["user"]
+        assert name not in seen["user"]
     _turn(client, candidateName="Karthik")
-    assert "Karthik" in seen["user"]
+    assert "<candidate_name>\nKarthik\n</candidate_name>" in seen["user"]
 
 
 def test_evaluate_scores_coding_with_problem_anchors_and_fenced_code():
@@ -969,13 +974,19 @@ def test_evaluate_scores_coding_with_problem_anchors_and_fenced_code():
     assert "<test_results>\nvisible 3/3, hidden 10/10\n</test_results>" in seen["user"]
 
 
-def test_start_rejects_an_offensive_name_before_any_model_call():
-    client = TestClient(create_app(llm=_NoCallLLM(), store=InMemoryStore()))
-    body = {"resumeText": "r", "jdText": "j", "role": "sde"}
-    for name in ("wh0re", "you're an idiot"):
-        res = client.post("/api/session/start", json={**body, "candidateName": name})
-        assert res.status_code == 422
-        assert res.json()["detail"] == "Please use a different name."
+def test_start_succeeds_with_a_flagged_name_and_never_puts_it_in_a_prompt():
+    users: list[str] = []
+
+    class _Spy(_FakeLLM):
+        def structured(self, **kw):
+            users.append(kw["user"])
+            return super().structured(**kw)
+
+    client = TestClient(create_app(llm=_Spy({"IntakeProfile": _INTAKE, "QuestionPlan": _PLAN}), store=InMemoryStore()))
+    res = client.post("/api/session/start", json={
+        "resumeText": "r", "jdText": "j", "role": "sde", "candidateName": "Greg Dyke"})
+    assert res.status_code == 200
+    assert len(users) == 2 and not any("Dyke" in u for u in users)
 
 
 def test_start_accepts_coding_mode_and_passes_company_style_to_the_planner():

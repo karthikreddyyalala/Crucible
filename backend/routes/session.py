@@ -57,7 +57,6 @@ class StartSessionRequest(_Base):
     jd_text: str
     role: str
     candidate_id: str = "local-dev"
-    candidate_name: str = ""  # screened here: Marcus says it out loud
     mode: Literal["full", "behavioral", "technical", "system_design", "coding"] = "full"
     level: Literal["junior", "mid", "senior"] = "mid"
     company_style: CompanyStyleId = "general"
@@ -249,8 +248,6 @@ def build_session_router(
 
     @router.post("/session/start")
     def start(req: StartSessionRequest, sub: str | None = Depends(current_sub)) -> StartSessionResponse:
-        if moderate(req.candidate_name).kind != "ok":
-            raise HTTPException(status_code=422, detail="Please use a different name.")
         cid = sub or req.candidate_id
         prior = store.get_memory(cid) or _empty_memory(cid)
         usage: list[CallUsage] = []
@@ -292,7 +289,7 @@ def build_session_router(
             next_question=req.next_question,
             phase=req.phase,
             role_context=_role_context(req.profile),
-            # /start screens the name, but /turn takes it again from the client.
+            # A flagged name is never an error (real names trip the filter): Marcus just doesn't use one.
             candidate_name=req.candidate_name if moderate(req.candidate_name).kind == "ok" else "",
             mode=req.mode,
             level=req.level,
