@@ -806,3 +806,204 @@ def test_each_agent_gets_its_settings_temperature(monkeypatch):
     client.post("/api/coach", json={"question": _QUESTION_BODY, "transcript": "a"})
     client.post("/api/session/finalize", json={"evaluations": [_EVAL], "priorMemory": None})
     assert seen == temps
+
+
+# --- phase 1: coding problems, conduct strikes, company style ---------------
+
+_CODING_Q = {
+    "id": "q1", "type": "coding",
+    "prompt": "Let's do a coding problem: given a list of numbers and a target, find two that add up to it.",
+    "targetDifficulty": 2, "weightedFromWeakness": False, "exemplarId": "code-two-sum",
+}
+_PRIVATE_KEYS = {"referenceSolution", "hints", "followUps", "rubric", "idealAnswerPoints", "weakAnswerSigns"}
+
+
+class _NoCallLLM:
+    def structured(self, **kw):
+        raise AssertionError("the model must not be called")
+
+
+def _turn(client, **body):
+    return client.post("/api/session/turn", json={
+        "question": _QUESTION_BODY, "answer": "a", "followUpCount": 0, "isLast": False, **body})
+
+
+def test_coding_problem_endpoint_returns_public_fields_only():
+    from models.coding import find_problem
+    res = _client({}).get("/api/coding/problems/code-two-sum")
+    assert res.status_code == 200
+    body = res.json()
+    assert body == find_problem("code-two-sum").public()
+    assert not _PRIVATE_KEYS & set(body)
+    assert body["starterCode"] and body["tests"] and body["statement"]
+
+
+def test_coding_problem_endpoint_404_for_unknown_id():
+    res = _client({}).get("/api/coding/problems/code-does-not-exist")
+    assert res.status_code == 404
+
+
+def test_coding_problem_endpoint_requires_auth_when_enabled(monkeypatch):
+    monkeypatch.setenv("INTERVIEWAI_AUTH_REQUIRED", "true")
+    monkeypatch.setenv("INTERVIEWAI_COGNITO_USER_POOL_ID", "us-west-2_test")
+    monkeypatch.setenv("INTERVIEWAI_COGNITO_CLIENT_ID", "testclient")
+    auth._settings.cache_clear()
+    assert _client({}).get("/api/coding/problems/code-two-sum").status_code == 401
+
+
+def test_turn_rejects_oversized_or_invalid_phase1_fields():
+    client = _client({"InterviewDecision": _DECISION_FOLLOW_UP})
+    assert _turn(client, answer="x" * 6000).status_code == 200
+    assert _turn(client, answer="x" * 6001).status_code == 422
+    assert _turn(client, code="x" * 20001).status_code == 422
+    assert _turn(client, testResults="x" * 4001).status_code == 422
+    assert _turn(client, strikes=4).status_code == 422
+    assert _turn(client, strikes=-1).status_code == 422
+    assert _turn(client, codingStage="debugging").status_code == 422
+    assert _turn(client, event="nudge").status_code == 422
+    assert _turn(client, companyStyle="acme").status_code == 422
+    ev = {"question": _CODING_Q, "transcript": "t", "followUpCount": 0}
+    assert client.post("/api/session/evaluate", json={**ev, "code": "x" * 20001}).status_code == 422
+    assert client.post("/api/session/evaluate", json={**ev, "testResults": "x" * 4001}).status_code == 422
+
+
+def test_abuse_gets_fixed_replies_and_ends_on_the_third_strike_without_calling_the_model():
+    client = TestClient(create_app(llm=_NoCallLLM(), store=InMemoryStore()))
+    prompt = _QUESTION_BODY["prompt"]
+    r1 = _turn(client, answer="you're an idiot", strikes=0, phase="question")
+    assert r1.status_code == 200
+    assert r1.json()["strikes"] == 1 and r1.json()["costUsd"] == 0
+    d1 = r1.json()["decision"]
+    assert d1["action"] == "clarify" and d1["currentQuestionId"] == "q0"
+    assert d1["say"] == f"Let's keep this professional. So — {prompt}"
+    r2 = _turn(client, answer="shut up, bot", strikes=1, phase="question")
+    assert r2.json()["strikes"] == 2
+    assert r2.json()["decision"]["action"] == "clarify"
+    assert r2.json()["decision"]["say"] == (
+        f"I'll be straightforward: if that happens again, I'll have to end the interview. So — {prompt}")
+    r3 = _turn(client, answer="wh0re", strikes=2, phase="question")  # a blocked term counts the same
+    assert r3.json()["strikes"] == 3
+    assert r3.json()["decision"]["action"] == "end"
+    assert r3.json()["decision"]["say"] == "I'm going to end the interview here. Take care."
+    r4 = _turn(client, answer="you're an idiot", strikes=3)
+    assert r4.json()["strikes"] == 4 and r4.json()["decision"]["action"] == "end"
+
+
+def test_conduct_reply_restates_the_phase_ask_outside_the_question_phase():
+    client = TestClient(create_app(llm=_NoCallLLM(), store=InMemoryStore()))
+    say = _turn(client, answer="you're an idiot", phase="warmup").json()["decision"]["say"]
+    assert say.startswith("Let's keep this professional. So — ")
+    assert _QUESTION_BODY["prompt"] not in say  # never jumps ahead to the first planned question
+    say = _turn(client, answer="you're an idiot", phase="closing").json()["decision"]["say"]
+    assert "questions" in say and _QUESTION_BODY["prompt"] not in say
+
+
+def test_casual_swearing_reaches_the_interviewer_and_keeps_the_strike_count():
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP})
+    res = _turn(client, answer="damn, I forgot the base case", strikes=2)
+    assert res.status_code == 200
+    assert res.json()["strikes"] == 2
+    assert "damn, I forgot the base case" in seen["user"]
+
+
+def test_checkin_event_with_empty_answer_calls_the_interviewer():
+    client, seen = _spy_client({"InterviewDecision": {**_DECISION_FOLLOW_UP, "action": "clarify"}})
+    res = _turn(client, question=_CODING_Q, answer="", event="checkin", codingStage="coding", phase="question")
+    assert res.status_code == 200 and res.json()["strikes"] == 0
+    assert "Event: checkin" in seen["user"] and "Coding stage: coding" in seen["user"]
+
+
+def test_turn_adds_coding_notes_and_fences_code_for_a_coding_question():
+    from models.coding import find_problem
+    p = find_problem("code-two-sum")
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP})
+    code, results = "def two_sum(nums, target):\n    return []", "visible 0/3 passed"
+    _turn(client, question=_CODING_Q, phase="question", code=code, testResults=results, codingStage="review")
+    assert p.hints[0] in seen["user"] and p.target_complexity["time"] in seen["user"]
+    assert f"<candidate_code>\n{code}\n</candidate_code>" in seen["user"]
+    assert f"<test_results>\n{results}\n</test_results>" in seen["user"]
+    assert "Coding stage: review" in seen["user"]
+    _turn(client, question=_CODING_Q, phase="background")  # notes only during the question itself
+    assert "Interviewer notes" not in seen["user"]
+
+
+def test_unknown_or_mismatched_coding_exemplar_gets_no_notes():
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP, "AnswerEvaluation": _EVAL})
+    for q in ({**_CODING_Q, "exemplarId": "code-made-up"},
+              {**_CODING_Q, "exemplarId": "sde-beh-ownership-1"},   # a bank id on a coding question
+              {**_CODING_Q, "type": "technical"}):                   # a problem id on a non-coding question
+        assert _turn(client, question=q, phase="question").status_code == 200
+        assert "Interviewer notes" not in seen["user"]
+        client.post("/api/session/evaluate", json={"question": q, "transcript": "t", "followUpCount": 0})
+        assert "Rubric anchors" not in seen["user"]
+
+
+def test_turn_adds_the_company_style_note_server_side():
+    from models.company_style import find_style
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP})
+    _turn(client, companyStyle="amazon", phase="warmup")
+    amazon = find_style("amazon")
+    assert f"Company style: {amazon.name}. {amazon.interviewer_note}" in seen["user"]
+    _turn(client)
+    assert f"Company style: {find_style('general').name}." in seen["user"]
+
+
+def test_turn_drops_a_blocked_candidate_name_before_the_model():
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP})
+    assert _turn(client, candidateName="wh0re").status_code == 200
+    assert "wh0re" not in seen["user"]
+    _turn(client, candidateName="Karthik")
+    assert "Karthik" in seen["user"]
+
+
+def test_evaluate_scores_coding_with_problem_anchors_and_fenced_code():
+    from models.coding import find_problem
+    p = find_problem("code-two-sum")
+    client, seen = _spy_client({"AnswerEvaluation": _EVAL})
+    res = client.post("/api/session/evaluate", json={
+        "question": _CODING_Q, "transcript": "A: hash map", "followUpCount": 2,
+        "code": "def two_sum(nums, target): ...", "testResults": "visible 3/3, hidden 10/10"})
+    assert res.status_code == 200
+    assert p.rubric["efficiency"] in seen["user"]
+    assert "<candidate_code>\ndef two_sum(nums, target): ...\n</candidate_code>" in seen["user"]
+    assert "<test_results>\nvisible 3/3, hidden 10/10\n</test_results>" in seen["user"]
+
+
+def test_start_rejects_an_offensive_name_before_any_model_call():
+    client = TestClient(create_app(llm=_NoCallLLM(), store=InMemoryStore()))
+    body = {"resumeText": "r", "jdText": "j", "role": "sde"}
+    for name in ("wh0re", "you're an idiot"):
+        res = client.post("/api/session/start", json={**body, "candidateName": name})
+        assert res.status_code == 422
+        assert res.json()["detail"] == "Please use a different name."
+
+
+def test_start_accepts_coding_mode_and_passes_company_style_to_the_planner():
+    client, seen = _spy_client({"IntakeProfile": _INTAKE, "QuestionPlan": _PLAN})
+    res = client.post("/api/session/start", json={
+        "resumeText": "r", "jdText": "j", "role": "sde", "candidateName": "Karthik",
+        "mode": "coding", "level": "junior", "companyStyle": "amazon"})
+    assert res.status_code == 200
+    assert "CompanyStyle: Amazon-style" in seen["user"] and "CodingProblems" in seen["user"]
+    bad = client.post("/api/session/start", json={
+        "resumeText": "r", "jdText": "j", "role": "sde", "companyStyle": "acme"})
+    assert bad.status_code == 422
+
+
+def test_coach_rejects_abusive_input():
+    client = TestClient(create_app(llm=_NoCallLLM(), store=InMemoryStore()))
+    res = client.post("/api/coach", json={"question": _QUESTION_BODY, "transcript": "A: f*** you"})
+    assert res.status_code == 422
+    assert res.json()["detail"] == "Let's keep it professional."
+
+
+def test_finalize_stores_company_style_and_conduct_end():
+    store = InMemoryStore()
+    client = _client({"MemoryProfile": _MEMORY}, store=store)
+    client.post("/api/session/finalize", json={
+        **_finalize_body("sess-conduct"), "companyStyle": "amazon", "endedForConduct": True})
+    body = client.get("/api/sessions/sess-conduct").json()
+    assert body["companyStyle"] == "amazon" and body["endedForConduct"] is True
+    client.post("/api/session/finalize", json=_finalize_body("sess-plain"))
+    body = client.get("/api/sessions/sess-plain").json()
+    assert body["companyStyle"] == "general" and body["endedForConduct"] is False

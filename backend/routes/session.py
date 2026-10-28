@@ -27,15 +27,25 @@ from agents.coach import CoachAgent
 from agents.evaluator import EvaluatorAgent
 from agents.interviewer import InterviewerAgent
 from agents.memory import MemoryAgent
+from models.coding import CodingProblem, find_problem
+from models.company_style import find_style
 from models.loader import find_exemplar
 from models.question_data import QuestionExemplar
 from graph.session_start import build_session_start_graph
+from safety.moderation import moderate
 from store.base import MemoryStore, VersionConflict
+
+CompanyStyleId = Literal["general", "amazon", "google", "meta", "microsoft", "startup"]
 
 
 def _exemplar_for(q: PlannedQuestion) -> QuestionExemplar | None:
     ex = find_exemplar(q.exemplar_id)
     return ex if ex and ex.type == q.type else None  # mismatched notes would contradict the question
+
+
+def _problem_for(q: PlannedQuestion) -> CodingProblem | None:
+    # Looked up by id server-side: the client's copy of the problem is never trusted.
+    return find_problem(q.exemplar_id) if q.type == "coding" else None
 
 
 class _Base(BaseModel):
@@ -47,8 +57,10 @@ class StartSessionRequest(_Base):
     jd_text: str
     role: str
     candidate_id: str = "local-dev"
-    mode: Literal["full", "behavioral", "technical", "system_design"] = "full"
+    candidate_name: str = ""  # screened here: Marcus says it out loud
+    mode: Literal["full", "behavioral", "technical", "system_design", "coding"] = "full"
     level: Literal["junior", "mid", "senior"] = "mid"
+    company_style: CompanyStyleId = "general"
 
 
 class StartSessionResponse(_Base):
@@ -63,7 +75,7 @@ class StartSessionResponse(_Base):
 
 class TurnRequest(_Base):
     question: PlannedQuestion
-    answer: str
+    answer: str = Field(max_length=6000)
     follow_up_count: int = Field(ge=0)
     is_last: bool
     # Conversational context so the interviewer can respond like a person:
@@ -72,20 +84,52 @@ class TurnRequest(_Base):
     phase: Literal["warmup", "background", "question", "closing"] = "question"
     next_question: PlannedQuestion | None = None
     candidate_name: str = ""
-    mode: Literal["", "full", "behavioral", "technical", "system_design"] = ""
+    mode: Literal["", "full", "behavioral", "technical", "system_design", "coding"] = ""
     level: Literal["", "junior", "mid", "senior"] = ""
     profile: IntakeProfile | None = None
+    company_style: CompanyStyleId = "general"
+    # Coding round: editor text and the browser's test summary (both fenced as
+    # untrusted before they reach the model), plus the client-tracked stage.
+    code: str = Field("", max_length=20000)
+    test_results: str = Field("", max_length=4000)
+    coding_stage: Literal["", "approach", "coding", "review"] = ""
+    event: Literal["", "checkin"] = ""  # checkin: no edits or messages for a while; answer may be empty
+    # Conduct strikes so far this session; the response carries the new count.
+    strikes: int = Field(0, ge=0, le=3)
 
 
 class EvaluateRequest(_Base):
     question: PlannedQuestion
     transcript: str
     follow_up_count: int = Field(ge=0)
+    code: str = Field("", max_length=20000)
+    test_results: str = Field("", max_length=4000)
 
 
 class TurnResponse(_Base):
     decision: InterviewDecision
     cost_usd: float = 0.0
+    strikes: int = 0
+
+
+# What Marcus re-asks after a conduct warning outside the planned questions
+# (in those phases the request's question is just a placeholder from the plan).
+_PHASE_ASK = {
+    "warmup": "how are you doing today?",
+    "background": "tell me a bit about your background.",
+    "closing": "what questions do you have for me?",
+}
+
+
+def _conduct_decision(req: TurnRequest, strikes: int) -> InterviewDecision:
+    """Fixed, in-character replies to abuse: professional, then a warning, then a polite end."""
+    if strikes >= 3:
+        return InterviewDecision(action="end", current_question_id=req.question.id,
+                                 say="I'm going to end the interview here. Take care.")
+    warning = ("Let's keep this professional. " if strikes == 1 else
+               "I'll be straightforward: if that happens again, I'll have to end the interview. ")
+    restate = "So — " + _PHASE_ASK.get(req.phase, req.question.prompt)
+    return InterviewDecision(action="clarify", current_question_id=req.question.id, say=warning + restate)
 
 
 class EvaluateResponse(_Base):
@@ -118,6 +162,8 @@ class FinalizeRequest(_Base):
     # cost_usd (see StartSessionResponse). The finalize call's own Memory
     # Agent cost is added server-side before this lands on SessionRecord.
     cost_usd: float = 0.0
+    company_style: str = "general"
+    ended_for_conduct: bool = False
 
 
 class CoachRequest(_Base):
@@ -193,8 +239,18 @@ def build_session_router(
         cid = sub or candidate_id
         return store.get_memory(cid) or _empty_memory(cid)
 
+    @router.get("/coding/problems/{problem_id}")
+    def coding_problem(problem_id: str, _sub: str | None = Depends(current_sub)) -> dict:
+        # The browser's copy: no reference solution, hints, follow-ups or rubric.
+        problem = find_problem(problem_id)
+        if problem is None:
+            raise HTTPException(status_code=404, detail="Problem not found.")
+        return problem.public()
+
     @router.post("/session/start")
     def start(req: StartSessionRequest, sub: str | None = Depends(current_sub)) -> StartSessionResponse:
+        if moderate(req.candidate_name).kind != "ok":
+            raise HTTPException(status_code=422, detail="Please use a different name.")
         cid = sub or req.candidate_id
         prior = store.get_memory(cid) or _empty_memory(cid)
         usage: list[CallUsage] = []
@@ -206,6 +262,7 @@ def build_session_router(
                 "role_key": req.role,
                 "mode": req.mode,
                 "level": req.level,
+                "company_style": req.company_style,
                 "memory": prior,
                 "usage": usage,
             }
@@ -217,9 +274,16 @@ def build_session_router(
 
     @router.post("/session/turn")
     def turn(req: TurnRequest, _sub: str | None = Depends(current_sub)) -> TurnResponse:
+        # Screened before anything else: abuse and blocked terms never reach the model.
+        # ponytail: screens the whole thread, so the client must drop a struck reply from it.
+        if moderate(req.answer).kind != "ok":
+            strikes = req.strikes + 1
+            return TurnResponse(decision=_conduct_decision(req, strikes), strikes=strikes)
         # Only the interviewer runs here so the reply comes back fast; scoring
         # happens in /session/evaluate, which the client calls in the background.
         usage: list[CallUsage] = []
+        in_question = req.phase == "question"  # other phases carry an unrelated question
+        style = find_style(req.company_style)
         decision = interviewer.run_turn(
             question=req.question,
             candidate_answer=req.answer,
@@ -228,14 +292,21 @@ def build_session_router(
             next_question=req.next_question,
             phase=req.phase,
             role_context=_role_context(req.profile),
-            candidate_name=req.candidate_name,
+            # /start screens the name, but /turn takes it again from the client.
+            candidate_name=req.candidate_name if moderate(req.candidate_name).kind == "ok" else "",
             mode=req.mode,
             level=req.level,
             usage_sink=usage,
             # Warmup/background/closing carry an unrelated question; notes would mislead.
-            exemplar=_exemplar_for(req.question) if req.phase == "question" else None,
+            exemplar=_exemplar_for(req.question) if in_question else None,
+            coding_problem=_problem_for(req.question) if in_question else None,
+            code=req.code,
+            test_results=req.test_results,
+            coding_stage=req.coding_stage,
+            event=req.event,
+            company_note=f"{style.name}. {style.interviewer_note}",
         )
-        return TurnResponse(decision=decision, cost_usd=sum(u.cost_usd for u in usage))
+        return TurnResponse(decision=decision, cost_usd=sum(u.cost_usd for u in usage), strikes=req.strikes)
 
     @router.post("/session/evaluate")
     def evaluate(req: EvaluateRequest, _sub: str | None = Depends(current_sub)) -> EvaluateResponse:
@@ -246,6 +317,9 @@ def build_session_router(
             follow_up_count=req.follow_up_count,
             usage_sink=usage,
             exemplar=_exemplar_for(req.question),
+            coding_problem=_problem_for(req.question),
+            code=req.code,
+            test_results=req.test_results,
         )
         return EvaluateResponse(evaluation=evaluation, cost_usd=sum(u.cost_usd for u in usage))
 
@@ -253,6 +327,8 @@ def build_session_router(
     def coach_answer(req: CoachRequest, _sub: str | None = Depends(current_sub)) -> CoachResponse:
         # On-demand: reworks the candidate's own attempt into a model 5/5 answer.
         # Generated only when the user asks to see it, never during the interview.
+        if moderate(req.transcript).kind != "ok":
+            raise HTTPException(status_code=422, detail="Let's keep it professional.")
         return coach.run(
             question=req.question,
             transcript=req.transcript,
@@ -334,6 +410,8 @@ def build_session_router(
                     questions=req.questions,
                     evaluations=req.evaluations,
                     cost_usd=req.cost_usd + sum(u.cost_usd for u in usage),
+                    company_style=req.company_style,
+                    ended_for_conduct=req.ended_for_conduct,
                 )
             )
         return updated
