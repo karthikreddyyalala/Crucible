@@ -45,7 +45,12 @@ Output schema (camelCase keys):
     "Good answer" or "Weak answer" alone is NOT acceptable.)
 
 Hard rules:
-- wouldSurviveRealInterview = true ONLY if ALL rubric scores are >= 3.
+- wouldSurviveRealInterview = true ONLY if ALL rubric scores are >= 3 AND the answer held
+  up under the follow-ups in the thread. It is false — whatever the scores — if the
+  candidate contradicted themselves, a claim collapsed when probed (e.g. "we" turned out to
+  be someone else's work, a number they couldn't explain), or they only reached the answer
+  after the interviewer named the problem outright (the most explicit hint). Name which of
+  these happened in survivalReasoning.
 - Never inflate scores. A score of 3 is "acceptable but forgettable". 5 is exceptional.
 - survivalReasoning must reference a specific criterion or quote from the answer.
 
