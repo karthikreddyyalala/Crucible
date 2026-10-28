@@ -15,6 +15,7 @@ from collections import deque
 
 CODE_NAME = "<solution>"  # compile name of the candidate code, used to find its line numbers
 STDOUT_CAP = 2000
+MESSAGE_CAP = 300  # an error message can be any size; the results panel and the turn payload can't
 
 
 class ListNode:
@@ -271,6 +272,8 @@ def _describe(error):
         message = str(error)
         frames = [f for f in traceback.extract_tb(error.__traceback__) if f.filename == CODE_NAME]
         line = frames[-1].lineno if frames else None
+    if len(message) > MESSAGE_CAP:
+        message = message[:MESSAGE_CAP] + "…"
     text = f"{type(error).__name__}: {message}" if message else type(error).__name__
     return f"{text} (line {line})" if line else text
 

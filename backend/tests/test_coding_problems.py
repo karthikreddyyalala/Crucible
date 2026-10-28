@@ -173,6 +173,14 @@ def test_runtime_error_in_a_helper_reports_the_deepest_candidate_line():
     assert row["error"] == "ZeroDivisionError: integer division or modulo by zero (line 2)"
 
 
+def test_a_huge_error_message_is_cut_short():
+    # A 10,000-character message would otherwise flood the results panel and the turn payload.
+    code = "def two_sum(nums, target):\n    raise ValueError('x' * 10000)\n"
+    row = harness.run(code, _public("code-two-sum"))[0]
+    assert len(row["error"]) < 340
+    assert row["error"].startswith("ValueError: xxx") and "…" in row["error"] and row["error"].endswith("(line 2)")
+
+
 def test_error_while_defining_the_code_returns_one_row():
     [row] = harness.run("x = 1\nraise ValueError('boom')\n", _public("code-two-sum"))
     assert row["index"] == -1 and row["error"] == "ValueError: boom (line 2)"
