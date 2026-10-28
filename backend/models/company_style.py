@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, model_validator
 from pydantic.alias_generators import to_camel
 
 _PATH = Path(__file__).resolve().parent.parent / "data" / "company_styles.json"
+CompanyStyleId = Literal["general", "amazon", "google", "meta", "microsoft", "startup"]
 
 
 class QuestionMix(BaseModel):
@@ -29,7 +30,7 @@ class QuestionMix(BaseModel):
 class CompanyStyle(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, frozen=True)
 
-    id: Literal["general", "amazon", "google", "meta", "microsoft", "startup"]
+    id: CompanyStyleId
     name: str
     description: str = Field(min_length=1, max_length=120)
     question_mix: QuestionMix

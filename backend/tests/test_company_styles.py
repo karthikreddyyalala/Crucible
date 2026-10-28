@@ -93,3 +93,10 @@ def test_question_mix_is_immutable():
 def test_question_mix_rejects_bad_weights(bad):
     with pytest.raises(ValidationError):
         QuestionMix.model_validate(bad)
+
+
+def test_company_style_id_has_one_definition():
+    import routes.session
+    from models.company_style import CompanyStyle, CompanyStyleId
+    assert routes.session.CompanyStyleId is CompanyStyleId
+    assert CompanyStyle.model_fields["id"].annotation is CompanyStyleId

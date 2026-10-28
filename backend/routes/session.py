@@ -29,14 +29,12 @@ from agents.evaluator import EvaluatorAgent
 from agents.interviewer import InterviewerAgent
 from agents.memory import MemoryAgent
 from models.coding import CodingProblem, find_problem
-from models.company_style import find_style
+from models.company_style import CompanyStyleId, find_style
 from models.loader import find_exemplar
 from models.question_data import QuestionExemplar
 from graph.session_start import build_session_start_graph
 from safety.moderation import moderate
 from store.base import MemoryStore, VersionConflict
-
-CompanyStyleId = Literal["general", "amazon", "google", "meta", "microsoft", "startup"]
 
 
 def _exemplar_for(q: PlannedQuestion) -> QuestionExemplar | None:
