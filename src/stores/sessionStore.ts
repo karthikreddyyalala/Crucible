@@ -133,6 +133,10 @@ function warmGreeting(name: string): string {
 // the matching pendingEvals entry is simply re-scored at finalize).
 const inflightEvals = new Map<string, Promise<void>>();
 
+// A Submit pressed while the interviewer is mid-reply: the question id whose "submit"
+// turn goes out once that reply lands (dropped if the reply moved to another question).
+let pendingSubmit: string | null = null;
+
 // UUID message ids so rehydrating a saved session never collides with new
 // messages generated after the resume.
 const mkId = (): string =>
@@ -201,6 +205,15 @@ export const useSessionStore = create<SessionState>()(
       // first; an event turn ("checkin" / "submit") sends an empty answer and adds no
       // candidate line, and its failure stays quiet (the candidate can just talk).
       const runTurn = async (text: string, event: "" | TurnEvent) => {
+        await turnOnce(text, event);
+        const queued = pendingSubmit;
+        pendingSubmit = null;
+        if (queued && get().status === "live" && currentCoding(get())?.id === queued) {
+          await runTurn("", "submit");
+        }
+      };
+
+      const turnOnce = async (text: string, event: "" | TurnEvent) => {
         const state = get();
         const plan = state.plan;
         if (!plan || state.status !== "live") return;
@@ -512,7 +525,9 @@ export const useSessionStore = create<SessionState>()(
           lastRun: { ...s.lastRun, [questionId]: summarizeOutcome(outcome, visibleCount) },
           codingStage: submitted ? "review" : s.codingStage,
         }));
-        if (submitted) await runTurn("", "submit");
+        if (!submitted) return;
+        if (get().status === "thinking") pendingSubmit = questionId;
+        else await runTurn("", "submit");
       },
 
       sendCheckin: async (questionId) => {

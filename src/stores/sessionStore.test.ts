@@ -918,6 +918,47 @@ describe("sessionStore — turnError", () => {
       expect(s.status).toBe("live");
     });
 
+    it("queues a Submit pressed while Marcus is replying and sends it once he's done", async () => {
+      seedCoding({ codingStage: "coding", codeByQuestion: { c1: "code" } });
+      const { api } = await import("@/lib/api");
+      let resolveTurn!: (v: TurnResult) => void;
+      vi.mocked(api.submitAnswer)
+        .mockReturnValueOnce(new Promise<TurnResult>((r) => { resolveTurn = r; }))
+        .mockResolvedValueOnce(reply("follow_up", "Example 2 fails. Why?"));
+
+      const answering = useSessionStore.getState().submitAnswer("Writing the loop now.");
+      expect(useSessionStore.getState().status).toBe("thinking");
+      await useSessionStore.getState().recordRun(
+        "c1", { kind: "results", results: [passed(0), passed(1, false)] }, "submit", 2);
+      await useSessionStore.getState().recordRun(
+        "c1", { kind: "results", results: [passed(0), passed(1, false)] }, "submit", 2);
+      expect(api.submitAnswer).toHaveBeenCalledTimes(1);
+
+      resolveTurn(reply("clarify", "Keep going."));
+      await answering;
+
+      expect(api.submitAnswer).toHaveBeenCalledTimes(2);
+      expect(vi.mocked(api.submitAnswer).mock.calls[1][0]).toMatchObject({ event: "submit", answer: "", codingStage: "review" });
+      const s = useSessionStore.getState();
+      expect(s.status).toBe("live");
+      expect(s.messages.at(-1)?.text).toBe("Example 2 fails. Why?");
+    });
+
+    it("drops a queued Submit if the reply moved on to another question", async () => {
+      seedCoding({ codingStage: "coding" });
+      const { api } = await import("@/lib/api");
+      let resolveTurn!: (v: TurnResult) => void;
+      vi.mocked(api.submitAnswer).mockReturnValueOnce(new Promise<TurnResult>((r) => { resolveTurn = r; }));
+
+      const answering = useSessionStore.getState().submitAnswer("I think I'm done with this one.");
+      await useSessionStore.getState().recordRun("c1", { kind: "results", results: [passed(0)] }, "submit", 1);
+      resolveTurn(reply("advance", "Okay, next problem."));
+      await answering;
+
+      expect(api.submitAnswer).toHaveBeenCalledTimes(1);
+      expect(useSessionStore.getState()).toMatchObject({ currentIdx: 1, codingStage: "approach", status: "live" });
+    });
+
     it("reports a timeout in the run summary", () => {
       seedCoding({ codingStage: "coding" });
       useSessionStore.getState().recordRun("c1", { kind: "timeout" }, "run", 2);
