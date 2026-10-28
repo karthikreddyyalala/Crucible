@@ -1,3 +1,4 @@
+import re
 from datetime import date
 from typing import Literal
 from uuid import uuid4
@@ -43,11 +44,33 @@ def _exemplar_for(q: PlannedQuestion) -> QuestionExemplar | None:
     return ex if ex and ex.type == q.type else None  # mismatched notes would contradict the question
 
 
-def _latest_reply(answer: str) -> str:
-    # The client sends the question's whole thread ("Q: ..." / "A: ...", latest last).
-    # Mirrors latestReply in src/lib/mockEngine.ts.
-    i = answer.rfind("\nA: ")
-    return (answer[i + 4:] if i >= 0 else answer).strip()
+_SEGMENT = re.compile(r"\n(?=[QA]: )")
+_MAX_REPLY = 6000
+_TOO_LONG = "That answer is too long — please keep each answer under 6,000 characters."
+
+
+def _screen_thread(thread: str) -> tuple[str, bool]:
+    """Screen the client's thread for one question ("Q: ..." = Marcus, "A: ..." = candidate, latest last).
+
+    Every answer is capped (422). Answers that moderation flags are dropped, so the model never
+    sees them. Returns (the thread to send, whether the latest reply was flagged): the latest
+    reply is everything after the last Q: line, so a flagged part anywhere in it counts.
+    """
+    segments = _SEGMENT.split(thread)
+    last_q = max((i for i, seg in enumerate(segments) if seg.startswith("Q: ")), default=-1)
+    kept, latest_flagged = [], False
+    for i, seg in enumerate(segments):
+        if seg.startswith("Q: "):
+            kept.append(seg)
+            continue
+        text = seg.removeprefix("A: ").strip()
+        if len(text) > _MAX_REPLY:
+            raise HTTPException(status_code=422, detail=_TOO_LONG)
+        if moderate(text).kind == "ok":
+            kept.append(seg)
+        elif i > last_q:
+            latest_flagged = True
+    return "\n".join(kept), latest_flagged
 
 
 def _problem_for(q: PlannedQuestion) -> CodingProblem | None:
@@ -57,6 +80,13 @@ def _problem_for(q: PlannedQuestion) -> CodingProblem | None:
 
 class _Base(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+
+class ClientQuestion(PlannedQuestion):
+    """A question as the client sends it back. Its id and prompt reach the model, so both are bounded
+    here (the Planner's own output isn't) and the prompt is fenced as untrusted in every agent."""
+    id: str = Field(pattern=r"^[A-Za-z0-9_-]{1,64}$")
+    prompt: str = Field(max_length=1000)
 
 
 class StartSessionRequest(_Base):
@@ -84,7 +114,7 @@ class StartSessionResponse(_Base):
 
 
 class TurnRequest(_Base):
-    question: PlannedQuestion
+    question: ClientQuestion
     answer: str = Field(max_length=40000)  # the whole thread; each reply is capped in /turn
     follow_up_count: int = Field(ge=0)
     is_last: bool
@@ -92,8 +122,8 @@ class TurnRequest(_Base):
     # which stage of the interview this is, what to ask next if it moves on,
     # and who it's talking to. All optional so older clients keep working.
     phase: Literal["warmup", "background", "question", "closing"] = "question"
-    next_question: PlannedQuestion | None = None
-    candidate_name: str = ""
+    next_question: ClientQuestion | None = None
+    candidate_name: str = Field("", max_length=80)
     mode: Literal["", "full", "behavioral", "technical", "system_design", "coding"] = ""
     level: Literal["", "junior", "mid", "senior"] = ""
     profile: IntakeProfile | None = None
@@ -109,8 +139,8 @@ class TurnRequest(_Base):
 
 
 class EvaluateRequest(_Base):
-    question: PlannedQuestion
-    transcript: str
+    question: ClientQuestion
+    transcript: str = Field(max_length=40000)
     follow_up_count: int = Field(ge=0)
     code: str = Field("", max_length=20000)
     test_results: str = Field("", max_length=4000)
@@ -138,7 +168,8 @@ def _conduct_decision(req: TurnRequest, strikes: int) -> InterviewDecision:
                                  say="I'm going to end the interview here. Take care.")
     warning = ("Let's keep this professional. " if strikes == 1 else
                "I'll be straightforward: if that happens again, I'll have to end the interview. ")
-    restate = "So — " + _PHASE_ASK.get(req.phase, req.question.prompt)
+    restate = (f"So — {_PHASE_ASK[req.phase]}" if req.phase in _PHASE_ASK
+               else f"So, back to the question: {req.question.prompt}")
     return InterviewDecision(action="clarify", current_question_id=req.question.id, say=warning + restate)
 
 
@@ -172,13 +203,13 @@ class FinalizeRequest(_Base):
     # cost_usd (see StartSessionResponse). The finalize call's own Memory
     # Agent cost is added server-side before this lands on SessionRecord.
     cost_usd: float = 0.0
-    company_style: str = "general"
+    company_style: CompanyStyleId = "general"
     ended_for_conduct: bool = False
 
 
 class CoachRequest(_Base):
-    question: PlannedQuestion
-    transcript: str
+    question: ClientQuestion
+    transcript: str = Field(max_length=40000)
     weakness_tags: list[str] = []
 
 
@@ -283,15 +314,11 @@ def build_session_router(
 
     @router.post("/session/turn")
     def turn(req: TurnRequest, _sub: str | None = Depends(current_sub)) -> TurnResponse:
-        reply = _latest_reply(req.answer)
-        if len(reply) > 6000:
-            raise HTTPException(
-                status_code=422,
-                detail="That answer is too long — please keep each answer under 6,000 characters.")
-        # Screened before the model: abuse and blocked terms never reach it. Only the latest
-        # reply, so an earlier struck line can't strike again (the client drops it as well).
-        if moderate(reply).kind != "ok":
-            strikes = req.strikes + 1
+        # Screened before the model: flagged answers never reach it. Only the latest reply can
+        # strike; an earlier, already-struck line is just dropped (the client drops it as well).
+        thread, flagged = _screen_thread(req.answer)
+        if flagged:
+            strikes = min(req.strikes + 1, 3)
             return TurnResponse(decision=_conduct_decision(req, strikes), strikes=strikes)
         # Only the interviewer runs here so the reply comes back fast; scoring
         # happens in /session/evaluate, which the client calls in the background.
@@ -300,7 +327,7 @@ def build_session_router(
         style = find_style(req.company_style)
         decision = interviewer.run_turn(
             question=req.question,
-            candidate_answer=req.answer,
+            candidate_answer=thread,
             follow_up_count=req.follow_up_count,
             is_last_question=req.is_last,
             next_question=req.next_question,
@@ -325,9 +352,10 @@ def build_session_router(
     @router.post("/session/evaluate")
     def evaluate(req: EvaluateRequest, _sub: str | None = Depends(current_sub)) -> EvaluateResponse:
         usage: list[CallUsage] = []
+        transcript, _ = _screen_thread(req.transcript)
         evaluation = evaluator.run(
             question=req.question,
-            transcript=req.transcript,
+            transcript=transcript,
             follow_up_count=req.follow_up_count,
             usage_sink=usage,
             exemplar=_exemplar_for(req.question),

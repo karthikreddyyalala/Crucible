@@ -47,14 +47,15 @@ class InterviewerAgent:
             f"Question ID: {question.id}\n"
             f"Question Type: {question.type}\n"
             f"Difficulty: {question.target_difficulty}\n"
-            f"Question: {question.prompt}\n\n"
+            # Question text comes back from the client, so it is fenced too.
+            f"Question:\n{wrap_untrusted('question', question.prompt)}\n\n"
             # The client sends the whole thread for this question (Q: = interviewer,
             # A: = candidate, latest reply last) — all of it stays inside the fence.
             f"Candidate Answer:\n{wrap_untrusted('candidate_answer', candidate_answer)}\n\n"
             f"followUpCount: {follow_up_count}\n"
             f"followUpBudget: {FOLLOW_UP_BUDGET[question.type]}\n"
             f"isLastQuestion: {'true' if is_last_question else 'false'}\n"
-            + (f"Next question: {next_question.prompt}\n" if next_question else "")
+            + (f"Next question:\n{wrap_untrusted('next_question', next_question.prompt)}\n" if next_question else "")
             + (f"Coding stage: {coding_stage}\n" if coding_stage else "")
             + (f"Event: {event}\n" if event else "")
             # Editor text and test summary come from the browser: fenced like the answer.

@@ -22,7 +22,7 @@ class EvaluatorAgent:
             f"Question ID: {question.id}\n"
             f"Question Type: {question.type}\n"
             f"Difficulty: {question.target_difficulty}\n"
-            f"Question: {question.prompt}\n\n"
+            f"Question:\n{wrap_untrusted('question', question.prompt)}\n\n"  # client-supplied
             f"Candidate Answer:\n{wrap_untrusted('candidate_answer', transcript)}\n\n"
             f"Follow-up count: {follow_up_count}\n"
             # Final editor text and test summary come from the browser: fenced.
