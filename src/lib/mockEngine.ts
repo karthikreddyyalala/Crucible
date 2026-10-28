@@ -372,9 +372,12 @@ export const mockEngine = {
     const pool = mode === "full" ? QUESTION_BANK[key] : QUESTION_BANK[key].filter((q) => q.type === mode);
     const source = pool.length > 0 ? pool : QUESTION_BANK[key];
     const bank = source.map((q, i) => ({ ...q, weightedFromWeakness: i === 1 }));
+    const first = (type: PlannedQuestion["type"]) => bank.filter((q) => q.type === type).slice(0, 1);
+    // Spec 1.5: a full mock is one of each, in the Planner's order.
     const ordered =
       mode === "coding" ? codingQuestions(CODING_ROUND[level], level)
-      : mode === "full" ? [bank[0], ...codingQuestions([FULL_MOCK_CODING[level]], level), ...bank.slice(1)]
+      : mode === "full"
+      ? [...first("behavioral"), ...codingQuestions([FULL_MOCK_CODING[level]], level), ...first("technical"), ...first("system_design")]
       : bank;
     const plan: QuestionPlan = {
       sessionId: `sess-${Date.now()}`,
@@ -399,7 +402,8 @@ export const mockEngine = {
     const warning = strikes === 1
       ? "Let's keep this professional. "
       : "I'll be straightforward: if that happens again, I'll have to end the interview. ";
-    const say = `${warning}So — ${PHASE_ASK[input.phase] ?? input.question.prompt}`;
+    const restate = PHASE_ASK[input.phase] ? `So — ${PHASE_ASK[input.phase]}` : `So, back to the question: ${input.question.prompt}`;
+    const say = warning + restate;
     return { strikes, decision: { action: "clarify", followUpPrompt: null, currentQuestionId, say } };
   },
 

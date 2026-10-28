@@ -33,11 +33,9 @@ describe("mockEngine.buildSession — coding", () => {
     expect(plan.questions.every((q) => q.prompt.startsWith("Let's do a coding problem:"))).toBe(true);
   });
 
-  it("puts one coding problem in a full mock, right after the behavioral opener", () => {
-    const { plan } = mockEngine.buildSession("ai_engineer", "full", "junior");
-    expect(plan.questions.filter((q) => q.type === "coding")).toHaveLength(1);
-    expect(plan.questions[0].type).toBe("behavioral");
-    expect(plan.questions[1].type).toBe("coding");
+  it.each(["sde", "ai_engineer"])("builds a %s full mock as behavioral, coding, technical, system design", (role) => {
+    const { plan } = mockEngine.buildSession(role, "full", "junior");
+    expect(plan.questions.map((q) => q.type)).toEqual(["behavioral", "coding", "technical", "system_design"]);
     expect(difficultyOf(plan.questions[1].exemplarId)).toBe("easy");
     expect(new Set(plan.questions.map((q) => q.id)).size).toBe(plan.questions.length);
   });
@@ -156,7 +154,7 @@ describe("mockEngine.turn — conduct", () => {
     const two = mockEngine.turn(turn({ answer: "Q: x\nA: you're an idiot", strikes: 1 }));
     expect(two.strikes).toBe(2);
     expect(two.decision.say).toMatch(/^I'll be straightforward: if that happens again, I'll have to end the interview\./);
-    expect(two.decision.say).toContain(coding().prompt);
+    expect(two.decision.say).toMatch(new RegExp(`So, back to the question: ${coding().prompt}$`));
 
     const three = mockEngine.turn(turn({ answer: "fuck you", strikes: 2 }));
     expect(three.strikes).toBe(3);
