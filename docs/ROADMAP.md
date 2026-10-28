@@ -3,7 +3,7 @@
 What gets built, in order, and why. Each phase gets its own spec, plan, tests and pull
 request. Detailed day-to-day status lives in [TODO.md](TODO.md).
 
-## Phase 1 — complete interview prep (in progress, branch `feat/phase-1`)
+## Phase 1 — complete interview prep (done, merged in PR #5 on 2026-10-28)
 
 Spec: [superpowers/specs/2026-10-28-phase-1-design.md](superpowers/specs/2026-10-28-phase-1-design.md)
 
@@ -17,7 +17,7 @@ Spec: [superpowers/specs/2026-10-28-phase-1-design.md](superpowers/specs/2026-10
 Why first: live coding is most of a real software interview loop and Crucible couldn't
 practice it; company style is how people actually prepare.
 
-## Phase 2 — feels even more like a person
+## Phase 2 — feels even more like a person (next; needs a Deepgram account)
 
 - Semantic end-of-turn detection (Deepgram Flux or LiveKit): knows when you've finished.
 - Barge-in: interrupt Marcus mid-sentence.
