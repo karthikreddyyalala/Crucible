@@ -32,6 +32,10 @@ import { USE_MOCK } from "@/lib/api";
 import { silenceBeforeSendMs } from "@/lib/turnTaking";
 
 const WIDE = "(min-width: 1024px)";
+// The server's limit on one answer; the counter appears as the draft gets close.
+const ANSWER_LIMIT = 6000;
+const COUNT_FROM = 5000;
+const thousands = (n: number) => n.toLocaleString("en-US");
 
 // The coding editor needs ≥ 1024 px; below that the round is talk-only.
 function useWideScreen(): boolean {
@@ -246,7 +250,7 @@ export function Interview() {
   const send = () => sendText(draft);
 
   async function sendText(raw: string) {
-    if (!raw.trim() || locked) return;
+    if (!raw.trim() || locked || raw.length > ANSWER_LIMIT) return;
     if (stt.listening) stt.stop();
     const text = raw.trim();
     setLastDraft(text);
@@ -262,6 +266,9 @@ export function Interview() {
     : stt.listening
     ? "LISTENING — JUST PAUSE WHEN YOU'RE DONE"
     : "VOICE ON";
+
+  const tooLong = draft.length > ANSWER_LIMIT;
+  const counting = draft.length > COUNT_FROM;
 
   const renderComposer = (compact: boolean) => (
     <div className="border-t border-line bg-void/80 backdrop-blur-xl">
@@ -312,6 +319,8 @@ export function Interview() {
             disabled={locked}
             rows={2}
             aria-label="Your answer"
+            aria-invalid={tooLong || undefined}
+            aria-describedby={counting ? "answer-length" : undefined}
             placeholder={
               stt.listening
                 ? "Listening…"
@@ -331,33 +340,49 @@ export function Interview() {
           />
           <button
             onClick={send}
-            disabled={!draft.trim() || locked}
+            disabled={!draft.trim() || locked || tooLong}
             className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent text-void tactile transition-opacity disabled:opacity-30"
             aria-label="Send answer"
           >
             {thinking ? <PaperPlaneTilt size={18} weight="fill" /> : <ArrowUp size={18} weight="bold" />}
           </button>
         </div>
-        <div className="mt-2 flex items-center justify-end gap-3 px-1 sm:justify-between">
-          <p className="hidden font-mono text-[10px] tracking-wide text-fog sm:block">
-            {voiceOn && stt.supported
-              ? compact ? "HANDS-FREE · PAUSE TO SEND" : "HANDS-FREE · HE LISTENS AFTER SPEAKING · PAUSE TO SEND"
-              : compact
-              ? "⌘/CTRL + ENTER TO SEND"
-              : `${stt.supported ? "MIC TO SPEAK · " : ""}⌘/CTRL + ENTER TO SEND · VAGUE ANSWERS WILL GET PROBED`}
-          </p>
-          {phase === "closing" && status === "live" && (
-            <button
-              onClick={() => {
-                if (stt.listening) stt.stop();
-                tts.cancel();
-                void endInterview();
-              }}
-              className="shrink-0 font-mono text-[10px] tracking-[0.14em] text-fog underline-offset-4 transition-colors hover:text-chalk hover:underline"
-            >
-              NO QUESTIONS — END INTERVIEW
-            </button>
+        <div className="mt-2 flex items-center gap-3 px-1">
+          {tooLong ? (
+            <p role="status" className="font-sans text-[12px] text-fail">
+              Keep each answer under {thousands(ANSWER_LIMIT)} characters.
+            </p>
+          ) : (
+            <p className="hidden font-mono text-[10px] tracking-wide text-fog sm:block">
+              {voiceOn && stt.supported
+                ? compact ? "HANDS-FREE · PAUSE TO SEND" : "HANDS-FREE · HE LISTENS AFTER SPEAKING · PAUSE TO SEND"
+                : compact
+                ? "⌘/CTRL + ENTER TO SEND"
+                : `${stt.supported ? "MIC TO SPEAK · " : ""}⌘/CTRL + ENTER TO SEND · VAGUE ANSWERS WILL GET PROBED`}
+            </p>
           )}
+          <div className="ml-auto flex shrink-0 items-center gap-3">
+            {counting && (
+              <span
+                id="answer-length"
+                className={`font-mono text-[10px] tabular-nums tracking-wide ${tooLong ? "text-fail" : "text-mist"}`}
+              >
+                {thousands(draft.length)} / {thousands(ANSWER_LIMIT)}
+              </span>
+            )}
+            {phase === "closing" && status === "live" && (
+              <button
+                onClick={() => {
+                  if (stt.listening) stt.stop();
+                  tts.cancel();
+                  void endInterview();
+                }}
+                className="shrink-0 font-mono text-[10px] tracking-[0.14em] text-fog underline-offset-4 transition-colors hover:text-chalk hover:underline"
+              >
+                NO QUESTIONS — END INTERVIEW
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

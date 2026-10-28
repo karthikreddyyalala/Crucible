@@ -192,4 +192,40 @@ describe("Interview", () => {
     expect(screen.queryByText(/Stage \d of 3/)).toBeNull();
     expect(api.getProblem).not.toHaveBeenCalled();
   });
+
+  describe("answer length", () => {
+    const type = (text: string) =>
+      fireEvent.change(screen.getByRole("textbox", { name: "Your answer" }), { target: { value: text } });
+
+    it("stays quiet under 5,000 characters, then shows a counter", () => {
+      setScreen(true);
+      start(behavioral);
+      type("a".repeat(5000));
+      expect(screen.queryByText(/\/ 6,000$/)).toBeNull();
+      type("a".repeat(5412));
+      expect(screen.getByText("5,412 / 6,000")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Send answer" })).toBeEnabled();
+    });
+
+    it("won't send an answer over 6,000 characters, and says why", () => {
+      setScreen(true);
+      const submitAnswer = vi.fn().mockResolvedValue(true);
+      start(behavioral, { submitAnswer });
+      type("a".repeat(6001));
+      expect(screen.getByText("Keep each answer under 6,000 characters.")).toBeInTheDocument();
+      expect(screen.getByText("6,001 / 6,000")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Send answer" })).toBeDisabled();
+      fireEvent.keyDown(screen.getByRole("textbox", { name: "Your answer" }), { key: "Enter", metaKey: true });
+      expect(submitAnswer).not.toHaveBeenCalled();
+    });
+
+    it("sends an answer right at the limit", () => {
+      setScreen(true);
+      const submitAnswer = vi.fn().mockResolvedValue(true);
+      start(behavioral, { submitAnswer });
+      type("a".repeat(6000));
+      fireEvent.click(screen.getByRole("button", { name: "Send answer" }));
+      expect(submitAnswer).toHaveBeenCalledWith("a".repeat(6000));
+    });
+  });
 });
