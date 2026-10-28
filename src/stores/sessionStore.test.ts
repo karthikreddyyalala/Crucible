@@ -1135,6 +1135,23 @@ describe("sessionStore — turnError", () => {
   });
 
   describe("persistence — the coding round survives a refresh", () => {
+    it("keeps using the name in a session saved before nameUsable existed", async () => {
+      useSessionStore.setState({ nameUsable: false });
+      localStorage.setItem("crucible.session.v1", JSON.stringify({
+        state: { status: "live", candidateName: "Karthik", messages: [] }, version: 0,
+      }));
+      await useSessionStore.persist.rehydrate();
+      expect(useSessionStore.getState().nameUsable).toBe(true);
+    });
+
+    it("doesn't save a conduct end as complete before its results are saved", () => {
+      localStorage.clear();
+      seedCoding({ status: "wrapping", endedForConduct: true, turnError: null });
+      const saved = JSON.parse(localStorage.getItem("crucible.session.v1")!).state;
+      expect(saved.status).toBe("wrapping");
+      expect(saved.turnError).toMatch(/retry/i);
+    });
+
     it("keeps an unanswered Submit through a refresh and sends it once on resume", async () => {
       localStorage.clear();
       seedCoding({ codingStage: "coding" });

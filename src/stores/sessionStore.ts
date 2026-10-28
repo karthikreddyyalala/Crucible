@@ -635,6 +635,12 @@ export const useSessionStore = create<SessionState>()(
     {
       name: "crucible.session.v1",
       storage: createJSONStorage(() => localStorage),
+      // v0 saves predate nameUsable; those sessions always spoke the name.
+      version: 1,
+      migrate: (persisted, version) => {
+        const saved = persisted as Partial<SessionState>;
+        return (version < 1 ? { ...saved, nameUsable: saved.nameUsable ?? true } : saved) as SessionState;
+      },
       // Persist only session data, never the action fns. Transient statuses
       // are corrected at save time: a reload during "thinking" (request in
       // flight, now lost) resumes as "live" so the answer can be resubmitted;
@@ -644,11 +650,13 @@ export const useSessionStore = create<SessionState>()(
       // which case that would be lying about a failed finalize looking
       // successful (silently wrong, not just stuck) — so it stays "wrapping"
       // and turnError is persisted alongside it so the retry UI reappears.
+      // A conduct end is never assumed finished: until finalize succeeds it is
+      // saved as "wrapping" with a retry message, the same way.
       partialize: (s) => ({
         status:
           s.status === "thinking" ? "live"
           : s.status === "starting" ? "idle"
-          : s.status === "wrapping" && !s.turnError ? "complete"
+          : s.status === "wrapping" && !s.turnError && !s.endedForConduct ? "complete"
           : s.status,
         role: s.role,
         mode: s.mode,
@@ -666,7 +674,10 @@ export const useSessionStore = create<SessionState>()(
         sessionCostUsd: s.sessionCostUsd,
         priorMemory: s.priorMemory,
         updatedMemory: s.updatedMemory,
-        turnError: s.turnError,
+        turnError:
+          s.status === "wrapping" && s.endedForConduct && !s.turnError
+            ? "Your results weren't saved yet — tap retry."
+            : s.turnError,
         companyStyle: s.companyStyle,
         nameUsable: s.nameUsable,
         strikes: s.strikes,
