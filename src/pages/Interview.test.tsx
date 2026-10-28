@@ -183,6 +183,19 @@ describe("Interview", () => {
     expect(composer).toHaveAttribute("placeholder", "Interviewer is thinking…");
   });
 
+  it("tells the store whether the editor is on screen, so Marcus knows to talk it through", async () => {
+    setScreen(false);
+    const view = start(coding, { editorShown: true });
+    await screen.findByText(/The code editor needs a larger screen/);
+    expect(useSessionStore.getState().editorShown).toBe(false);
+    view.unmount();
+
+    setScreen(true);
+    start(coding, { editorShown: false });
+    await screen.findByRole("button", { name: /^Run/ });
+    expect(useSessionStore.getState().editorShown).toBe(true);
+  });
+
   it("keeps the classic chat for other questions", () => {
     setScreen(true);
     start(behavioral);

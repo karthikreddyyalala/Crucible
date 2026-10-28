@@ -74,6 +74,9 @@ export function Interview() {
   const [draft, setDraft] = useState("");
   const [lastDraft, setLastDraft] = useState("");
   const wide = useWideScreen();
+  // A coding question below 1024 px has no editor: the store tells Marcus to talk it through.
+  const setEditorShown = useSessionStore((s) => s.setEditorShown);
+  useEffect(() => setEditorShown(wide), [wide, setEditorShown]);
   // Lives here so Python stays loaded from one coding problem to the next.
   const runner = usePythonRunner();
 
