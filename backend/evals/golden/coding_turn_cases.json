@@ -217,9 +217,11 @@
     "expect_say_excludes": [
       "def ",
       "node.val",
-      "return "
+      "return ",
+      "how's it going",
+      "where you are"
     ],
-    "note": "Thinking aloud while typing is not a question: stay quiet (a brief acknowledgement), don't review mid-flow."
+    "note": "Thinking aloud while typing is not a question: stay quiet (a brief acknowledgement), don't review mid-flow. Check-in wording added to the excludes after the first live run: Marcus answered narration with the check-in line ('How's it going — want to talk me through where you are?'), which asks them to repeat what they just said."
   },
   {
     "case": "submit_failing_visible_example_two_sum",
@@ -516,8 +518,11 @@
     "coding_stage": "review",
     "code": "def merge(intervals: List[List[int]]) -> List[List[int]]:\n    merged = []\n    for start, end in sorted(intervals):\n        if merged and start <= merged[-1][1]:\n            merged[-1][1] = max(merged[-1][1], end)\n        else:\n            merged.append([start, end])\n    return merged\n",
     "test_results": "Examples: 3/3 passed. Hidden tests: 11/11 passed.",
-    "expect_action": "complete",
+    "expect_action": [
+      "follow_up",
+      "complete"
+    ],
     "expect_would_survive": null,
-    "note": "Strong review on the last question after two probes: complete."
+    "note": "Strong review on the last question after two probes. Relabelled from 'complete' after the first live run: the coding section's review order ends with one variant from the review follow-ups before rules 5-7 decide, and this thread has had an edge case and the complexity but no variant yet, so asking one is in spec. It must not advance (last question) or clarify. Strict move-on is covered by review_strong_after_two_probes_two_sum."
   }
 ]

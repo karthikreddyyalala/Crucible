@@ -1,0 +1,389 @@
+{
+  "variant": "phase1_adversarial",
+  "case_count": 12,
+  "repeat": 3,
+  "decision_agreement": 1.0,
+  "survival_agreement": 1.0,
+  "action_accuracy": 1.0,
+  "action_correct": 12,
+  "survive_accuracy": 1.0,
+  "survive_correct": 2,
+  "survive_case_count": 2,
+  "stacked_ask_rate": 0.0833,
+  "judgment_leak_rate": 0.0,
+  "say_check_pass_rate": null,
+  "say_check_case_count": 0,
+  "total_input_tokens": 213693,
+  "total_output_tokens": 4686,
+  "estimated_cost_usd": 0.7114,
+  "results": [
+    {
+      "case": "buzzword_padding_system_design_looks_strong",
+      "type": "system_design",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay. Before we get into components \u2014 what would you want to clarify about the scope or scale before you started designing this?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 2.26,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay. Before we get into components \u2014 what would you want to clarify about the scope or scale before you started designing this?",
+        "Okay \u2014 before we get into components, what would you want to know about the requirements before you start designing?",
+        "Okay \u2014 before we get into components, what would you want to know about the problem first?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "long_rambling_technical_no_substance",
+      "type": "technical",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay. Walk me through the actual mechanism \u2014 how does a hash map get from a key to a value in constant time?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.64,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay. Walk me through the actual mechanism \u2014 how does a hash map get from a key to a value in constant time?",
+        "Okay. Walk me through the actual mechanism \u2014 how does a hash map get from a key to a value in constant time?",
+        "Okay \u2014 let's get concrete. Walk me through the actual mechanism: you have a key, you want to find its value... what happens step by step?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "implausible_metric_behavioral",
+      "type": "behavioral",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 latency dropped by 150%. How did you measure that before and after?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.57,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 latency dropped by 150%. How did you measure that before and after?",
+        "Okay \u2014 latency dropped by 150%, you said. How did you measure that before and after?",
+        "Okay \u2014 latency dropped by 150%. How did you measure that before and after?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "very_short_but_correct_technical",
+      "type": "technical",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": true,
+      "actual_would_survive": true,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate correctly identified the core mechanism (only keys between the new node and its predecessor remap, ~1/n total), explained WHY modulo hashing breaks (the divisor shift invalidates nearly all mappings), and proactively named the key edge case of uneven load and the standard mitigation (virtual nodes), demonstrating solid depth without any prompting.",
+      "say": "Okay \u2014 virtual nodes to smooth the distribution. When you add a physical node, what actually happens to those virtual nodes, and how does that affect which keys remap?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": true,
+      "interviewer_latency_s": 1.78,
+      "evaluator_latency_s": 3.16,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 virtual nodes to smooth the distribution. When you add a physical node, what actually happens to those virtual nodes, and how does that affect which keys remap?",
+        "Okay \u2014 virtual nodes to smooth the distribution. So when you add a physical node, what actually happens to those virtual nodes, and how does that affect the remapping?",
+        "Okay \u2014 virtual nodes per physical node. How do those actually help with the uneven load problem?"
+      ],
+      "survival_verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "case": "circular_reasoning_technical",
+      "type": "technical",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay. Can you get more specific \u2014 what is it about how quicksort actually operates that makes it faster than merge sort?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.87,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay. Can you get more specific \u2014 what is it about how quicksort actually operates that makes it faster than merge sort?",
+        "Okay. So what specifically about the way quicksort operates makes it take less time \u2014 like, what's actually happening in memory when it runs?",
+        "Okay. Can you get more specific \u2014 what is it about how quicksort actually operates that makes it faster in practice?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "correct_mechanism_wrong_complexity_interviewer_catches_it",
+      "type": "technical",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 splits down to size one, merges back up. You said the overall complexity is O(n) because the merge step is linear. Walk me through how many total merge operations happen across all the levels of that recursion.",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 2.16,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 splits down to size one, merges back up. You said the overall complexity is O(n) because the merge step is linear. Walk me through how many total merge operations happen across all the levels of that recursion.",
+        "Okay \u2014 splits down to size one, merges back up. You said the overall complexity is O(n) because the merge step is linear... walk me through how many total comparisons happen across all the merge steps combined.",
+        "Okay \u2014 splits down to size one, merges back up. You said the overall complexity is O(n) because the merge step is linear... walk me through how many total merge operations happen across all the levels of recursion."
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "behavioral_team_result_claimed_as_individual",
+      "type": "behavioral",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 scrapped the wizard, single-page form, shipped in a month. What decisions did you personally make on that project?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.51,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 scrapped the wizard, single-page form, shipped in a month. What decisions did you personally make on that project?",
+        "Okay \u2014 scrapped the wizard, single-page form, shipped in a month. What decisions did you personally make on that project?",
+        "Okay \u2014 scrapped the wizard, single-page form, shipped in a month. What decisions did you personally make on that project?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "system_design_scope_stated_but_ignored",
+      "type": "system_design",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 single Postgres instance, nightly batch, queries served directly from that same box. At 500,000 requests per second... walk me through what happens to that database under that load.",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 2.0,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 single Postgres instance, nightly batch, queries served directly from that same box. At 500,000 requests per second... walk me through what happens to that database under that load.",
+        "Okay \u2014 one Postgres instance, nightly batch, queries served directly from it. At 500,000 requests per second hitting that same database... what does that look like for the database?",
+        "Okay \u2014 single Postgres instance, nightly batch, queries served directly from it. At 500,000 requests per second, walk me through what that database is actually doing on each incoming request."
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "technical_hedges_everything",
+      "type": "technical",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 you mentioned log n and also linear. When would insertion actually be O(n)?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.6,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 you mentioned log n and also linear. When would insertion actually be O(n)?",
+        "Okay \u2014 so you mentioned log n and also linear. When would it actually be O(n)?",
+        "Okay \u2014 so you mentioned log n and also linear. When would it actually be O(n)?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "behavioral_internally_inconsistent_outcome",
+      "type": "behavioral",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 so end of March was the original target, but it wrapped mid-April. What were the blockers that pushed it out?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.69,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 so end of March was the original target, but it wrapped mid-April. What were the blockers that pushed it out?",
+        "Okay \u2014 so originally scoped for end of March, wrapped mid-April. What were the unexpected blockers that pushed it out?",
+        "Okay \u2014 so end of March was the original target, but it wrapped mid-April. What were the blockers that pushed it out?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "system_design_progressive_followup_new_gap",
+      "type": "system_design",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 base62 counter, DynamoDB. Walk me through what happens when you need to scale that counter across multiple write nodes.",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.63,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 base62 counter, DynamoDB. Walk me through what happens when you need to scale that counter across multiple write nodes.",
+        "Okay \u2014 base62 counter, DynamoDB. Walk me through what happens when you need to run multiple instances of the write service \u2014 how does that counter stay consistent?",
+        "Okay \u2014 base62 counter, DynamoDB. Walk me through what happens when you're running multiple app servers generating those counters \u2014 how do you keep them from producing the same short code?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "technical_correct_logic_wrong_terminology",
+      "type": "technical",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate opens by calling the algorithm 'Depth-first search' when the question explicitly asks about breadth-first search \u2014 a fundamental naming error that would immediately raise a red flag with any interviewer, capping correctness at 2 and undermining confidence in the rest of the answer despite the mechanically accurate queue-based description that follows.",
+      "say": "Right \u2014 queue, level by level, shortest path in an unweighted graph. You mentioned enqueuing unvisited neighbors... how do you actually track whether a node's been visited?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.82,
+      "evaluator_latency_s": 2.79,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Right \u2014 queue, level by level, shortest path in an unweighted graph. You mentioned enqueuing unvisited neighbors... how do you actually track whether a node's been visited?",
+        "Right \u2014 queue, level by level, shortest path in an unweighted graph. You mentioned enqueuing unvisited neighbors... how do you track which nodes have already been visited?",
+        "You mentioned dequeuing a node and enqueuing its unvisited neighbors \u2014 how do you make sure you don't enqueue the same node more than once?"
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    }
+  ]
+}
