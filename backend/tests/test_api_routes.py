@@ -760,3 +760,13 @@ def test_exemplar_with_mismatched_type_is_ignored():
     assert "Interviewer notes" not in seen["user"]
     client.post("/api/session/evaluate", json={"question": q, "transcript": "a", "followUpCount": 0})
     assert "Rubric anchors" not in seen["user"]
+
+
+def test_bank_notes_only_attached_during_the_question_phase():
+    q = {**_QUESTION_BODY, "exemplarId": "sde-beh-ownership-1"}
+    body = {"question": q, "answer": "a", "followUpCount": 0, "isLast": False}
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP})
+    client.post("/api/session/turn", json={**body, "phase": "background"})
+    assert "Interviewer notes" not in seen["user"]
+    client.post("/api/session/turn", json={**body, "phase": "question"})
+    assert "Interviewer notes" in seen["user"]

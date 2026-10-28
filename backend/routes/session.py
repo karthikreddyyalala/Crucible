@@ -227,7 +227,8 @@ def build_session_router(
             mode=req.mode,
             level=req.level,
             usage_sink=usage,
-            exemplar=_exemplar_for(req.question),
+            # Warmup/background/closing carry an unrelated question; notes would mislead.
+            exemplar=_exemplar_for(req.question) if req.phase == "question" else None,
         )
         return TurnResponse(decision=decision, cost_usd=sum(u.cost_usd for u in usage))
 
