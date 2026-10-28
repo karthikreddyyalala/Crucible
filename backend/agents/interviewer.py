@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 from agents.untrusted import wrap_untrusted
 from models.coding import CodingProblem
@@ -8,6 +9,18 @@ _PROMPT = (Path(__file__).resolve().parent.parent / "prompts" / "interviewer.md"
 
 # Max probing follow-ups per question, by type (system design and coding need a longer ladder).
 FOLLOW_UP_BUDGET = {"behavioral": 3, "technical": 3, "system_design": 6, "coding": 6}
+
+# A follow-up asks one thing, but the model still stacks a second ask at T=0.3 ("What was the
+# project, and what made it tight?") and many problem follow-ups are written that way. Cut it
+# here so the spoken line is deterministic. Never crosses a sentence end, so on doubt it keeps the text.
+_SECOND_ASK = re.compile(
+    r",\s*and\s+(?:what|how|why|who|when|where|which|could|can|would|does|did|is|are)\b[^?.!]*\?",
+    re.IGNORECASE,
+)
+
+
+def one_ask(text: str) -> str:
+    return _SECOND_ASK.sub("?", text, count=1)
 
 
 class InterviewerAgent:
@@ -94,6 +107,11 @@ class InterviewerAgent:
             model=self._model, system=_PROMPT, user=user, schema=InterviewDecision,
             temperature=self._temperature,
         )
+        if decision.action == "follow_up":
+            decision = decision.model_copy(update={
+                "say": one_ask(decision.say),
+                "follow_up_prompt": decision.follow_up_prompt and one_ask(decision.follow_up_prompt),
+            })
         if decision.action == "end":  # only the server ends a session (conduct); for the model it resolves
             done = is_last_question or phase == "closing"
             decision = decision.model_copy(update={"action": "complete" if done else "advance"})

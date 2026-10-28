@@ -278,3 +278,26 @@ def test_interviewer_prompt_fixes_from_the_second_live_run():
     banned = text.split("BANNED anywhere in `say`:", 1)[1].split(" - SHORT.", 1)[0]
     for phrase in ("the key wrinkle", "the key insight", "that's the key"):
         assert f'"{phrase}"' in banned, phrase
+
+
+def _decide(payload: dict):
+    agent = InterviewerAgent(llm=_FakeLLM({"currentQuestionId": "q-beh-1", **payload}), model="m")
+    return agent.run_turn(question=_Q, candidate_answer=_VAGUE_ANSWER, follow_up_count=0, is_last_question=False)
+
+
+def test_follow_up_keeps_only_the_first_ask():
+    d = _decide({"action": "follow_up",
+                 "say": "Okay. What was the project, and what made the deadline tight?",
+                 "followUpPrompt": "If the list were sorted, how would you change it, and could you drop the memory?"})
+    assert d.say == "Okay. What was the project?"
+    assert d.follow_up_prompt == "If the list were sorted, how would you change it?"
+
+
+def test_second_ask_trim_never_crosses_a_sentence():
+    say = "You covered caching, and how you'd invalidate it. What happens when the cache node dies?"
+    assert _decide({"action": "follow_up", "say": say}).say == say
+
+
+def test_advance_keeps_the_next_question_whole():
+    say = "Got it. Tell me about a launch you led, and what you would change about it?"
+    assert _decide({"action": "advance", "say": say}).say == say
