@@ -131,4 +131,4 @@ def test_transcript_is_restored_server_side_not_echoed_by_the_model():
     llm = _FakeLLM({**_EVAL_PAYLOAD_WEAK, "transcript": ""})
     ev = EvaluatorAgent(llm=llm, model="m").run(question=_Q_TECHNICAL, transcript=long, follow_up_count=1)
     assert ev.transcript == long
-    assert 'transcript: string  (always output "")' in llm.last["system"]
+    assert 'transcript: string  (always output ""' in llm.last["system"]
