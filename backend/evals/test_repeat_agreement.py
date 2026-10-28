@@ -47,7 +47,7 @@ def test_main_repeat_reports_agreement_and_scores_first_run(monkeypatch, tmp_pat
     class _Evaluator:
         def __init__(self, **kw): pass
         def run(self, **kw):
-            return SimpleNamespace(would_survive_real_interview=True)
+            return SimpleNamespace(would_survive_real_interview=True, survival_reasoning="r")
 
     monkeypatch.setattr(ev, "AnthropicBedrock", lambda **kw: SimpleNamespace(messages=None))
     monkeypatch.setattr(ev, "InterviewerAgent", _FlakyInterviewer)
