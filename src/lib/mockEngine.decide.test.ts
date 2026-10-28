@@ -56,10 +56,18 @@ describe("mockEngine.decide — sounds like an interviewer", () => {
 });
 
 describe("mockEngine.decide — per-type follow-up budget", () => {
-  it("allows 6 follow-ups on system design but stops at 3 on behavioral", () => {
-    const sd = mockEngine.decide(turn({ question: q("q0", "system_design"), answer: "I don't know.", followUpCount: 5 }));
+  const VAGUE = "We just made it better and it worked out fine in the end.";
+  it("keeps probing longer on system design than on behavioral for a vague answer", () => {
+    const sd = mockEngine.decide(turn({ question: q("q0", "system_design"), answer: VAGUE, followUpCount: 5 }));
     expect(sd.action).toBe("follow_up");
-    const beh = mockEngine.decide(turn({ question: q("q0", "behavioral"), answer: "I don't know.", followUpCount: 3 }));
+    const beh = mockEngine.decide(turn({ question: q("q0", "behavioral"), answer: VAGUE, followUpCount: 3 }));
     expect(beh.action).not.toBe("follow_up");
+  });
+
+  it("moves on after two hints that produced nothing instead of repeating one", () => {
+    const first = mockEngine.decide(turn({ answer: "I don't know.", followUpCount: 1 }));
+    expect(first.action).toBe("follow_up");
+    const third = mockEngine.decide(turn({ answer: "I don't know.", followUpCount: 2 }));
+    expect(third.action).toBe("advance");
   });
 });
