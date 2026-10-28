@@ -85,6 +85,9 @@ interface SessionState {
   codingStage: CodingStep;
   lastRun: Record<string, RunSummary>;
   checkinSent: Record<string, boolean>;
+  // A Submit Marcus hasn't replied to yet (question id): queued while he was busy,
+  // or in flight. Persisted, so a refresh mid-turn re-sends it once.
+  pendingSubmit: string | null;
 
   loadMemory: () => Promise<void>;
   start: (input: {
@@ -97,7 +100,9 @@ interface SessionState {
     useVideo: boolean;
     companyStyle: CompanyStyleId;
   }) => Promise<void>;
-  submitAnswer: (text: string) => Promise<void>;
+  // false = nothing was sent (keep the draft). An answer typed while Marcus handles a
+  // check-in or Submit is queued and sent right after (true).
+  submitAnswer: (text: string) => Promise<boolean>;
   // Call on the candidate's edits only (not when loading starter code): the first
   // edit of the current problem moves it from "approach" to "coding".
   setCode: (questionId: string, code: string) => void;
@@ -106,6 +111,8 @@ interface SessionState {
   recordRun: (questionId: string, outcome: RunOutcome, kind: "run" | "submit", visibleCount: number) => Promise<void>;
   // The quiet-for-a-while nudge: at most once per problem, only in the "coding" stage.
   sendCheckin: (questionId: string) => Promise<void>;
+  // Sends a Submit that never got Marcus's reply (runs by itself after a refresh).
+  resumePendingSubmit: () => Promise<void>;
   endInterview: () => Promise<void>;
   retryFinalize: () => Promise<void>;
   clearRestored: () => void;
@@ -133,9 +140,10 @@ function warmGreeting(name: string): string {
 // the matching pendingEvals entry is simply re-scored at finalize).
 const inflightEvals = new Map<string, Promise<void>>();
 
-// A Submit pressed while the interviewer is mid-reply: the question id whose "submit"
-// turn goes out once that reply lands (dropped if the reply moved to another question).
-let pendingSubmit: string | null = null;
+// An answer typed while an event turn (check-in / submit) was in flight: sent right
+// after it. Not persisted; a refresh loses only that one unsent line.
+let queuedAnswer: string | null = null;
+let eventInFlight = false;
 
 // UUID message ids so rehydrating a saved session never collides with new
 // messages generated after the resume.
@@ -176,6 +184,7 @@ const FRESH_ROUND = {
   codingStage: "approach" as CodingStep,
   lastRun: {},
   checkinSent: {},
+  pendingSubmit: null,
 };
 
 export const useSessionStore = create<SessionState>()(
@@ -219,26 +228,37 @@ export const useSessionStore = create<SessionState>()(
       // One interviewer turn. A candidate answer (event "") is added to the thread
       // first; an event turn ("checkin" / "submit") adds no candidate line, and its
       // failure stays quiet (the candidate can just talk).
-      const runTurn = async (text: string, event: "" | TurnEvent) => {
-        await turnOnce(text, event);
-        const queued = pendingSubmit;
-        pendingSubmit = null;
-        if (queued && get().status === "live" && currentCoding(get())?.id === queued) {
-          await runTurn("", "submit");
-        }
+      // Returns false when nothing was sent (not live).
+      const runTurn = async (text: string, event: "" | TurnEvent): Promise<boolean> => {
+        if (!(await turnOnce(text, event))) return false;
+        // A Submit pressed during its own turn folds into it: one reply per burst.
+        if (event === "submit") set({ pendingSubmit: null });
+        await sendQueued();
+        return true;
       };
 
-      const turnOnce = async (text: string, event: "" | TurnEvent) => {
+      // What waited for the turn that just ended: a queued answer, then a Submit.
+      const sendQueued = async () => {
+        const answer = queuedAnswer;
+        queuedAnswer = null;
+        if (answer !== null && (await runTurn(answer, ""))) return; // that turn sends the Submit
+        const s = get();
+        if (!s.pendingSubmit || s.status === "thinking") return;
+        if (s.status === "live" && currentCoding(s)?.id === s.pendingSubmit) await runTurn("", "submit");
+        else set({ pendingSubmit: null }); // the reply moved on to another question, or the session ended
+      };
+
+      const turnOnce = async (text: string, event: "" | TurnEvent): Promise<boolean> => {
         const state = get();
         const plan = state.plan;
-        if (!plan || state.status !== "live") return;
+        if (!plan || state.status !== "live") return false;
         const { phase } = state;
         const questions = plan.questions;
         const question =
           phase === "question" ? questions[state.currentIdx]
           : phase === "closing" ? questions[questions.length - 1]
           : questions[0];
-        if (!question) return;
+        if (!question) return false;
         const threadId = phase === "question" ? question.id : phase === "warmup" ? "intro" : phase;
         const nextQuestion =
           phase === "background" ? questions[0]
@@ -251,7 +271,8 @@ export const useSessionStore = create<SessionState>()(
 
         set({
           status: "thinking",
-          turnError: null,
+          // An event turn the candidate didn't trigger leaves an existing error up.
+          ...(!event && { turnError: null }),
           messages: candidateMsg ? [...state.messages, candidateMsg] : state.messages,
         });
 
@@ -275,6 +296,7 @@ export const useSessionStore = create<SessionState>()(
         let decision: InterviewDecision;
         let turnCostUsd = 0;
         let strikes = state.strikes;
+        eventInFlight = event !== "";
         try {
           const result = await api.submitAnswer({
             question,
@@ -297,10 +319,16 @@ export const useSessionStore = create<SessionState>()(
         } catch (e) {
           set((s) => ({
             status: "live",
-            turnError: event ? null : e instanceof Error ? e.message : "Request failed — please try again.",
+            // A failed check-in stays quiet; a failed Submit asks for another press.
+            turnError:
+              event === "checkin" ? s.turnError
+              : event === "submit" ? "Couldn't reach the interviewer — press Submit again."
+              : e instanceof Error ? e.message : "Request failed — please try again.",
             messages: s.messages.filter((m) => m !== candidateMsg),
           }));
-          return;
+          return true;
+        } finally {
+          eventInFlight = false;
         }
 
         const say = (fallback: string) => decision.say?.trim() || decision.followUpPrompt?.trim() || fallback;
@@ -323,7 +351,7 @@ export const useSessionStore = create<SessionState>()(
             ],
           }));
           if (ended) await runFinalize();
-          return;
+          return true;
         }
 
         // A check-in is one line from Marcus; nothing else moves.
@@ -332,7 +360,7 @@ export const useSessionStore = create<SessionState>()(
             status: "live", sessionCostUsd: addCost(s),
             messages: [...s.messages, reply(threadId, "question", "How's it going?")],
           }));
-          return;
+          return true;
         }
 
         if (phase === "warmup") {
@@ -341,7 +369,7 @@ export const useSessionStore = create<SessionState>()(
             messages: [...s.messages, reply("background", "question",
               "To start, walk me through your background — what have you been working on most recently?")],
           }));
-          return;
+          return true;
         }
 
         if (phase === "background") {
@@ -351,7 +379,7 @@ export const useSessionStore = create<SessionState>()(
             sessionCostUsd: addCost(s),
             messages: [...s.messages, reply(first.id, "question", first.prompt, first.weightedFromWeakness)],
           }));
-          return;
+          return true;
         }
 
         if (phase === "closing") {
@@ -361,13 +389,13 @@ export const useSessionStore = create<SessionState>()(
               messages: [...s.messages, reply("closing", "question", "Thanks for your time today — I'll put your feedback together now.")],
             }));
             await runFinalize();
-            return;
+            return true;
           }
           set((s) => ({
             status: "live", sessionCostUsd: addCost(s),
             messages: [...s.messages, reply("closing", "question", "Anything else you'd like to ask?")],
           }));
-          return;
+          return true;
         }
 
         // phase === "question"
@@ -379,7 +407,7 @@ export const useSessionStore = create<SessionState>()(
             sessionCostUsd: addCost(s),
             messages: [...s.messages, reply(question.id, probing ? "follow_up" : "question", question.prompt)],
           }));
-          return;
+          return true;
         }
 
         // Resolved (advance / complete): score it in the background and move on
@@ -393,7 +421,7 @@ export const useSessionStore = create<SessionState>()(
             messages: [...s.messages, reply("closing", "question",
               "That's everything I wanted to cover. What questions do you have for me?")],
           }));
-          return;
+          return true;
         }
 
         set((s) => ({
@@ -404,6 +432,7 @@ export const useSessionStore = create<SessionState>()(
           sessionCostUsd: addCost(s),
           messages: [...s.messages, reply(nextQuestion.id, "question", nextQuestion.prompt, nextQuestion.weightedFromWeakness)],
         }));
+        return true;
       };
 
       const runFinalize = async () => {
@@ -471,6 +500,7 @@ export const useSessionStore = create<SessionState>()(
       },
 
       start: async ({ resumeText, jdText, role, mode, level, candidateName, useVideo, companyStyle }) => {
+        queuedAnswer = null;
         set({
           status: "starting", role, mode, level, candidateName, useVideo, companyStyle, ...FRESH_ROUND,
           phase: "warmup", pendingEvals: [], messages: [], evaluations: [], updatedMemory: null,
@@ -526,7 +556,14 @@ export const useSessionStore = create<SessionState>()(
         }
       },
 
-      submitAnswer: (text) => runTurn(text, ""),
+      submitAnswer: async (text) => {
+        if (get().status === "thinking" && eventInFlight) {
+          if (queuedAnswer !== null) return false; // one queued answer at a time
+          queuedAnswer = text;
+          return true;
+        }
+        return runTurn(text, "");
+      },
 
       setCode: (questionId, code) =>
         set((s) => ({
@@ -540,10 +577,10 @@ export const useSessionStore = create<SessionState>()(
         set((s) => ({
           lastRun: { ...s.lastRun, [questionId]: summarizeOutcome(outcome, visibleCount) },
           codingStage: submitted ? "review" : s.codingStage,
+          pendingSubmit: submitted ? questionId : s.pendingSubmit,
         }));
-        if (!submitted) return;
-        if (get().status === "thinking") pendingSubmit = questionId;
-        else await runTurn("", "submit");
+        // While Marcus is replying it waits in pendingSubmit; sendQueued sends it after.
+        if (submitted && get().status === "live") await runTurn("", "submit");
       },
 
       sendCheckin: async (questionId) => {
@@ -553,6 +590,8 @@ export const useSessionStore = create<SessionState>()(
         set({ checkinSent: { ...s.checkinSent, [questionId]: true } });
         await runTurn("", "checkin");
       },
+
+      resumePendingSubmit: () => sendQueued(),
 
       // Candidate skips (or is done with) their questions for the interviewer.
       endInterview: async () => {
@@ -571,7 +610,8 @@ export const useSessionStore = create<SessionState>()(
       clearRestored: () => set({ justRestored: false }),
       clearTurnError: () => set({ turnError: null }),
 
-      reset: () =>
+      reset: () => {
+        queuedAnswer = null;
         set({
           status: "idle",
           profile: null,
@@ -588,7 +628,8 @@ export const useSessionStore = create<SessionState>()(
           turnError: null,
           finalizing: false,
           ...FRESH_ROUND,
-        }),
+        });
+      },
       };
     },
     {
@@ -634,12 +675,15 @@ export const useSessionStore = create<SessionState>()(
         codingStage: s.codingStage,
         lastRun: s.lastRun,
         checkinSent: s.checkinSent,
+        pendingSubmit: s.pendingSubmit,
       }),
       onRehydrateStorage: () => (state) => {
         // Flag a mid-interview resume so the UI can acknowledge it.
         if (state && state.status === "live" && state.messages.length > 0) {
           state.justRestored = true;
         }
+        // A Submit cut off by the reload: send it once, after the store is ready.
+        if (state?.pendingSubmit) setTimeout(() => void state.resumePendingSubmit());
       },
     }
   )

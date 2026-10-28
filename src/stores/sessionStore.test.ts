@@ -291,7 +291,7 @@ describe("sessionStore — turnError", () => {
       // cleanly with the failure surfaced in state instead.
       await expect(
         useSessionStore.getState().submitAnswer("My final answer.")
-      ).resolves.toBeUndefined();
+      ).resolves.toBe(true);
 
       const s = useSessionStore.getState();
       // Never silently pretend success.
@@ -773,11 +773,12 @@ describe("sessionStore — turnError", () => {
       useSessionStore.setState({
         strikes: 2, endedForConduct: true, codeByQuestion: { c1: "x" }, codingStage: "review",
         lastRun: { c1: { visiblePassed: 0, visibleTotal: 0, hiddenPassed: 0, hiddenTotal: 0, summary: "s" } },
-        checkinSent: { c1: true },
+        checkinSent: { c1: true }, pendingSubmit: "c1",
       });
       await startWith(true);
       expect(useSessionStore.getState()).toMatchObject({
         strikes: 0, endedForConduct: false, codeByQuestion: {}, codingStage: "approach", lastRun: {}, checkinSent: {},
+        pendingSubmit: null,
       });
     });
   });
@@ -994,6 +995,77 @@ describe("sessionStore — turnError", () => {
       expect(useSessionStore.getState().status).toBe("complete");
     });
 
+    it("doesn't lose a queued Submit when an answer arrives while Marcus is replying to another", async () => {
+      seedCoding({ codingStage: "coding" });
+      const { api } = await import("@/lib/api");
+      let resolveTurn!: (v: TurnResult) => void;
+      vi.mocked(api.submitAnswer)
+        .mockReturnValueOnce(new Promise<TurnResult>((r) => { resolveTurn = r; }))
+        .mockResolvedValueOnce(reply("follow_up", "Example 2 fails. Why?"));
+
+      const answering = useSessionStore.getState().submitAnswer("Writing the loop now.");
+      await useSessionStore.getState().recordRun("c1", { kind: "results", results: [passed(0), passed(1, false)] }, "submit", 2);
+      // The composer is locked during the candidate's own turn: this one isn't sent, and the UI keeps the draft.
+      await expect(useSessionStore.getState().submitAnswer("And another thing.")).resolves.toBe(false);
+
+      resolveTurn(reply("clarify", "Keep going."));
+      await expect(answering).resolves.toBe(true);
+
+      expect(api.submitAnswer).toHaveBeenCalledTimes(2);
+      expect(vi.mocked(api.submitAnswer).mock.calls[1][0].event).toBe("submit");
+      expect(useSessionStore.getState().pendingSubmit).toBeNull();
+    });
+
+    it("sends an answer typed during a check-in right after Marcus's check-in line", async () => {
+      seedCoding({ codingStage: "coding" });
+      const { api } = await import("@/lib/api");
+      let resolveCheckin!: (v: TurnResult) => void;
+      vi.mocked(api.submitAnswer)
+        .mockReturnValueOnce(new Promise<TurnResult>((r) => { resolveCheckin = r; }))
+        .mockResolvedValueOnce(reply("clarify", "Okay, keep going."));
+
+      const checkin = useSessionStore.getState().sendCheckin("c1");
+      await expect(useSessionStore.getState().submitAnswer("I'm handling duplicates now.")).resolves.toBe(true);
+      await expect(useSessionStore.getState().submitAnswer("Second message.")).resolves.toBe(false);
+      resolveCheckin(reply("clarify", "How's it going?"));
+      await checkin;
+
+      expect(api.submitAnswer).toHaveBeenCalledTimes(2);
+      expect(vi.mocked(api.submitAnswer).mock.calls[1][0]).toMatchObject({ answer: "Q: How's it going?\nA: I'm handling duplicates now." });
+      expect(useSessionStore.getState().messages.map((m) => m.text)).toEqual([
+        "How's it going?", "I'm handling duplicates now.", "Okay, keep going.",
+      ]);
+    });
+
+    it("returns false when nothing can be sent", async () => {
+      seedCoding({ status: "wrapping" });
+      await expect(useSessionStore.getState().submitAnswer("hello")).resolves.toBe(false);
+    });
+
+    it("leaves an existing error alone on a check-in", async () => {
+      seedCoding({ codingStage: "coding", turnError: "Request failed (503)" });
+      const { api } = await import("@/lib/api");
+      vi.mocked(api.submitAnswer).mockResolvedValueOnce(reply("clarify", "How's it going?"));
+      await useSessionStore.getState().sendCheckin("c1");
+      expect(useSessionStore.getState().turnError).toBe("Request failed (503)");
+    });
+
+    it("tells the candidate when a Submit couldn't reach Marcus", async () => {
+      seedCoding({ codingStage: "coding" });
+      const { api } = await import("@/lib/api");
+      vi.mocked(api.submitAnswer).mockRejectedValueOnce(new Error("Request failed (503)"));
+      await useSessionStore.getState().recordRun("c1", { kind: "results", results: [passed(0)] }, "submit", 1);
+      expect(useSessionStore.getState()).toMatchObject({
+        status: "live", pendingSubmit: null, turnError: "Couldn't reach the interviewer — press Submit again.",
+      });
+    });
+
+    it("clears a queued Submit on reset and on a new session", async () => {
+      seedCoding({ pendingSubmit: "c1" });
+      useSessionStore.getState().reset();
+      expect(useSessionStore.getState().pendingSubmit).toBeNull();
+    });
+
     it("reports a timeout in the run summary", () => {
       seedCoding({ codingStage: "coding" });
       useSessionStore.getState().recordRun("c1", { kind: "timeout" }, "run", 2);
@@ -1063,6 +1135,30 @@ describe("sessionStore — turnError", () => {
   });
 
   describe("persistence — the coding round survives a refresh", () => {
+    it("keeps an unanswered Submit through a refresh and sends it once on resume", async () => {
+      localStorage.clear();
+      seedCoding({ codingStage: "coding" });
+      const { api } = await import("@/lib/api");
+      let resolveTurn!: (v: TurnResult) => void;
+      vi.mocked(api.submitAnswer).mockReturnValueOnce(new Promise<TurnResult>((r) => { resolveTurn = r; }));
+      const submitting = useSessionStore.getState().recordRun("c1", { kind: "results", results: [passed(0)] }, "submit", 1);
+
+      // Saved mid-turn: a reload now resumes "live" with the Submit still owed a reply.
+      const saved = localStorage.getItem("crucible.session.v1")!;
+      expect(JSON.parse(saved).state).toMatchObject({ status: "live", pendingSubmit: "c1" });
+      resolveTurn(reply("follow_up", "What's the complexity?"));
+      await submitting;
+      expect(useSessionStore.getState().pendingSubmit).toBeNull();
+
+      // Simulate the reload from the mid-turn save.
+      vi.mocked(api.submitAnswer).mockResolvedValueOnce(reply("follow_up", "What's the complexity?"));
+      localStorage.setItem("crucible.session.v1", saved);
+      await useSessionStore.persist.rehydrate();
+      await vi.waitFor(() => expect(useSessionStore.getState().pendingSubmit).toBeNull());
+      expect(api.submitAnswer).toHaveBeenCalledTimes(2);
+      expect(vi.mocked(api.submitAnswer).mock.calls[1][0].event).toBe("submit");
+    });
+
     it("persists code, stage, runs, strikes, style and name usability", () => {
       localStorage.clear();
       seedCoding({ strikes: 1, codingStage: "coding", codeByQuestion: { c1: "x = 1" }, checkinSent: { c1: true }, endedForConduct: false });
