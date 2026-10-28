@@ -64,7 +64,7 @@ class StartSessionResponse(_Base):
 class TurnRequest(_Base):
     question: PlannedQuestion
     answer: str
-    follow_up_count: int
+    follow_up_count: int = Field(ge=0)
     is_last: bool
     # Conversational context so the interviewer can respond like a person:
     # which stage of the interview this is, what to ask next if it moves on,
@@ -72,15 +72,15 @@ class TurnRequest(_Base):
     phase: Literal["warmup", "background", "question", "closing"] = "question"
     next_question: PlannedQuestion | None = None
     candidate_name: str = ""
-    mode: str = ""
-    level: str = ""
+    mode: Literal["", "full", "behavioral", "technical", "system_design"] = ""
+    level: Literal["", "junior", "mid", "senior"] = ""
     profile: IntakeProfile | None = None
 
 
 class EvaluateRequest(_Base):
     question: PlannedQuestion
     transcript: str
-    follow_up_count: int
+    follow_up_count: int = Field(ge=0)
 
 
 class TurnResponse(_Base):

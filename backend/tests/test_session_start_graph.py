@@ -69,3 +69,9 @@ def test_keep_known_exemplars_drops_ids_outside_the_session_bank():
 def test_keep_known_exemplars_nulls_repeated_ids():
     bank = bank_for("sde", mode="behavioral", level="mid")
     assert _kept(_plan("sde-beh-ownership-1", "sde-beh-ownership-1"), bank) == ["sde-beh-ownership-1", None]
+
+
+def test_keep_known_exemplars_nulls_ids_whose_bank_type_differs_from_planned_type():
+    bank = bank_for("sde", mode="full", level="mid")
+    tech = next(q for q in bank if q.type == "technical")
+    assert _kept(_plan(tech.id), bank) == [None]  # _plan builds behavioral questions

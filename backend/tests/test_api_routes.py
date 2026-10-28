@@ -770,3 +770,12 @@ def test_bank_notes_only_attached_during_the_question_phase():
     assert "Interviewer notes" not in seen["user"]
     client.post("/api/session/turn", json={**body, "phase": "question"})
     assert "Interviewer notes" in seen["user"]
+
+
+def test_turn_rejects_negative_follow_up_count_and_bad_level():
+    client = _client({})
+    base = {"question": _QUESTION_BODY, "answer": "a", "isLast": False}
+    assert client.post("/api/session/turn", json={**base, "followUpCount": -1}).status_code == 422
+    assert client.post("/api/session/turn", json={**base, "followUpCount": 0, "level": "wizard"}).status_code == 422
+    assert client.post("/api/session/evaluate", json={
+        "question": _QUESTION_BODY, "transcript": "a", "followUpCount": -1}).status_code == 422

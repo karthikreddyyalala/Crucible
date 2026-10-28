@@ -9,9 +9,9 @@ from agents.planner import PlannerAgent
 
 def keep_known_exemplars(plan: QuestionPlan, bank: list[QuestionExemplar]) -> QuestionPlan:
     """The model may invent, misspell or repeat bank ids; only the session bank's, once each, survive."""
-    allowed, qs = {q.id for q in bank}, []
+    allowed, types, qs = {q.id for q in bank}, {q.id: q.type for q in bank}, []
     for q in plan.questions:
-        ok = q.exemplar_id in allowed
+        ok = q.exemplar_id in allowed and types[q.exemplar_id] == q.type
         if ok:
             allowed.discard(q.exemplar_id)
         qs.append(q.model_copy(update={"exemplar_id": q.exemplar_id if ok else None}))
