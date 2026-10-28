@@ -79,7 +79,7 @@ def test_every_coding_case_is_well_formed():
     assert len(cases) >= 14
     for c in cases:
         assert c["question"]["type"] == "coding" and find_problem(c["problem_id"]), c["case"]
-        assert c.get("coding_stage") in ("approach", "coding", "review"), c["case"]
+        assert c.get("coding_stage") in ("approach", "coding", "review", "talk"), c["case"]
         assert c.get("event", "") in ("", "checkin", "submit"), c["case"]
         if c.get("event"):  # the browser sends event turns with an empty answer
             assert c["candidate_answer"] == "", c["case"]

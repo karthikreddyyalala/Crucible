@@ -205,3 +205,52 @@ def test_interviewer_prompt_coding_precedence_hints_and_approach_line():
     assert 'Event "submit"' in coding
     notes = _PROMPT.split("=== Interviewer notes ===", 1)[1].split("\n=== ", 1)[0]
     assert "Coding questions follow the Coding round section instead." in notes
+
+
+def _flat(text: str) -> str:
+    return " ".join(text.split())
+
+
+def test_coding_notes_list_the_visible_examples_and_next_question_carries_its_type():
+    from models.coding import find_problem
+    p = find_problem("code-two-sum")
+    user = _coding_turn()
+    for i, ex in enumerate(p.examples, 1):
+        assert f"Example {i}: {ex.input} → {ex.output}" in user
+    llm = _FakeLLM({"action": "advance", "followUpPrompt": None, "currentQuestionId": "q-beh-1"})
+    InterviewerAgent(llm=llm, model="m").run_turn(question=_Q, candidate_answer="x", follow_up_count=1,
+                                                  is_last_question=False, next_question=_CODING_Q)
+    assert "Next question (coding):\n<next_question>" in llm.last["user"]
+
+
+def test_interviewer_prompt_talk_stage_and_live_eval_wording_fixes():
+    from agents.interviewer import _PROMPT
+    text = _flat(_PROMPT)
+    coding = _flat(_PROMPT.split("=== Coding round ===", 1)[1].split("\n=== ", 1)[0])
+    inputs = _flat(_PROMPT.split("Input you receive:", 1)[1].split("Output schema", 1)[0])
+    assert '"Event: submit"' in inputs and "talk" in inputs
+    # I-2 talk stage: no editor, so talk the code through and never ask to type, run or submit.
+    talk = coding.split("- talk (", 1)[1].split(" - ", 1)[0]
+    for phrase in ("walk through their code in words", "line by line or in pseudocode", "without test results"):
+        assert phrase in talk
+    assert 'NEVER say "code it up", "run it" or "submit"' in talk
+    assert "if budget remains" in coding.split('Event "submit"', 1)[1].split(" - ", 1)[0]
+    # E1: thinking aloud mid-code gets a tiny acknowledgement; the check-in line is only for the event.
+    assert '"Mm-hm — go ahead."' in coding and "ONLY for Event: checkin" in coding
+    # E2: one question mark can still hold two asks.
+    assert '", and what/how/why/who/when" inside a question is two asks' in text
+    # E3: verdict words and the exact go-ahead line.
+    banned = text.split("BANNED anywhere in `say`:", 1)[1].split(" - SHORT.", 1)[0]
+    for word in ("holds up", "checks out", "tracks", "solid", "the key detail", "the tricky part",
+                 "the tricky bit", "a real tradeoff", "correct complexity", "right complexity"):
+        assert f'"{word}"' in banned, word
+    assert 'say exactly "Okay — go ahead and code it up."' in coding and "holds up" not in coding
+    assert "not even about their background, small talk or an off-topic remark" in text
+    # E4 / E5: failing examples by number or by their notes input; hidden failures by kind only.
+    assert "refer to it by number or quote that example's input from the notes" in coding
+    assert "never invent an input" in coding
+    assert "name the kind of input (\"really large values\", \"a long chain\")" in coding
+    assert "never a specific hidden value or the bug" in coding
+    # E6: bank notes skip rungs the answer already covers.
+    notes = _flat(_PROMPT.split("=== Interviewer notes ===", 1)[1].split("\n=== ", 1)[0])
+    assert "skip any rung that re-asks a strong-answer point the answer already covers" in notes

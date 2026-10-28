@@ -524,5 +524,39 @@
     ],
     "expect_would_survive": null,
     "note": "Strong review on the last question after two probes. Relabelled from 'complete' after the first live run: the coding section's review order ends with one variant from the review follow-ups before rules 5-7 decide, and this thread has had an edge case and the complexity but no variant yet, so asking one is in spec. It must not advance (last question) or clarify. Strict move-on is covered by review_strong_after_two_probes_two_sum."
+  },
+  {
+    "case": "talk_stage_strong_approach_walks_through_code_two_sum",
+    "problem_id": "code-two-sum",
+    "question": {
+      "id": "q-code-two-sum",
+      "type": "coding",
+      "prompt": "Let's do a coding problem — Two Sum.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false
+    },
+    "candidate_answer": "Q: Let's do a coding problem — Two Sum. Before you start coding, talk me through your approach.\nA: Checking every pair is O(n squared), so I'd do one pass with a hash map from value to index. For each number I look up target minus that number first; if it's there I return both indices, otherwise I store the current number. Looking up before inserting means I never pair an index with itself, so [4, 4] with target 8 works. That's O(n) time and O(n) space.",
+    "follow_up_count": 0,
+    "is_last_question": false,
+    "coding_stage": "talk",
+    "expect_action": "follow_up",
+    "expect_would_survive": null,
+    "expect_say_contains_any": [
+      "walk me through",
+      "talk me through",
+      "line by line",
+      "pseudocode",
+      "in words",
+      "step by step",
+      "how would you write"
+    ],
+    "expect_say_excludes": [
+      "code it up",
+      "run it",
+      "submit",
+      "def ",
+      "return "
+    ],
+    "note": "No editor on screen: after a strong approach, ask them to walk through the code in words, never to type or run it."
   }
 ]

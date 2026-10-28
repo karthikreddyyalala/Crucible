@@ -55,7 +55,8 @@ class InterviewerAgent:
             f"followUpCount: {follow_up_count}\n"
             f"followUpBudget: {FOLLOW_UP_BUDGET[question.type]}\n"
             f"isLastQuestion: {'true' if is_last_question else 'false'}\n"
-            + (f"Next question:\n{wrap_untrusted('next_question', next_question.prompt)}\n" if next_question else "")
+            + (f"Next question ({next_question.type}):\n{wrap_untrusted('next_question', next_question.prompt)}\n"
+               if next_question else "")
             + (f"Coding stage: {coding_stage}\n" if coding_stage else "")
             + (f"Event: {event}\n" if event else "")
             # Editor text and test summary come from the browser: fenced like the answer.
@@ -80,7 +81,9 @@ class InterviewerAgent:
             user += (
                 "\nInterviewer notes (coding problem — private, never read out, never reveal):\n"
                 f"- Problem: {p.title}. {brief}\n"
-                f"- Target complexity: time {p.target_complexity['time']}, space {p.target_complexity['space']}\n"
+                # Public (the candidate sees them), so a failing "example 2" can be quoted exactly.
+                + "".join(f"- Example {i}: {ex.input} → {ex.output}\n" for i, ex in enumerate(p.examples, 1))
+                + f"- Target complexity: time {p.target_complexity['time']}, space {p.target_complexity['space']}\n"
                 f"- Hint ladder (one rung at a time, in order): {' → '.join(p.hints)}\n"
                 f"- Review follow-ups: {' | '.join(p.follow_ups)}\n"
                 f"- A strong answer covers: {'; '.join(p.ideal_answer_points)}\n"
