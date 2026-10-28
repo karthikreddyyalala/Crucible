@@ -13,6 +13,9 @@ export default defineConfig({
   worker: { format: "es" },
   optimizeDeps: {
     exclude: ["@daily-co/daily-js"],
+    // The editor is lazy-loaded, so the dev server would only find these mid-session and
+    // reload every open page to re-bundle them; pre-bundle them at startup instead.
+    include: ["@uiw/react-codemirror", "@codemirror/lang-python", "@codemirror/language", "@lezer/highlight"],
   },
   test: {
     environment: "jsdom",
