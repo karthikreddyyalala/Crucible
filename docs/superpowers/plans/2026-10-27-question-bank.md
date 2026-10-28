@@ -342,6 +342,19 @@ def test_turn_looks_up_exemplar_server_side():
 Source and licensing rules come from `docs/research/question-sources-and-datasets.md`:
 write questions in our own words; never paste copyrighted question text.
 
+Findings that shape this task (research, 2026-10-27):
+- No public dataset has graded answers with rubrics for SWE / AI-engineer interviews; the
+  HF "interview" datasets are private, gated, or scraped low-quality text — none used.
+- Stems may be adapted (with attribution) from MIT / CC BY sources only: Tech Interview
+  Handbook (MIT), system-design-primer (CC BY 4.0), alirezadir/Machine-Learning-Interviews
+  (MIT). Never from CC BY-NC-ND (ByteByteGo, karanpratapsingh), books, unlicensed repos,
+  Glassdoor / LeetCode / interviewing.io. Generic problem names ("design a URL shortener") are fine.
+- Rubric method: one shared scale, anchors written per question, pre-planned probes (US OPM
+  structured-interview guidance, public domain); poor / borderline / solid / outstanding
+  levels (Google re:Work, paraphrased).
+- Add `source: str = ""` to `QuestionExemplar` ("original" or "adapted from <name> (<license>)")
+  and a `backend/data/question_bank/ATTRIBUTION.md` listing every adapted source + license.
+
 Coverage target per role (≈30 questions): every competency in the role's competency map,
 each type, and each level; system design uses the canonical problem list from the research
 doc; every question has ≥3 ladder rungs taken from the ladders in

@@ -10,19 +10,25 @@ planned follow-up depth and fair, calibrated scoring.
 
 - [~] Research: how open-source AI interviewers and real interviewers run each round
       → `docs/research/interviewer-prompts-and-flow.md`
-- [~] Research: question sources, datasets, licenses, canonical system-design problems
+- [x] Research: question sources, datasets, licenses, canonical system-design problems
       → `docs/research/question-sources-and-datasets.md`
-- [ ] Implementation plan → `docs/superpowers/plans/2026-10-27-question-bank.md`
-- [ ] Question bank data model (extend the unused `QuestionExemplar`) + loader — TDD
+- [x] Implementation plan → `docs/superpowers/plans/2026-10-27-question-bank.md`
+- [x] Question bank data model (extend the unused `QuestionExemplar`) + loader — TDD
+      (Tasks 1–3, reviewed twice; review caught 2-part prompts + missing content tests)
 - [ ] Question bank content: SDE (behavioral / technical / system design, all levels)
 - [ ] Question bank content: AI Engineer
-- [ ] Planner picks from the bank and personalizes (keeps memory weighting) — TDD
+- [~] Planner picks from the bank and personalizes (keeps memory weighting) — TDD
 - [ ] Interviewer gets the question's follow-up ladder as private notes — TDD
 - [ ] Evaluator gets the question's rubric anchors for calibration — TDD
 - [ ] Prompt changes from the research gap analysis
 - [ ] Golden eval cases for bank-backed questions; live eval run, results recorded
 - [ ] Live end-to-end interview run; transcript reviewed for naturalness
 - [ ] Docs: README / OVERVIEW updated with what changed and measured results
+
+Decisions (2026-10-27): no public dataset has graded answers with rubrics for SWE/AI
+interviews and the open HF "interview" sets are private or scraped — we write rubric anchors
+and ladders ourselves; stems only from MIT / CC BY sources, with a `source` field and
+ATTRIBUTION.md. See docs/research/question-sources-and-datasets.md.
 
 ## Next — Voice feel (needs a Deepgram account + key)
 
