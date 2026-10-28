@@ -905,7 +905,7 @@ def test_abuse_gets_fixed_replies_and_ends_on_the_third_strike_without_calling_t
 def test_conduct_reply_restates_the_phase_ask_outside_the_question_phase():
     client = TestClient(create_app(llm=_NoCallLLM(), store=InMemoryStore()))
     say = _turn(client, answer="you're an idiot", phase="warmup").json()["decision"]["say"]
-    assert say.startswith("Let's keep this professional. So — ")
+    assert say.startswith("Let's keep this professional. So, ")
     assert _QUESTION_BODY["prompt"] not in say  # never jumps ahead to the first planned question
     say = _turn(client, answer="you're an idiot", phase="closing").json()["decision"]["say"]
     assert "questions" in say and _QUESTION_BODY["prompt"] not in say
@@ -1037,7 +1037,7 @@ def test_struck_turn_in_background_restates_the_background_ask():
     res = _turn(client, answer="you're an idiot", phase="background")
     d = res.json()["decision"]
     assert d["action"] == "clarify"
-    assert d["say"] == "Let's keep this professional. So — tell me a bit about your background."
+    assert d["say"] == "Let's keep this professional. So, tell me a bit about your background."
 
 
 def test_casual_swearing_reaches_the_interviewer_and_keeps_the_strike_count():

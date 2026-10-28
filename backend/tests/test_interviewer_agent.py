@@ -303,3 +303,13 @@ def test_second_ask_trim_never_crosses_a_sentence():
 def test_advance_keeps_the_next_question_whole():
     say = "Got it. Tell me about a launch you led, and what you would change about it?"
     assert _decide({"action": "advance", "say": say}).say == say
+
+
+def test_spoken_lines_have_no_dashes():
+    d = _decide({"action": "follow_up",
+                 "say": "Okay — one pass, a map from value to index. What does that cost?",
+                 "followUpPrompt": "What does that cost — in time?"})
+    assert d.say == "Okay, one pass, a map from value to index. What does that cost?"
+    assert d.follow_up_prompt == "What does that cost, in time?"
+    d = _decide({"action": "advance", "say": "Got it. Mm-hm—moving on. Tell me about a launch you led."})
+    assert d.say == "Got it. Mm-hm, moving on. Tell me about a launch you led."

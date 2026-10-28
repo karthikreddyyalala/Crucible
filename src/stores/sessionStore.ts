@@ -141,7 +141,7 @@ export interface PendingEval {
 // this is the Interviewer Agent responding to what the candidate said.
 function warmGreeting(name: string): string {
   const who = name.trim() ? ` ${name.trim().split(/\s+/)[0]}` : "";
-  return `Hi${who}, I'm Marcus — I'm one of the engineers on the team. Thanks for making the time today. Before we dive in, how are you doing?`;
+  return `Hi${who}, I'm Marcus. I'm one of the engineers on the team. Thanks for making the time today. Before we dive in, how are you doing?`;
 }
 
 // In-flight Evaluator calls by question id (not persisted — after a reload
@@ -339,7 +339,9 @@ export const useSessionStore = create<SessionState>()(
           if (event) set({ eventInFlight: false });
         }
 
-        const say = (fallback: string) => decision.say?.trim() || decision.followUpPrompt?.trim() || fallback;
+        // Marcus is heard and read as speech: a dash reads as written prose (the backend does the same).
+        const say = (fallback: string) =>
+          (decision.say?.trim() || decision.followUpPrompt?.trim() || fallback).replace(/,?\s*[—–]\s*/g, ", ");
         const reply = (questionId: string, kind: MessageKind, fallback: string, weighted?: boolean): ChatMessage =>
           ({ id: mkId(), speaker: "interviewer", kind, text: say(fallback), questionId, weighted });
         const addCost = (s: SessionState) => s.sessionCostUsd + turnCostUsd;
@@ -375,7 +377,7 @@ export const useSessionStore = create<SessionState>()(
           set((s) => ({
             status: "live", phase: "background", sessionCostUsd: addCost(s),
             messages: [...s.messages, reply("background", "question",
-              "To start, walk me through your background — what have you been working on most recently?")],
+              "To start, walk me through your background. What have you been working on most recently?")],
           }));
           return true;
         }
@@ -394,7 +396,7 @@ export const useSessionStore = create<SessionState>()(
           if (decision.action === "complete") {
             set((s) => ({
               status: "wrapping", sessionCostUsd: addCost(s),
-              messages: [...s.messages, reply("closing", "question", "Thanks for your time today — I'll put your feedback together now.")],
+              messages: [...s.messages, reply("closing", "question", "Thanks for your time today. I'll put your feedback together now.")],
             }));
             await runFinalize();
             return true;

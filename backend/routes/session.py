@@ -162,7 +162,7 @@ def _conduct_decision(req: TurnRequest, strikes: int) -> InterviewDecision:
                                  say="I'm going to end the interview here. Take care.")
     warning = ("Let's keep this professional. " if strikes == 1 else
                "I'll be straightforward: if that happens again, I'll have to end the interview. ")
-    restate = (f"So — {_PHASE_ASK[req.phase]}" if req.phase in _PHASE_ASK
+    restate = (f"So, {_PHASE_ASK[req.phase]}" if req.phase in _PHASE_ASK
                else f"So, back to the question: {req.question.prompt}")
     return InterviewDecision(action="clarify", current_question_id=req.question.id, say=warning + restate)
 

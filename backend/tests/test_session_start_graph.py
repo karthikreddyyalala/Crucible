@@ -166,8 +166,8 @@ def test_graph_keeps_offered_coding_ids_and_assigns_one_where_the_planner_missed
     # so it gets the next unused one; the problem id on a technical question never survives.
     assert [q.exemplar_id for q in qs] == ["code-easy-b", "code-easy-a", "code-medium", None]
     assert qs[0].prompt == "Let's do a coding problem: p."  # the Planner's own pick keeps its prompt
-    assert qs[1].prompt == "Let's do a coding problem — Easy A."
-    assert qs[2].prompt == "Let's do a coding problem — Medium One."
+    assert qs[1].prompt == "Let's do a coding problem: Easy A."
+    assert qs[2].prompt == "Let's do a coding problem: Medium One."
 
 
 def test_graph_turns_a_coding_question_technical_when_no_problem_is_offered(monkeypatch):
