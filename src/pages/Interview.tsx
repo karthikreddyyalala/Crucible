@@ -232,10 +232,11 @@ export function Interview() {
     if (next) {
       // Unlock audio inside this click — browsers keep audio silent otherwise.
       eleven.unlock();
-      tavus.activate(); // no-op unless Tavus is configured server-side
+      // Video only for a video session: a voice session must never start a billed Tavus call.
+      if (useVideo) tavus.activate();
     } else {
       tts.cancel();
-      tavus.deactivate();
+      if (useVideo) tavus.deactivate();
       if (stt.listening) stt.stop();
     }
   };
@@ -603,6 +604,12 @@ export function Interview() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {useVideo && tavus.status === "error" && (
+        <p role="status" className="fixed top-20 left-1/2 z-40 -translate-x-1/2 rounded-lg border border-line bg-surface px-4 py-2 font-mono text-[11px] tracking-wide text-mist">
+          VIDEO COULDN&apos;T CONNECT · MARCUS CONTINUES BY VOICE
+        </p>
+      )}
 
       <AnimatePresence>
         {callOpen && tavus.ready && (
