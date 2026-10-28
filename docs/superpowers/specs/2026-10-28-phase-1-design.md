@@ -156,6 +156,16 @@ weighting) and the Interviewer (what to dig for). Stored on the session record.
 
 ## 3. Safety
 
+Policy as built (2026-10-28, after review): slurs and graphic sexual slang are blocked;
+sexual harassment and insults/threats are matched only when aimed at the listener;
+clinical and topic words (porn, rape, nudity, sex) are allowed because trust-and-safety
+answers need them; real names never block (a flagged name is simply not spoken —
+`nameUsable` on the start response); only the candidate's latest reply is moderated, never
+code; each reply ≤ 6,000 characters, the whole thread ≤ 40,000. Measured on a 150-sentence
+probe: 2/86 innocent sentences flagged (both deliberate), 0/41 abusive ones missed,
+slowest input 26 ms.
+
+
 `backend/safety/moderation.py`, a pure function `moderate(text) -> Verdict`:
 - `block` — slurs or sexual content (curated list, word-boundary matching, normalises
   leetspeak / repeated letters / spacing tricks). Never sent to the model.
