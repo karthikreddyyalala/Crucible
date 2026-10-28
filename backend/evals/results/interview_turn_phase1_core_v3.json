@@ -1,0 +1,939 @@
+{
+  "variant": "phase1_core_v3",
+  "case_count": 28,
+  "repeat": 3,
+  "decision_agreement": 0.9643,
+  "survival_agreement": 1.0,
+  "action_accuracy": 1.0,
+  "action_correct": 28,
+  "survive_accuracy": 1.0,
+  "survive_correct": 18,
+  "survive_case_count": 18,
+  "stacked_ask_rate": 0.1429,
+  "judgment_leak_rate": 0.0,
+  "say_check_pass_rate": null,
+  "say_check_case_count": 0,
+  "total_input_tokens": 618426,
+  "total_output_tokens": 18794,
+  "estimated_cost_usd": 2.1372,
+  "results": [
+    {
+      "case": "vague_behavioral_gets_followup",
+      "type": "behavioral",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay. What was the project, and what made the deadline tight?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": true,
+      "interviewer_latency_s": 1.62,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay. What was the project, and what made the deadline tight?",
+        "Okay. What was the project, and what made the deadline tight?",
+        "Okay. What was the project, and what made the deadline tight?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "concrete_behavioral_advances",
+      "type": "behavioral",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": true,
+      "actual_would_survive": true,
+      "would_survive_match": true,
+      "survival_reasoning": "The answer is packed with concrete, verifiable specifics (p99 latency from 4s to 180ms, shipped day 19, onboarding time 48h\u21924h) and clear personal agency ('I paired directly'), which would hold up well under probing; the only gap is a thin Situation/Task setup that a follow-up could easily surface but would not collapse the answer.",
+      "say": "Okay \u2014 p99 down to 180ms, shipped day nineteen. What was your call on cutting the scope or the timeline \u2014 was there anything you decided not to build to hit that date?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.99,
+      "evaluator_latency_s": 2.81,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 p99 down to 180ms, shipped day nineteen. What was your call on cutting the scope or the timeline \u2014 was there anything you decided not to build to hit that date?",
+        "Okay \u2014 p99 down from four seconds to 180ms in two days. What specifically did the two of you change to get that?",
+        "Okay \u2014 p99 down from four seconds to 180ms in two days. What specifically did the two of you change to get that?"
+      ],
+      "survival_verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "case": "behavioral_followup_count_2_forces_advance",
+      "type": "behavioral",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "advance",
+      "actual_action": "advance",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "After three follow-up probes the candidate still provided no concrete situation, no named task or action steps, and no measurable outcome \u2014 the answer 'we talked it out eventually' gives an interviewer nothing to evaluate on specificity or impact.",
+      "say": "Okay. Let's move on to the next one.",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 5.21,
+      "evaluator_latency_s": 2.22,
+      "actions": [
+        "advance",
+        "advance",
+        "advance"
+      ],
+      "says": [
+        "Okay. Let's move on to the next one.",
+        "Okay. Let's move on \u2014 tell me about a conflict you had with a coworker.",
+        "Okay. Let's move on \u2014 tell me about a conflict you had with a coworker."
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "case": "behavioral_star_structure_no_outcome_followup",
+      "type": "behavioral",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 staging cluster, lunch-and-learn. What was the actual migration like once the team was up to speed?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.74,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 staging cluster, lunch-and-learn. What was the actual migration like once the team was up to speed?",
+        "Okay \u2014 staging cluster, lunch-and-learn. What was the actual migration like once the team was up to speed?",
+        "Kubernetes migration, staging cluster, lunch-and-learn \u2014 okay. What was the actual outcome of the migration \u2014 did it ship, and what happened after that session?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "behavioral_no_ownership_followup",
+      "type": "behavioral",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay. What did you personally do when you realized the deadline wasn't going to hold?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.44,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay. What did you personally do when you realized the deadline wasn't going to hold?",
+        "Okay. What did you personally do when it became clear the deadline wasn't going to hold?",
+        "Okay. What did you personally do when you realized the deadline wasn't going to hold?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "behavioral_last_question_completes",
+      "type": "behavioral",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": true,
+      "actual_would_survive": true,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate demonstrated clear personal agency ('I pulled him aside', 'I proposed') with a concrete, quantified outcome (80%+ test coverage, zero regressions in the following quarter), making the answer highly credible and resistant to follow-up probing on specifics.",
+      "say": "Okay \u2014 incident timeline, two weeks of pairing, 80% coverage after. When you pulled him aside, what was his initial reaction?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.59,
+      "evaluator_latency_s": 2.39,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 incident timeline, two weeks of pairing, 80% coverage after. When you pulled him aside, what was his initial reaction?",
+        "Okay \u2014 incident timeline, two weeks of pairing, 80% coverage after. When you pulled him aside, what was his initial reaction?",
+        "Okay \u2014 incident timeline, two weeks of pairing, 80% coverage after. When you pulled him aside, what was his initial reaction?"
+      ],
+      "survival_verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "case": "behavioral_weak_after_two_followups",
+      "type": "behavioral",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "advance",
+      "actual_action": "advance",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "After three follow-up probes the candidate still provided no concrete situation, no description of the actual mistake, no measurable impact, and no specific corrective actions \u2014 the answer 'I pushed some bad code once, we fixed it' is too vague to satisfy even a basic behavioral question.",
+      "say": "Okay \u2014 let's move on. I don't have the next question text here, but let me shift gears.",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 3.67,
+      "evaluator_latency_s": 2.28,
+      "actions": [
+        "advance",
+        "advance",
+        "advance"
+      ],
+      "says": [
+        "Okay \u2014 let's move on. I don't have the next question text here, but let me shift gears.",
+        "Okay. Let's move on to the next question.",
+        "Okay. Let's move on to the next question."
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "case": "behavioral_short_answer_followup",
+      "type": "behavioral",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay. What was the decision, and what made you see it differently?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": true,
+      "interviewer_latency_s": 1.92,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay. What was the decision, and what made you see it differently?",
+        "Okay. What was the decision, and what made you see it differently?",
+        "Okay. What was the decision, and what made you see it differently?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "behavioral_exceptional_answer_advances",
+      "type": "behavioral",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": true,
+      "actual_would_survive": true,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate demonstrated clear personal agency ('I built', 'I presented') with quantified outcomes (40% payload reduction, 15% latency improvement, 3 months of risk avoided) and showed genuine self-reflection by identifying the mobile team dependency as a lesson learned \u2014 a level of specificity and ownership that would hold up under probing.",
+      "say": "Okay \u2014 proof-of-concept, numbers in hand, phased rollout. When you presented to the staff engineers, was there pushback, and what did they actually say?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": true,
+      "interviewer_latency_s": 1.74,
+      "evaluator_latency_s": 2.6,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 proof-of-concept, numbers in hand, phased rollout. When you presented to the staff engineers, was there pushback, and what did they actually say?",
+        "Okay \u2014 proof-of-concept, phased rollout instead of big-bang. When you presented those numbers to the staff engineers, was there pushback, and what did they say?",
+        "Okay \u2014 proof-of-concept, two weeks, numbers in hand. The staff engineers shifted from big-bang to phased based on your proposal. What pushback did you get in that presentation, and who was the hardest to convince?"
+      ],
+      "survival_verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "case": "vague_technical_evaluated_as_fail",
+      "type": "technical",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "advance",
+      "actual_action": "advance",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "The answer never explains WHY the two pointers must meet (the mathematical invariant that the fast pointer gains one step per iteration on the slow pointer, guaranteeing a meeting inside the cycle), and after three follow-up probes the candidate still provided no mechanism, no proof of correctness, and no edge cases such as an empty list or a single-node list \u2014 a real interviewer would have stopped the conversation.",
+      "say": "Okay \u2014 two pointers meeting. Let's move on. Can you walk me through what happens when you need to find the actual start node of the cycle, not just detect that one exists?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 2.05,
+      "evaluator_latency_s": 2.79,
+      "actions": [
+        "advance",
+        "advance",
+        "advance"
+      ],
+      "says": [
+        "Okay \u2014 two pointers meeting. Let's move on. Can you walk me through what happens when you need to find the actual start node of the cycle, not just detect that one exists?",
+        "Okay \u2014 two pointers meeting. Let's move on. How would you find the actual start node of the cycle once you've detected it?",
+        "Okay \u2014 two pointers meeting. Let's move on. Can you walk me through what happens when you need to find the actual start node of the cycle, not just detect that one exists?"
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "case": "strong_technical_evaluated_as_pass",
+      "type": "technical",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": true,
+      "actual_would_survive": true,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate correctly explains the core invariant and complexities, and handles edge cases, but does not explain WHY fast inevitably catches slow (i.e., the modular arithmetic argument that the gap closes by 1 each step), which a real interviewer would likely probe \u2014 however, the answer is solid enough across all criteria to survive an initial screen.",
+      "say": "Okay \u2014 fast laps slow and they meet. Once you've detected the cycle, how would you find the actual node where the cycle begins?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.83,
+      "evaluator_latency_s": 2.53,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 fast laps slow and they meet. Once you've detected the cycle, how would you find the actual node where the cycle begins?",
+        "Okay \u2014 two pointers, fast laps slow. Once you've detected the cycle, how would you find the actual node where it starts?",
+        "Okay \u2014 two pointers, fast laps slow. Once you've detected a cycle, how would you find the actual node where the cycle begins?"
+      ],
+      "survival_verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "case": "technical_correct_no_edgecases_followup",
+      "type": "technical",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 hash map plus doubly linked list. What does the node in that list actually store?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.55,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 hash map plus doubly linked list. What does the node in that list actually store?",
+        "Okay \u2014 doubly linked list, hash map, O(1) both ways. Walk me through what the hash map actually stores \u2014 what are the keys and values?",
+        "Okay \u2014 hash map plus doubly linked list. Walk me through what happens when you get a cache hit on a key that's somewhere in the middle of the list."
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "technical_last_question_strong_completes",
+      "type": "technical",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": true,
+      "actual_would_survive": true,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate correctly named both major strategies, explained the cache-friendliness tradeoff, and specifically called out the tombstone deletion problem in open addressing \u2014 a nuanced edge case that demonstrates genuine depth beyond surface-level knowledge.",
+      "say": "Okay \u2014 tombstoning on deletion. What actually goes wrong if you just null out the slot instead?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.73,
+      "evaluator_latency_s": 1.83,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 tombstoning on deletion. What actually goes wrong if you just null out the slot instead?",
+        "Okay \u2014 tombstoning on deletion. What actually goes wrong if you just null out the slot instead?",
+        "Okay \u2014 tombstoning on deletion. What happens to performance over time if you keep inserting and deleting without ever resizing or rehashing?"
+      ],
+      "survival_verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "case": "technical_confidently_wrong_interviewer_catches_it",
+      "type": "technical",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 O(log n) from halving each time. You mentioned it works on unsorted arrays as long as the target is in there somewhere... walk me through how that would work.",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.79,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 O(log n) from halving each time. You mentioned it works on unsorted arrays as long as the target is in there somewhere... walk me through how that would work.",
+        "Okay \u2014 O(log n), halving each time. You mentioned it works on unsorted arrays... walk me through how that would play out.",
+        "Okay \u2014 O(log n) from halving each time. You mentioned it works on unsorted arrays as long as the target is in there somewhere... walk me through how that works."
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "technical_after_two_followups_still_vague",
+      "type": "technical",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "advance",
+      "actual_action": "advance",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "After 3 follow-up probes the candidate never explained the mechanics that actually enforce balance \u2014 order invariants, the minimum/maximum key counts per node, how splits propagate upward to grow the tree height uniformly, or how underflow triggers redistribution vs. merging with siblings. The answer remained at a one-sentence surface level throughout, which would cause a real interviewer to conclude the candidate lacks working knowledge of the data structure.",
+      "say": "Okay. Let's move on \u2014 next question coming up.",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.91,
+      "evaluator_latency_s": 8.12,
+      "actions": [
+        "advance",
+        "advance",
+        "advance"
+      ],
+      "says": [
+        "Okay. Let's move on \u2014 next question coming up.",
+        "Okay \u2014 splits and merges. Let's move on. Next up: explain how a B-tree keeps itself balanced \u2014 actually, we've covered that. Let me shift to the next question.",
+        "Okay \u2014 splits and merges. Let's move on. Next up: explain how a B-tree keeps itself balanced \u2014 actually, we've covered that. Let me shift gears. How does a hash table handle collisions?"
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "case": "technical_short_answer_followup",
+      "type": "technical",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay. What does it actually mean for threads to share memory \u2014 what can go wrong because of that?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.55,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay. What does it actually mean for threads to share memory \u2014 what can go wrong because of that?",
+        "Okay. What does it actually mean for threads to share memory \u2014 what can go wrong because of that?",
+        "Okay. When you say threads share memory \u2014 what does that actually mean for two threads running in the same process at the same time?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "system_design_vague_jumps_to_components_followup",
+      "type": "system_design",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Load balancer, app servers, a mapping store \u2014 okay. Before we go deeper on any of that, what would you want to clarify about the problem before you start designing?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 2.37,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Load balancer, app servers, a mapping store \u2014 okay. Before we go deeper on any of that, what would you want to clarify about the problem before you start designing?",
+        "Load balancer, app servers, a database \u2014 okay. Before we go deeper on any of those, what would you want to know about the problem first?",
+        "Load balancer, app servers, a mapping store \u2014 okay. Before we go deeper on any of that, what would you want to know about the problem first?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "system_design_strong_advances",
+      "type": "system_design",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": true,
+      "actual_would_survive": true,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate proactively clarified scope with concrete numbers, correctly identified the read-heavy bottleneck and addressed it with CDN/edge caching, and explicitly named the counter-vs-hash tradeoff with a reasoned choice \u2014 all hallmarks of a strong system design answer that would hold up under follow-up probing.",
+      "say": "Okay \u2014 CDN in front, counter-based IDs sharded by worker. What happens if that CDN cache entry expires and a hundred thousand requests hit the redirect service for the same short code at the same moment?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 2.02,
+      "evaluator_latency_s": 2.23,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 CDN in front, counter-based IDs sharded by worker. What happens if that CDN cache entry expires and a hundred thousand requests hit the redirect service for the same short code at the same moment?",
+        "Okay \u2014 CDN in front, counter-based IDs sharded by worker. What happens if that CDN cache entry expires and a million requests hit the same short code at the same moment?",
+        "Okay \u2014 CDN in front, counter-based IDs sharded by worker. What happens if that CDN cache entry expires and a million requests hit the same short code at the same moment?"
+      ],
+      "survival_verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "case": "system_design_no_tradeoffs_followup",
+      "type": "system_design",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 token bucket in Redis, sharded by key hash. Before we go deeper on the design, what would you want to clarify about the requirements before committing to this approach?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.75,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 token bucket in Redis, sharded by key hash. Before we go deeper on the design, what would you want to clarify about the requirements before committing to this approach?",
+        "Okay \u2014 token bucket in Redis, sharded by key hash. Before we go deeper on the design, what would you want to clarify about the requirements before committing to this approach?",
+        "Token bucket in Redis, sharded by key hash \u2014 okay. What would you want to clarify or nail down before committing to that design?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "system_design_last_question_strong_completes",
+      "type": "system_design",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": true,
+      "actual_would_survive": true,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate demonstrates solid scalability reasoning (per-channel Kafka topics, SMS rate-limit sharding) and explicitly names the at-least-once vs. exactly-once tradeoff with justification, which would hold up under probing; however, they stated assumptions rather than asking clarifying questions, and skipped important depth areas like user preference management, notification deduplication storage schema, and failure observability, which a real interviewer would likely probe next.",
+      "say": "Okay \u2014 Kafka topics per channel, idempotency keys on the provider side. Before we go deeper on the delivery path, what would you want to know about a user's notification preferences \u2014 and where does that fit in the flow?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 2.07,
+      "evaluator_latency_s": 3.31,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 Kafka topics per channel, idempotency keys on the provider side. Before we go deeper on the delivery path, what would you want to know about a user's notification preferences \u2014 and where does that fit in the flow?",
+        "Okay \u2014 Kafka topics per channel, idempotency keys on the provider side. Before we go deeper on the delivery path, what would you want to know about a user's notification preferences \u2014 and where does that fit in the flow?",
+        "Okay \u2014 Kafka topics per channel, idempotency keys on the provider calls. Before the dispatcher even gets involved, though \u2014 how does a notification get created in the first place? Walk me through what happens from the moment an app event fires to the point a message lands on that Kafka topic."
+      ],
+      "survival_verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "case": "system_design_borderline_correctly_fails_depth",
+      "type": "system_design",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate stated assumptions rather than asking clarifying questions (SLA, consistency model, data size, access patterns), which caps the requirements score at 2 \u2014 a real interviewer would push back on skipping that step. Additionally, depth is borderline: there is no discussion of the storage layer (in-memory vs. disk, WAL, compaction), API design, or failure/recovery handling, leaving the design surface-level despite solid tradeoff reasoning on replication and hot-key coalescing.",
+      "say": "Okay \u2014 consistent hashing, single leader per shard, async replicas. How does a client actually find the right node for a given key?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.93,
+      "evaluator_latency_s": 3.15,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 consistent hashing, single leader per shard, async replicas. How does a client actually find the right node for a given key?",
+        "Okay \u2014 consistent hashing, single leader per shard, async replicas. You mentioned request coalescing for a hot key. How does that actually work \u2014 what's happening at the node level when multiple requests pile up for the same key?",
+        "Okay \u2014 consistent hashing, single leader per shard, async replicas. You mentioned request coalescing for a hot key. How does that actually work \u2014 what's happening at the node level when multiple requests pile up for the same key?"
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "case": "system_design_after_two_followups_shallow",
+      "type": "system_design",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "advance",
+      "actual_action": "advance",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate offered only a single surface-level sentence ('workers fetch pages and put new links into a queue') with no clarification of scope, no discussion of deduplication, politeness policies, storage, or fault tolerance, and six follow-up probes were required \u2014 indicating the answer never developed beyond a trivial sketch even under heavy prompting.",
+      "say": "Okay. Let's move on. ...What questions do you have for me \u2014 actually, wait, let me check \u2014 I've got one more thing I want to cover. Let me move us to the next question.",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 3.35,
+      "evaluator_latency_s": 3.17,
+      "actions": [
+        "advance",
+        "advance",
+        "advance"
+      ],
+      "says": [
+        "Okay. Let's move on. ...What questions do you have for me \u2014 actually, wait, let me check \u2014 I've got one more thing I want to cover. Let me move us to the next question.",
+        "Okay. Let's move on. ...What's the next question you'd like me to ask?",
+        "Okay. Let's move on. ...What's the next question you'd like me to ask?"
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "case": "system_design_short_answer_followup",
+      "type": "system_design",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay. Before jumping to the database \u2014 what would you want to know about this garage before you started designing it?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.63,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay. Before jumping to the database \u2014 what would you want to know about this garage before you started designing it?",
+        "Okay. Before you get into the components \u2014 what would you want to know about this garage before you start designing?",
+        "Okay. Before jumping to the database \u2014 what would you want to know about this system first, like scale or how it's actually used?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "behavioral_last_question_completes_after_one_probe",
+      "type": "behavioral",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "complete",
+      "actual_action": "complete",
+      "action_match": true,
+      "expected_would_survive": true,
+      "actual_would_survive": true,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate demonstrated strong personal ownership throughout ('I pulled him aside', 'I knew after the first one'), backed claims with concrete metrics (80% test coverage, zero regressions in a quarter), and gave a candid, self-critical reflection when probed rather than deflecting \u2014 all criteria score well above the survival threshold.",
+      "say": "Okay \u2014 and catching it at the PR review level rather than waiting for a pattern, that makes sense. That's everything I wanted to cover. What questions do you have for me?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.84,
+      "evaluator_latency_s": 2.97,
+      "actions": [
+        "complete",
+        "complete",
+        "complete"
+      ],
+      "says": [
+        "Okay \u2014 and catching it at the PR review level rather than waiting for a pattern, that makes sense. That's everything I wanted to cover. What questions do you have for me?",
+        "Okay \u2014 and catching it in the PR review the same day makes sense. That's everything I wanted to cover. What questions do you have for me?",
+        "Okay \u2014 and catching it at the first PR rather than waiting, that's a real shift in how you think about it. That's everything I wanted to cover. What questions do you have for me?"
+      ],
+      "survival_verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "case": "concrete_behavioral_advances_after_one_probe",
+      "type": "behavioral",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": [
+        "advance",
+        "follow_up"
+      ],
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": true,
+      "actual_would_survive": true,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate demonstrated clear personal ownership throughout \u2014 naming specific technical actions (batched lookup rewrite, async sync) and quantified outcomes (p99 latency 4s\u2192180ms, onboarding 48h\u21924h) \u2014 and held up credibly when probed on exactly what they personally did.",
+      "say": "Okay \u2014 batched lookup, async updates. What else did you consider before landing on that approach, and did anyone push back on the direction?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.71,
+      "evaluator_latency_s": 1.97,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 batched lookup, async updates. What else did you consider before landing on that approach, and did anyone push back on the direction?",
+        "Two days, one rewrite, 40 minutes down to 6 \u2014 okay. What else did you consider before deciding to pair on it yourself rather than hand it off?",
+        "Okay \u2014 batched lookup, async updates. What else did you consider before landing on that approach, and was there anything you ruled out?"
+      ],
+      "survival_verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "case": "technical_last_question_strong_completes_after_one_probe",
+      "type": "technical",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "complete",
+      "actual_action": "complete",
+      "action_match": true,
+      "expected_would_survive": true,
+      "actual_would_survive": true,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate correctly named both major collision strategies, explained the cache-friendliness tradeoff, and specifically called out the tombstone deletion problem in open addressing \u2014 a nuanced edge case that demonstrates genuine depth beyond surface-level knowledge.",
+      "say": "Right \u2014 tombstoning, cache locality, the load factor threshold. That's everything I wanted to cover. What questions do you have for me?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.84,
+      "evaluator_latency_s": 1.84,
+      "actions": [
+        "complete",
+        "complete",
+        "complete"
+      ],
+      "says": [
+        "Right \u2014 tombstoning, cache locality, the load factor threshold. That's everything I wanted to cover. What questions do you have for me?",
+        "Right \u2014 tombstoning, cache behavior, the load factor threshold. Okay, that's everything I wanted to cover. What questions do you have for me?",
+        "Right \u2014 tombstoning, cache locality, the 0.7 threshold. Okay, that's everything I wanted to cover. What questions do you have for me?"
+      ],
+      "survival_verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "case": "behavioral_exceptional_answer_advances_after_one_probe",
+      "type": "behavioral",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": [
+        "advance",
+        "follow_up"
+      ],
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": true,
+      "actual_would_survive": true,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate owned every claim under follow-up, citing specific Grafana metrics (p95, 61%\u219278% funnel completion, ~50% ticket drop) that directly validated the stated outcomes; no number collapsed when probed, and the self-critique about looping in the mobile team earlier demonstrates genuine personal reflection rather than rehearsed polish.",
+      "say": "Okay \u2014 phased rollout over big-bang. Was there anyone in that room who pushed back on your proposal, and what was their argument?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": true,
+      "interviewer_latency_s": 4.1,
+      "evaluator_latency_s": 2.35,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "advance"
+      ],
+      "says": [
+        "Okay \u2014 phased rollout over big-bang. Was there anyone in that room who pushed back on your proposal, and what was their argument?",
+        "Right \u2014 the numbers are clear. What was the hardest part of getting the staff engineers to actually change course from the big-bang plan?",
+        "Okay \u2014 p95 tracked, cohort comparison, tickets cut in half. Got it. Let's shift gears. Tell me about a time you influenced a decision without formal authority."
+      ],
+      "survival_verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "case": "strong_technical_evaluated_as_pass_after_one_probe",
+      "type": "technical",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "advance",
+      "actual_action": "advance",
+      "action_match": true,
+      "expected_would_survive": true,
+      "actual_would_survive": true,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate correctly explained both cycle detection and cycle-entry finding with accurate mathematical justification ('distance from head to entry equals distance from meeting point to entry, modulo cycle length'), held up under the follow-up probe, and covered edge cases and complexity throughout.",
+      "say": "Okay \u2014 two-pointer meet, then reset to head, both at one step. Let's move on. Walk me through a time you had to debug something that turned out to be much harder than you expected.",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.92,
+      "evaluator_latency_s": 1.97,
+      "actions": [
+        "advance",
+        "advance",
+        "advance"
+      ],
+      "says": [
+        "Okay \u2014 two-pointer meet, then reset to head, both at one step. Let's move on. Walk me through a time you had to debug something that turned out to be much harder than you expected.",
+        "Right \u2014 modulo the cycle length, the math works out. Okay, let's move on. Explain how Floyd's cycle-detection algorithm works.",
+        "Okay \u2014 entry point derivation, O(n) time, O(1) space. Let's move on. Next up: ..."
+      ],
+      "survival_verdicts": [
+        true,
+        true,
+        true
+      ]
+    }
+  ]
+}

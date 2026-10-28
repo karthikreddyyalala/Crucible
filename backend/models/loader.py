@@ -25,7 +25,9 @@ def load_question_bank(role_key: str) -> QuestionBank:
     return QuestionBank.model_validate(json.loads(path.read_text()))
 
 
-def bank_for(role_key: str, *, mode: Literal["full", "behavioral", "technical", "system_design"], level: Level) -> list[QuestionExemplar]:
+def bank_for(role_key: str, *, mode: Literal["full", "behavioral", "technical", "system_design", "coding"],
+             level: Level) -> list[QuestionExemplar]:
+    # "coding" matches no bank question: coding rounds draw from the problem set instead.
     return [
         q for q in load_question_bank(role_key).questions
         if level in q.levels and (mode == "full" or q.type == mode)

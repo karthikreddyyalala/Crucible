@@ -8,6 +8,8 @@ import type {
   AnswerEvaluation,
   AvatarSessionResponse,
   CoachResponse,
+  CodingStage,
+  CompanyStyleId,
   IntakeProfile,
   InterviewDecision,
   InterviewLevel,
@@ -19,8 +21,10 @@ import type {
   SessionRecord,
   SessionSummary,
 } from "@/types/contracts";
+import type { PublicProblem } from "./coding/types";
 import { mockEngine } from "./mockEngine";
 import { authApi } from "./auth";
+import { getCandidateId } from "./identity";
 
 export const USE_MOCK = import.meta.env.VITE_USE_MOCK !== "false";
 const MOCK_MEMORY_KEY = "crucible.memory.v1";
@@ -50,7 +54,9 @@ async function safeFetch(url: string, options?: RequestInit): Promise<Response> 
     let detail = "";
     try {
       const body = await res.json();
-      detail = body?.detail ?? body?.message ?? "";
+      const raw = body?.detail ?? body?.message ?? "";
+      // FastAPI validation errors (422) carry a list of {loc, msg, type}: show the first msg.
+      detail = Array.isArray(raw) ? String(raw[0]?.msg ?? "") : String(raw);
     } catch {
       detail = await res.text().catch(() => "");
     }
@@ -122,6 +128,8 @@ export interface StartSessionResult {
   profile: IntakeProfile;
   plan: QuestionPlan;
   costUsd: number;
+  // False when the candidate name is empty or flagged: don't say it. Older servers omit it.
+  nameUsable?: boolean;
 }
 
 export interface TurnInput {
@@ -135,11 +143,24 @@ export interface TurnInput {
   mode: InterviewMode;
   level: InterviewLevel;
   profile: IntakeProfile | null;
+  companyStyle: CompanyStyleId;
+  // Conduct strikes so far this session; the result carries the new count.
+  strikes: number;
+  // Coding questions only: the editor text, the last run's summary, and the stage
+  // ("talk": the problem is on screen without the editor, so it's talked through).
+  code?: string;
+  testResults?: string;
+  codingStage?: CodingStage | "talk";
+  // No new candidate reply: answer is the thread so far, ending with Marcus's last line.
+  // "checkin": quiet for a while mid-coding. "submit": just pressed Submit; Marcus starts the review.
+  event?: "" | "checkin" | "submit";
 }
 
 export interface TurnResult {
   decision: InterviewDecision;
   costUsd: number;
+  // The new strike count (higher than sent = this turn was struck). Older servers omit it.
+  strikes?: number;
 }
 
 export interface EvaluateResult {
@@ -165,10 +186,16 @@ export const api = {
     candidateId: string;
     mode: InterviewMode;
     level: InterviewLevel;
+    candidateName: string;
+    companyStyle: CompanyStyleId;
   }): Promise<StartSessionResult> {
     if (USE_MOCK) {
       await latency(1400);
-      return { ...mockEngine.buildSession(input.role, input.mode), costUsd: 0 };
+      return {
+        ...mockEngine.buildSession(input.role, input.mode, input.level),
+        costUsd: 0,
+        nameUsable: mockEngine.nameUsable(input.candidateName),
+      };
     }
     const res = await safeFetch(apiUrl("/api/session/start"), {
       method: "POST",
@@ -183,7 +210,7 @@ export const api = {
   async submitAnswer(input: TurnInput): Promise<TurnResult> {
     if (USE_MOCK) {
       await latency(700 + Math.random() * 900);
-      return { decision: mockEngine.decide(input), costUsd: 0 };
+      return { ...mockEngine.turn(input), costUsd: 0 };
     }
     const res = await safeFetch(apiUrl("/api/session/turn"), {
       method: "POST",
@@ -197,11 +224,14 @@ export const api = {
     question: PlannedQuestion;
     transcript: string;
     followUpCount: number;
+    // Coding questions: the final code and the last run's summary.
+    code?: string;
+    testResults?: string;
   }): Promise<EvaluateResult> {
     if (USE_MOCK) {
       await latency(600);
       return {
-        evaluation: mockEngine.evaluate(input.question, input.transcript, input.followUpCount),
+        evaluation: mockEngine.evaluate(input.question, input.transcript, input.followUpCount, input.testResults),
         costUsd: 0,
       };
     }
@@ -213,19 +243,43 @@ export const api = {
     return res.json();
   },
 
+  // The browser's copy of a coding problem (no solution, hints or rubric). Demo mode
+  // loads the exported set lazily so its ~2 MB only ships when it's actually used.
+  async getProblem(id: string): Promise<PublicProblem> {
+    if (USE_MOCK) {
+      const { default: problems } = await import("./coding/problems.public.json");
+      const problem = (problems as PublicProblem[]).find((p) => p.id === id);
+      if (!problem) throw new Error("Problem not found.");
+      return problem;
+    }
+    const res = await safeFetch(apiUrl(`/api/coding/problems/${encodeURIComponent(id)}`), {
+      headers: await authHeaders(false),
+    });
+    return res.json();
+  },
+
   async coachAnswer(input: {
     question: PlannedQuestion;
     transcript: string;
     weaknessTags: string[];
+    // Coding questions: the session (the backend checks it was finalized) and the final code.
+    sessionId?: string;
+    code?: string;
   }): Promise<CoachResponse> {
     if (USE_MOCK) {
       await latency(1200);
       return mockEngine.coach(input.question, input.weaknessTags);
     }
+    const { question, transcript, weaknessTags, sessionId, code } = input;
+    // candidateId finds the finalized session when signed out; with sign-in the server uses the token instead.
+    const coding =
+      question.type === "coding"
+        ? { sessionId, code: (code ?? "").slice(0, 20_000), candidateId: getCandidateId() }
+        : {};
     const res = await safeFetch(apiUrl("/api/coach"), {
       method: "POST",
       headers: await authHeaders(),
-      body: JSON.stringify(input),
+      body: JSON.stringify({ question, transcript, weaknessTags, ...coding }),
     });
     return res.json();
   },
@@ -283,6 +337,8 @@ export const api = {
     // (see StartSessionResult/TurnResult) — the backend adds its own
     // finalize-call cost on top before persisting the SessionRecord.
     costUsd: number;
+    companyStyle: CompanyStyleId;
+    endedForConduct: boolean;
   }): Promise<MemoryProfile> {
     if (USE_MOCK) {
       await latency(900);
@@ -300,6 +356,8 @@ export const api = {
         questions: input.questions,
         evaluations: input.evaluations,
         costUsd: input.costUsd,
+        companyStyle: input.companyStyle,
+        endedForConduct: input.endedForConduct,
       });
       return updated;
     }

@@ -6,7 +6,7 @@ class _FakeLLM:
     def __init__(self, payload: dict):
         self._payload = payload
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None, temperature=0.0):
         return schema.model_validate(self._payload)
 
 
@@ -69,3 +69,18 @@ def test_session_end_graph_passes_all_evaluations():
     })
 
     assert isinstance(result["updated_memory"], MemoryProfile)
+
+
+def test_session_end_graph_passes_memory_temperature():
+    temps = {}
+
+    class _Spy(_FakeLLM):
+        def structured(self, **kw):
+            temps[kw["agent"]] = kw["temperature"]
+            return super().structured(**kw)
+
+    graph = build_session_end_graph(llm=_Spy(_UPDATED_MEMORY), memory_model="m", memory_temperature=0.2)
+    graph.invoke({"candidate_id": "cand-1", "session_date": "2026-06-22", "evaluations": [_eval("q1", [])],
+                  "existing_memory": MemoryProfile(candidateId="cand-1", recurringWeaknesses=[],
+                                                   improvementTrend=[], strongAreas=[])})
+    assert temps == {"memory": 0.2}

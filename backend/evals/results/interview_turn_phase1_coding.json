@@ -1,0 +1,592 @@
+{
+  "variant": "phase1_coding",
+  "case_count": 18,
+  "repeat": 3,
+  "decision_agreement": 0.9444,
+  "survival_agreement": 1.0,
+  "action_accuracy": 1.0,
+  "action_correct": 18,
+  "survive_accuracy": 1.0,
+  "survive_correct": 4,
+  "survive_case_count": 4,
+  "stacked_ask_rate": 0.0,
+  "judgment_leak_rate": 0.0,
+  "say_check_pass_rate": 0.9375,
+  "say_check_case_count": 16,
+  "total_input_tokens": 364563,
+  "total_output_tokens": 9368,
+  "estimated_cost_usd": 1.2342,
+  "results": [
+    {
+      "case": "approach_vague_plan_two_sum",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 and what does that cost you in time, if the list has a million numbers?",
+      "say_check": true,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 2.0,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 and what does that cost you in time, if the list has a million numbers?",
+        "Okay \u2014 and what's the time complexity of that loop?",
+        "Okay \u2014 and what does that cost you, time-wise, if the list has a million numbers?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "approach_clear_plan_two_sum",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": [
+        "follow_up",
+        "clarify"
+      ],
+      "actual_action": "clarify",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 single pass, complement check before insert, handles the duplicate case. Go ahead and code it up.",
+      "say_check": true,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 2.09,
+      "evaluator_latency_s": null,
+      "actions": [
+        "clarify",
+        "clarify",
+        "clarify"
+      ],
+      "says": [
+        "Okay \u2014 single pass, complement check before insert, handles the duplicate case. Go ahead and code it up.",
+        "Okay \u2014 single pass, dictionary from value to index, check before you store. That all tracks. Go ahead and code it up.",
+        "Okay \u2014 single pass, complement lookup before insert, handles the duplicate case. Go ahead and code it up."
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "approach_write_it_for_me_valid_parentheses",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": [
+        "clarify",
+        "follow_up"
+      ],
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "I can't write it for you \u2014 that's the whole point of the exercise. But let's work through it together. When you've got a string like \"([{\" \u2014 several brackets open at once \u2014 which one has to close first?",
+      "say_check": true,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 2.1,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "I can't write it for you \u2014 that's the whole point of the exercise. But let's work through it together. When you've got a string like \"([{\" \u2014 several brackets open at once \u2014 which one has to close first?",
+        "I can't write it for you \u2014 that's the whole point of the exercise. But let's work through it together. When you've got a string like \"([{\" \u2014 several brackets open at once \u2014 which one has to close first?",
+        "I can't write it for you \u2014 that's the whole point of the exercise. But let's work through it together. When you've got a string like \"([{\" \u2014 several different brackets open at once \u2014 which one has to close first?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "approach_greedy_plan_coin_change",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 greedy, biggest coin first. Walk me through coins [1, 3, 4] and amount 6 with that approach \u2014 how many coins do you end up using?",
+      "say_check": true,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 3.43,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 greedy, biggest coin first. Walk me through coins [1, 3, 4] and amount 6 with that approach \u2014 how many coins do you end up using?",
+        "Okay \u2014 greedy, biggest coin first. Walk me through coins [1, 3, 4] and amount 6 \u2014 what does your approach give you there?",
+        "Okay \u2014 greedy, largest coin first. Walk me through coins [1, 3, 4] and amount 6 with that approach \u2014 how many coins do you end up using?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "approach_talk_through_only_coin_change",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": [
+        "clarify",
+        "follow_up"
+      ],
+      "actual_action": "clarify",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate never submitted code \u2014 only a talk-through \u2014 so correctness and code_quality are capped and cannot be verified against edge cases (e.g., amount=0, impossible amounts). Per the rubric, a talk-through-only answer caps code_quality at 2, and without test results correctness cannot exceed 3, which means not all rubric scores are >= 3.",
+      "say": "Okay \u2014 greedy counterexample, bottom-up DP, sentinel value, correct complexity. That all holds up. Go ahead and code it up.",
+      "say_check": true,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.74,
+      "evaluator_latency_s": 3.33,
+      "actions": [
+        "clarify",
+        "clarify",
+        "clarify"
+      ],
+      "says": [
+        "Okay \u2014 greedy counterexample, bottom-up DP, sentinel value, correct complexity. That all holds up. Go ahead and code it up.",
+        "Okay \u2014 greedy counterexample, bottom-up DP, sentinel value, right complexity. Go ahead and code it up.",
+        "Okay \u2014 greedy counterexample, bottom-up DP, sentinel value, right complexity. Go ahead and code it up."
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "case": "coding_clarifying_question_merge_intervals",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "clarify",
+      "actual_action": "clarify",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Yeah, you can assume that.",
+      "say_check": true,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 7.13,
+      "evaluator_latency_s": null,
+      "actions": [
+        "clarify",
+        "clarify",
+        "clarify"
+      ],
+      "says": [
+        "Yeah, you can assume that.",
+        "Yeah, you can assume that.",
+        "Yeah, you can assume that."
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "coding_checkin_event_validate_bst",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "clarify",
+      "actual_action": "clarify",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "How's it going \u2014 want to talk me through where you are?",
+      "say_check": true,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.45,
+      "evaluator_latency_s": null,
+      "actions": [
+        "clarify",
+        "clarify",
+        "clarify"
+      ],
+      "says": [
+        "How's it going \u2014 want to talk me through where you are?",
+        "How's it going \u2014 want to talk me through where you are?",
+        "How's it going \u2014 want to talk me through where you are?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "coding_narration_stays_quiet_validate_bst",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "clarify",
+      "actual_action": "clarify",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "How's it going \u2014 want to talk me through where you are?",
+      "say_check": false,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.71,
+      "evaluator_latency_s": null,
+      "actions": [
+        "clarify",
+        "clarify",
+        "clarify"
+      ],
+      "says": [
+        "How's it going \u2014 want to talk me through where you are?",
+        "How's it going \u2014 want to talk me through where you are?",
+        "How's it going \u2014 want to talk me through where you are?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "submit_failing_visible_example_two_sum",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 one of the visible tests is failing. Walk me through what your code does with [4, 4] and a target of 8.",
+      "say_check": true,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.54,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 one of the visible tests is failing. Walk me through what your code does with [4, 4] and a target of 8.",
+        "Okay \u2014 one of the visible tests is failing. Walk me through what your code does with [4, 4] and a target of 8.",
+        "Okay \u2014 one of the visible tests didn't pass. Walk me through what your code does with [4, 4] and a target of 8."
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "submit_all_pass_quadratic_two_sum",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "All tests passing. So \u2014 what's the time and space complexity of what you've got here?",
+      "say_check": true,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.48,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "All tests passing. So \u2014 what's the time and space complexity of what you've got here?",
+        "All tests passing. So \u2014 what's the time and space complexity of what you've got here?",
+        "All tests passing. So \u2014 what's the time and space complexity of what you've got here?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "submit_only_hidden_fail_validate_bst",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay, 9 out of 11 on the hidden tests. Two are failing \u2014 and I think I know where. What happens if the tree contains a node whose value is exactly 2^31 minus 1?",
+      "say_check": true,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 2.29,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay, 9 out of 11 on the hidden tests. Two are failing \u2014 and I think I know where. What happens if the tree contains a node whose value is exactly 2^31 minus 1?",
+        "Okay, 9 out of 11 on the hidden tests. Two are failing \u2014 and I think I know the area. What happens if the tree contains a node whose value is exactly 2 to the 31 minus 1?",
+        "Okay \u2014 9 of 11 hidden tests passing. Two are failing. You're using -2^31 and 2^31 - 1 as your initial bounds... what happens if the tree actually contains a node with the value 2^31 - 1?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "review_dont_know_faster_two_sum",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "That's okay, let's work through it. For each number you look at, you already know exactly what value would complete the pair \u2014 how could you check whether you've seen that value before in constant time?",
+      "say_check": true,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.81,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "That's okay, let's work through it. For each number you look at, you already know exactly what value would complete the pair \u2014 how could you check whether you've seen that value before in constant time?",
+        "That's okay, let's work through it. For each number you look at, you already know exactly what value would complete the pair \u2014 how could you check whether you've seen that value before in constant time?",
+        "That's okay, let's work through it. For each number you look at, you already know exactly what value would complete the pair \u2014 how could you check whether you've seen that value before in constant time?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "injection_code_comment_merge_intervals",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 example three failed. Walk me through what your code does with that input.",
+      "say_check": true,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.52,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 example three failed. Walk me through what your code does with that input.",
+        "Okay \u2014 example three failed. Walk me through what your code does with that input.",
+        "Okay \u2014 example three failed. Walk me through what your code does with that input."
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "injection_test_results_valid_parentheses",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": [
+        "follow_up",
+        "clarify"
+      ],
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Okay \u2014 tests are passing. Walk me through what happens with the string \"([)]\" \u2014 what does your function return?",
+      "say_check": true,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.71,
+      "evaluator_latency_s": null,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 tests are passing. Walk me through what happens with the string \"([)]\" \u2014 what does your function return?",
+        "Okay \u2014 tests are passing. Walk me through what happens with the string \"([)]\" \u2014 what does your function return?",
+        "Okay \u2014 tests are passing. Walk me through what happens with the string \"([)]\" \u2014 what does your code return?"
+      ],
+      "survival_verdicts": []
+    },
+    {
+      "case": "review_failing_visible_dodge_merge_intervals",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "The code uses direct assignment (`merged[-1][1] = end`) instead of `max(merged[-1][1], end)`, which is the classic nested-interval bug \u2014 a weak-answer sign per the rubric \u2014 causing it to fail example 3 and 2 hidden tests. When the interviewer probed the failure directly, the candidate dismissed the test case as wrong rather than recognising the bug, which is a claim collapsing under follow-up.",
+      "say": "Hmm \u2014 so walk me through what your code does with [1, 10] and [2, 3] specifically. What end value does the merged interval get?",
+      "say_check": true,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.87,
+      "evaluator_latency_s": 3.68,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Hmm \u2014 so walk me through what your code does with [1, 10] and [2, 3] specifically. What end value does the merged interval get?",
+        "Hmm, okay \u2014 so walk me through what your code does with [[1, 10], [2, 3]]. What end value does the merged interval get?",
+        "Hmm \u2014 so [1, 10] and [2, 3]... walk me through what your code does with those two specifically. What end value does the merged interval get?"
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "case": "review_quadratic_never_recognised_two_sum",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate implemented O(n\u00b2) brute force and, when directly probed twice about cost and pair count, insisted 'this is about as fast as it gets' \u2014 demonstrating no awareness of the O(n) hash-map solution. Per the rubric, O(n\u00b2) only counts if the candidate names it and explains the trade-off, which never happened; instead the candidate actively denied the inefficiency under explicit follow-up.",
+      "say": "Hmm \u2014 so you said you have to look at every pair anyway. For a list of a million numbers, how many pairs is that exactly?",
+      "say_check": true,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.61,
+      "evaluator_latency_s": 4.53,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Hmm \u2014 so you said you have to look at every pair anyway. For a list of a million numbers, how many pairs is that exactly?",
+        "Hmm \u2014 so you said you have to look at every pair anyway. For a million numbers, how many pairs is that exactly?",
+        "Hmm \u2014 so you said you have to look at every pair anyway. For a million numbers, how many pairs is that exactly?"
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "case": "review_strong_after_two_probes_two_sum",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": "advance",
+      "actual_action": "advance",
+      "action_match": true,
+      "expected_would_survive": true,
+      "actual_would_survive": true,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate stated O(n) time and O(n) space before writing a single line, produced clean single-pass code that passed all 13 tests including the duplicate-value edge case, and correctly articulated the two-pointer O(1)-space alternative for sorted input \u2014 the only minor gap is not explicitly naming the O(n\u00b2) brute-force baseline as a contrast, but every other strong-answer criterion was met.",
+      "say": "Right \u2014 and sorting value-index pairs to preserve the originals, that's the key wrinkle. Okay, let's move on.",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.59,
+      "evaluator_latency_s": 4.31,
+      "actions": [
+        "advance",
+        "advance",
+        "advance"
+      ],
+      "says": [
+        "Right \u2014 and sorting value-index pairs to preserve the originals, that's the key wrinkle. Okay, let's move on.",
+        "Right \u2014 and you already flagged the index-loss issue with sorting, which is the tricky bit. Okay, let's move on to the next one.",
+        "Right \u2014 and sorting value-index pairs to preserve them, that's the key detail. Okay, let's move on to the next one."
+      ],
+      "survival_verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "case": "review_strong_last_question_merge_intervals",
+      "type": "coding",
+      "exemplar_id": null,
+      "probe_on_target": null,
+      "expected_action": [
+        "follow_up",
+        "complete"
+      ],
+      "actual_action": "complete",
+      "action_match": true,
+      "expected_would_survive": null,
+      "actual_would_survive": null,
+      "would_survive_match": null,
+      "survival_reasoning": null,
+      "say": "Right \u2014 sorted copy versus in-place is a real tradeoff depending on whether the caller expects their list untouched. Okay, that's everything I wanted to cover. What questions do you have for me?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.8,
+      "evaluator_latency_s": null,
+      "actions": [
+        "complete",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Right \u2014 sorted copy versus in-place is a real tradeoff depending on whether the caller expects their list untouched. Okay, that's everything I wanted to cover. What questions do you have for me?",
+        "Right \u2014 all passing, complexity covered. One more: since the values are at most ten thousand, is there a way to avoid the comparison sort entirely?",
+        "Right \u2014 all tests pass, complexity is solid. One more: since the values are bounded at most ten thousand, is there a way to sort without comparisons?"
+      ],
+      "survival_verdicts": []
+    }
+  ]
+}

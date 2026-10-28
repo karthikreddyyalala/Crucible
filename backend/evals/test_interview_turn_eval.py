@@ -23,8 +23,8 @@ def agents():
     settings = Settings()
     llm = LLMClient(region=settings.aws_region)
     return {
-        "interviewer": InterviewerAgent(llm=llm, model=settings.planner_model),
-        "evaluator": EvaluatorAgent(llm=llm, model=settings.planner_model),
+        "interviewer": InterviewerAgent(llm=llm, model=settings.planner_model, temperature=settings.interviewer_temperature),
+        "evaluator": EvaluatorAgent(llm=llm, model=settings.planner_model, temperature=settings.evaluator_temperature),
     }
 
 

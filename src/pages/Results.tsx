@@ -12,26 +12,32 @@ export function Results() {
   const plan = useSessionStore((s) => s.plan);
   const evaluations = useSessionStore((s) => s.evaluations);
   const updatedMemory = useSessionStore((s) => s.updatedMemory);
+  const endedForConduct = useSessionStore((s) => s.endedForConduct);
+  const codeByQuestion = useSessionStore((s) => s.codeByQuestion);
   const reset = useSessionStore((s) => s.reset);
 
+  // A session ended for conduct may have no scored answers yet; it still gets its page.
+  const nothingToShow = !plan || (evaluations.length === 0 && !endedForConduct);
   useEffect(() => {
-    if (!plan || evaluations.length === 0) navigate("/setup");
-  }, [plan, evaluations, navigate]);
+    if (nothingToShow) navigate("/setup");
+  }, [nothingToShow, navigate]);
 
-  if (!plan || evaluations.length === 0) return null;
+  if (!plan || nothingToShow) return null;
 
   const survived = evaluations.filter((e) => e.wouldSurviveRealInterview).length;
   const total = evaluations.length;
-  const ratio = survived / total;
+  const ratio = total ? survived / total : 0;
+  // Only a conduct end gets here with nothing scored: no score to show, just the note.
+  const noAnswers = total === 0;
   const verdictTone =
-    ratio >= 0.6 ? "var(--color-survive)" : ratio >= 0.34 ? "var(--color-accent)" : "var(--color-fail)";
+    noAnswers ? "var(--color-accent)"
+    : ratio >= 0.6 ? "var(--color-survive)" : ratio >= 0.34 ? "var(--color-accent)" : "var(--color-fail)";
 
   const headline =
-    ratio >= 0.6
-      ? "You'd mostly hold up."
-      : ratio >= 0.34
-      ? "You'd survive parts of this."
-      : "This wouldn't survive yet.";
+    noAnswers ? "Interview ended early."
+    : ratio >= 0.6 ? "You'd mostly hold up."
+    : ratio >= 0.34 ? "You'd survive parts of this."
+    : "This wouldn't survive yet.";
 
   const topWeak = updatedMemory?.recurringWeaknesses.slice(0, 4) ?? [];
 
@@ -76,35 +82,43 @@ export function Results() {
             {headline}
           </motion.h1>
 
-          <div className="mt-9 flex flex-wrap items-end gap-x-10 gap-y-6">
-            <div>
-              <div className="flex items-baseline gap-2 font-mono">
-                <motion.span
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="text-6xl font-bold tabular-nums"
-                  style={{ color: verdictTone }}
-                >
-                  {survived}
-                </motion.span>
-                <span className="text-2xl text-fog">/ {total}</span>
+          {endedForConduct && (
+            <p className="mt-4 max-w-[60ch] text-sm text-mist">
+              This session ended early because of the conduct of the conversation.
+            </p>
+          )}
+
+          {!noAnswers && (
+            <div className="mt-9 flex flex-wrap items-end gap-x-10 gap-y-6">
+              <div>
+                <div className="flex items-baseline gap-2 font-mono">
+                  <motion.span
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="text-6xl font-bold tabular-nums"
+                    style={{ color: verdictTone }}
+                  >
+                    {survived}
+                  </motion.span>
+                  <span className="text-2xl text-fog">/ {total}</span>
+                </div>
+                <p className="mt-1 max-w-[28ch] text-sm text-mist">
+                  answers would survive a real interviewer's follow-up grilling.
+                </p>
               </div>
-              <p className="mt-1 max-w-[28ch] text-sm text-mist">
-                answers would survive a real interviewer's follow-up grilling.
-              </p>
-            </div>
 
-            <div className="h-12 w-px bg-line" />
+              <div className="h-12 w-px bg-line" />
 
-            <div className="font-mono">
-              <p className="text-xs tracking-wide text-fog">SESSION AVG</p>
-              <p className="mt-1 text-3xl font-bold tabular-nums text-chalk">
-                {updatedMemory?.improvementTrend.at(-1)?.avgScore.toFixed(2) ?? "—"}
-                <span className="ml-1 text-base text-fog">/ 5</span>
-              </p>
+              <div className="font-mono">
+                <p className="text-xs tracking-wide text-fog">SESSION AVG</p>
+                <p className="mt-1 text-3xl font-bold tabular-nums text-chalk">
+                  {updatedMemory?.improvementTrend.at(-1)?.avgScore.toFixed(2) ?? "—"}
+                  <span className="ml-1 text-base text-fog">/ 5</span>
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -123,7 +137,7 @@ export function Results() {
               where you're weak.
             </p>
             <div className="mt-5 space-y-2.5">
-              {topWeak.length === 0 && (
+              {topWeak.length === 0 && !noAnswers && (
                 <p className="font-mono text-xs text-fog">No recurring weaknesses logged. Strong run.</p>
               )}
               {topWeak.map((w, i) => (
@@ -155,15 +169,28 @@ export function Results() {
         </div>
 
         {/* per-question verdicts */}
-        <h2 className="mt-16 mb-6 font-display text-2xl font-bold tracking-tight text-white-pure">
-          Answer-by-answer
-        </h2>
-        <div className="space-y-5">
-          {evaluations.map((ev, i) => {
-            const q = plan.questions.find((q) => q.id === ev.questionId) ?? plan.questions[i];
-            return <VerdictCard key={ev.questionId} evaluation={ev} question={q} index={i} />;
-          })}
-        </div>
+        {!noAnswers && (
+          <>
+            <h2 className="mt-16 mb-6 font-display text-2xl font-bold tracking-tight text-white-pure">
+              Answer-by-answer
+            </h2>
+            <div className="space-y-5">
+              {evaluations.map((ev, i) => {
+                const q = plan.questions.find((q) => q.id === ev.questionId) ?? plan.questions[i];
+                return (
+                  <VerdictCard
+                    key={ev.questionId}
+                    evaluation={ev}
+                    question={q}
+                    index={i}
+                    sessionId={plan.sessionId}
+                    code={codeByQuestion[q.id]}
+                  />
+                );
+              })}
+            </div>
+          </>
+        )}
 
         {/* next-session CTA */}
         <div className="mt-16 flex flex-col items-center gap-5 rounded-3xl border border-line bg-ink p-10 text-center">

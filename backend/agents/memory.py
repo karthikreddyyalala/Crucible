@@ -6,9 +6,10 @@ _PROMPT = (Path(__file__).resolve().parent.parent / "prompts" / "memory.md").rea
 
 
 class MemoryAgent:
-    def __init__(self, llm, model: str):
+    def __init__(self, llm, model: str, temperature: float = 0.0):
         self._llm = llm
         self._model = model
+        self._temperature = temperature
 
     def run(
         self,
@@ -31,4 +32,5 @@ class MemoryAgent:
         return self._llm.structured(
             agent="memory", sink=usage_sink,
             model=self._model, system=_PROMPT, user=user, schema=MemoryProfile,
+            temperature=self._temperature,
         )

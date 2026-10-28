@@ -3,7 +3,7 @@
 Living list. Updated as work happens; newest decisions at the bottom of each section.
 Status: `[ ]` open · `[~]` in progress · `[x]` done · `[-]` dropped (with reason)
 
-## Now — Question quality (branch `feat/question-bank`)
+## Done — Question quality (branch `feat/question-bank`, merged)
 
 Goal: every question Marcus asks is one a strong real interviewer would ask, with
 planned follow-up depth and fair, calibrated scoring.
@@ -47,6 +47,40 @@ ATTRIBUTION.md. See docs/research/question-sources-and-datasets.md.
 - [x] README rewritten in plain language with a real interview excerpt
 - [ ] Gaps: strengths/weaknesses, Google Docs, message queue, backend security,
       tokenization/context windows, RLHF
+
+## Now — Phase 1 (branch `feat/phase-1`)
+
+Spec: docs/superpowers/specs/2026-10-28-phase-1-design.md · Plan: docs/superpowers/plans/2026-10-28-phase-1.md
+Roadmap for all phases: docs/ROADMAP.md
+
+- [x] Design agreed (Python in the browser, Blind 75, coding mode + 1 coding question in full
+      mocks, real-interviewer coding flow, warn → warn → end, company styles, low temperatures)
+- [x] Wave 1: moderation · temperatures + repeat agreement · coding schema/harness · company styles
+      (review: moderation false positives 30/86 → 2/86, missed abuse 31/41 → 0/41, slow inputs fixed;
+      real names never block; only the latest reply is moderated)
+- [x] Wave 2: all 75 Blind 75 problems (19 easy / 49 medium / 7 hard; reference solution passes
+      every test, starter fails, common wrong solutions fail) · Python runner (Pyodide 314.0.7,
+      verified in Chromium) · backend integration (strikes, coding notes, company styles)
+- [x] Wave 3: session flow + setup (strikes, queued submits, refresh-safe) · coding workspace UI
+      (CodeMirror, Run/Submit, every runner state, 3 dividers, mobile notice) · Playwright e2e
+      (8 tests, 3 clean runs + 32/32 stress, `npm run test:e2e`)
+- [x] Live evals (5 suites × 3 runs): 74/74 decisions, 34/34 survival verdicts, survival verdict
+      identical across runs; found an SDK bug that would have failed every real call (fixed, guarded)
+- [x] Final whole-branch review: no critical issues; must-fixes in progress (strike bypass via a
+      typed "Q:" line, phone talk-through stage, topic chips, lazy editor, planner ids, coach gate,
+      evaluator transcript echo, seeded variety) + 6 spoken-line fixes from the evals
+- [x] Review fixes landed (strike bypass, talk stage, topic chips, lazy editor 1,142 → 668 kB,
+      planner ids, coach gate + candidate id, evaluator transcript, seeded variety)
+- [x] One ask per follow-up enforced in code; "take your time" on a failing run; no invented
+      question count in the warmup
+- [x] Final live evals (v4): 76/76 decisions, 34/34 survival verdicts (docs/evals-phase-1.md)
+- [x] Live end-to-end coding interview saved (docs/sample-coding-interview-2026-10-28.md)
+- [x] README updated · PR opened from `feat/phase-1` (not merged, nothing pushed to main)
+- [ ] Wording left: small-talk praise on off-topic answers, praise in advance/closing lines
+      the regex misses (needs an LLM judge), Spanish two-part questions
+
+Found while planning: every agent was running at the default temperature (1.0), scoring
+included. Phase 1 sets 0 for scoring/planning/extraction and 0.3 for Marcus.
 
 ## Next — Voice feel (needs a Deepgram account + key)
 

@@ -10,14 +10,18 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  worker: { format: "es" },
   optimizeDeps: {
     exclude: ["@daily-co/daily-js"],
+    // The editor is lazy-loaded, so the dev server would only find these mid-session and
+    // reload every open page to re-bundle them; pre-bundle them at startup instead.
+    include: ["@uiw/react-codemirror", "@codemirror/lang-python", "@codemirror/language", "@lezer/highlight"],
   },
   test: {
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test-setup.ts"],
-    exclude: ["**/node_modules/**", "**/backend/**"],
+    exclude: ["**/node_modules/**", "**/backend/**", "e2e/**"],
   },
   server: {
     proxy: {

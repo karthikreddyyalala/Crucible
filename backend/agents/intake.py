@@ -6,9 +6,10 @@ _PROMPT = (Path(__file__).resolve().parent.parent / "prompts" / "intake.md").rea
 
 
 class IntakeAgent:
-    def __init__(self, llm, model: str):
+    def __init__(self, llm, model: str, temperature: float = 0.0):
         self._llm = llm
         self._model = model
+        self._temperature = temperature
 
     def run(self, *, resume_text: str, jd_text: str,
             usage_sink: list | None = None) -> IntakeProfile:
@@ -19,4 +20,5 @@ class IntakeAgent:
         return self._llm.structured(
             agent="intake", sink=usage_sink,
             model=self._model, system=_PROMPT, user=user, schema=IntakeProfile,
+            temperature=self._temperature,
         )

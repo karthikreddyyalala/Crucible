@@ -50,6 +50,19 @@ describe("useCoach", () => {
     expect(state.data).toEqual(response);
   });
 
+  it("passes the session id and final code along for a coding answer", async () => {
+    vi.mocked(api.coachAnswer).mockResolvedValueOnce({ modelAnswer: "m", improvements: [], code: "def f(): ..." });
+    const coding: PlannedQuestion = { ...question(), type: "coding", exemplarId: "code-two-sum" };
+    const { result } = renderHook(() =>
+      useCoach({ question: coding, transcript: "t", weaknessTags: [], sessionId: "s1", code: "def two_sum(): pass" })
+    );
+    act(() => {
+      result.current.load();
+    });
+    await waitFor(() => expect(result.current.state.phase).toBe("ready"));
+    expect(api.coachAnswer).toHaveBeenCalledWith(expect.objectContaining({ sessionId: "s1", code: "def two_sum(): pass" }));
+  });
+
   it("transitions loading -> error when the call rejects, and retry via load() can recover", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     vi.mocked(api.coachAnswer).mockRejectedValueOnce(new Error("network down"));

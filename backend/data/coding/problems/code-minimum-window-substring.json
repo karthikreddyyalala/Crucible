@@ -1,0 +1,66 @@
+{
+  "id": "code-minimum-window-substring",
+  "title": "Minimum Window Substring",
+  "difficulty": "hard",
+  "topics": ["string", "sliding window", "hash map"],
+  "asked": "very_common",
+  "statement": "You're given two strings, `s` and `t`. Find the shortest substring of `s` that contains every character of `t`, counting repeats: if `t` has two copies of a letter, the substring needs at least two copies of it too (extra characters are allowed). Return that substring, or an empty string if no substring of `s` qualifies.\n\nThe tests only use inputs where the shortest window is unique, so you won't have to choose between ties. Matching is case sensitive.\n\nConstraints: 1 <= len(s), len(t) <= 10^5; both strings contain only English letters.",
+  "functionName": "min_window",
+  "signature": "def min_window(s: str, t: str) -> str:",
+  "starterCode": "def min_window(s: str, t: str) -> str:\n    \"\"\"Return the shortest substring of s that contains all characters of t (with multiplicity), or an empty string.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "s = \"PQXZZQPXBQ\", t = \"XQB\"", "output": "\"XBQ\"", "explanation": "\"XBQ\" at the end holds one X, one Q and one B, and no shorter substring does."},
+    {"input": "s = \"aabdecab\", t = \"aab\"", "output": "\"aab\"", "explanation": "t needs two a's and one b. The first three characters \"aab\" already contain them, so nothing shorter exists."},
+    {"input": "s = \"xyz\", t = \"xyzz\"", "output": "\"\"", "explanation": "t needs two z's but s has only one, so no substring qualifies and the answer is an empty string."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args": ["PQXZZQPXBQ", "XQB"], "expected": "XBQ"},
+    {"args": ["aabdecab", "aab"], "expected": "aab"},
+    {"args": ["xyz", "xyzz"], "expected": ""},
+    {"args": ["a", "a"], "expected": "a"},
+    {"args": ["a", "b"], "expected": ""},
+    {"args": ["abc", "abc"], "expected": "abc"},
+    {"args": ["AaBbAa", "aB"], "expected": "aB"},
+    {"args": ["ab", "abc"], "expected": ""},
+    {"args": ["zzzzzzzzzzy", "zy"], "expected": "zy"},
+    {"args": ["Ab", "ab"], "expected": ""},
+    {"args": ["abbac", "abbc"], "expected": "bbac"},
+    {"args": ["cbebhhhgdbhaggahedbfaaaagdgadhhdfddheagbcebfgdeehgahdggcffbhbcgfhahaegccdaddgffheagcdgahfdghfgfafhadccbeabbahaedebcfebcceceehfhhbaegfgdebedgadagcachgdhdagfgaecdaebbeecgecaadhcagdfbdgdhbgehafgeacdfcfgdebgfhdbabcccdefefffbedhcbfagbgccfbgbdbefebhebaeaabgbaddgcbhcdcbggeehfbdfaaaefhgfgbbfhbedhfecdeddfbebhbfdgeafcfedfbbddadgbebbaaefhhcbfbccccfebecdcafdcegcadebhgehhagfcehagaafccceeggcbdhacfhddfhhdgfedabfcdeeefchbbgccegdahgfgcabebebcbhdgggcfhchdbggbeedgadhaadedcecdeeehcfhgbdgdebabaecbfegffabhhfegfhbggdaedhgechdfagggfbhdeagcgecbafegechehchaebgbfbhaccbgeedddfebbfhaceefdggchefdedagfgdedbchcehccchfegdbdebbdgfhbcaaadahhfebcbdgdhhgcddehgdhefhbdbaaahfgedgccaagcagecbheaaacaebgbdahcedhgfeeddacfgafgdgbebecbcadgaabhfbfacahcghaebefbeagaefcegbebgddffghbchaecdfgfbgfcbaefgeffefabcfffbhehhfgbacahedfffgehfcacedcbcgabebdebbbdcgafheddhdghfdhbegdaghbggafhadeabefeggehechcceagafggeabbagehefhfghbhfcgcacefcegeegegfhdhggbbcdcdabechbgcabgadgfabgbeechadbgbhehgbhbcgdcegehdfhbafeahebdeedgccedgacgeeheehdhfhdfcchcafcdfhhfbccedbacbddegfaaedbdefegabffcbecafbbbefdeafabcgfdbfeafbfcegbhggedecabcddgeaeeehcgbfbfaehccbcdhffeccghgbceeaacgbhaggefgghabhaaabcfefhddbfcbafgfeagggfefhdcafbchfbahdgcgdbdffdhhfhdghgbheccaggbabchgeccbeahgdgadgccfdbccgadgdadbdghbagbbhadaaehegccfhgcggdhefceecbffceeefgehacceddbdgdchgdbbcaagggccbdgcedgfcdecfhebedhaebfheaafccbbgddgbdgceabdghdeacdgeggehbccahahdgfdbbaghdcdgfddfbfahaccehabgbgegefhahagefcebfggabaabfffafbhbhfacffdccbgfgffefabdegebbcegbceeddbehaedbffecahfaafgcagcddbcbehdafhffdaahaceaadbcaddhedhffgbdcdeghfahabgffbgdhhhhceegeeeaahhfdhdhfcggabfaeaegaffeadbfbbcegfdacfeegghbdgdadddggdcefaehhccafgfhfbeegaebhbdegfdabcceabdaagabaaaffaadhdeeedcdgadhaffgbacbcddcebafcbhcdaefabhddcbadabbdeegdaedfffhggbgdhfcbdbgeeffghfffghafcececcchcccbedffcehebgcfhbcfbchaadfffffbcgaedadefgdfadeadbcdfeccdbeghhcfdgbeddccdachfcafbddbhdfcadfhaafhfchbfefbhfgbebfacfdfeeehgaeceabggdefheecfcfbgfdghchdadbbahhfchgaghcfaffhdebhfdcchaffchhadahcdghbfeccfccedghhecedecafbggchhhfdabbbgchgchhadhhgefcecaabdhfhfbgaheghfbcgghcfcfcdddhcbbgahcffegaghheegfecbhchchbbffhffhfhgdcdddafafgafffgdedfggcagfddbfgdebgafbgcbcfcggfeddccccbhcgcffcafcddhhabchcdfcefbghahdddaeaedbbbgfbhhecgffgggfddbcddadghhbacaagegcdfgfahcfafbdbgcafcceahahbgbhbcg", "gdghfhbbdfbbfb"], "expected": "bbbgfbhhecgffgggfddb"},
+    {"args": ["eszycidpyopumzgdpamntyyawoixzhsdkaaauramvgnxaqhyoprhlhvhyojanrudfuxjdxkxwqnqvgjjspqmsbphxzmnvflrwyvxlcovqdyfqmlpxapbjwtssmuffqhaygrrhmqlsloivrtxamzxqzeqyrgnbplsrgqnplnlarrtztkotazhufrsfczrzibvccaoayyihidztfljcffiqfviuwjowkppdajmknzgidixqgtnahamebxfowqvnrhuzwqohquamvszkvunbxjegbjccjjxfnsiearbsgsofywtqbmgldgsvnsgpdvmjqpaktmjafgkzszekngivdmrlvrpyrhcxbceffrgiyktqilkkdjhtywpesrydkbncmzeekdtszmcsrhsciljsrdoidzbjatvacndzbghzsnfdofvhfxdnmzrjriwpkdgukbaazjxtkomkmccktodigztyrwpvlifrgjghlcicyocusukhmjbkfkzsjhkdrtsztchhazhmcircxcauajyzlppedqyzkcqvffyeekjdwqtjegerxbyktzvrxwgfjnrfbwvhiycvoznriroroamkfipazunsabwlseseeiimsmftchpafqkquovuxhhkpvphwnkrtxuiuhbcyqulfqyzgjjwjrlfwwxotcdtqsmfeingsxyzbpvmwulmqfrxbqcziudixceytvvwcohmznmfkoetpgdntrndvjihmxragqosaauthigfjergijsyivozzfrlpndygsmgjzdzadsxarjvyxuecqlszjnqvlyqkadowoljrmkzxvspdummgraiutxxxqgotqnxwjwfotvqglqavmsnmktsxwxcpxhuujuanxueuymzifycytalizwnvrjeoipfoqbiqdxsnclcvoafqwfwcmuwitjgqghkiccwqvloqrxbfjuxwriltxhmrmfpzitkwhitwhvatmknyhzigcuxfsosxetioqfeyewoljymhdwgwvjcdhmkpdfbbztaygvbpwqxtokvidtwfdhmhpomyfhhjorsmgowikpsdgcbazapkmsjgmfyuezaamevrbsmiecoujabrbqebiydncgapuexivgvomkuiiuuhhbszsflntwruqblrnrgwrnvcwixtxycifdebgnbbucqpqldkberbovemywoaxqicizkcjbmbxikxeizmzdvjdnhqrgkkqzmspdeuoqrxswqrajxfglmqkdnlescbjzurknjklikxxqqaqdekxkzkscoipolxmcszbebqpsizhwsxklzulmjotkrqfaeivhsedfynxtbzdrviwdgicusqucczgufqnaslpwzjhgtphnovlrgzpxcingaxrymqpcmtqzssnbloagjwwuardjqxkyrusrjqnrqntusjojeqoseryfiuanxvsblnmjvyvaccamioizzluxpykmozdpleneafileszjniqjxnwinkypgwpmwnccegehxadiepydmuxfacntbrgrnlbudxrvnvxdivifpzzwbzgvucmdvojvqpmdtpdemtwgfqinxrjpuzrgzytkpdayxvlwibruojydhqiiwhneeignrutbrtqeniipwjipgpltphkftyfxsworebqkqweuyzgktppkdeewihcurwbsfvdhsgqsvjnkayajthcxhivukitxqmadklediyevsblccxdjkhiqblacemlxuwhdvkiaqkdlzzuxetimcvstxqpsnrmjhujrebtqdfhgnirairiqipemwdxlcurlrrzx", "qvsatjovee"], "expected": "jotkrqfaeivhsedfynxtbzdrv"},
+    {"args": ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab", "ab"], "expected": "ab"}
+  ],
+  "compare": "exact",
+  "referenceSolution": "from collections import Counter\n\n\ndef min_window(s: str, t: str) -> str:\n    need = Counter(t)\n    missing = len(t)\n    best = \"\"\n    left = 0\n    for right, ch in enumerate(s):\n        if need[ch] > 0:\n            missing -= 1\n        need[ch] -= 1\n        while missing == 0:\n            if not best or right - left + 1 < len(best):\n                best = s[left:right + 1]\n            need[s[left]] += 1\n            if need[s[left]] > 0:\n                missing += 1\n            left += 1\n    return best\n",
+  "targetComplexity": {"time": "O(n + m)", "space": "O(m) or O(alphabet size)"},
+  "hints": [
+    "What does it mean for a window to be valid, and how could you track that without recounting the whole window each time?",
+    "Checking every substring is far too slow. If a window already covers t, what is the only way to make it better, and if it does not, what must you do?",
+    "Expand the right edge until the window is valid, then shrink the left edge as far as it stays valid. Why is the shrinking step the one that finds shorter answers?",
+    "How do you handle repeated letters in t such as \"aab\", and letters in s that t does not need at all?",
+    "A sliding window with a need-count per letter and a single 'still missing' counter that tells you in O(1) whether the window is valid."
+  ],
+  "followUps": [
+    "What are the time and space complexity in terms of the lengths of s and t?",
+    "How do you check that the window is valid in O(1) per step instead of comparing two count maps?",
+    "What does your code return when t has a letter that s doesn't contain, and does it stay fast on that input?",
+    "How would you return all of the shortest windows when there are ties?"
+  ],
+  "idealAnswerPoints": [
+    "Counts what t needs and tracks a single 'missing' total so validity is an O(1) check",
+    "Expands the right edge until valid, then shrinks the left edge while the window stays valid, recording the best",
+    "Handles repeated letters in t by counting multiplicity, not just presence",
+    "States O(n + m) time and O(alphabet) space and names the O(n^2) substring check as the baseline"
+  ],
+  "weakAnswerSigns": [
+    "Tests every substring against t, giving O(n^2) or worse",
+    "Checks only that each letter of t appears at least once, ignoring duplicates in t",
+    "Compares two full count dictionaries on every step, turning the sliding window back into a quadratic scan"
+  ],
+  "rubric": {
+    "correctness": "Correct for duplicate letters in t, missing letters, a window equal to the whole string, single characters, case sensitivity and a window at either end.",
+    "efficiency": "O(n + m) time with a sliding window; any approach that rechecks the window from scratch each step is too slow.",
+    "code_quality": "Counts, a missing counter and two pointers with clear names; the shrink loop is a single while.",
+    "communication": "Explains the expand-then-shrink structure and why each character enters and leaves the window at most once."
+  }
+}

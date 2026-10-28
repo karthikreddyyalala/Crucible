@@ -1,0 +1,68 @@
+{
+  "id": "code-serialize-deserialize-binary-tree",
+  "title": "Serialize and Deserialize Binary Tree",
+  "difficulty": "hard",
+  "topics": ["tree", "design", "depth-first search", "breadth-first search"],
+  "asked": "very_common",
+  "statement": "Serializing turns a data structure into a string so it can be saved to a file or sent over a network, and deserializing rebuilds the structure from that string.\n\nImplement the `Codec` class for binary trees:\n- `serialize(root)` takes the root of a binary tree (a `TreeNode` with `val`, `left` and `right`, or `None` for an empty tree) and returns a string.\n- `deserialize(data)` takes a string produced by your `serialize` and returns the root of a tree with exactly the same shape and values.\n\nThe string format is yours to choose. Each test serializes a tree with one `Codec` object and deserializes the string with a separate one, so the string has to carry everything. In the examples, trees are written in level order with `null` for a missing child; you don't have to use that format.\n\nConstraints: 0 to 10^4 nodes; -1000 <= val <= 1000.",
+  "kind": "roundtrip",
+  "functionName": "Codec",
+  "signature": "class Codec:\n    def serialize(self, root: Optional[TreeNode]) -> str:\n    def deserialize(self, data: str) -> Optional[TreeNode]:",
+  "starterCode": "class Codec:\n    def serialize(self, root: Optional[TreeNode]) -> str:\n        \"\"\"Encode a tree to a single string.\"\"\"\n        pass\n\n    def deserialize(self, data: str) -> Optional[TreeNode]:\n        \"\"\"Decode your string back into the same tree.\"\"\"\n        pass\n",
+  "examples": [
+    {"input": "root = [1, 2, 3, null, null, 4, 5]", "output": "[1, 2, 3, null, null, 4, 5]", "explanation": "deserialize(serialize(root)) must rebuild the same tree: node 2 has no children and node 3 has children 4 and 5."},
+    {"input": "root = []", "output": "[]", "explanation": "An empty tree has to survive the round trip too."},
+    {"input": "root = [1]", "output": "[1]", "explanation": "A single node with no children."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args": [[1, 2, 3, null, null, 4, 5]], "expected": [1, 2, 3, null, null, 4, 5]},
+    {"args": [[]], "expected": []},
+    {"args": [[1]], "expected": [1]},
+    {"args": [[1, null, 2, null, 3, null, 4]], "expected": [1, null, 2, null, 3, null, 4]},
+    {"args": [[1, 2, null, 3, null, 4]], "expected": [1, 2, null, 3, null, 4]},
+    {"args": [[-1, -2, -3]], "expected": [-1, -2, -3]},
+    {"args": [[1000, -1000, 0]], "expected": [1000, -1000, 0]},
+    {"args": [[5, 5, 5, 5, null, null, 5]], "expected": [5, 5, 5, 5, null, null, 5]},
+    {"args": [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]], "expected": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]},
+    {"args": [[0, 0, 0]], "expected": [0, 0, 0]},
+    {"args": [[3, 9, 20, null, null, 15, 7]], "expected": [3, 9, 20, null, null, 15, 7]},
+    {"args": [[1, null, 2, 3]], "expected": [1, null, 2, 3]},
+    {"args": [[1, null, 2, null, 3, null, 4, null, 5, null, 6, null, 7, null, 8, null, 9, null, 10, null, 11, null, 12, null, 13, null, 14, null, 15, null, 16, null, 17, null, 18, null, 19, null, 20, null, 21, null, 22, null, 23, null, 24, null, 25, null, 26, null, 27, null, 28, null, 29, null, 30]], "expected": [1, null, 2, null, 3, null, 4, null, 5, null, 6, null, 7, null, 8, null, 9, null, 10, null, 11, null, 12, null, 13, null, 14, null, 15, null, 16, null, 17, null, 18, null, 19, null, 20, null, 21, null, 22, null, 23, null, 24, null, 25, null, 26, null, 27, null, 28, null, 29, null, 30]}
+  ],
+  "compare": "exact",
+  "adapters": {"input": "tree"},
+  "referenceSolution": "class Codec:\n    def serialize(self, root: Optional[TreeNode]) -> str:\n        out = []\n\n        def walk(node):\n            if node is None:\n                out.append(\"#\")\n                return\n            out.append(str(node.val))\n            walk(node.left)\n            walk(node.right)\n\n        walk(root)\n        return \",\".join(out)\n\n    def deserialize(self, data: str) -> Optional[TreeNode]:\n        tokens = iter(data.split(\",\"))\n\n        def build():\n            token = next(tokens)\n            if token == \"#\":\n                return None\n            node = TreeNode(int(token))\n            node.left = build()\n            node.right = build()\n            return node\n\n        return build()\n",
+  "targetComplexity": {"time": "O(n)", "space": "O(n)"},
+  "hints": [
+    "A preorder list of values alone can't tell [1, 2] apart from [1, null, 2]. What extra information is missing?",
+    "What if the string also recorded every missing child with a marker?",
+    "With null markers included, a preorder walk is enough to rebuild the tree. In what order would you consume the tokens?",
+    "Make sure values are separated so that 12 and 1, 2 can't be confused, and that negative numbers survive.",
+    "Serialize with preorder DFS writing '#' for None and commas between tokens; deserialize by reading tokens in the same preorder with a recursive build."
+  ],
+  "followUps": [
+    "What are the time and space complexity of both directions, and how deep can the recursion go?",
+    "How would you avoid hitting Python's recursion limit on a tree that is one long chain?",
+    "How would your format change if the tree were a binary search tree, and can you drop the null markers then?",
+    "How would you make the string shorter if most trees you store are nearly complete?"
+  ],
+  "idealAnswerPoints": [
+    "Explains why values alone are ambiguous and records missing children with a marker",
+    "Uses one traversal order for both directions, preorder DFS or level-order BFS",
+    "Separates tokens so multi-digit and negative values round-trip safely",
+    "States O(n) time and space, and names the recursion-depth risk on skewed trees"
+  ],
+  "weakAnswerSigns": [
+    "Serializes values without null markers and can't rebuild the shape",
+    "Concatenates digits with no separator, so 12 and 1, 2 collide",
+    "Uses one traversal to write and a different one to read",
+    "Keeps the tree on the Codec object instead of in the string"
+  ],
+  "rubric": {
+    "correctness": "Round-trips empty, single-node, skewed, complete and duplicate-valued trees, including negative and multi-digit values.",
+    "efficiency": "O(n) time and space in both directions; no repeated string slicing that turns it quadratic.",
+    "code_quality": "Matching serialize and deserialize traversals, a clear token format, small helper functions.",
+    "communication": "Chooses and justifies a format before coding, and walks through rebuilding a small tree from its string."
+  }
+}

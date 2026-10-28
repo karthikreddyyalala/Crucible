@@ -1,0 +1,66 @@
+{
+  "id": "code-climbing-stairs",
+  "title": "Climbing Stairs",
+  "difficulty": "easy",
+  "topics": ["dynamic programming", "math"],
+  "asked": "very_common",
+  "statement": "A staircase has `n` steps and you start at the bottom. On every move you climb either 1 step or 2 steps. Count the different sequences of moves that take you exactly to step `n`.\n\nTwo sequences are different if their moves differ anywhere, so climbing 1 then 2 and climbing 2 then 1 count as two separate ways.\n\nConstraints: 1 <= n <= 45 (the answer fits in a 32-bit signed integer).",
+  "functionName": "climb_stairs",
+  "signature": "def climb_stairs(n: int) -> int:",
+  "starterCode": "def climb_stairs(n: int) -> int:\n    \"\"\"Return the number of distinct 1-or-2-step sequences that reach step n exactly.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "n = 2", "output": "2", "explanation": "Either two single steps (1+1) or one double step (2)."},
+    {"input": "n = 3", "output": "3", "explanation": "1+1+1, 1+2 and 2+1."},
+    {"input": "n = 5", "output": "8", "explanation": "Eight different orderings of 1s and 2s add up to 5."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args":[2],"expected":2},
+    {"args":[3],"expected":3},
+    {"args":[5],"expected":8},
+    {"args":[1],"expected":1},
+    {"args":[4],"expected":5},
+    {"args":[6],"expected":13},
+    {"args":[10],"expected":89},
+    {"args":[20],"expected":10946},
+    {"args":[30],"expected":1346269},
+    {"args":[38],"expected":63245986},
+    {"args":[44],"expected":1134903170},
+    {"args":[45],"expected":1836311903}
+  ],
+  "compare": "exact",
+  "referenceSolution": "def climb_stairs(n: int) -> int:\n    prev, cur = 1, 1\n    for _ in range(n - 1):\n        prev, cur = cur, prev + cur\n    return cur\n",
+  "targetComplexity": {"time": "O(n)", "space": "O(1)"},
+  "hints": [
+    "Count the ways by hand for n = 1, 2, 3 and 4. Does each answer relate to the ones before it?",
+    "Focus on the very last move onto step n. Which steps could it have started from?",
+    "So the count for step n is built from the counts for two smaller steps. If you code that as plain recursion, how many times is the same smaller step recomputed?",
+    "Try n = 45 with plain recursion and think about how the number of calls grows.",
+    "Each answer only needs the previous two, so build up from the bottom and keep just two running values."
+  ],
+  "followUps": [
+    "What are the time and space complexity of your solution, and could you use less space than a full table?",
+    "Why does the plain recursive version become unusable around n = 40, and what exactly does memoisation change?",
+    "What if you could also climb 3 steps at a time? How does the recurrence and your code change?",
+    "Some steps are broken and cannot be landed on. How would you count the sequences now?",
+    "How would you compute the answer for n = 10^9 modulo 10^9 + 7?"
+  ],
+  "idealAnswerPoints": [
+    "Sees that ways(n) = ways(n-1) + ways(n-2) because the last move was either a 1-step or a 2-step",
+    "Gets the base cases right (ways(1) = 1 and ways(2) = 2, or ways(0) = 1)",
+    "Notes plain recursion is exponential and fixes it with memoisation or a bottom-up loop",
+    "Keeps only the last two values for O(1) space",
+    "Recognises the sequence as Fibonacci numbers"
+  ],
+  "weakAnswerSigns": [
+    "Writes plain recursion with no memoisation and does not notice the exponential blow-up",
+    "Off-by-one base cases, such as ways(2) = 1 or ways(0) = 0",
+    "Counts combinations of step sizes instead of orderings, treating 1+2 and 2+1 as the same"
+  ],
+  "rubric": {
+    "correctness": "Correct counts for n = 1, 2 and every larger n up to 45, with 1+2 and 2+1 counted separately.",
+    "efficiency": "Linear time. Exponential recursion fails the large inputs; O(n) space is acceptable and O(1) is the target.",
+    "code_quality": "States the recurrence plainly, handles n = 1 without clutter, and avoids deep recursion.",
+    "communication": "Explains the recurrence and base cases before coding and checks them against n = 3 or 4."
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "id": "code-rotate-image",
+  "title": "Rotate Image",
+  "difficulty": "medium",
+  "topics": ["array", "matrix"],
+  "asked": "very_common",
+  "statement": "You're given an n x n grid of integers, `matrix`, that represents an image. Rotate the image 90 degrees clockwise.\n\nDo it in place: change `matrix` itself rather than building a second grid and returning it. Your function returns nothing; after it runs, `matrix` should hold the rotated image.\n\nConstraints: 1 <= n <= 20; -1000 <= matrix[i][j] <= 1000.",
+  "kind": "function",
+  "functionName": "rotate",
+  "signature": "def rotate(matrix: list[list[int]]) -> None:",
+  "starterCode": "def rotate(matrix: list[list[int]]) -> None:\n    \"\"\"Rotate matrix 90 degrees clockwise, in place. Return nothing.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]", "output": "[[7, 4, 1], [8, 5, 2], [9, 6, 3]]", "explanation": "The left column, read bottom to top, becomes the top row."},
+    {"input": "matrix = [[1, 2], [3, 4]]", "output": "[[3, 1], [4, 2]]", "explanation": "The output shows matrix after your function has run."},
+    {"input": "matrix = [[5]]", "output": "[[5]]", "explanation": "A 1 x 1 image looks the same after rotating."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args": [[[1, 2, 3], [4, 5, 6], [7, 8, 9]]], "expected": [[7, 4, 1], [8, 5, 2], [9, 6, 3]]},
+    {"args": [[[1, 2], [3, 4]]], "expected": [[3, 1], [4, 2]]},
+    {"args": [[[5]]], "expected": [[5]]},
+    {"args": [[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16]]], "expected": [[13, 9, 5, 1], [14, 10, 6, 2], [15, 11, 7, 3], [16, 12, 8, 4]]},
+    {"args": [[[-1, -2], [-3, -4]]], "expected": [[-3, -1], [-4, -2]]},
+    {"args": [[[1, 1], [2, 2]]], "expected": [[2, 1], [2, 1]]},
+    {"args": [[[0, 1], [1, 0]]], "expected": [[1, 0], [0, 1]]},
+    {"args": [[[0, -1, 2], [3, 0, -4], [-5, 6, 0]]], "expected": [[-5, 3, 0], [6, 0, -1], [0, -4, 2]]},
+    {"args": [[[1000, -1000], [-1000, 1000]]], "expected": [[-1000, 1000], [1000, -1000]]},
+    {"args": [[[7, 7, 7], [7, 7, 7], [7, 7, 7]]], "expected": [[7, 7, 7], [7, 7, 7], [7, 7, 7]]},
+    {"args": [[[1, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12, 13, 14, 15], [16, 17, 18, 19, 20], [21, 22, 23, 24, 25]]], "expected": [[21, 16, 11, 6, 1], [22, 17, 12, 7, 2], [23, 18, 13, 8, 3], [24, 19, 14, 9, 4], [25, 20, 15, 10, 5]]},
+    {"args": [[[0, -1, 2, -3, 4, -5], [6, -7, 8, -9, 10, -11], [12, -13, 14, -15, 16, -17], [18, -19, 20, -21, 22, -23], [24, -25, 26, -27, 28, -29], [30, -31, 32, -33, 34, -35]]], "expected": [[30, 24, 18, 12, 6, 0], [-31, -25, -19, -13, -7, -1], [32, 26, 20, 14, 8, 2], [-33, -27, -21, -15, -9, -3], [34, 28, 22, 16, 10, 4], [-35, -29, -23, -17, -11, -5]]}
+  ],
+  "compare": "exact",
+  "checkArg": 0,
+  "referenceSolution": "def rotate(matrix: list[list[int]]) -> None:\n    n = len(matrix)\n    for i in range(n):\n        for j in range(i + 1, n):\n            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]\n    for row in matrix:\n        row.reverse()\n",
+  "targetComplexity": {"time": "O(n^2)", "space": "O(1)"},
+  "hints": [
+    "Pick one cell, say row 0 column 1 in a 3 x 3 grid. Where does it end up after a clockwise turn?",
+    "Writing the rotated values into a new grid is easy. What stops you from simply overwriting cells in place?",
+    "Can you get the same result from two simpler moves that each swap values in place?",
+    "Try flipping the grid across its main diagonal and look at what's left to do. Watch out for swapping each pair twice.",
+    "Transpose (swap matrix[i][j] with matrix[j][i] for j > i), then reverse every row."
+  ],
+  "followUps": [
+    "What are the time and space complexity, and why can't the time be better than O(n^2)?",
+    "How would you rotate counter-clockwise instead, using the same building blocks?",
+    "Can you do it in one pass by moving four cells at a time in a cycle, and what are the loop bounds?",
+    "What changes if the grid is m x n rather than square, and can it still be done in place?"
+  ],
+  "idealAnswerPoints": [
+    "Works out where cell (i, j) lands: it moves to (j, n - 1 - i)",
+    "Rotates in place, either transpose then reverse each row, or four-way swaps layer by layer",
+    "Only swaps above the diagonal when transposing so pairs aren't swapped back",
+    "States O(n^2) time and O(1) extra space"
+  ],
+  "weakAnswerSigns": [
+    "Builds a new grid and returns it, leaving matrix unchanged",
+    "Rebinds the local name with matrix = ..., which the caller never sees",
+    "Transposes the whole grid and swaps every pair twice",
+    "Mixes up clockwise and counter-clockwise and can't check it on a 2 x 2 example"
+  ],
+  "rubric": {
+    "correctness": "matrix holds the clockwise rotation after the call for every size from 1 x 1 up, including negatives and repeated values.",
+    "efficiency": "O(n^2) time and O(1) extra space; an extra grid counts against efficiency unless the candidate names it.",
+    "code_quality": "Two clear in-place steps or a well-bounded four-way swap, no off-by-one in the loop limits.",
+    "communication": "Derives the index mapping before coding and checks it on a small grid."
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "id": "code-two-sum",
+  "title": "Two Sum",
+  "difficulty": "easy",
+  "topics": ["array", "hash map"],
+  "asked": "very_common",
+  "statement": "You're given a list of integers `nums` and an integer `target`. Find two different positions in the list whose values add up to `target`, and return those two indices as a list, in either order.\n\nEvery input has at least one such pair. You can't use the same position twice, although two different positions may hold the same value. If several pairs work, any one of them is accepted.\n\nConstraints: 2 <= len(nums) <= 10^4; values and target fit in a 32-bit signed integer.",
+  "functionName": "two_sum",
+  "signature": "def two_sum(nums: list[int], target: int) -> list[int]:",
+  "starterCode": "def two_sum(nums: list[int], target: int) -> list[int]:\n    \"\"\"Return the indices of two different elements of nums that add up to target.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "nums = [3, 8, 11, 5], target = 13", "output": "[1, 3]", "explanation": "nums[1] + nums[3] = 8 + 5 = 13."},
+    {"input": "nums = [4, 4, 9], target = 8", "output": "[0, 1]", "explanation": "The two 4s sit at different positions, so using both is allowed."},
+    {"input": "nums = [-6, 2, 10, 7], target = 4", "output": "[0, 2]", "explanation": "-6 + 10 = 4. Negative numbers work the same way."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args": [[3, 8, 11, 5], 13], "expected": [1, 3]},
+    {"args": [[4, 4, 9], 8], "expected": [0, 1]},
+    {"args": [[-6, 2, 10, 7], 4], "expected": [0, 2]},
+    {"args": [[1, 2], 3], "expected": [0, 1]},
+    {"args": [[3, 3], 6], "expected": [0, 1]},
+    {"args": [[0, 5, 0], 0], "expected": [0, 2]},
+    {"args": [[-3, -8, -1, -20], -21], "expected": [2, 3]},
+    {"args": [[-1, 1, 0], 0], "expected": [0, 1]},
+    {"args": [[5, 75, 25], 100], "expected": [1, 2]},
+    {"args": [[2, 7, 7, 2, 9], 11], "expected": [0, 4]},
+    {"args": [[10, 2, 3, 4, 20], 30], "expected": [0, 4]},
+    {"args": [[1000000000, -999999999, 3], 1], "expected": [0, 1]},
+    {"args": [[0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60, 63, 66, 69, 72, 75, 78, 81, 84, 87, 90, 93, 96, 99, 102, 105, 108, 111, 114, 117, 120, 123, 126, 129, 132, 135, 138, 141, 144, 147, 150, 153, 156, 159, 162, 165, 168, 171, 174, 177, 180, 183, 186, 189, 192, 195, 198, 201, 204, 207, 210, 213, 216, 219, 222, 225, 228, 231, 234, 237, 240, 243, 246, 249, 252, 255, 258, 261, 264, 267, 270, 273, 276, 279, 282, 285, 288, 291, 294, 297], 591], "expected": [98, 99]}
+  ],
+  "compare": "custom",
+  "validator": "two_sum_pair",
+  "referenceSolution": "def two_sum(nums: list[int], target: int) -> list[int]:\n    seen = {}\n    for i, value in enumerate(nums):\n        if target - value in seen:\n            return [seen[target - value], i]\n        seen[value] = i\n    return []\n",
+  "targetComplexity": {"time": "O(n)", "space": "O(n)"},
+  "hints": [
+    "Before optimising, what does checking every pair cost, and which part of that work repeats?",
+    "For each number you already know exactly which value would complete the pair. How could you check whether you've seen that value in constant time?",
+    "Try a single pass that remembers each value's index as you go.",
+    "Walk through [4, 4] with target 8. Do you look for the complement before or after storing the current number?",
+    "A hash map from value to index, checked before inserting the current element, gives O(n) time."
+  ],
+  "followUps": [
+    "What are the time and space complexity of your solution, and where does the extra space go?",
+    "If the list were already sorted, how would you change the approach, and could you drop the extra memory?",
+    "What does your code do when the same value appears twice, for example [4, 4] with target 8?",
+    "How would you return every distinct pair of values that adds up to the target instead of just one?"
+  ],
+  "idealAnswerPoints": [
+    "Names the O(n^2) pair check first and why it is too slow for large inputs",
+    "Uses a hash map from value to index in a single pass",
+    "Looks up the complement before inserting the current element, so one position is never used twice",
+    "States O(n) time and O(n) space and mentions the sorted two-pointer alternative"
+  ],
+  "weakAnswerSigns": [
+    "Starts coding without stating an approach or its complexity",
+    "Returns the values instead of their indices",
+    "Pairs an element with itself when the complement equals the value",
+    "Sorts the list and loses the original indices"
+  ],
+  "rubric": {
+    "correctness": "Returns two distinct indices whose values sum to the target on every test, including duplicates, zeros and negatives.",
+    "efficiency": "O(n) time with a hash map. O(n^2) only counts if the candidate names it and explains the trade-off.",
+    "code_quality": "Clear names, a single pass, no needless sorting or dead code.",
+    "communication": "Explains the approach and its complexity before coding and traces one example out loud."
+  }
+}

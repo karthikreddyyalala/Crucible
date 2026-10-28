@@ -18,13 +18,38 @@ import { TypeChip, DifficultyMeter, WeightedTag } from "@/components/QuestionMet
 import { InterviewerAvatar, type AvatarState } from "@/components/InterviewerAvatar";
 import { TavusAvatar } from "@/components/TavusAvatar";
 import { TavusCallOverlay } from "@/components/TavusCallOverlay";
+import { ChatTranscript } from "@/components/ChatTranscript";
+import { CodingBrief, CodingWorkspace } from "@/components/coding/CodingWorkspace";
+import { StageIndicator } from "@/components/coding/StageIndicator";
+import { ElapsedTime } from "@/components/coding/ElapsedTime";
 import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
 import { useTavus } from "@/hooks/useTavus";
+import { usePythonRunner } from "@/hooks/usePythonRunner";
 import { useSessionStore } from "@/stores/sessionStore";
 import { USE_MOCK } from "@/lib/api";
 import { silenceBeforeSendMs } from "@/lib/turnTaking";
+
+const WIDE = "(min-width: 1024px)";
+// The server's limit on one answer; the counter appears as the draft gets close.
+const ANSWER_LIMIT = 6000;
+const COUNT_FROM = 5000;
+const thousands = (n: number) => n.toLocaleString("en-US");
+
+// The coding editor needs ≥ 1024 px; below that the round is talk-only.
+function useWideScreen(): boolean {
+  const [wide, setWide] = useState(() => typeof window !== "undefined" && !!window.matchMedia?.(WIDE).matches);
+  useEffect(() => {
+    const mq = window.matchMedia?.(WIDE);
+    if (!mq) return;
+    const update = () => setWide(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return wide;
+}
 
 export function Interview() {
   const navigate = useNavigate();
@@ -43,11 +68,17 @@ export function Interview() {
   const clearTurnError = useSessionStore((s) => s.clearTurnError);
   const retryFinalize = useSessionStore((s) => s.retryFinalize);
   const finalizing = useSessionStore((s) => s.finalizing);
+  const codingStage = useSessionStore((s) => s.codingStage);
+  const eventInFlight = useSessionStore((s) => s.eventInFlight);
 
   const [draft, setDraft] = useState("");
   const [lastDraft, setLastDraft] = useState("");
-  const [slowThinking, setSlowThinking] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const wide = useWideScreen();
+  // A coding question below 1024 px has no editor: the store tells Marcus to talk it through.
+  const setEditorShown = useSessionStore((s) => s.setEditorShown);
+  useEffect(() => setEditorShown(wide), [wide, setEditorShown]);
+  // Lives here so Python stays loaded from one coding problem to the next.
+  const runner = usePythonRunner();
 
   // Voice: ElevenLabs (human-sounding, via the backend) with the browser's
   // built-in voice as the fallback when it isn't configured or a call fails.
@@ -159,21 +190,10 @@ export function Interview() {
     return () => clearTimeout(t);
   }, [justRestored, clearRestored]);
 
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, status]);
-
   // Restore the draft when a turn fails so the user can retry without retyping.
   useEffect(() => {
     if (turnError && lastDraft) setDraft(lastDraft);
   }, [turnError]);
-
-  // Flag a slow request after 6 seconds so we can show a reassurance message.
-  useEffect(() => {
-    if (status !== "thinking") { setSlowThinking(false); return; }
-    const t = setTimeout(() => setSlowThinking(true), 6000);
-    return () => clearTimeout(t);
-  }, [status]);
 
   // Drop out of the full-screen call if voice/video goes away or the session ends.
   useEffect(() => {
@@ -186,12 +206,16 @@ export function Interview() {
 
   const question = plan.questions[currentIdx];
   const inQuestions = phase === "question";
+  const codingQ = inQuestions && question?.type === "coding" ? question : null;
+  const workspace = codingQ !== null && wide;
   const stageLabel =
     phase === "warmup" || phase === "background" ? "INTRODUCTIONS"
     : phase === "closing" ? "YOUR QUESTIONS FOR THE INTERVIEWER"
     : null;
   const thinking = status === "thinking";
-  const locked = thinking || status === "wrapping" || status === "complete";
+  // Marcus handling a check-in or Submit isn't a reply to the candidate: they can keep
+  // typing, and what they send goes out right after it.
+  const locked = (thinking && !eventInFlight) || status === "wrapping" || status === "complete";
   const total = plan.questions.length;
   const progressPct =
     phase === "closing" ? 100 : inQuestions ? (currentIdx / total) * 100 : 0;
@@ -228,103 +252,147 @@ export function Interview() {
 
   const send = () => sendText(draft);
 
-  function sendText(raw: string) {
-    if (!raw.trim() || locked) return;
+  async function sendText(raw: string) {
+    if (!raw.trim() || locked || raw.length > ANSWER_LIMIT) return;
     if (stt.listening) stt.stop();
     const text = raw.trim();
     setLastDraft(text);
     clearTurnError();
-    submitAnswer(text);
+    // Cleared now so the line reads as sent (it's already in the transcript); submitAnswer
+    // only resolves after Marcus replies. false = it wasn't sent: hand the draft back.
     setDraft("");
+    if (!(await submitAnswer(text))) setDraft((d) => d || text);
   }
 
-  return (
-    <div className="flex h-[100dvh] flex-col">
-      <TopBar
-        right={
-          <div className="flex items-center gap-2 sm:gap-4">
-            {voiceCapable && (
-              <button
-                onClick={toggleVoice}
-                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-[0.14em] tactile transition-colors disabled:opacity-50 ${
-                  voiceOn
-                    ? "border-accent/50 bg-accent/10 text-accent"
-                    : "border-line-bright text-fog hover:text-chalk"
-                }`}
-                title={voiceOn ? "Turn voice off" : "Turn voice on"}
-              >
-                {voiceOn ? <SpeakerHigh size={13} weight="fill" /> : <SpeakerSlash size={13} />}
-                VOICE
-              </button>
-            )}
-            {USE_MOCK && (
-              <span
-                className="hidden rounded-full border border-warning/40 px-2.5 py-1 font-mono text-[10px] tracking-[0.14em] text-warning sm:inline"
-                title="No backend connected — replies are scripted, not generated. Set VITE_USE_MOCK=false to use the real interviewer."
-              >
-                DEMO MODE
-              </span>
-            )}
-            <span className="whitespace-nowrap font-mono text-[11px] tracking-wide text-fog">
-              {inQuestions ? `Q${currentIdx + 1} / ${total}` : phase === "closing" ? "WRAP-UP" : "INTRO"}
-            </span>
-            <div className="hidden h-1.5 w-28 overflow-hidden rounded-full bg-surface-2 sm:block">
-              <motion.div
-                className="h-full rounded-full bg-accent"
-                animate={{ width: `${progressPct}%` }}
-                transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.6 }}
-              />
-            </div>
-          </div>
-        }
-      />
+  const voiceStatus = tts.speaking
+    ? "INTERVIEWER SPEAKING…"
+    : stt.listening
+    ? "LISTENING — JUST PAUSE WHEN YOU'RE DONE"
+    : "VOICE ON";
 
-      {/* current question header */}
-      <div className="border-b border-line bg-ink/50">
-        <div className="mx-auto flex max-w-[820px] items-center gap-4 px-5 py-5 sm:px-8">
-          {voiceOn &&
-            (tavus.ready ? (
-              <button
-                onClick={() => setCallOpen(true)}
-                className="group relative shrink-0 rounded-2xl"
-                title="Expand to full-screen call"
+  const tooLong = draft.length > ANSWER_LIMIT;
+  const counting = draft.length > COUNT_FROM;
+
+  const renderComposer = (compact: boolean) => (
+    <div className="border-t border-line bg-void/80 backdrop-blur-xl">
+      <div className={compact ? "px-4 py-3" : "mx-auto max-w-[820px] px-5 py-4 sm:px-8"}>
+        <div className="relative flex items-end gap-3 overflow-hidden rounded-2xl border border-line bg-ink p-2.5 focus-within:border-line-bright">
+          {/* Hands-free: fills during the pause before the answer sends;
+              speaking again restarts it (keyed on the transcript). */}
+          {autoSending && (
+            <motion.span
+              key={stt.transcript}
+              aria-hidden
+              className="absolute inset-x-0 bottom-0 h-[2px] origin-left bg-survive/70"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: sendDelayMs / 1000, ease: "linear" }}
+            />
+          )}
+          {stt.supported && (
+            <button
+              onClick={toggleMic}
+              disabled={locked}
+              className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl tactile transition-colors disabled:opacity-30 ${
+                stt.listening
+                  ? "bg-survive/15 text-survive"
+                  : "border border-line-bright text-fog hover:text-chalk"
+              }`}
+              aria-label={stt.listening ? "Stop dictation" : "Speak your answer"}
+              title={stt.listening ? "Stop dictation" : "Speak your answer"}
+            >
+              {stt.listening ? (
+                <motion.span
+                  animate={{ scale: [1, 0.8, 1] }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <Waveform size={18} weight="fill" />
+                </motion.span>
+              ) : (
+                <Microphone size={18} weight="bold" />
+              )}
+            </button>
+          )}
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) send();
+            }}
+            disabled={locked}
+            rows={2}
+            aria-label="Your answer"
+            aria-invalid={tooLong || undefined}
+            aria-describedby={counting ? "answer-length" : undefined}
+            placeholder={
+              stt.listening
+                ? "Listening…"
+                : thinking && eventInFlight
+                ? "Marcus is looking at your run — you can keep typing."
+                : thinking
+                ? "Interviewer is thinking…"
+                : status === "wrapping" && turnError
+                ? "Couldn't pull your results — tap retry above."
+                : status === "wrapping" || status === "complete"
+                ? "Session complete — pulling your results…"
+                : compact
+                ? "Talk through your thinking, or ask Marcus a question."
+                : "Type or speak your answer — be specific."
+            }
+            className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent px-2.5 py-2 font-sans text-[15px] leading-relaxed text-chalk placeholder:text-fog focus:outline-none disabled:opacity-50"
+          />
+          <button
+            onClick={send}
+            disabled={!draft.trim() || locked || tooLong}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent text-void tactile transition-opacity disabled:opacity-30"
+            aria-label="Send answer"
+          >
+            {thinking ? <PaperPlaneTilt size={18} weight="fill" /> : <ArrowUp size={18} weight="bold" />}
+          </button>
+        </div>
+        <div className="mt-2 flex items-center gap-3 px-1">
+          {tooLong ? (
+            <p role="status" className="font-sans text-[12px] text-fail">
+              Keep each answer under {thousands(ANSWER_LIMIT)} characters.
+            </p>
+          ) : (
+            <p className="hidden font-mono text-[10px] tracking-wide text-fog sm:block">
+              {voiceOn && stt.supported
+                ? compact ? "HANDS-FREE · PAUSE TO SEND" : "HANDS-FREE · HE LISTENS AFTER SPEAKING · PAUSE TO SEND"
+                : compact
+                ? "⌘/CTRL + ENTER TO SEND"
+                : `${stt.supported ? "MIC TO SPEAK · " : ""}⌘/CTRL + ENTER TO SEND · VAGUE ANSWERS WILL GET PROBED`}
+            </p>
+          )}
+          <div className="ml-auto flex shrink-0 items-center gap-3">
+            {counting && (
+              <span
+                id="answer-length"
+                className={`font-mono text-[10px] tabular-nums tracking-wide ${tooLong ? "text-fail" : "text-mist"}`}
               >
-                <TavusAvatar track={tavus.videoTrack} speaking={tavus.speaking} size={72} />
-                <span className="absolute inset-0 grid place-items-center rounded-2xl bg-void/50 opacity-0 transition-opacity group-hover:opacity-100">
-                  <ArrowsOut size={20} weight="bold" className="text-white-pure" />
-                </span>
+                {thousands(draft.length)} / {thousands(ANSWER_LIMIT)}
+              </span>
+            )}
+            {phase === "closing" && status === "live" && (
+              <button
+                onClick={() => {
+                  if (stt.listening) stt.stop();
+                  tts.cancel();
+                  void endInterview();
+                }}
+                className="shrink-0 font-mono text-[10px] tracking-[0.14em] text-fog underline-offset-4 transition-colors hover:text-chalk hover:underline"
+              >
+                NO QUESTIONS — END INTERVIEW
               </button>
-            ) : (
-              <InterviewerAvatar state={avatarState} size={72} />
-            ))}
-          <div className="flex flex-1 flex-wrap items-center gap-3">
-            {stageLabel ? (
-              <span className="font-mono text-[11px] tracking-[0.16em] text-mist">{stageLabel}</span>
-            ) : (
-              <>
-                <TypeChip type={question.type} />
-                <DifficultyMeter value={question.targetDifficulty} />
-                {question.weightedFromWeakness && <WeightedTag />}
-              </>
-            )}
-            {inQuestions && followUpCount > 0 && (
-              <span className="font-mono text-[10px] tracking-[0.16em] text-accent">
-                FOLLOW-UP {followUpCount}
-              </span>
-            )}
-            {voiceOn && (
-              <span className="w-full font-mono text-[10px] tracking-[0.14em] text-fog">
-                {tts.speaking
-                  ? "INTERVIEWER SPEAKING…"
-                  : stt.listening
-                  ? "LISTENING — JUST PAUSE WHEN YOU'RE DONE"
-                  : "VOICE ON"}
-              </span>
             )}
           </div>
         </div>
       </div>
+    </div>
+  );
 
+  const banners = (
+    <>
       {/* resume notice */}
       <AnimatePresence>
         {justRestored && (
@@ -377,140 +445,141 @@ export function Interview() {
           </motion.div>
         )}
       </AnimatePresence>
+    </>
+  );
 
-      {/* transcript */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-[820px] space-y-5 px-5 py-8 sm:px-8">
-          <AnimatePresence initial={false}>
-            {messages.map((m) => (
-              <motion.div
-                key={m.id}
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                className={m.speaker === "candidate" ? "flex justify-end" : "flex justify-start"}
-              >
-                <div className={m.speaker === "candidate" ? "max-w-[80%]" : "max-w-[88%]"}>
-                  {m.speaker === "interviewer" && (
-                    <span
-                      className={`mb-1.5 block font-mono text-[10px] tracking-[0.16em] ${
-                        m.kind === "follow_up" ? "text-accent" : "text-fog"
-                      }`}
-                    >
-                      {m.kind === "follow_up" ? "MARCUS · FOLLOW-UP" : "MARCUS · INTERVIEWER"}
-                    </span>
-                  )}
-                  <div
-                    className={`rounded-2xl px-4 py-3 font-sans text-[15.5px] leading-relaxed ${
-                      m.speaker === "candidate"
-                        ? "bg-surface-2 text-chalk"
-                        : m.kind === "follow_up"
-                        ? "border border-accent/40 bg-accent/[0.07] text-chalk"
-                        : "bg-surface text-chalk"
-                    }`}
-                  >
-                    {m.text}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-
-          {thinking && <ThinkingBubble slow={slowThinking} />}
-        </div>
-      </div>
-
-      {/* composer */}
-      <div className="border-t border-line bg-void/80 backdrop-blur-xl">
-        <div className="mx-auto max-w-[820px] px-5 py-4 sm:px-8">
-          <div className="relative flex items-end gap-3 overflow-hidden rounded-2xl border border-line bg-ink p-2.5 focus-within:border-line-bright">
-            {/* Hands-free: fills during the pause before the answer sends;
-                speaking again restarts it (keyed on the transcript). */}
-            {autoSending && (
-              <motion.span
-                key={stt.transcript}
-                aria-hidden
-                className="absolute inset-x-0 bottom-0 h-[2px] origin-left bg-survive/70"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: sendDelayMs / 1000, ease: "linear" }}
-              />
-            )}
-            {stt.supported && (
+  return (
+    <div className="flex h-[100dvh] flex-col">
+      <TopBar
+        wide={workspace}
+        right={
+          <div className="flex items-center gap-2 sm:gap-4">
+            {voiceCapable && (
               <button
-                onClick={toggleMic}
-                disabled={locked}
-                className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl tactile transition-colors disabled:opacity-30 ${
-                  stt.listening
-                    ? "bg-survive/15 text-survive"
-                    : "border border-line-bright text-fog hover:text-chalk"
+                onClick={toggleVoice}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-[0.14em] tactile transition-colors disabled:opacity-50 ${
+                  voiceOn
+                    ? "border-accent/50 bg-accent/10 text-accent"
+                    : "border-line-bright text-fog hover:text-chalk"
                 }`}
-                aria-label={stt.listening ? "Stop dictation" : "Speak your answer"}
-                title={stt.listening ? "Stop dictation" : "Speak your answer"}
+                title={voiceOn ? "Turn voice off" : "Turn voice on"}
               >
-                {stt.listening ? (
-                  <motion.span
-                    animate={{ scale: [1, 0.8, 1] }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+                {voiceOn ? <SpeakerHigh size={13} weight="fill" /> : <SpeakerSlash size={13} />}
+                VOICE
+              </button>
+            )}
+            {USE_MOCK && (
+              <span
+                className="hidden rounded-full border border-warning/40 px-2.5 py-1 font-mono text-[10px] tracking-[0.14em] text-warning sm:inline"
+                title="No backend connected — replies are scripted, not generated. Set VITE_USE_MOCK=false to use the real interviewer."
+              >
+                DEMO MODE
+              </span>
+            )}
+            <span className="whitespace-nowrap font-mono text-[11px] tracking-wide text-fog">
+              {inQuestions ? `Q${currentIdx + 1} / ${total}` : phase === "closing" ? "WRAP-UP" : "INTRO"}
+            </span>
+            {workspace && <StageIndicator stage={codingStage} />}
+            {codingQ && <ElapsedTime key={codingQ.id} clockId={`${plan.sessionId}:${codingQ.id}`} />}
+            <div className="hidden h-1.5 w-28 overflow-hidden rounded-full bg-surface-2 sm:block">
+              <motion.div
+                className="h-full rounded-full bg-accent"
+                animate={{ width: `${progressPct}%` }}
+                transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.6 }}
+              />
+            </div>
+          </div>
+        }
+      />
+
+      {workspace ? (
+        <>
+          {banners}
+          <CodingWorkspace
+            key={codingQ.id}
+            question={codingQ}
+            runner={runner}
+            conversation={
+              <div className="flex min-h-0 flex-1 flex-col">
+                <div className="flex h-11 shrink-0 items-center gap-3 border-b border-line px-6">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-mist">Conversation</span>
+                  {followUpCount > 0 && (
+                    <span className="font-mono text-[10px] tracking-[0.16em] text-accent">FOLLOW-UP {followUpCount}</span>
+                  )}
+                  {voiceOn && (
+                    <span className="ml-auto truncate font-mono text-[10px] tracking-[0.14em] text-mist">{voiceStatus}</span>
+                  )}
+                  {voiceOn && tavus.ready && (
+                    <button
+                      onClick={() => setCallOpen(true)}
+                      className="shrink-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                      title="Expand to full-screen call"
+                      aria-label="Expand to full-screen call"
+                    >
+                      <TavusAvatar track={tavus.videoTrack} speaking={tavus.speaking} size={32} />
+                    </button>
+                  )}
+                </div>
+                <ChatTranscript messages={messages} thinking={thinking} compact live={!voiceOn} />
+                {renderComposer(true)}
+              </div>
+            }
+          />
+        </>
+      ) : (
+        <>
+          {/* current question header */}
+          <div className="border-b border-line bg-ink/50">
+            <div className="mx-auto flex max-w-[820px] items-center gap-4 px-5 py-5 sm:px-8">
+              {voiceOn &&
+                (tavus.ready ? (
+                  <button
+                    onClick={() => setCallOpen(true)}
+                    className="group relative shrink-0 rounded-2xl"
+                    title="Expand to full-screen call"
                   >
-                    <Waveform size={18} weight="fill" />
-                  </motion.span>
+                    <TavusAvatar track={tavus.videoTrack} speaking={tavus.speaking} size={72} />
+                    <span className="absolute inset-0 grid place-items-center rounded-2xl bg-void/50 opacity-0 transition-opacity group-hover:opacity-100">
+                      <ArrowsOut size={20} weight="bold" className="text-white-pure" />
+                    </span>
+                  </button>
                 ) : (
-                  <Microphone size={18} weight="bold" />
+                  <InterviewerAvatar state={avatarState} size={72} />
+                ))}
+              <div className="flex flex-1 flex-wrap items-center gap-3">
+                {stageLabel ? (
+                  <span className="font-mono text-[11px] tracking-[0.16em] text-mist">{stageLabel}</span>
+                ) : (
+                  <>
+                    <TypeChip type={question.type} />
+                    <DifficultyMeter value={question.targetDifficulty} />
+                    {question.weightedFromWeakness && <WeightedTag />}
+                  </>
                 )}
-              </button>
-            )}
-            <textarea
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) send();
-              }}
-              disabled={locked}
-              rows={2}
-              placeholder={
-                stt.listening
-                  ? "Listening…"
-                  : thinking
-                  ? "Interviewer is thinking…"
-                  : status === "wrapping" && turnError
-                  ? "Couldn't pull your results — tap retry above."
-                  : status === "wrapping" || status === "complete"
-                  ? "Session complete — pulling your results…"
-                  : "Type or speak your answer — be specific."
-              }
-              className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent px-2.5 py-2 font-sans text-[15px] leading-relaxed text-chalk placeholder:text-fog focus:outline-none disabled:opacity-50"
-            />
-            <button
-              onClick={send}
-              disabled={!draft.trim() || locked}
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent text-void tactile transition-opacity disabled:opacity-30"
-              aria-label="Send answer"
-            >
-              {thinking ? <PaperPlaneTilt size={18} weight="fill" /> : <ArrowUp size={18} weight="bold" />}
-            </button>
+                {inQuestions && followUpCount > 0 && (
+                  <span className="font-mono text-[10px] tracking-[0.16em] text-accent">
+                    FOLLOW-UP {followUpCount}
+                  </span>
+                )}
+                {voiceOn && (
+                  <span className="w-full font-mono text-[10px] tracking-[0.14em] text-fog">{voiceStatus}</span>
+                )}
+              </div>
+            </div>
           </div>
-          <div className="mt-2 flex items-center justify-end gap-3 px-1 sm:justify-between">
-            <p className="hidden font-mono text-[10px] tracking-wide text-fog sm:block">
-              {voiceOn && stt.supported
-                ? "HANDS-FREE · HE LISTENS AFTER SPEAKING · PAUSE TO SEND"
-                : `${stt.supported ? "MIC TO SPEAK · " : ""}⌘/CTRL + ENTER TO SEND · VAGUE ANSWERS WILL GET PROBED`}
-            </p>
-            {phase === "closing" && status === "live" && (
-              <button
-                onClick={() => {
-                  if (stt.listening) stt.stop();
-                  tts.cancel();
-                  void endInterview();
-                }}
-                className="shrink-0 font-mono text-[10px] tracking-[0.14em] text-fog underline-offset-4 transition-colors hover:text-chalk hover:underline"
-              >
-                NO QUESTIONS — END INTERVIEW
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+
+          {banners}
+
+          <ChatTranscript
+            messages={messages}
+            thinking={thinking}
+            live={!voiceOn}
+            inset={codingQ ? <CodingBrief question={codingQ} /> : undefined}
+            insetBefore={codingQ ? messages.find((m) => m.questionId === codingQ.id)?.id : undefined}
+          />
+          {renderComposer(false)}
+        </>
+      )}
 
       <AnimatePresence>
         {useVideo && !tavus.ready && (tavus.status === "idle" || tavus.status === "connecting") && (
@@ -555,43 +624,5 @@ export function Interview() {
         )}
       </AnimatePresence>
     </div>
-  );
-}
-
-function ThinkingBubble({ slow }: { slow: boolean }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex justify-start"
-    >
-      <div className="rounded-2xl bg-surface px-4 py-3.5">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5">
-            {[0, 1, 2].map((i) => (
-              <motion.span
-                key={i}
-                className="h-1.5 w-1.5 rounded-full bg-fog"
-                animate={{ opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
-                transition={{ duration: 1, repeat: Infinity, delay: i * 0.18 }}
-              />
-            ))}
-          </div>
-          <AnimatePresence>
-            {slow && (
-              <motion.span
-                initial={{ opacity: 0, x: -6 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.4 }}
-                className="font-mono text-[10px] tracking-wide text-fog"
-              >
-                still thinking…
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-    </motion.div>
   );
 }

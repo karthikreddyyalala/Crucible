@@ -7,7 +7,7 @@ class _ScriptedLLM:
     def __init__(self, *payloads: dict):
         self._payloads = list(payloads)
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None, temperature=0.0):
         return schema.model_validate(self._payloads.pop(0))
 
 
@@ -106,3 +106,20 @@ def test_complete_action_sets_session_complete_flag():
 
     assert result["session_complete"] is True
     assert len(result["evaluations"]) == 1
+
+
+def test_graph_passes_each_agents_temperature():
+    temps = {}
+
+    class _Spy(_ScriptedLLM):
+        def structured(self, **kw):
+            temps[kw["agent"]] = kw["temperature"]
+            return super().structured(**kw)
+
+    graph = build_interview_turn_graph(
+        llm=_Spy(_ADVANCE_DECISION, _EVAL), interviewer_model="iv", evaluator_model="ev",
+        interviewer_temperature=0.3, evaluator_temperature=0.1,
+    )
+    graph.invoke({"plan": _plan(), "current_question_idx": 0, "follow_up_count": 0,
+                  "candidate_answer": "a", "evaluations": []})
+    assert temps == {"interviewer": 0.3, "evaluator": 0.1}

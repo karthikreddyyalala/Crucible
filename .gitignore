@@ -12,3 +12,6 @@ dist/
 deploy/build/
 .env.local
 .env.*.local
+test-results/
+playwright-report/
+blob-report/

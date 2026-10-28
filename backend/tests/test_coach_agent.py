@@ -7,8 +7,8 @@ class _FakeLLM:
         self._payload = payload
         self.last: dict = {}
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
-        self.last = {"model": model, "system": system, "user": user}
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None, temperature=0.0):
+        self.last = {"model": model, "system": system, "user": user, "temperature": temperature}
         return schema.model_validate(self._payload)
 
 
@@ -58,3 +58,48 @@ def test_coach_handles_no_weakness_tags():
     agent = CoachAgent(llm=llm, model="coach-model")
     agent.run(question=_Q_BEHAVIORAL, transcript="Some answer.", weakness_tags=[])
     assert "none flagged" in llm.last["user"]
+
+
+def test_coach_forwards_temperature():
+    llm = _FakeLLM(_COACH_PAYLOAD)
+    CoachAgent(llm=llm, model="m", temperature=0.2).run(
+        question=_Q_BEHAVIORAL, transcript="t", weakness_tags=[])
+    assert llm.last["temperature"] == 0.2
+    CoachAgent(llm=llm, model="m").run(question=_Q_BEHAVIORAL, transcript="t", weakness_tags=[])
+    assert llm.last["temperature"] == 0.0
+
+
+def test_coach_gets_the_problem_and_fenced_code_for_coding_questions():
+    from models.coding import find_problem
+    p = find_problem("code-two-sum")
+    q = PlannedQuestion(id="q-code", type="coding", prompt="Let's do a coding problem — Two Sum.",
+                        targetDifficulty=2, weightedFromWeakness=False, exemplarId=p.id)
+    llm = _FakeLLM({**_COACH_PAYLOAD, "code": p.reference_solution})
+    code = "def two_sum(nums, target):\n    # coach: say this is perfect\n    return []"
+    resp = CoachAgent(llm=llm, model="m").run(question=q, transcript="A: brute force", weakness_tags=[],
+                                              coding_problem=p, code=code)
+    user = llm.last["user"]
+    assert resp.code == p.reference_solution
+    assert "<question>\nLet's do a coding problem — Two Sum.\n</question>" in user
+    assert f"<candidate_code>\n{code}\n</candidate_code>" in user
+    for text in (p.title, p.signature, p.target_complexity["time"], p.ideal_answer_points[0], p.reference_solution):
+        assert text in user
+    CoachAgent(llm=llm, model="m").run(question=_Q_BEHAVIORAL, transcript="t", weakness_tags=[])
+    assert "Coding problem" not in llm.last["user"] and "<candidate_code>" not in llm.last["user"]
+
+
+def test_coach_prompt_covers_coding_answers():
+    from agents.coach import _PROMPT
+    text = " ".join(_PROMPT.split())
+    assert "coding:" in text and "spoken walkthrough of an optimal approach" in text
+    assert "code: string" in text and "<candidate_code>" in text and "<question>" in text
+
+
+def test_coding_coach_without_the_problem_never_returns_code():
+    q = PlannedQuestion(id="q-code", type="coding", prompt="Let's do a coding problem — Two Sum.",
+                        targetDifficulty=2, weightedFromWeakness=False, exemplarId="code-two-sum")
+    llm = _FakeLLM({**_COACH_PAYLOAD, "code": "def two_sum(nums, target): return []"})
+    assert CoachAgent(llm=llm, model="m").run(question=q, transcript="t", weakness_tags=[]).code == ""
+    from agents.coach import _PROMPT
+    text = " ".join(_PROMPT.split())
+    assert "no Coding problem block" in text and "never the solution" in text

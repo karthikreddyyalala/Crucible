@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { CheckCircle, WarningOctagon, CaretDown, Sparkle, ArrowClockwise } from "@phosphor-icons/react";
+import { CheckCircle, WarningOctagon, CaretDown, Sparkle, ArrowClockwise, Copy, Check } from "@phosphor-icons/react";
 import type { AnswerEvaluation, PlannedQuestion } from "@/types/contracts";
 import { useCoach } from "@/hooks/useCoach";
 import { RubricBar } from "./RubricBar";
@@ -10,6 +10,9 @@ interface VerdictCardProps {
   evaluation: AnswerEvaluation;
   question: PlannedQuestion;
   index: number;
+  // Coding answers: passed to the coach so it can return a clean solution.
+  sessionId?: string;
+  code?: string;
 }
 
 export type TranscriptEntry = { role: "Q" | "A"; text: string };
@@ -38,7 +41,7 @@ export function parseTranscript(raw: string): TranscriptEntry[] | null {
   return entries.length > 0 ? entries : null;
 }
 
-export function VerdictCard({ evaluation, question, index }: VerdictCardProps) {
+export function VerdictCard({ evaluation, question, index, sessionId, code }: VerdictCardProps) {
   const survives = evaluation.wouldSurviveRealInterview;
   const tone = survives ? "var(--color-survive)" : "var(--color-fail)";
   const [transcriptOpen, setTranscriptOpen] = useState(false);
@@ -169,6 +172,8 @@ export function VerdictCard({ evaluation, question, index }: VerdictCardProps) {
                       question={question}
                       transcript={evaluation.transcript}
                       weaknessTags={evaluation.weaknessTags}
+                      sessionId={sessionId}
+                      code={code}
                     />
                   </div>
                 )}
@@ -234,12 +239,16 @@ function CoachPanel({
   question,
   transcript,
   weaknessTags,
+  sessionId,
+  code,
 }: {
   question: PlannedQuestion;
   transcript: string;
   weaknessTags: string[];
+  sessionId?: string;
+  code?: string;
 }) {
-  const { state, load } = useCoach({ question, transcript, weaknessTags });
+  const { state, load } = useCoach({ question, transcript, weaknessTags, sessionId, code });
 
   useEffect(load, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -288,8 +297,42 @@ function CoachPanel({
               </ul>
             </div>
           )}
+          {state.data.code && <CodeBlock code={state.data.code} />}
         </div>
       )}
+    </div>
+  );
+}
+
+// The coach's clean solution for a coding answer: shown, never read aloud.
+function CodeBlock({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard blocked: the code is still selectable */
+    }
+  };
+  return (
+    <div className="mt-4 border-t border-accent/20 pt-3">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <p className="font-mono text-[10px] tracking-[0.16em] text-accent">CLEAN SOLUTION</p>
+        <button
+          type="button"
+          onClick={copy}
+          aria-label="Copy code"
+          className="inline-flex items-center gap-1.5 rounded font-mono text-[11px] text-fog transition-colors hover:text-chalk focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        >
+          {copied ? <Check size={12} weight="bold" /> : <Copy size={12} weight="bold" />}
+          <span aria-live="polite">{copied ? "COPIED" : "COPY"}</span>
+        </button>
+      </div>
+      <pre className="overflow-x-auto rounded-xl border border-line bg-void p-4 font-mono text-[13px] leading-relaxed text-chalk">
+        <code>{code}</code>
+      </pre>
     </div>
   );
 }

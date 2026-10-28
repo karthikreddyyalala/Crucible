@@ -30,7 +30,8 @@ class LLMClient:
     def structured(self, *, agent: str, model: str, system: str, user: str,
                    schema: type[T], max_tokens: int = 2000,
                    max_retries: int = 2,
-                   sink: list[CallUsage] | None = None) -> T:
+                   sink: list[CallUsage] | None = None,
+                   temperature: float = 0.0) -> T:
         """Call the model and validate its output into `schema`.
 
         A single malformed response (unparseable JSON or wrong shape) must not
@@ -42,6 +43,9 @@ class LLMClient:
         cost/latency logging — passed explicitly rather than inferred from the
         call stack, since stack inference would silently mis-attribute cost the
         moment a caller wraps this in a helper.
+
+        `temperature` defaults to 0.0: the same input should give the same verdict
+        (the interviewer opts into a little variety for natural phrasing).
 
         `sink`, if given, additionally collects this call's CallUsage so a
         caller spanning several agent calls (a request handler, a graph run)
@@ -67,6 +71,9 @@ class LLMClient:
                 message = client.messages.create(
                     model=model,
                     max_tokens=max_tokens,
+                    # The installed SDK's create() has no `temperature` parameter;
+                    # Bedrock still honours it in the request body.
+                    extra_body={"temperature": temperature},
                     system=system,
                     messages=[{"role": "user", "content": prompt}],
                 )

@@ -1,0 +1,67 @@
+{
+  "id": "code-number-of-1-bits",
+  "title": "Number of 1 Bits",
+  "difficulty": "easy",
+  "topics": ["bit manipulation"],
+  "asked": "very_common",
+  "statement": "Given an unsigned 32-bit integer `n`, return how many of its bits are 1 when it is written in binary. This count is often called the Hamming weight.\n\nConstraints: 0 <= n < 2^32, so n is never negative.",
+  "functionName": "hamming_weight",
+  "signature": "def hamming_weight(n: int) -> int:",
+  "starterCode": "def hamming_weight(n: int) -> int:\n    \"\"\"Return the number of 1 bits in the binary form of n.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "n = 11", "output": "3", "explanation": "11 is 1011 in binary, which has three 1s."},
+    {"input": "n = 128", "output": "1", "explanation": "128 is 10000000, a single 1 followed by zeros."},
+    {"input": "n = 4294967293", "output": "31", "explanation": "That is 32 ones with a single 0 at position 1."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args":[11],"expected":3},
+    {"args":[128],"expected":1},
+    {"args":[4294967293],"expected":31},
+    {"args":[0],"expected":0},
+    {"args":[1],"expected":1},
+    {"args":[255],"expected":8},
+    {"args":[2147483648],"expected":1},
+    {"args":[4294967295],"expected":32},
+    {"args":[1023],"expected":10},
+    {"args":[1024],"expected":1},
+    {"args":[2863311530],"expected":16},
+    {"args":[2147483647],"expected":31},
+    {"args":[305419896],"expected":13}
+  ],
+  "compare": "exact",
+  "referenceSolution": "def hamming_weight(n: int) -> int:\n    count = 0\n    while n:\n        n &= n - 1  # clears the lowest set bit\n        count += 1\n    return count\n",
+  "targetComplexity": {"time": "O(number of set bits), at most 32 steps", "space": "O(1)"},
+  "hints": [
+    "How can you look at just the lowest bit of a number, and how can you move on to the next bit?",
+    "A loop that inspects every bit position works. How many iterations does it need for a 32-bit value?",
+    "Can you avoid visiting positions that hold 0 at all?",
+    "Try n and n - 1 in binary for n = 12 and n = 8. What happens to the lowest 1 bit and the bits below it?",
+    "Combining n with n - 1 using AND removes exactly the lowest set bit, so count how many times you can do that before n reaches 0."
+  ],
+  "followUps": [
+    "What are the time and space complexity of your solution, and how many iterations can it take at worst?",
+    "How does n & (n - 1) change n, and why does it clear exactly the lowest set bit?",
+    "If this function were called millions of times, how could you speed it up with a lookup table?",
+    "How would you check whether a number is a power of two using the same trick?",
+    "Python also offers bin(n).count('1') and int.bit_count(). What are the trade-offs of using them in an interview?"
+  ],
+  "idealAnswerPoints": [
+    "Starts with the simple version: test the lowest bit with & 1 and shift right",
+    "Improves to n &= n - 1 so the loop runs once per set bit",
+    "Explains why n & (n - 1) removes the lowest set bit",
+    "States the cost as O(1) for fixed width, or O(k) for k set bits",
+    "Mentions a lookup table or the built-in as alternatives"
+  ],
+  "weakAnswerSigns": [
+    "Converts to a string and counts '1' characters without being able to discuss the bit-level approach",
+    "Shifts left instead of right, so the loop never ends",
+    "Cannot say how many iterations the loop needs in the worst case"
+  ],
+  "rubric": {
+    "correctness": "Correct counts for 0, powers of two, all ones (2^32 - 1) and mixed bit patterns.",
+    "efficiency": "At most 32 iterations in any approach; one iteration per set bit with n & (n - 1) is the target.",
+    "code_quality": "A short, clear loop with an explanatory name or comment for the bit trick.",
+    "communication": "Explains what the bit trick does with a small binary example before relying on it."
+  }
+}

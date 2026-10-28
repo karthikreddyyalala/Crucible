@@ -1,0 +1,70 @@
+{
+  "id": "code-longest-common-subsequence",
+  "title": "Longest Common Subsequence",
+  "difficulty": "medium",
+  "topics": ["dynamic programming", "string"],
+  "asked": "very_common",
+  "statement": "Given two strings `text1` and `text2`, return the length of their longest common subsequence: the longest sequence of characters that appears in both strings in the same relative order, though not necessarily next to each other.\n\nIf the strings share no characters the answer is 0, and either string may be empty.\n\nConstraints: 0 <= len(text1), len(text2) <= 300; lowercase English letters only.",
+  "functionName": "longest_common_subsequence",
+  "signature": "def longest_common_subsequence(text1: str, text2: str) -> int:",
+  "starterCode": "def longest_common_subsequence(text1: str, text2: str) -> int:\n    \"\"\"Return the length of the longest subsequence that both strings share.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "text1 = \"stone\", text2 = \"longer\"", "output": "3", "explanation": "\"one\" is in both, in order: s-t-O-N-E and l-O-N-g-E-r."},
+    {"input": "text1 = \"banana\", text2 = \"atana\"", "output": "4", "explanation": "\"aana\" appears in both once you skip the characters in between."},
+    {"input": "text1 = \"abc\", text2 = \"xyz\"", "output": "0", "explanation": "The strings share no characters."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args":["stone","longer"],"expected":3},
+    {"args":["banana","atana"],"expected":4},
+    {"args":["abc","xyz"],"expected":0},
+    {"args":["","abc"],"expected":0},
+    {"args":["",""],"expected":0},
+    {"args":["a","a"],"expected":1},
+    {"args":["abcde","ace"],"expected":3},
+    {"args":["abc","cba"],"expected":1},
+    {"args":["aaaa","aa"],"expected":2},
+    {"args":["axbycz","abc"],"expected":3},
+    {"args":["bcdea","abcde"],"expected":4},
+    {"args":["abcbdab","bdcaba"],"expected":4},
+    {"args":["cbdbbaabddbcdbdbcaccdcbbaacbdcddbdbdbbdbbccadccbaddaadbbcdddddcddccbcbcbdaacddcbccbcaaabacabaabdcbddcccbcdbaaabbbbcaababdbcdabbdaabbddbbacccabbbdddcbcdabadbabadcdcddabacbaabcabbcbabdcaadbdbcadbcdbdbaababcbddbabcccdcacbcbbddddbbdacdaddddbadbcaddcabaaadcbacdbacaaddaccabcacabdbbcbaaddbacbccacacaacaabbd","cbbadccddcaabcccccbccbbababacddbccbabbabdddadbdaddacbaccbbbabcadddaaaabddadacabcdaacddaaccaadbbbdaaacccbabcdadcadadcbcbccdadbaddabdaabadacbddcacabdcabcacaddadabaccadabbbcbdbabaaccccaacdbcdccccadcabdccbdadddcbadbcadbddccdbbdabdbdacaabaddccadbabbdbdbddbddaacbaadcbbccbddabbbbbabbaadadadbccabbadaadacccd"],"expected":189},
+    {"args":["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],"expected":300},
+    {"args":["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"],"expected":0}
+  ],
+  "compare": "exact",
+  "referenceSolution": "def longest_common_subsequence(text1: str, text2: str) -> int:\n    if len(text2) > len(text1):\n        text1, text2 = text2, text1\n    prev = [0] * (len(text2) + 1)\n    for a in text1:\n        cur = [0]\n        for j, b in enumerate(text2, 1):\n            cur.append(prev[j - 1] + 1 if a == b else max(prev[j], cur[j - 1]))\n        prev = cur\n    return prev[-1]\n",
+  "targetComplexity": {"time": "O(m * n)", "space": "O(min(m, n))"},
+  "hints": [
+    "Compare just the first characters of the two strings. What are your options when they match, and when they differ?",
+    "Think in terms of prefixes: how does the answer for the first i characters of one string and the first j of the other depend on smaller prefixes?",
+    "When the last characters match you can use them together; when they don't, at least one of them goes unused. Which smaller answers does that leave you with?",
+    "Fill in a grid of prefix lengths by hand for 'abc' and 'cba'. Which neighbouring cells does each cell read?",
+    "A 2D table over prefix lengths works. Each row only reads the row above it, so two rows are enough."
+  ],
+  "followUps": [
+    "What are the time and space complexity, and how do you shrink the table to O(min(m, n)) space?",
+    "How would you recover an actual longest common subsequence, not just its length?",
+    "How does this relate to edit distance, and to the longest increasing subsequence problem?",
+    "What changes if the characters must be contiguous, the longest common substring?",
+    "If both strings had 100,000 characters, what would you worry about, and what could you do?"
+  ],
+  "idealAnswerPoints": [
+    "Defines the DP over prefix lengths: dp[i][j] is the answer for text1[:i] and text2[:j]",
+    "Matching characters give dp[i-1][j-1] + 1; otherwise the better of dp[i-1][j] and dp[i][j-1]",
+    "Handles empty prefixes as 0 through the table's first row and column",
+    "States O(m * n) time and reduces space to one or two rows",
+    "Knows that going back through the table recovers the subsequence itself"
+  ],
+  "weakAnswerSigns": [
+    "Treats it like a substring problem and only counts adjacent matches",
+    "Uses a greedy two-pointer scan that matches the first occurrence and fails on 'abc' vs 'cba'",
+    "Plain recursion on both strings with no memoisation, which is exponential",
+    "Mixes up dp[i][j] indexing so the empty-string cases come out wrong"
+  ],
+  "rubric": {
+    "correctness": "Right length on every test, including empty strings, identical strings, no overlap and long strings.",
+    "efficiency": "O(m * n) dynamic programming. Exponential recursion or an O(m * n) table of full strings falls short.",
+    "code_quality": "A clear table definition, no off-by-one indexing hacks, and a deliberate choice about how much of the table to keep.",
+    "communication": "Defines the table meaning and fills a small example by hand before coding."
+  }
+}

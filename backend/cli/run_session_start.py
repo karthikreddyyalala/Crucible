@@ -24,6 +24,7 @@ def main() -> None:
     llm = LLMClient(region=settings.aws_region)
     graph = build_session_start_graph(
         llm=llm, intake_model=settings.intake_model, planner_model=settings.planner_model,
+        intake_temperature=settings.intake_temperature, planner_temperature=settings.planner_temperature,
     )
 
     empty_memory = MemoryProfile(

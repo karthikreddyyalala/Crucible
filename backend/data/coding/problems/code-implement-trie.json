@@ -1,0 +1,66 @@
+{
+  "id": "code-implement-trie",
+  "title": "Implement Trie (Prefix Tree)",
+  "difficulty": "medium",
+  "topics": ["trie", "design", "string"],
+  "asked": "very_common",
+  "statement": "A trie, or prefix tree, stores a set of words so that lookups by whole word or by prefix are fast. It is the structure behind autocomplete and spell checkers.\n\nImplement the `Trie` class:\n- `Trie()` creates an empty trie.\n- `insert(word)` adds `word` to the trie.\n- `search(word)` returns `True` if `word` was inserted earlier, and `False` otherwise.\n- `startsWith(prefix)` returns `True` if at least one inserted word begins with `prefix`, and `False` otherwise.\n\nEach test creates a trie and calls its methods in order. The expected output lists what each call returns, with `null` for the constructor and for `insert`.\n\nConstraints: 1 <= len(word), len(prefix) <= 2000; words and prefixes use lowercase English letters only; at most 3 * 10^4 calls in total.",
+  "kind": "design",
+  "functionName": "Trie",
+  "signature": "class Trie:\n    def __init__(self):\n    def insert(self, word: str) -> None:\n    def search(self, word: str) -> bool:\n    def startsWith(self, prefix: str) -> bool:",
+  "starterCode": "class Trie:\n    def __init__(self):\n        pass\n\n    def insert(self, word: str) -> None:\n        \"\"\"Add word to the trie.\"\"\"\n        pass\n\n    def search(self, word: str) -> bool:\n        \"\"\"Return True if word was inserted before.\"\"\"\n        pass\n\n    def startsWith(self, prefix: str) -> bool:\n        \"\"\"Return True if any inserted word starts with prefix.\"\"\"\n        pass\n",
+  "examples": [
+    {"input": "[\"Trie\", \"insert\", \"search\", \"search\", \"startsWith\"]\n[[], [\"apple\"], [\"apple\"], [\"app\"], [\"app\"]]", "output": "[null, null, true, false, true]", "explanation": "\"app\" is a prefix of \"apple\", but \"app\" itself was never inserted, so search returns false."},
+    {"input": "[\"Trie\", \"insert\", \"insert\", \"search\", \"search\"]\n[[], [\"apple\"], [\"app\"], [\"app\"], [\"appl\"]]", "output": "[null, null, null, true, false]", "explanation": "Once \"app\" is inserted it is a word; \"appl\" is still only a prefix."},
+    {"input": "[\"Trie\", \"search\", \"startsWith\"]\n[[], [\"a\"], [\"a\"]]", "output": "[null, false, false]", "explanation": "An empty trie contains no words and no prefixes."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args": {"ops": ["Trie", "insert", "search", "search", "startsWith"], "args": [[], ["apple"], ["apple"], ["app"], ["app"]]}, "expected": [null, null, true, false, true]},
+    {"args": {"ops": ["Trie", "insert", "insert", "search", "search"], "args": [[], ["apple"], ["app"], ["app"], ["appl"]]}, "expected": [null, null, null, true, false]},
+    {"args": {"ops": ["Trie", "search", "startsWith"], "args": [[], ["a"], ["a"]]}, "expected": [null, false, false]},
+    {"args": {"ops": ["Trie", "insert", "search", "startsWith", "startsWith"], "args": [[], ["a"], ["a"], ["a"], ["b"]]}, "expected": [null, null, true, true, false]},
+    {"args": {"ops": ["Trie", "insert", "startsWith", "search", "startsWith"], "args": [[], ["car"], ["car"], ["cars"], ["cars"]]}, "expected": [null, null, true, false, false]},
+    {"args": {"ops": ["Trie", "insert", "insert", "search", "search"], "args": [[], ["dog"], ["dog"], ["dog"], ["do"]]}, "expected": [null, null, null, true, false]},
+    {"args": {"ops": ["Trie", "search", "insert", "search", "startsWith"], "args": [[], ["zebra"], ["zebra"], ["zebra"], ["zeb"]]}, "expected": [null, false, null, true, true]},
+    {"args": {"ops": ["Trie", "insert", "insert", "insert", "search", "startsWith", "search", "startsWith", "search"], "args": [[], ["tea"], ["ten"], ["inn"], ["te"], ["te"], ["ten"], ["in"], ["i"]]}, "expected": [null, null, null, null, false, true, true, true, false]},
+    {"args": {"ops": ["Trie", "insert", "insert", "search", "search", "search", "search", "startsWith"], "args": [[], ["bat"], ["bad"], ["ba"], ["bad"], ["bat"], ["bac"], ["ba"]]}, "expected": [null, null, null, false, true, true, false, true]},
+    {"args": {"ops": ["Trie", "insert", "insert", "insert", "search", "search", "startsWith", "startsWith"], "args": [[], ["a"], ["ab"], ["abc"], ["ab"], ["abcd"], ["abcd"], ["abc"]]}, "expected": [null, null, null, null, true, false, false, true]},
+    {"args": {"ops": ["Trie", "insert", "search", "startsWith", "insert", "search", "search"], "args": [[], ["interview"], ["inter"], ["inter"], ["inter"], ["inter"], ["interview"]]}, "expected": [null, null, false, true, null, true, true]},
+    {"args": {"ops": ["Trie", "insert", "insert", "insert", "startsWith", "search", "search", "startsWith"], "args": [[], ["queue"], ["quiet"], ["quit"], ["qui"], ["qui"], ["quit"], ["quo"]]}, "expected": [null, null, null, null, true, false, true, false]}
+  ],
+  "compare": "exact",
+  "referenceSolution": "class Trie:\n    def __init__(self):\n        self.root = {}\n\n    def insert(self, word: str) -> None:\n        node = self.root\n        for ch in word:\n            node = node.setdefault(ch, {})\n        node[\"$\"] = True\n\n    def search(self, word: str) -> bool:\n        node = self._walk(word)\n        return node is not None and \"$\" in node\n\n    def startsWith(self, prefix: str) -> bool:\n        return self._walk(prefix) is not None\n\n    def _walk(self, text: str):\n        node = self.root\n        for ch in text:\n            if ch not in node:\n                return None\n            node = node[ch]\n        return node\n",
+  "targetComplexity": {"time": "O(L) per call, L = length of the word or prefix", "space": "O(total characters inserted)"},
+  "hints": [
+    "Storing every word in a set handles search. What does startsWith cost with a set, and why is that a problem?",
+    "Words that share a prefix share their first few characters. How could the structure store that shared part only once?",
+    "Picture a tree where each edge is one letter and each path from the root spells a prefix. What does each node need to hold?",
+    "After inserting \"apple\", how do search(\"app\") and startsWith(\"app\") tell the difference? Something at the node has to mark where a word ends.",
+    "Give each node a map from letter to child plus an end-of-word flag; search and startsWith share one walk down from the root and differ only in the final check."
+  ],
+  "followUps": [
+    "What are the time and space costs of each operation, and how do they compare with keeping a set of words?",
+    "Why might you choose a fixed array of 26 children over a dictionary per node, and what does it cost?",
+    "How would you add delete(word) without breaking other words that share its prefix?",
+    "How would you return every stored word that starts with a given prefix, for autocomplete?"
+  ],
+  "idealAnswerPoints": [
+    "Each node holds children keyed by letter and an end-of-word marker",
+    "insert walks down and creates missing children; search and startsWith reuse one walk helper",
+    "search checks the end-of-word marker while startsWith only needs the path to exist",
+    "States O(L) per operation and space proportional to the total characters inserted"
+  ],
+  "weakAnswerSigns": [
+    "Uses a set of words and scans all of them for startsWith",
+    "Has no end-of-word marker, so search(\"app\") returns true after inserting only \"apple\"",
+    "Copies the walk loop three times instead of sharing it",
+    "Can't say how much memory the structure uses"
+  ],
+  "rubric": {
+    "correctness": "Right answers for words versus prefixes, repeated inserts, an empty trie and words that share or extend each other.",
+    "efficiency": "O(L) per call by walking one node per character; scanning all stored words is too slow.",
+    "code_quality": "A clear node shape, one shared walk helper, no duplicated traversal logic.",
+    "communication": "Explains the node structure and the end-of-word marker before coding, and why it beats a set for prefixes."
+  }
+}

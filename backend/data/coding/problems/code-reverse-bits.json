@@ -1,0 +1,68 @@
+{
+  "id": "code-reverse-bits",
+  "title": "Reverse Bits",
+  "difficulty": "easy",
+  "topics": ["bit manipulation"],
+  "asked": "common",
+  "statement": "Given an unsigned 32-bit integer `n`, reverse the order of its 32 bits and return the result as an unsigned integer. The lowest bit becomes the highest, the second lowest becomes the second highest, and so on.\n\nLeading zeros count as bits, so reversing 1 gives 2^31, not 1.\n\nConstraints: 0 <= n < 2^32; the answer also lies in that range.",
+  "functionName": "reverse_bits",
+  "signature": "def reverse_bits(n: int) -> int:",
+  "starterCode": "def reverse_bits(n: int) -> int:\n    \"\"\"Return n with its 32 bits in reverse order, as an unsigned integer.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "n = 1", "output": "2147483648", "explanation": "Bit 0 moves to bit 31, and 2^31 is 2147483648."},
+    {"input": "n = 12", "output": "805306368", "explanation": "12 has bits 2 and 3 set. They move to bits 29 and 28, giving 2^29 + 2^28."},
+    {"input": "n = 4294967293", "output": "3221225471", "explanation": "All bits are set except bit 1; after reversing, the only clear bit is bit 30."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args":[1],"expected":2147483648},
+    {"args":[12],"expected":805306368},
+    {"args":[4294967293],"expected":3221225471},
+    {"args":[0],"expected":0},
+    {"args":[2],"expected":1073741824},
+    {"args":[2147483648],"expected":1},
+    {"args":[4294967295],"expected":4294967295},
+    {"args":[5],"expected":2684354560},
+    {"args":[43261596],"expected":964176192},
+    {"args":[4042322160],"expected":252645135},
+    {"args":[2863311530],"expected":1431655765},
+    {"args":[2147483647],"expected":4294967294},
+    {"args":[305419896],"expected":510274632}
+  ],
+  "compare": "exact",
+  "referenceSolution": "def reverse_bits(n: int) -> int:\n    result = 0\n    for _ in range(32):\n        result = (result << 1) | (n & 1)\n        n >>= 1\n    return result\n",
+  "targetComplexity": {"time": "O(1), exactly 32 steps", "space": "O(1)"},
+  "hints": [
+    "Start with a single bit. How would you read the lowest bit of n and drop it?",
+    "Where should that bit end up in the answer? What about the next one?",
+    "If you shift a result left by one and append a bit each time, in what order do the bits end up?",
+    "Try n = 1 and n = 12. Why must the loop run for all 32 positions rather than stopping when n reaches 0?",
+    "Repeat 32 times: shift the result left, OR in the lowest bit of n, then shift n right."
+  ],
+  "followUps": [
+    "What are the time and space complexity of your solution?",
+    "Why can't the loop stop as soon as n becomes 0?",
+    "If this function is called millions of times, how would you speed it up, for example with a lookup table of bytes?",
+    "Can you reverse the bits with a constant number of mask-and-swap steps and no loop?",
+    "What would you change to reverse a 64-bit value, or a value whose width is a parameter?"
+  ],
+  "idealAnswerPoints": [
+    "Peels the lowest bit off n with & 1 and shifts n right each step",
+    "Builds the result by shifting it left and appending that bit",
+    "Runs exactly 32 iterations so leading zeros are accounted for",
+    "Returns an unsigned value, not a negative number",
+    "Offers a byte lookup table or the swap-halves technique for repeated calls"
+  ],
+  "weakAnswerSigns": [
+    "Uses a string conversion like bin(n)[::-1] and forgets to pad to 32 bits",
+    "Stops the loop when n becomes 0, so small inputs return the wrong value",
+    "Returns a signed negative number for inputs with the top bit set after reversing",
+    "Cannot say why the loop count must be fixed at 32"
+  ],
+  "rubric": {
+    "correctness": "Right 32-bit reversal on every test, including 0, 1, the top bit, all ones, and symmetric patterns.",
+    "efficiency": "32 loop steps in constant time and space; a lookup table or swap approach is a bonus for repeated calls.",
+    "code_quality": "A short loop with the shift and mask clearly visible and no string-conversion workaround.",
+    "communication": "Traces n = 1 or n = 12 through the first steps and explains why the loop is fixed at 32."
+  }
+}

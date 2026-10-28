@@ -6,6 +6,7 @@ import { TopBar } from "@/components/TopBar";
 import { VerdictCard } from "@/components/VerdictCard";
 import { api } from "@/lib/api";
 import { getCandidateId } from "@/lib/identity";
+import { COMPANY_STYLES } from "@/lib/companyStyles";
 import type { SessionRecord } from "@/types/contracts";
 
 type LoadState =
@@ -19,6 +20,7 @@ const MODE_LABEL: Record<string, string> = {
   behavioral: "Behavioral",
   technical: "Technical",
   system_design: "System Design",
+  coding: "Coding",
 };
 
 export function SessionReview() {
@@ -104,6 +106,10 @@ function Loaded({ record }: { record: SessionRecord }) {
         <div className="mt-3 flex flex-wrap gap-2">
           <Chip label={MODE_LABEL[record.mode] ?? record.mode} />
           <Chip label={`${record.level} level`} />
+          {record.companyStyle && (
+            <Chip label={COMPANY_STYLES.find((c) => c.id === record.companyStyle)?.name ?? record.companyStyle} />
+          )}
+          {record.endedForConduct && <Chip label="Ended early" />}
         </div>
       </motion.div>
 
@@ -112,7 +118,15 @@ function Loaded({ record }: { record: SessionRecord }) {
           const q =
             record.questions.find((question) => question.id === ev.questionId) ??
             record.questions[i];
-          return <VerdictCard key={ev.questionId} evaluation={ev} question={q} index={i} />;
+          return (
+            <VerdictCard
+              key={ev.questionId}
+              evaluation={ev}
+              question={q}
+              index={i}
+              sessionId={record.sessionId}
+            />
+          );
         })}
       </div>
     </div>

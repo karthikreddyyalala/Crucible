@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type {
   AnswerEvaluation,
+  CompanyStyleId,
   IntakeProfile,
   InterviewDecision,
   InterviewLevel,
@@ -12,7 +13,11 @@ import type {
   QuestionPlan,
 } from "@/types/contracts";
 import { api } from "@/lib/api";
+import type { TurnInput } from "@/lib/api";
 import { getCandidateId } from "@/lib/identity";
+import { summarizeOutcome } from "@/lib/coding/summary";
+import type { RunSummary } from "@/lib/coding/summary";
+import type { RunOutcome } from "@/lib/coding/types";
 
 export type Speaker = "interviewer" | "candidate";
 export type MessageKind = "question" | "answer" | "follow_up";
@@ -29,6 +34,10 @@ export interface ChatMessage {
 }
 
 export type SessionStatus = "idle" | "starting" | "live" | "thinking" | "wrapping" | "complete";
+// Where the current coding question is: plan → code → review (spec 1.4).
+// "talk" (no editor on screen) is never stored: it's what a turn sends while editorShown is false.
+export type CodingStep = "approach" | "coding" | "review";
+type TurnEvent = NonNullable<TurnInput["event"]>;
 
 interface SessionState {
   status: SessionStatus;
@@ -64,6 +73,27 @@ interface SessionState {
   // one independently re-runs the Memory Agent merge and writes — so this
   // guards against a double-click firing two concurrent finalize requests.
   finalizing: boolean;
+  companyStyle: CompanyStyleId;
+  // False when the server flagged (or there is no) name: Marcus doesn't say it.
+  nameUsable: boolean;
+  // Conduct strikes; the third ends the session (endedForConduct).
+  strikes: number;
+  endedForConduct: boolean;
+  // Coding round, keyed by question id. codingStage is the current coding question's
+  // stage; it resets to "approach" whenever a new question starts.
+  codeByQuestion: Record<string, string>;
+  codingStage: CodingStep;
+  lastRun: Record<string, RunSummary>;
+  checkinSent: Record<string, boolean>;
+  // A Submit Marcus hasn't replied to yet (question id): queued while he was busy,
+  // or in flight. Persisted, so a refresh mid-turn re-sends it once.
+  pendingSubmit: string | null;
+  // True while a check-in / Submit turn the candidate didn't type is in flight: the
+  // composer stays open and an answer sent now is queued behind it. Not persisted.
+  eventInFlight: boolean;
+  // False while the coding question is shown without the editor (small screen): turns
+  // send codingStage "talk" and edits don't move the stage. Not persisted.
+  editorShown: boolean;
 
   loadMemory: () => Promise<void>;
   start: (input: {
@@ -74,8 +104,23 @@ interface SessionState {
     level: InterviewLevel;
     candidateName: string;
     useVideo: boolean;
+    companyStyle: CompanyStyleId;
   }) => Promise<void>;
-  submitAnswer: (text: string) => Promise<void>;
+  // false = nothing was sent (keep the draft). An answer typed while Marcus handles a
+  // check-in or Submit is queued and sent right after (true).
+  submitAnswer: (text: string) => Promise<boolean>;
+  // Call on the candidate's edits only (not when loading starter code): the first
+  // edit of the current problem moves it from "approach" to "coding".
+  setCode: (questionId: string, code: string) => void;
+  // The Interview page reports whether the coding editor is on screen.
+  setEditorShown: (shown: boolean) => void;
+  // After every Run / Submit. visibleCount = the problem's visibleTestCount. A Submit
+  // moves to "review" and sends Marcus a "submit" turn so he starts the review.
+  recordRun: (questionId: string, outcome: RunOutcome, kind: "run" | "submit", visibleCount: number) => Promise<void>;
+  // The quiet-for-a-while nudge: at most once per problem, only in the "coding" stage.
+  sendCheckin: (questionId: string) => Promise<void>;
+  // Sends a Submit that never got Marcus's reply (runs by itself after a refresh).
+  resumePendingSubmit: () => Promise<void>;
   endInterview: () => Promise<void>;
   retryFinalize: () => Promise<void>;
   clearRestored: () => void;
@@ -87,6 +132,9 @@ export interface PendingEval {
   question: PlannedQuestion;
   transcript: string;
   followUpCount: number;
+  // Coding questions: the final code and the last run's summary.
+  code?: string;
+  testResults?: string;
 }
 
 // The only scripted line: there's nothing to react to yet. Everything after
@@ -100,6 +148,10 @@ function warmGreeting(name: string): string {
 // the matching pendingEvals entry is simply re-scored at finalize).
 const inflightEvals = new Map<string, Promise<void>>();
 
+// An answer typed while an event turn (check-in / submit) was in flight: sent right
+// after it. Not persisted; a refresh loses only that one unsent line.
+let queuedAnswer: string | null = null;
+
 // UUID message ids so rehydrating a saved session never collides with new
 // messages generated after the resume.
 const mkId = (): string =>
@@ -110,6 +162,38 @@ const mkId = (): string =>
 function hasMemory(m: MemoryProfile | null): boolean {
   return !!m && m.recurringWeaknesses.length > 0;
 }
+
+// The coding question the candidate is on right now, if any.
+function currentCoding(s: SessionState): PlannedQuestion | null {
+  const q = s.phase === "question" ? s.plan?.questions[s.currentIdx] : undefined;
+  return q?.type === "coding" ? q : null;
+}
+
+// The server's request limits (TurnRequest / EvaluateRequest in backend/routes/session.py).
+// Bigger values are cut, never sent as-is: a rejected request would get re-sent forever.
+// Threads keep their latest part; code and summaries their start.
+const LIMIT = { code: 20_000, testResults: 4_000, thread: 40_000 };
+
+function fitEval(p: PendingEval): PendingEval {
+  return {
+    ...p,
+    transcript: p.transcript.slice(-LIMIT.thread),
+    ...(p.code !== undefined && { code: p.code.slice(0, LIMIT.code) }),
+    ...(p.testResults !== undefined && { testResults: p.testResults.slice(0, LIMIT.testResults) }),
+  };
+}
+
+// Cleared at the start of every session.
+const FRESH_ROUND = {
+  strikes: 0,
+  endedForConduct: false,
+  codeByQuestion: {},
+  codingStage: "approach" as CodingStep,
+  lastRun: {},
+  checkinSent: {},
+  pendingSubmit: null,
+  eventInFlight: false,
+};
 
 export const useSessionStore = create<SessionState>()(
   persist(
@@ -123,7 +207,8 @@ export const useSessionStore = create<SessionState>()(
       // Scores one answer in the background so the interviewer's reply never
       // waits on the Evaluator. A failure leaves it in pendingEvals; finalize
       // retries it before writing memory.
-      const scoreInBackground = (pending: PendingEval) => {
+      const scoreInBackground = (unfit: PendingEval) => {
+        const pending = fitEval(unfit);
         const id = pending.question.id;
         set((s) => ({ pendingEvals: [...s.pendingEvals.filter((p) => p.question.id !== id), pending] }));
         const run = api
@@ -148,6 +233,216 @@ export const useSessionStore = create<SessionState>()(
         return run;
       };
 
+      // One interviewer turn. A candidate answer (event "") is added to the thread
+      // first; an event turn ("checkin" / "submit") adds no candidate line, and its
+      // failure stays quiet (the candidate can just talk).
+      // Returns false when nothing was sent (not live).
+      const runTurn = async (text: string, event: "" | TurnEvent): Promise<boolean> => {
+        if (!(await turnOnce(text, event))) return false;
+        // A Submit pressed during its own turn folds into it: one reply per burst.
+        if (event === "submit") set({ pendingSubmit: null });
+        await sendQueued();
+        return true;
+      };
+
+      // What waited for the turn that just ended: a queued answer, then a Submit.
+      const sendQueued = async () => {
+        const answer = queuedAnswer;
+        queuedAnswer = null;
+        if (answer !== null && (await runTurn(answer, ""))) return; // that turn sends the Submit
+        const s = get();
+        if (!s.pendingSubmit || s.status === "thinking") return;
+        if (s.status === "live" && currentCoding(s)?.id === s.pendingSubmit) await runTurn("", "submit");
+        else set({ pendingSubmit: null }); // the reply moved on to another question, or the session ended
+      };
+
+      const turnOnce = async (text: string, event: "" | TurnEvent): Promise<boolean> => {
+        const state = get();
+        const plan = state.plan;
+        if (!plan || state.status !== "live") return false;
+        const { phase } = state;
+        const questions = plan.questions;
+        const question =
+          phase === "question" ? questions[state.currentIdx]
+          : phase === "closing" ? questions[questions.length - 1]
+          : questions[0];
+        if (!question) return false;
+        const threadId = phase === "question" ? question.id : phase === "warmup" ? "intro" : phase;
+        const nextQuestion =
+          phase === "background" ? questions[0]
+          : phase === "question" ? questions[state.currentIdx + 1] ?? null
+          : null;
+        const isLast = phase === "question" && !nextQuestion;
+        const candidateMsg: ChatMessage | null = event
+          ? null
+          : { id: mkId(), speaker: "candidate", kind: "answer", text, questionId: threadId };
+
+        set({
+          status: "thinking",
+          eventInFlight: event !== "",
+          // An event turn the candidate didn't trigger leaves an existing error up.
+          ...(!event && { turnError: null }),
+          messages: candidateMsg ? [...state.messages, candidateMsg] : state.messages,
+        });
+
+        // The full thread for this question (or stage), so the interviewer
+        // reacts in context and the Evaluator scores the whole exchange.
+        const priorThread = state.messages
+          .filter((m) => m.questionId === threadId)
+          .map((m) => `${m.speaker === "interviewer" ? "Q" : "A"}: ${m.text}`)
+          .join("\n");
+        // An event turn sends the thread as it stands, ending with Marcus's last line.
+        const thread = event ? priorThread : priorThread ? `${priorThread}\nA: ${text}` : text;
+
+        // Code and test results go with coding questions only (the backend fences them).
+        const coding = currentCoding(state)
+          ? {
+              code: (state.codeByQuestion[question.id] ?? "").slice(0, LIMIT.code),
+              testResults: (state.lastRun[question.id]?.summary ?? "").slice(0, LIMIT.testResults),
+            }
+          : null;
+
+        let decision: InterviewDecision;
+        let turnCostUsd = 0;
+        let strikes = state.strikes;
+        try {
+          const result = await api.submitAnswer({
+            question,
+            answer: thread.slice(-LIMIT.thread),
+            followUpCount: state.followUpCount,
+            isLast,
+            phase,
+            nextQuestion,
+            candidateName: state.nameUsable ? state.candidateName : "",
+            mode: state.mode,
+            level: state.level,
+            profile: state.profile,
+            companyStyle: state.companyStyle,
+            strikes: state.strikes,
+            ...(coding && { ...coding, codingStage: state.editorShown ? state.codingStage : "talk" }),
+            ...(event && { event }),
+          });
+          ({ decision, costUsd: turnCostUsd } = result);
+          strikes = result.strikes ?? state.strikes;
+        } catch (e) {
+          set((s) => ({
+            status: "live",
+            // A failed check-in stays quiet; a failed Submit asks for another press.
+            turnError:
+              event === "checkin" ? s.turnError
+              : event === "submit" ? "Couldn't reach the interviewer — press Submit again."
+              : e instanceof Error ? e.message : "Request failed — please try again.",
+            messages: s.messages.filter((m) => m !== candidateMsg),
+          }));
+          return true;
+        } finally {
+          if (event) set({ eventInFlight: false });
+        }
+
+        const say = (fallback: string) => decision.say?.trim() || decision.followUpPrompt?.trim() || fallback;
+        const reply = (questionId: string, kind: MessageKind, fallback: string, weighted?: boolean): ChatMessage =>
+          ({ id: mkId(), speaker: "interviewer", kind, text: say(fallback), questionId, weighted });
+        const addCost = (s: SessionState) => s.sessionCostUsd + turnCostUsd;
+
+        // A struck turn (abuse or blocked text): the line leaves the transcript for
+        // good, the stage stays where it was, and the third strike ends the session.
+        if (strikes > state.strikes || decision.action === "end") {
+          const ended = decision.action === "end";
+          set((s) => ({
+            status: ended ? "wrapping" : "live",
+            strikes,
+            endedForConduct: ended,
+            sessionCostUsd: addCost(s),
+            messages: [
+              ...s.messages.filter((m) => m !== candidateMsg),
+              reply(threadId, "question", "Let's keep this professional."),
+            ],
+          }));
+          if (ended) await runFinalize();
+          return true;
+        }
+
+        // A check-in is one line from Marcus; nothing else moves.
+        if (event === "checkin") {
+          set((s) => ({
+            status: "live", sessionCostUsd: addCost(s),
+            messages: [...s.messages, reply(threadId, "question", "How's it going?")],
+          }));
+          return true;
+        }
+
+        if (phase === "warmup") {
+          set((s) => ({
+            status: "live", phase: "background", sessionCostUsd: addCost(s),
+            messages: [...s.messages, reply("background", "question",
+              "To start, walk me through your background — what have you been working on most recently?")],
+          }));
+          return true;
+        }
+
+        if (phase === "background") {
+          const first = questions[0];
+          set((s) => ({
+            status: "live", phase: "question", currentIdx: 0, followUpCount: 0, codingStage: "approach",
+            sessionCostUsd: addCost(s),
+            messages: [...s.messages, reply(first.id, "question", first.prompt, first.weightedFromWeakness)],
+          }));
+          return true;
+        }
+
+        if (phase === "closing") {
+          if (decision.action === "complete") {
+            set((s) => ({
+              status: "wrapping", sessionCostUsd: addCost(s),
+              messages: [...s.messages, reply("closing", "question", "Thanks for your time today — I'll put your feedback together now.")],
+            }));
+            await runFinalize();
+            return true;
+          }
+          set((s) => ({
+            status: "live", sessionCostUsd: addCost(s),
+            messages: [...s.messages, reply("closing", "question", "Anything else you'd like to ask?")],
+          }));
+          return true;
+        }
+
+        // phase === "question"
+        if (decision.action === "follow_up" || decision.action === "clarify") {
+          const probing = decision.action === "follow_up";
+          set((s) => ({
+            status: "live",
+            followUpCount: s.followUpCount + (probing ? 1 : 0),
+            sessionCostUsd: addCost(s),
+            messages: [...s.messages, reply(question.id, probing ? "follow_up" : "question", question.prompt)],
+          }));
+          return true;
+        }
+
+        // Resolved (advance / complete): score it in the background and move on
+        // without waiting. Where we go next follows the plan, not the label —
+        // an "advance" on the last question still leads into the closing.
+        void scoreInBackground({ question, transcript: thread, followUpCount: state.followUpCount, ...coding });
+
+        if (!nextQuestion) {
+          set((s) => ({
+            status: "live", phase: "closing", followUpCount: 0, sessionCostUsd: addCost(s),
+            messages: [...s.messages, reply("closing", "question",
+              "That's everything I wanted to cover. What questions do you have for me?")],
+          }));
+          return true;
+        }
+
+        set((s) => ({
+          status: "live",
+          currentIdx: s.currentIdx + 1,
+          followUpCount: 0,
+          codingStage: "approach",
+          sessionCostUsd: addCost(s),
+          messages: [...s.messages, reply(nextQuestion.id, "question", nextQuestion.prompt, nextQuestion.weightedFromWeakness)],
+        }));
+        return true;
+      };
+
       const runFinalize = async () => {
         // In-flight guard: a duplicate call (e.g. a double-click on RETRY)
         // must be a no-op, not a second concurrent finalize request.
@@ -170,6 +465,8 @@ export const useSessionStore = create<SessionState>()(
             level: state.level,
             questions: state.plan!.questions,
             costUsd: state.sessionCostUsd,
+            companyStyle: state.companyStyle,
+            endedForConduct: state.endedForConduct,
           });
           set({ status: "complete", updatedMemory: updated, turnError: null, finalizing: false });
         } catch (e) {
@@ -201,15 +498,20 @@ export const useSessionStore = create<SessionState>()(
       justRestored: false,
       turnError: null,
       finalizing: false,
+      companyStyle: "general",
+      nameUsable: false,
+      editorShown: true,
+      ...FRESH_ROUND,
 
       loadMemory: async () => {
         const memory = await api.getMemory(getCandidateId());
         set({ priorMemory: hasMemory(memory) ? memory : null });
       },
 
-      start: async ({ resumeText, jdText, role, mode, level, candidateName, useVideo }) => {
+      start: async ({ resumeText, jdText, role, mode, level, candidateName, useVideo, companyStyle }) => {
+        queuedAnswer = null;
         set({
-          status: "starting", role, mode, level, candidateName, useVideo,
+          status: "starting", role, mode, level, candidateName, useVideo, companyStyle, ...FRESH_ROUND,
           phase: "warmup", pendingEvals: [], messages: [], evaluations: [], updatedMemory: null,
           sessionCostUsd: 0,
           // A leftover finalize error from a prior session (turnError is
@@ -222,14 +524,18 @@ export const useSessionStore = create<SessionState>()(
         try {
         const candidateId = getCandidateId();
         const prior = await api.getMemory(candidateId);
-        const { profile, plan, costUsd } = await api.startSession({
+        const { profile, plan, costUsd, nameUsable: usable } = await api.startSession({
           resumeText,
           jdText,
           role,
           candidateId,
           mode,
           level,
+          candidateName,
+          companyStyle,
         });
+        // Older servers don't screen the name; keep using it as before.
+        const nameUsable = usable ?? candidateName.trim() !== "";
         // Open with the greeting only — background and the first question come
         // from the interviewer reacting to the candidate's replies.
         set({
@@ -242,12 +548,13 @@ export const useSessionStore = create<SessionState>()(
           justRestored: false,
           phase: "warmup",
           sessionCostUsd: costUsd,
+          nameUsable,
           messages: [
             {
               id: mkId(),
               speaker: "interviewer",
               kind: "question",
-              text: warmGreeting(candidateName),
+              text: warmGreeting(nameUsable ? candidateName : ""),
               questionId: "intro",
             },
           ],
@@ -259,139 +566,45 @@ export const useSessionStore = create<SessionState>()(
       },
 
       submitAnswer: async (text) => {
-        const state = get();
-        const plan = state.plan;
-        if (!plan || state.status !== "live") return;
-        const { phase } = state;
-        const questions = plan.questions;
-        const question =
-          phase === "question" ? questions[state.currentIdx]
-          : phase === "closing" ? questions[questions.length - 1]
-          : questions[0];
-        if (!question) return;
-        const threadId = phase === "question" ? question.id : phase === "warmup" ? "intro" : phase;
-        const nextQuestion =
-          phase === "background" ? questions[0]
-          : phase === "question" ? questions[state.currentIdx + 1] ?? null
-          : null;
-        const isLast = phase === "question" && !nextQuestion;
-
-        set({
-          status: "thinking",
-          turnError: null,
-          messages: [
-            ...state.messages,
-            { id: mkId(), speaker: "candidate", kind: "answer", text, questionId: threadId },
-          ],
-        });
-
-        // The full thread for this question (or stage), so the interviewer
-        // reacts in context and the Evaluator scores the whole exchange.
-        const priorMsgs = state.messages.filter((m) => m.questionId === threadId);
-        const thread =
-          priorMsgs.length > 0
-            ? priorMsgs
-                .map((m) => `${m.speaker === "interviewer" ? "Q" : "A"}: ${m.text}`)
-                .join("\n") + `\nA: ${text}`
-            : text;
-
-        let decision: InterviewDecision;
-        let turnCostUsd = 0;
-        try {
-          ({ decision, costUsd: turnCostUsd } = await api.submitAnswer({
-            question,
-            answer: thread,
-            followUpCount: state.followUpCount,
-            isLast,
-            phase,
-            nextQuestion,
-            candidateName: state.candidateName,
-            mode: state.mode,
-            level: state.level,
-            profile: state.profile,
-          }));
-        } catch (e) {
-          set((s) => ({
-            status: "live",
-            turnError: e instanceof Error ? e.message : "Request failed — please try again.",
-            messages: s.messages.slice(0, -1),
-          }));
-          return;
+        if (get().status === "thinking" && get().eventInFlight) {
+          if (queuedAnswer !== null) return false; // one queued answer at a time
+          queuedAnswer = text;
+          return true;
         }
-
-        const say = (fallback: string) => decision.say?.trim() || decision.followUpPrompt?.trim() || fallback;
-        const reply = (questionId: string, kind: MessageKind, fallback: string, weighted?: boolean): ChatMessage =>
-          ({ id: mkId(), speaker: "interviewer", kind, text: say(fallback), questionId, weighted });
-        const addCost = (s: SessionState) => s.sessionCostUsd + turnCostUsd;
-
-        if (phase === "warmup") {
-          set((s) => ({
-            status: "live", phase: "background", sessionCostUsd: addCost(s),
-            messages: [...s.messages, reply("background", "question",
-              "To start, walk me through your background — what have you been working on most recently?")],
-          }));
-          return;
-        }
-
-        if (phase === "background") {
-          const first = questions[0];
-          set((s) => ({
-            status: "live", phase: "question", currentIdx: 0, followUpCount: 0, sessionCostUsd: addCost(s),
-            messages: [...s.messages, reply(first.id, "question", first.prompt, first.weightedFromWeakness)],
-          }));
-          return;
-        }
-
-        if (phase === "closing") {
-          if (decision.action === "complete") {
-            set((s) => ({
-              status: "wrapping", sessionCostUsd: addCost(s),
-              messages: [...s.messages, reply("closing", "question", "Thanks for your time today — I'll put your feedback together now.")],
-            }));
-            await runFinalize();
-            return;
-          }
-          set((s) => ({
-            status: "live", sessionCostUsd: addCost(s),
-            messages: [...s.messages, reply("closing", "question", "Anything else you'd like to ask?")],
-          }));
-          return;
-        }
-
-        // phase === "question"
-        if (decision.action === "follow_up" || decision.action === "clarify") {
-          const probing = decision.action === "follow_up";
-          set((s) => ({
-            status: "live",
-            followUpCount: s.followUpCount + (probing ? 1 : 0),
-            sessionCostUsd: addCost(s),
-            messages: [...s.messages, reply(question.id, probing ? "follow_up" : "question", question.prompt)],
-          }));
-          return;
-        }
-
-        // Resolved (advance / complete): score it in the background and move on
-        // without waiting. Where we go next follows the plan, not the label —
-        // an "advance" on the last question still leads into the closing.
-        void scoreInBackground({ question, transcript: thread, followUpCount: state.followUpCount });
-
-        if (!nextQuestion) {
-          set((s) => ({
-            status: "live", phase: "closing", followUpCount: 0, sessionCostUsd: addCost(s),
-            messages: [...s.messages, reply("closing", "question",
-              "That's everything I wanted to cover. What questions do you have for me?")],
-          }));
-          return;
-        }
-
-        set((s) => ({
-          status: "live",
-          currentIdx: s.currentIdx + 1,
-          followUpCount: 0,
-          sessionCostUsd: addCost(s),
-          messages: [...s.messages, reply(nextQuestion.id, "question", nextQuestion.prompt, nextQuestion.weightedFromWeakness)],
-        }));
+        return runTurn(text, "");
       },
+
+      setCode: (questionId, code) =>
+        set((s) => ({
+          codeByQuestion: { ...s.codeByQuestion, [questionId]: code },
+          codingStage:
+            s.editorShown && s.codingStage === "approach" && currentCoding(s)?.id === questionId
+              ? "coding"
+              : s.codingStage,
+        })),
+
+      setEditorShown: (shown) => set({ editorShown: shown }),
+
+      recordRun: async (questionId, outcome, kind, visibleCount) => {
+        const submitted = kind === "submit" && currentCoding(get())?.id === questionId;
+        set((s) => ({
+          lastRun: { ...s.lastRun, [questionId]: summarizeOutcome(outcome, visibleCount) },
+          codingStage: submitted ? "review" : s.codingStage,
+          pendingSubmit: submitted ? questionId : s.pendingSubmit,
+        }));
+        // While Marcus is replying it waits in pendingSubmit; sendQueued sends it after.
+        if (submitted && get().status === "live") await runTurn("", "submit");
+      },
+
+      sendCheckin: async (questionId) => {
+        const s = get();
+        if (s.status !== "live" || currentCoding(s)?.id !== questionId) return;
+        if (s.codingStage !== "coding" || s.checkinSent[questionId]) return;
+        set({ checkinSent: { ...s.checkinSent, [questionId]: true } });
+        await runTurn("", "checkin");
+      },
+
+      resumePendingSubmit: () => sendQueued(),
 
       // Candidate skips (or is done with) their questions for the interviewer.
       endInterview: async () => {
@@ -410,7 +623,8 @@ export const useSessionStore = create<SessionState>()(
       clearRestored: () => set({ justRestored: false }),
       clearTurnError: () => set({ turnError: null }),
 
-      reset: () =>
+      reset: () => {
+        queuedAnswer = null;
         set({
           status: "idle",
           profile: null,
@@ -426,12 +640,20 @@ export const useSessionStore = create<SessionState>()(
           justRestored: false,
           turnError: null,
           finalizing: false,
-        }),
+          ...FRESH_ROUND,
+        });
+      },
       };
     },
     {
       name: "crucible.session.v1",
       storage: createJSONStorage(() => localStorage),
+      // v0 saves predate nameUsable; those sessions always spoke the name.
+      version: 1,
+      migrate: (persisted, version) => {
+        const saved = persisted as Partial<SessionState>;
+        return (version < 1 ? { ...saved, nameUsable: saved.nameUsable ?? true } : saved) as SessionState;
+      },
       // Persist only session data, never the action fns. Transient statuses
       // are corrected at save time: a reload during "thinking" (request in
       // flight, now lost) resumes as "live" so the answer can be resubmitted;
@@ -441,11 +663,13 @@ export const useSessionStore = create<SessionState>()(
       // which case that would be lying about a failed finalize looking
       // successful (silently wrong, not just stuck) — so it stays "wrapping"
       // and turnError is persisted alongside it so the retry UI reappears.
+      // A conduct end is never assumed finished: until finalize succeeds it is
+      // saved as "wrapping" with a retry message, the same way.
       partialize: (s) => ({
         status:
           s.status === "thinking" ? "live"
           : s.status === "starting" ? "idle"
-          : s.status === "wrapping" && !s.turnError ? "complete"
+          : s.status === "wrapping" && !s.turnError && !s.endedForConduct ? "complete"
           : s.status,
         role: s.role,
         mode: s.mode,
@@ -463,13 +687,27 @@ export const useSessionStore = create<SessionState>()(
         sessionCostUsd: s.sessionCostUsd,
         priorMemory: s.priorMemory,
         updatedMemory: s.updatedMemory,
-        turnError: s.turnError,
+        turnError:
+          s.status === "wrapping" && s.endedForConduct && !s.turnError
+            ? "Your results weren't saved yet — tap retry."
+            : s.turnError,
+        companyStyle: s.companyStyle,
+        nameUsable: s.nameUsable,
+        strikes: s.strikes,
+        endedForConduct: s.endedForConduct,
+        codeByQuestion: s.codeByQuestion,
+        codingStage: s.codingStage,
+        lastRun: s.lastRun,
+        checkinSent: s.checkinSent,
+        pendingSubmit: s.pendingSubmit,
       }),
       onRehydrateStorage: () => (state) => {
         // Flag a mid-interview resume so the UI can acknowledge it.
         if (state && state.status === "live" && state.messages.length > 0) {
           state.justRestored = true;
         }
+        // A Submit cut off by the reload: send it once, after the store is ready.
+        if (state?.pendingSubmit) setTimeout(() => void state.resumePendingSubmit());
       },
     }
   )

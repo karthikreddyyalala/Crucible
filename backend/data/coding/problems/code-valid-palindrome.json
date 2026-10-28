@@ -1,0 +1,66 @@
+{
+  "id": "code-valid-palindrome",
+  "title": "Valid Palindrome",
+  "difficulty": "easy",
+  "topics": ["string", "two pointers"],
+  "asked": "very_common",
+  "statement": "A phrase is a palindrome if, after you throw away everything that isn't a letter or a digit and ignore the difference between upper and lower case, it reads the same forwards and backwards. Given a string `s`, return `True` if it is a palindrome in that sense and `False` otherwise.\n\nIf nothing is left after throwing characters away (for example a string of only punctuation and spaces), the empty remainder counts as a palindrome. Digits are compared as characters, so \"0\" and \"P\" are different.\n\nConstraints: 1 <= len(s) <= 2 * 10^5; `s` contains printable ASCII characters.",
+  "functionName": "is_palindrome",
+  "signature": "def is_palindrome(s: str) -> bool:",
+  "starterCode": "def is_palindrome(s: str) -> bool:\n    \"\"\"Return True if s reads the same both ways when only letters and digits are kept and case is ignored.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "s = \"Step on no pets!\"", "output": "True", "explanation": "Keeping only the letters and ignoring case leaves \"steponnopets\", which reads the same in both directions."},
+    {"input": "s = \"Hello, World\"", "output": "False", "explanation": "\"helloworld\" reversed is \"dlrowolleh\"."},
+    {"input": "s = \".,! ?\"", "output": "True", "explanation": "Every character is punctuation or a space, so nothing remains to disagree; the empty remainder counts as a palindrome."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args": ["Step on no pets!"], "expected": true},
+    {"args": ["Hello, World"], "expected": false},
+    {"args": [".,! ?"], "expected": true},
+    {"args": ["a"], "expected": true},
+    {"args": ["ab"], "expected": false},
+    {"args": ["0P"], "expected": false},
+    {"args": ["ab_a"], "expected": true},
+    {"args": ["Was it a car or a cat I saw?"], "expected": true},
+    {"args": ["No lemon, no melon"], "expected": true},
+    {"args": ["1231"], "expected": false},
+    {"args": ["12321"], "expected": true},
+    {"args": [" "], "expected": true},
+    {"args": ["Z1@U9u?eHK?7CN1!w.4zPbW1GBU.4_y@sxq,N6EP#gF7Co#8U0u_j.FMiUc1F0N?5!hL_aD?reyq-Da#y,zn;2cq:7Gb_Ed#lVG9i?ndb-0dfQFSXD'pIGTM#nG_r8S.DNJuhqx8cf'pMX,KO?e;C4,idA7E-h1k:jN O#Bxa#v.9'W-8RS:P4C7#Z#foNhC 07-Z:e,v?gngwy,o;K'LZ4aafN1iKAR,5kL0vScwS2!aMt0,Wk4K-4L'Y8G3rq3:8E5o'X.8?p-vdb1M4bBSd_vXcmX?Fa5PM?U F 8:pe!yT uY:ouyZ1#TKF8LeFfKXY,zq_N2Ces4H@8J:6'yFT1iT?p-f-t@8g;O@ajcmifN.VqSXU1'7q-1'cD7 C;C'gpGL u0Un_vbcesgN'HF7.OO?5:PHWCO SV_FNVsDO:a2LQ8T!Sb z'vPU?V,G'O-xsPIrzRDd!FZ:3TaXu!9'etnCHOl7,x_4?fflF,5 u:Bi0llU,Qgc3uG:L0WL_6-7?B7xrKn-KcH,B.nd_muS-w24NwMc3s3k1Tx'IzEx6r;a4!sFD6zK;Mhs:V38-Xfe4u-Zf#H:sEY#DC5R2?BpLbUKaC;A-nE-MfH.J:PVdDHg0!KhXDcZ-U:d1Nx'33gsuERXmT-V#gj_WmyQbbXfOpeFl7mca0D AAJTGZ!SJADQjZ83!5H 8yr7-kuE7uyK_U0r@iUzA'JH2V2D;M5om3:j#tZYHf;7.euAA_MXuX6w,2ezrZCzU_X?X:X.ZvfATr6xzm9h_nPrQ a-WB#BK.U!9aLF#k?61@r@LZ#W'Or;bA!4dFAdfTmYym7Cdcx5-82!OYS-W?Q2J.X1@jo0FQ4KqWkeW4F'phT u0EXi#buBV;Trl.W;3NdoWthi:Kw,S0@Z;ym'w 9T!FO,Ty8G?7L:lRt,Sx4z3fN88f'ol;yx@5@J:Z92LZXk75YZYG'CiWSN-oPln1 TK4N w7v:mM#u4MXqy;u-w@q!xOrs;9JiNiHqT,t?y4VAZMpD,KF8S;1F#qG'UZkP#iYPPl?zBAI8v#UA:Ji@H-Li:54y9J1g 5@FNvMb90cQ;0.paCN.a7WQ;T6n;K3;duLJ'FhnEf'g;nEv1Z;oXvihq-Cx5s.m.m;gop_4 q'bO!Do#Fw7_S,fe1.HsR0qNzlDO'5Ml,c8sOn?yeR5.F.H5;i D5.6d1,Ej,x3 4:f NUOwOLm_0tlp8wh.cc#T18s.Ad@N-hB m2WMPg#bo.Fa4?sw?L!Id rjjPjITJ9Jst5_HI_0#q8DZE P'2an;Q Cj9?p!R3-2qwbpSnp8XSt#uWZ7;O-R;5md:fUHM'hj7.Xys 7:7gfA.6OZ!VH-r#S3zYx0#aBqrAzKqDAM,hz9:O.60ulldDAe@A HhPhN0c1;oQ#0_Xe@pI@oZFT'ukL3.eel#Y8:s.jKy8rKYBR-hX?8kZ?2#od3?mk!oS_Xv,trUCAVHyl!UjJHw4z2CLmvis2p0@Q;xOivWP.c.De0Eg,6?D_e.M,yR_eW,p9,Az;po9yMSJ 3w-dR21_M,Z6,h4-EDZ!WHGUYdkoX-oz@K-uo@7?tnZ F:L@73?j.RbnWxisc:APugy91er1sy,a#6A:SIabx.B4,laSM?2M'F mBlb@eA@NX'yQ.9efa;Ahy6Pt_u9oQzG e_4HU in:dOIzdOygRBKyO jm,3pl:2#fvzOx;SVa5qG Z?wi2p;B_r:qjgtI?L?Z;w:biF@a-4o@6XOug!I-c@aKW_y8fIk?z'v e,i Y;cOL#X?2l:y1u:i:Sq:iVhHDZHP@vIxJURQsHI8s4,4s;l#4g-CZ?ZEfvwuf_Q'O9_XM2XY!cD2ul5.2IOF:pMm4,B.i,A:O N#Z.7nIvGDh?AW1v yq Ni4_r-OdB!SeDPm.oNO9Nlro2_Wc6nVGO3czm69n1.2 21N96M_Z'C3-o gvN6Cw2ORLn9onOM;pd'EsbDoR 4InQY'V1w aH!dgViN-7zn@o@a!Ib?4MmPfoi25,LU2-d;Cy,x:2mx!9oqFUW.VFezzcG4L-S4_4#S8ihSq_rujXi;Vp,h@z!dhHvI:QsI_U1-YL2xl!oC'yIEVZKiF?8YwkACi-G Uox6-O4@AfIBWzl;iTGJQRbP2#IW,z:gQ5A;vsXo_ZVF2LP,3MJ!oYkbrGYoDZ#i:oDNI#uh_4E g#ZqO9UTp6Y,H.a,AF:E:9qYx?naEBLbMfm2msA?L4bXB,Aisa6AYS1.RE1@9Y@GUpaCSIXwNBrJ,37-l.f;zN?T7OU kZOx-OK,Dyughw-zde 4H6;zm12rD,W3!j'sm-Y9OP,Za9Pw?ErYm_Ed6Ge0Ed!Cp,wVIoXq0:P2SIV;M;lc2Z4W-hjJu!LYhvacuRTVx@sO:K#M@3DO2z_K8xHrbykR8-Yk JS8#y:LEE3:lK-UtfzOiPE-x0?q@O1C0nHpHha_Ead,D_L!LU0#6.o9ZHmadQkZa,RQb:A0@X#yZ3s_Rh@vzo6aFG77SYx7.JHm?h!uF,DM5r o7zwU;Tsx8-PNs!PBWQ23rP!9#JcqN?A2pez:d8@Q:0ih5TSj_9!jtiJ:p?J,J:R,D!il;WS!4AfOBG p_mw:2MbH:nD.aS8-1@tC@CHW8P,LT0MloWounF.43XJe:1@D6'5dI5hf5rE_YNoS8CLm'5odLZn;Q0rS.h1EF.s'7.WfOdoBQ4POG@MM_S_5-Xc:QHI?Vx.O-z1@VeNG.F;e;NH.fjlU!D3kN6t?qw7A-n;c!AP0q?C0,9B-mVnf5G1.j9;Y45:IlhIjau?V8i!a!bZL ppyIpK.z'ugQf1s8fkdP?m#z'av4YTt-QhInIj9_SRoXQ,WUYQxm 4UmMV7Wn4k.t1NLpO'nswIc gyzy,5#7Kx.z'l@29z_j5XYLOF'88n'F3Z4:XsTrL_l.7_g_8?Yto'ft9WMYz0sWkI;HTwODn3w:LRtvbUBIxe'0Ut,HP_f4,wEKwQk@4 qf0OJ,1xj#2q'ws!yo 2#85XCDc7M YyMtFD:afD;4-aB.R?o#wzlR.16Kfl'A.9u;kb bw'Aq_R,p-NH'9MZX6R.ta:FVz!x:x@x-uZ'czR'Z_E2W:6xU-xma.aUE7F-hyzTJ3MO?5md2v2h?j aZu@IR0,ukYU7.eUK7RY8h 538z.Jqdajszgtja,ad0A!CM 7;L-f?EPoF'xBB:q,YMw:JG#v;tM,xreUSG33Xn1DuzCdxH'k 0;GhdDv pjhFme'NacA:kuB.lPb2r;5 cdyeS.h!Fz'U4EFx:83v?SHm!kZ6df@S4A R6XeZi Xt1K3S3-C_m-W,n42W;sUM!DN b!h?CkNkR:X7b76!lw.0lgU3CGquL!L!0IbU?5fL#F_F4,X7L oh#cNTE9UxAt3zfDdrZ;R-ipSXog_vupV_Z'Bst8-ql?2_A?odSvnfvso,cwhp-5oo#7fh-nGS'EC,BVNu0U-l-gPGcc7dC1Q71,uxs.Q@vn_F,IM#CJAo!G8!TFP.tI1tf!Y-6,j8h-4S_Ec.2nQZyx,k!FfE l8fkt 1zY.U'O!yUtYE@P_8fump5A;fxMCxVDs'b?B4m;1BDVP8xO5.e83QR3'g@8_y_l4;k#4K?w0Tm;A2sWCsV 0l.K5ra-kI;1:n@F-AA4zlkOYWG NG@V#E@z,70cH!n O.Fz7c4ps?r8w9V#AXbon JK1H.e7aD'I4cE.o'k!x;mPFC8XQHUjnds8.Rg-N_mtgi;Pd?xsfqF;D_0 BDNI'9gvL-DeBg7Q C2N-ZYA.dQYER,d;Al#H5n0f1_CuImfJU0?u8Oc:7'fGpe;6nQXSY4;ub-g1;wBp?Z4W1nc7khEU 9@u#1-z"], "expected": true},
+    {"args": ["!Z1U9ue#HK7'CN1w4zPbW1-GBU4#ysxqN!6EPg,F,7Co8U0ujFMi#Uc1?F!0N5hLa_D:r_ey.qDay@zn2cq7GbEdl_VG#9indb0@dfQF,S@X:DpI GTMnGr8S-DNJu_h,q.x8cf?pMX,KOe?C4_idA7Eh'1#kj_N-OBxav,9_W@8R'SP!4C7Z_fo-N!hC07'Zevgngw:y?oK.LZ4a afN@1i.K.AR5kL,0vSc'wS_2@aMt0W-k4K4LY8G_3rq3_8E5o?X8pvdb1M4b.BSdv-Xcm'XFa5P'M:UF8pe#yT#uY.ouyZ1TK'F8!LeFfKXYz#q:N2Ces4H8!J6.yFT1 i,T,pft8'g#Oaj cmifN_Vq-S XU1;7q1cD7_CCg.p#GLu.0Unvb c-es#g:NHF7OO@5PHWCO!S_V!FNV!s-DOa2!LQ-8#TSbzvPUV#GOxsP,Ir_zRDdF,Z#3TaX#u,9e#t,nCHO,l7;x4ff'lF5,uBi0'l?lUQgc3uGL#0W#L-67.B:7x;rKnK;cHBndmu Sw2-4NwM?c 3s3,k1Tx,IzEx6ra4sF?D,6-zKMhs'V38X.fe-4uZf-HsEY'DC5R2-BpLbUKa!CAnEMfHJ;P-V.d.D!Hg!0K;hX.DcZ#Ud1Nx;3?3 gsuERXm!TVgjW:my:Q'bb#X f@O!peF.l7m;c-a0DA'AJTGZ,SJA#DQjZ835H?8yr:7_ku_E7u!yKU0ri'UzAJH2,V;2D:M,5o.m,3jtZYHf7.eu;AAMXu!X6w_2ezr Z?C'zUX,XX_ZvfA#Tr6x@z,m9h#nPrQ aWBBK;U9a#LF,k:6;1rLZ;W!OrbA'4;dFAdf#T_mYym7C,dcx;582OYSWQ2JX1 jo0FQ4KqWk;e!W4Fph:Tu0@E;XibuBV;TrlW!3N#doWth;iK:wS0Zy,mw'9?TFOTy_8G7L#lRtSx4z3'fN8;8fo@lyx5 JZ92LZ#X;k75;YZ#YGC:iWSNo@P_ln 1@TK4Nw 7v!mMu4MX-qy_u!wqxOrs'9Ji N iHqTty4VA;Z#M-p-D KF.8S1Fq'GUZk:PiYPPlzB AI8vU?AJi HLi5@4y9;J1g5FNvM?b'90cQ0,p#a!C,Na 7W,QT6nK3d uLJFhn;E;f,gn'Ev1 ZoXvihq:C-x5@smmgop_4 q:bO,D,oF w7S!f.e;1HsR0qNzlD;O5Mlc8sOnyeR5'F'H5iD56d1@E!jx3_4fN,UOwOL@m0:t_lp8wh;ccT18sA?d@N.hBm2WMP:gbo:Fa,4-sw!LIdrjjPjITJ9Jst5#HI0q'8DZEP2anQC:j9p:R;32q:w#b_pSnp8-XStuW#Z7OR5m;dfUHMh_j7:Xy,s77-g'f;A6O'Z'VH-rS3zYx0a'Bqr#AzKqDAMhz_9 O?60ul@l'd D#AeAHhPhN:0c1oQ0XepIo'Z!FTu?kL 3ee?lY!8?sjK y@8rKYB,RhX8.kZ2,od.3mk,oS#Xvtr_UC,AV@Hy_lUjJ-H?w4#z2CL;mv_i,s2 p0'Qx_Oi;vWP-cDe;0E?g6DeMyRe!Wp9?Az.p:o9yMSJ3wd;R21MZ6h4ED Z@WHG#U;YdkoX!o@z@K.u:o7t:n;Z:FL73j:RbnW-xiscAP,ugy9'1er1;sy_a.6ASIabxB4laSM2MF?mB:l_beA_NXyQ9!efa-Ahy6@P@t#u9'oQzGe4H,U#in:dOIzdOygRBK'yOj@m-3_pl?2fvz,O_x!S#V_a5'qGZwi2pBrqjgtIL!Zw;b;iFa4o6XOu_gIcaK;Wy8fIk@zv_ei-YcOLX:2?ly1u;iSqiVh!H'DZHP-vIxJURQsH?I8_s44s_l;4-gCZZE.f'v:wufQO!9X;M2#XY:cD2ul'52IO'FpMm4;B#i'AONZ7nIvG Dh#AW1v'yqN;i#4-rO?d#BSeDPmoN:O9Nlro2-W c;6nVGO@3c@zm69;n122@1N@96MZC!3ogvN6Cw2O_R L'n.9onOM pdEs#bDoR'4InQYV@xw'aHd?gViN7_znoa-I b4@Mm:P#fo;i'2_5LU:2d'C@yx2m;x9oqF?UWVFez z:cG4LS44S8!ihSqru.jX:iVph#z dhH@vI#QsI;U1Y'L#2xloCyIE_VZKi:F#8.Y#wkA:Ci'G;Uox6O4Af@I!BWzliTGJQ RbP2_IWz.gQ5'A?v#s,XoZVF#2LP3MJo#Yk#brG_Y oD?Z i?oDNIu;h4E_g ZqO#9UTp6YHa@AF.E!9qY?xnaEBLb.Mfm2msAL@4bXBAisa6_A#Y!S@1@RE.1-9YGU@pa?CSI,XwNB-rJ3'7lf:zN;T7O'Uk_ZOxOKDyugh,wz?de4H6zm!1?2rDW3.j.smY9:OPZ_a9PwErY@m@Ed6G?e0 Ed.C,pwVI#oXq0P2S;I:VMlc2'Z@4WhjJuL_Yhvac_uRT-VxsO_K:M3DO2zK8xH,rby.kR8Y!k.JS8yLE-E3l:KU:t:f.zOiP_Ex0q?O1 C:0n,H?pHha!EadDL#LU06#o9ZHm;adQk,ZaRQ'bA0XyZ3sR?h@vzo6aFG77SYx7?J#H!mhuFDM'5ro7z'wUTsx8PNsPBWQ2.3r:P9JcqN-A2pezd@8-Q?0ih5TSj!9jtiJpJJR:DilWS4A_fOBG#p mw2MbHnDaS8#1t CCH;W8!PLT0?M loWo.u;nF.4,3XJe1D#65d,I5@hf'5rEYNoS@8CLm@5odL,Z.n_Q0'r:S:h1EFs7 W,fOdo.BQ.4POGMMS!5#Xc'QHI@V xOz1VeNG,F,e!NHf:jlUD3_kN6tqw7-Anc-AP0qC,09B_m?Vnf.5.G1@j9#Y45IlhIja.uV@8iab;Z Lpp!yI;pKzugQ f1s8fkdPmzav4?YTtQhInIj9SRo?XQWUYQx'm,4Um-MV7W@n4!k?t1?N?L@pOns.wI;cgy?zy57#K@xz l2@9z#j 5X_Y@LOF8_8nF3Z4@XsTrL@l7g8Yto-ft9W!M-Yz 0sWkIHTwODn3wL,RtvbUBIxe-0;Ut!HP,f4w,EK#wQ:k4q#f0O-J1xj2q:wsyo.28!5X.CDc@7MYy,M?t-FD,a'f!D4a_BR!o:w-zlR16KflA9ukbbwAq:Rp'N;H9-MZX6_R;taFVzxxxuZ-czRZ-E2W6x-UxmaaU E7Fhy@zT?J-3MO5.m!d;2v2.h!ja:ZuI#R!0uk?YU7!e,UK;7R@Y8@h538_z#Jq:daj,s zg_t!jaad:0ACM7LfE.Po,F:xB.Bq'Y;MwJG,v tM?x_reUSG3;3Xn?1DuzCdx!H@k0GhdDvpjh F#me!NacAkuB@lPb;2r-5@c dye'ShF!z:U4EFx.83vSHmkZ 6dfS4AR#6X#eZ i'X@t1K3S,3CmWn42WsUM#DN!bh_CkNkRX7b@76l.w0lg.U3#CGquLL0:IbU5fLFF4?X'7LohcN!T?E9UxAt3z-fDdrZRip'SXogvupVZ?Bs't@8ql2 A odSv,nfv,s@o_cw'hp:5oo 7f;h_nG'S!ECBVNu'0UlgPG#c c@7d-C1Q.7#1:u:xs:Q-vnFIM@CJ;A,oG@8_TF,PtI_1tfY#6j#8:h4SEc2nQ!ZyxkFfEl;8fkt1zYUOyUt:Y!E_P8fu,m,p5AfxMC?xV_D sbB4!m1 B,DVP:8x?O5e83_QR3g8yl4,k 4K:w0TmA2s.WC sV0!l K'5rak,I#1?nFAA4 zlk:OYW'GN;GV_Ez,70cH;nOFz?7!c4psr8w9V@AXb,onJ,K1H!e.7a#D,I_4c_EokxmPFC?8;XQHUjn'd's8RgNmt:gi.P'dx-sfq,FD0'BDN_I9gvLD.eB,g'7@QC2N,ZY'AdQY:ERdAl!H5n0,f1CuI'mfJU0#u8Oc#7fG.p:e6.nQXSY4ubg1wBp@Z:4.W 1nc@7khEU9?u#1z"], "expected": false}
+  ],
+  "compare": "exact",
+  "referenceSolution": "def is_palindrome(s: str) -> bool:\n    left, right = 0, len(s) - 1\n    while left < right:\n        if not s[left].isalnum():\n            left += 1\n        elif not s[right].isalnum():\n            right -= 1\n        elif s[left].lower() != s[right].lower():\n            return False\n        else:\n            left += 1\n            right -= 1\n    return True\n",
+  "targetComplexity": {"time": "O(n)", "space": "O(1)"},
+  "hints": [
+    "Which characters actually matter here, and which should your comparison never look at?",
+    "You could build a cleaned copy of the string and compare it to its reverse. Can you compare characters from the two ends directly instead?",
+    "With pointers at both ends, what should you do when one of them points at a character that is not a letter or digit?",
+    "Try \"0P\" and \"ab_a\". Which comparisons would be wrong if you treated '0' like 'P' or kept the underscore?",
+    "Two pointers moving inward: skip non-alphanumeric characters on each side, compare the rest case-insensitively, and stop when they meet."
+  ],
+  "followUps": [
+    "What are the time and space complexity, and what does building a cleaned copy cost compared with the two-pointer approach?",
+    "How would your solution change for Unicode text with accents or characters from other scripts?",
+    "How would you allow at most one character to be deleted and still call the string a palindrome?",
+    "What does your code do on a string of only punctuation, and is that the right answer?"
+  ],
+  "idealAnswerPoints": [
+    "Keeps only letters and digits and compares case-insensitively",
+    "Uses two pointers moving inward, skipping non-alphanumeric characters, for O(1) extra space",
+    "Treats an empty remainder as a palindrome and handles odd and even lengths with the same loop",
+    "States O(n) time and O(1) space, noting the cleaned-copy version uses O(n) space"
+  ],
+  "weakAnswerSigns": [
+    "Compares the raw string to its reverse without cleaning it first",
+    "Lower-cases or filters in a way that treats digits and letters as equal, or keeps underscores",
+    "Moves the pointers without bounds checks and indexes out of range on strings of punctuation"
+  ],
+  "rubric": {
+    "correctness": "Correct on mixed case, punctuation, spaces, digits, underscores, single characters and punctuation-only strings.",
+    "efficiency": "O(n) time; the two-pointer version is O(1) space, while a cleaned copy at O(n) space is acceptable if named.",
+    "code_quality": "Readable condition ordering inside the loop, built-in isalnum/lower rather than hand-written ranges.",
+    "communication": "Explains which characters are skipped, why '0' and 'P' differ, and the choice between a copy and two pointers."
+  }
+}

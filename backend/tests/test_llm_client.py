@@ -133,3 +133,31 @@ def test_structured_raises_after_exhausting_retries():
             agent="test", model="m", system="s", user="u", schema=_Shape, max_retries=2)
     # 1 initial attempt + 2 retries = 3 calls
     assert len(fake.calls) == 3
+
+
+def test_structured_sends_temperature_zero_by_default():
+    fake = _FakeClient('{"name": "widget", "count": 3}')
+    LLMClient(client=fake).structured(agent="test", model="m", system="s", user="u", schema=_Shape)
+    # Sent in the request body: the installed SDK's create() has no `temperature` parameter.
+    assert fake.calls[0]["extra_body"] == {"temperature": 0.0}
+
+
+def test_structured_sends_explicit_temperature():
+    fake = _FakeClient('{"name": "widget", "count": 3}')
+    LLMClient(client=fake).structured(
+        agent="test", model="m", system="s", user="u", schema=_Shape, temperature=0.3)
+    assert fake.calls[0]["extra_body"] == {"temperature": 0.3}
+
+
+def test_every_argument_we_send_is_accepted_by_the_real_sdk():
+    # Guard against SDK drift: fakes accept any kwargs, so check our call against the
+    # signature of the installed anthropic SDK's Messages.create. (A `temperature=`
+    # kwarg once slipped through every fake and failed every real call.)
+    import inspect
+    from anthropic.resources.messages import Messages
+
+    fake = _FakeClient('{"name": "widget", "count": 3}')
+    LLMClient(client=fake).structured(
+        agent="test", model="m", system="s", user="u", schema=_Shape, temperature=0.3)
+    accepted = set(inspect.signature(Messages.create).parameters)
+    assert set(fake.calls[0]) <= accepted, set(fake.calls[0]) - accepted

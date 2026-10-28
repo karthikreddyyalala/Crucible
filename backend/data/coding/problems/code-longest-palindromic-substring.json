@@ -1,0 +1,66 @@
+{
+  "id": "code-longest-palindromic-substring",
+  "title": "Longest Palindromic Substring",
+  "difficulty": "medium",
+  "topics": ["string", "dynamic programming", "two pointers"],
+  "asked": "very_common",
+  "statement": "Given a string `s`, return its longest palindromic substring: a run of consecutive characters that reads the same forwards and backwards. A single character is a palindrome, so the answer is never empty.\n\nSeveral palindromes could tie for longest on some strings, but the tests only use inputs where the longest one is unique, so you won't have to break ties.\n\nConstraints: 1 <= len(s) <= 1000; `s` contains digits and English letters.",
+  "functionName": "longest_palindrome",
+  "signature": "def longest_palindrome(s: str) -> str:",
+  "starterCode": "def longest_palindrome(s: str) -> str:\n    \"\"\"Return the longest substring of s that reads the same forwards and backwards.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "s = \"mqracecarzk\"", "output": "\"racecar\"", "explanation": "\"racecar\" has seven characters and reads the same both ways; nothing longer qualifies."},
+    {"input": "s = \"abbc\"", "output": "\"bb\"", "explanation": "The longest palindrome is the even-length \"bb\"; there is no single middle character."},
+    {"input": "s = \"z\"", "output": "\"z\"", "explanation": "A one-character string is its own longest palindrome."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args": ["mqracecarzk"], "expected": "racecar"},
+    {"args": ["abbc"], "expected": "bb"},
+    {"args": ["z"], "expected": "z"},
+    {"args": ["baa"], "expected": "aa"},
+    {"args": ["cbbd"], "expected": "bb"},
+    {"args": ["abcba"], "expected": "abcba"},
+    {"args": ["xyzzyxabc"], "expected": "xyzzyx"},
+    {"args": ["aaaa"], "expected": "aaaa"},
+    {"args": ["kayakmq"], "expected": "kayak"},
+    {"args": ["abcdeedcxyz"], "expected": "cdeedc"},
+    {"args": ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"], "expected": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+    {"args": ["abababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababa"], "expected": "abababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababa"},
+    {"args": ["eqiehijyncbhbycumyayqkfcrnbfpnztirwhhxntlcwxlavaifwxpmllwyweevkrqmzoltxqpzhzctcdgcevlbljkooqkxgskrvqmcipbkxcsvgfiemezbzayxrwinvdrevvyaeqbkwsqgshrcckzboylesplwoslhhuntcwdmepxuqkngwzqcsobbhsozbuvaaoimkmuwglfblmwsjdicidwlrgeutulaxthacbutpomnxxhexmbqjmtibupzzclvcefdxsvklrsdpquwphjkukaxrdejteltqqejsjxwaogavnzmaybxkjvgjqixljidflsmievwcrgkpxfeeanzfdoqdbrfgspxiosutjuujxcfgbxjmqvbnpiwjaewfgzmenekrsrtiijrndinkjnnumgoeoaxfxvhmhqfaaaznxlguccqasyihavjufdfouxhklerhoeytwnnyrxmvyxwufbchfvjehpedlfwtcdotbbslejsjfkeklowwlxguoxqxougxlwwolkekfjsjelsnjkwocbtcebwxsbelfuwvzeupqnutraatgrxjaelengdwkpxdqsfrcemafjgzvscklqsyayeptcingdwivdqcnuqrqhftgidpbcbgijrjapqnmqrkobkwnnebzdcevhstzevslpchiqysvyurgruzdrvtzrvrhplwejedpzmpanalmzyrjwatiirfltdblhycmjxtkwsqkirshvhdscmaqbzmnnngrzlschiuglxxtguuypkzadpgxgqnsbsltxwrmfdxkizlbtamoivjqkwiofsciosnaixpcphlaaryfpevwpnceymyxdjmvmbtfukvrhihjzxkrvejayfhlvsigdadhwipzhehrhdhfkcpjcpzjvodlevgywoiqhcydmcpiskmvvfljfcjcwlibfqyrglxkzzzwppcnsxvkdsjnlzfsdalkapymqwwwlavmqekewimtanwaymmiixpc"], "expected": "slejsjfkeklowwlxguoxqxougxlwwolkekfjsjels"},
+    {"args": ["quwuvbqdpalilhlqwyqxjsroqbefbqqgjjpissornluhnkfhryckakksinwzgwmtpfsrrvfqsrhdwjgnyyngjwdhrsqfvrrsfptmbiufezgwcadubopnvshuzcjdkhcbwfmmmfnrpniulxwrradqjzepjjpfkusmznpddujogppzwkcbsknkvvunnrsmbpughidiibrvagbmcqraeivfpspwfublbsdihumbqugnjkhpsensmdvfrbvnrmtorcqxxdqdfbeucgjreyiqeeuunuzsiootzcpmahepmbvirdnuyxylapgvwfxjddxrolnrfihmaplwygxuvppngwelancxwptphdhyonhhblsnmmmfeeuithzrnoevhfeawcrxkooemkgadcleqdqplmveukwnvqfaejqxrplfehowcrisxylvdpuqmameaoftixpncusccjrafjhvbopcygifnqgoenbfeskynuyjlcdxmwdbgpyraklacnzpjczcwogjftvczgosihagtxayfwmmwkwbyxfrmpspakzadicxpbwwigemnepetcxgevyshcbtyajrrafunvdkbvtqqnuuqyexkztizwnrbsgvrtjcmnjelvyomrfmxkgutevfyuytcwxdmidxbjiytrezyfyzstyloafxayleajzkpnmbksyhqqhctfuxrucwcemncaiegpmefythlxrkepihpqfobsdwsqjheysafpxtccxdlraiplfbuzdzpiawmvbrcofnsgkzeepfvplvaksqejhxwehvzvpvowamfgohfarolbazehkohfddpjnowimtqomrnqdhyonorlchjzaeanzxswhlajeyjqccsydxjnpbfriynuibcnkdslqtknoyqnfrhuhortcvrlugciewyfjoavphnqqlhszrnjrkmpegyliobsjysaqsfefsvcsnnubstcjzbfwomntxtbogdtpcmtlyufvfnsucdetbuasu"], "expected": "mtpfsrrvfqsrhdwjgnyyngjwdhrsqfvrrsfptm"}
+  ],
+  "compare": "exact",
+  "referenceSolution": "def longest_palindrome(s: str) -> str:\n    start, length = 0, 1\n    for center in range(len(s)):\n        for lo, hi in ((center, center), (center, center + 1)):\n            while lo >= 0 and hi < len(s) and s[lo] == s[hi]:\n                lo -= 1\n                hi += 1\n            if hi - lo - 1 > length:\n                start, length = lo + 1, hi - lo - 1\n    return s[start:start + length]\n",
+  "targetComplexity": {"time": "O(n^2)", "space": "O(1)"},
+  "hints": [
+    "What does every palindrome have in the middle, and does that differ between odd and even lengths?",
+    "Checking every substring is O(n^3). If you picked the middle first, how could you find the best palindrome around it?",
+    "How many different middles are there for a string of length n? Think about odd and even palindromes separately.",
+    "Try \"abbc\" and \"cbbd\". Does your approach find a palindrome with no single middle character?",
+    "Expand outward from each of the 2n - 1 centres (each character, and each gap between two characters) while the ends match, and keep the longest."
+  ],
+  "followUps": [
+    "What are the time and space complexity of expanding around centres, and what input makes it the slowest?",
+    "How would a dynamic programming table solve this, and what does it cost in space compared with your solution?",
+    "There is an O(n) algorithm for this problem. What is it called and what idea does it use to avoid re-checking characters?",
+    "How would you return every longest palindrome if there were ties?"
+  ],
+  "idealAnswerPoints": [
+    "Expands outward from each centre, handling both odd-length (one character) and even-length (a gap) centres",
+    "Keeps the best start and length so far and slices the string once at the end",
+    "Uses O(1) extra space, and contrasts it with the O(n^2)-space DP table",
+    "States O(n^2) time and mentions Manacher's algorithm as the O(n) option"
+  ],
+  "weakAnswerSigns": [
+    "Tests every substring by reversing it, giving O(n^3)",
+    "Only expands from single characters and misses even-length palindromes such as \"bb\"",
+    "Returns the length instead of the substring, or returns the first palindrome it finds rather than the longest"
+  ],
+  "rubric": {
+    "correctness": "Correct for odd- and even-length palindromes, repeated characters, a whole-string palindrome, and a palindrome buried in a long random string.",
+    "efficiency": "O(n^2) time with centre expansion or DP; the cubic check of every substring is too slow.",
+    "code_quality": "One helper or loop that serves both centre types; slicing is done once at the end.",
+    "communication": "Explains the 2n - 1 centres and compares expand-around-centre with DP and Manacher."
+  }
+}

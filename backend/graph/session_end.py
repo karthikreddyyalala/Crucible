@@ -12,8 +12,8 @@ class SessionEndState(TypedDict, total=False):
     updated_memory: MemoryProfile
 
 
-def build_session_end_graph(*, llm, memory_model: str):
-    memory_agent = MemoryAgent(llm=llm, model=memory_model)
+def build_session_end_graph(*, llm, memory_model: str, memory_temperature: float = 0.0):
+    memory_agent = MemoryAgent(llm=llm, model=memory_model, temperature=memory_temperature)
 
     def memory_node(state: SessionEndState) -> SessionEndState:
         updated = memory_agent.run(

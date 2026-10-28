@@ -1,0 +1,70 @@
+{
+  "id": "code-decode-ways",
+  "title": "Decode Ways",
+  "difficulty": "medium",
+  "topics": ["dynamic programming", "string"],
+  "asked": "very_common",
+  "statement": "A message made of capital letters was turned into digits using A = 1, B = 2, ..., Z = 26. Given the digit string `s`, return how many different letter messages it could have come from.\n\nA split is valid when the string is cut into pieces of one or two digits, every piece is a number from 1 to 26, and no piece starts with 0. So \"6\" and \"10\" are fine but \"06\" and \"0\" are not. If no valid split exists, return 0.\n\nConstraints: 1 <= len(s) <= 100; s contains only digits; the answer fits in a 32-bit signed integer.",
+  "functionName": "num_decodings",
+  "signature": "def num_decodings(s: str) -> int:",
+  "starterCode": "def num_decodings(s: str) -> int:\n    \"\"\"Return the number of ways to read the digit string s as letters (A=1 ... Z=26).\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "s = \"123\"", "output": "3", "explanation": "Read it as 1-2-3, 12-3 or 1-23, which spell \"ABC\", \"LC\" and \"AW\"."},
+    {"input": "s = \"2610\"", "output": "2", "explanation": "2-6-10 and 26-10 are valid. 2-61 and any split that ends in a lone 0 are not."},
+    {"input": "s = \"506\"", "output": "0", "explanation": "\"50\" is too big and \"06\" starts with a zero, so the 0 can never be placed."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args":["123"],"expected":3},
+    {"args":["2610"],"expected":2},
+    {"args":["506"],"expected":0},
+    {"args":["1"],"expected":1},
+    {"args":["0"],"expected":0},
+    {"args":["10"],"expected":1},
+    {"args":["27"],"expected":1},
+    {"args":["100"],"expected":0},
+    {"args":["230"],"expected":0},
+    {"args":["2101"],"expected":1},
+    {"args":["11106"],"expected":2},
+    {"args":["1001"],"expected":0},
+    {"args":["111111111111111111111111111111111111111111111"],"expected":1836311903},
+    {"args":["1010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010"],"expected":1},
+    {"args":["2222222222222222222222222222222222222222"],"expected":165580141}
+  ],
+  "compare": "exact",
+  "referenceSolution": "def num_decodings(s: str) -> int:\n    prev, cur = 0, 1  # ways for the prefixes of length i-1 and i, starting at i = 0\n    for i, ch in enumerate(s):\n        nxt = cur if ch != \"0\" else 0\n        if i > 0 and 10 <= int(s[i - 1:i + 1]) <= 26:\n            nxt += prev\n        prev, cur = cur, nxt\n    return cur\n",
+  "targetComplexity": {"time": "O(n)", "space": "O(1)"},
+  "hints": [
+    "Look at just the first digit or the first two digits. Which of them can be read as a letter, and what is left?",
+    "The leftover is the same question on a shorter string. When can the first digit stand alone, and when can the first two digits form one letter?",
+    "Think carefully about the digit 0. When can it appear, and what does it force about the digit before it? Try '10', '100' and '30'.",
+    "Plain recursion recomputes the same suffixes over and over. Try a string of all 1s and see how the work grows.",
+    "Let ways[i] be the count for the first i digits. It adds ways[i-1] when the last digit is not 0 and ways[i-2] when the last two digits are 10 to 26, so two running values are enough."
+  ],
+  "followUps": [
+    "What are the time and space complexity of your solution?",
+    "How does your code treat a '0' that follows a digit bigger than 2, and a string that starts with '0'?",
+    "Why does the count for a string of n ones equal a Fibonacci number?",
+    "How would you return all the decoded messages instead of counting them, and what is the size of that output?",
+    "What changes if the encoding also allows '*' as a wildcard standing for any digit 1 to 9?"
+  ],
+  "idealAnswerPoints": [
+    "Defines ways[i] for the first i digits with ways[0] = 1",
+    "Adds ways[i-1] only if the current digit is not '0'",
+    "Adds ways[i-2] only if the last two digits form a number from 10 to 26",
+    "Treats every '0' that is not part of '10' or '20' as making the whole string undecodable",
+    "Reduces space to O(1) because only the last two counts are needed"
+  ],
+  "weakAnswerSigns": [
+    "Counts '06' or '0' as a valid piece",
+    "Accepts any two-digit number, for example 27 to 99",
+    "Returns 2 for '10' by counting the invalid split 1-0",
+    "Plain recursion with no memoisation that is exponential on long runs of 1s"
+  ],
+  "rubric": {
+    "correctness": "Right count on every test, including leading zeros, '10' and '20', zeros that cannot be placed, and long all-ones strings.",
+    "efficiency": "Linear time. Unmemoised recursion fails the long inputs; O(1) space is the target.",
+    "code_quality": "The two transitions are separate and readable, and the zero rules are not buried in a pile of nested conditions.",
+    "communication": "Explains the zero rules out loud and tests '10', '27' and '100' before finishing."
+  }
+}

@@ -1,5 +1,6 @@
 import os
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -22,6 +23,16 @@ class Settings(BaseSettings):
     evaluator_model: str = sonnet_model
     memory_model: str = haiku_model
     coach_model: str = sonnet_model
+
+    # Sampling temperature per agent. Scoring/planning agents run at 0 so the same
+    # input gives the same verdict; the interviewer gets a little variety so its
+    # phrasing doesn't sound canned. Override via INTERVIEWAI_<NAME>_TEMPERATURE.
+    intake_temperature: float = Field(0.0, ge=0, le=1)
+    planner_temperature: float = Field(0.0, ge=0, le=1)
+    interviewer_temperature: float = Field(0.3, ge=0, le=1)
+    evaluator_temperature: float = Field(0.0, ge=0, le=1)
+    memory_temperature: float = Field(0.0, ge=0, le=1)
+    coach_temperature: float = Field(0.0, ge=0, le=1)
 
     # Persistence. "memory" keeps everything in-process (tests, local dev with
     # no AWS tables). "dynamodb" persists MemoryProfile across sessions/devices.
