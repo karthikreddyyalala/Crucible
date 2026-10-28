@@ -1,5 +1,6 @@
 import pytest
 from pydantic import ValidationError
+from models.loader import bank_for, find_exemplar, load_competency_map, load_question_bank
 from models.question_data import QuestionBank, QuestionExemplar
 
 _Q = {
@@ -28,3 +29,25 @@ def test_exemplar_requires_at_least_three_follow_ups():
 def test_bank_rejects_duplicate_ids():
     with pytest.raises(ValidationError):
         QuestionBank.model_validate({"role": "SDE", "questions": [_Q, _Q]})
+
+
+@pytest.mark.parametrize("role", ["sde", "ai_engineer"])
+def test_bank_loads_and_matches_competency_map(role):
+    bank = load_question_bank(role)
+    areas = {c.area for c in load_competency_map(role).competencies}
+    assert bank.questions
+    for q in bank.questions:
+        assert q.competency in areas, f"{q.id}: unknown competency {q.competency}"
+
+
+def test_ids_are_globally_unique_and_findable():
+    ids = [q.id for r in ("sde", "ai_engineer") for q in load_question_bank(r).questions]
+    assert len(ids) == len(set(ids))
+    assert find_exemplar(ids[0]).id == ids[0]
+    assert find_exemplar("nope") is None
+
+
+def test_bank_for_filters_by_mode_and_level():
+    picked = bank_for("sde", mode="behavioral", level="junior")
+    assert picked and all(q.type == "behavioral" and "junior" in q.levels for q in picked)
+    assert {q.type for q in bank_for("sde", mode="full", level="mid")} >= {"behavioral"}

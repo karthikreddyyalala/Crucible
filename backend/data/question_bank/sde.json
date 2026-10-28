@@ -1,0 +1,149 @@
+{
+  "role": "SDE",
+  "questions": [
+    {
+      "id": "sde-beh-ownership-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 3,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Owns an outcome end to end under real constraints",
+      "prompt": "Tell me about a project you owned where the deadline felt unrealistic.",
+      "idealAnswerPoints": [
+        "specific situation",
+        "own decisions",
+        "measured result"
+      ],
+      "weakAnswerSigns": [
+        "only 'we'",
+        "no outcome"
+      ],
+      "followUpHooks": [
+        "What did you personally decide?",
+        "How did you know it worked?",
+        "What would you do differently?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Situation, task, action and result are each clear and in order",
+          "specificity": "Concrete details: names, numbers, dates rather than generalities",
+          "impact": "States a measurable or observable outcome",
+          "ownership": "names decisions they personally made"
+        }
+      }
+    },
+    {
+      "id": "sde-beh-conflict-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Handles technical disagreement without damaging the relationship or the outcome",
+      "prompt": "Describe a time you disagreed with a teammate about a technical approach. How did it play out?",
+      "idealAnswerPoints": [
+        "states both positions fairly",
+        "what they did to resolve it, such as a prototype or data",
+        "the outcome and the working relationship afterward"
+      ],
+      "weakAnswerSigns": [
+        "blames the other person",
+        "resolved by 'agreeing to disagree' with no result",
+        "no personal action"
+      ],
+      "followUpHooks": [
+        "What was the strongest argument for the other side?",
+        "What evidence did you bring, and did it change anyone's mind?",
+        "What would you do if they still disagreed after that?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Situation, task, action and result are each clear and in order",
+          "specificity": "Concrete details: names, numbers, dates rather than generalities",
+          "impact": "States a measurable or observable outcome",
+          "ownership": "describes their own actions in resolving the disagreement"
+        }
+      }
+    },
+    {
+      "id": "sde-tech-dedupe-1",
+      "role": "SDE",
+      "competency": "Data Structures & Algorithms",
+      "type": "technical",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Picks the right data structure and reasons about its cost",
+      "prompt": "Given a stream of user IDs, return the first ID that appears exactly once. Walk me through your approach and write it.",
+      "idealAnswerPoints": [
+        "hash map of counts with ordered scan, or ordered dict",
+        "O(n) time and O(n) space with justification",
+        "handles the no-unique-ID case"
+      ],
+      "weakAnswerSigns": [
+        "brute-force nested loop with no cost discussion",
+        "never mentions the empty or all-duplicates case"
+      ],
+      "followUpHooks": [
+        "What is the time and space complexity?",
+        "What changes if the stream is too large for memory?",
+        "How would you do it in a single pass over an unbounded stream?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Approach produces correct results on the stated problem",
+          "depth": "Explains why it works and its time/space cost",
+          "edge_cases": "Identifies and handles empty, duplicate and boundary inputs",
+          "communication": "Narrates reasoning clearly before and while coding"
+        }
+      }
+    },
+    {
+      "id": "sde-sd-shortener-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 3,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Turns a vague product ask into a sized, defensible architecture",
+      "prompt": "Design a URL shortening service that serves redirects for a few hundred million links.",
+      "idealAnswerPoints": [
+        "asks about read/write ratio, link lifetime and custom aliases",
+        "estimates storage and QPS",
+        "chooses an ID generation scheme and a store with reasons",
+        "caching on the redirect path"
+      ],
+      "weakAnswerSigns": [
+        "jumps straight to boxes without requirements",
+        "no numbers",
+        "single database with no scaling story"
+      ],
+      "followUpHooks": [
+        "How do you generate unique short codes without collisions?",
+        "How does the redirect path stay fast at peak load?",
+        "What happens when a cache node or the primary database fails?",
+        "How would you add per-link click analytics without slowing redirects?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Clarifies functional and non-functional requirements and scale up front",
+          "scalability": "Sizes the load and shows where the design bottlenecks",
+          "tradeoffs": "Names alternatives and justifies the choices made",
+          "depth": "Goes deep on at least one component, including failure modes"
+        }
+      }
+    }
+  ]
+}

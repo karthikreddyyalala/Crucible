@@ -1,0 +1,79 @@
+{
+  "role": "AI Engineer",
+  "questions": [
+    {
+      "id": "aie-sd-drift-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "behavioral",
+      "difficulty": 3,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Has operated a model in production and learned from it going wrong",
+      "prompt": "Tell me about a time a model you shipped behaved worse in production than in evaluation. What did you do?",
+      "idealAnswerPoints": [
+        "how the problem was detected",
+        "root cause such as drift or train/serve skew",
+        "their specific fix",
+        "what monitoring they added afterward"
+      ],
+      "weakAnswerSigns": [
+        "only discusses offline metrics",
+        "no root cause found",
+        "'the team' fixed it"
+      ],
+      "followUpHooks": [
+        "How did you first notice?",
+        "How did you separate a data problem from a model problem?",
+        "What monitoring would have caught it earlier?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Situation, task, action and result are each clear and in order",
+          "specificity": "Concrete details: names, numbers, dates rather than generalities",
+          "impact": "States a measurable or observable outcome",
+          "ownership": "names the debugging steps and fixes they personally drove"
+        }
+      }
+    },
+    {
+      "id": "aie-tech-rag-1",
+      "role": "AI Engineer",
+      "competency": "LLM / Prompting / RAG / Agents",
+      "type": "technical",
+      "difficulty": 3,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Understands why retrieval-augmented systems fail and how to measure them",
+      "prompt": "A RAG chatbot over internal docs gives confident but wrong answers. How would you diagnose and improve it?",
+      "idealAnswerPoints": [
+        "separates retrieval failures from generation failures",
+        "inspects retrieved chunks and measures recall on a labelled set",
+        "chunking, hybrid search or reranking changes",
+        "grounding and abstain behaviour in the prompt"
+      ],
+      "weakAnswerSigns": [
+        "only suggests a bigger model",
+        "no evaluation plan",
+        "changes several things at once without measuring"
+      ],
+      "followUpHooks": [
+        "How would you build an evaluation set for this?",
+        "What would you check if the right chunk is retrieved but the answer is still wrong?",
+        "How do you stop the model answering when retrieval comes back empty?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Approach produces correct results on the stated problem",
+          "depth": "Explains why it works and its time/space cost",
+          "edge_cases": "Identifies and handles empty, duplicate and boundary inputs",
+          "communication": "Narrates reasoning clearly before and while coding"
+        }
+      }
+    }
+  ]
+}
