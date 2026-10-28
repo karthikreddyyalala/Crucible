@@ -142,6 +142,9 @@ const INTAKE_BY_ROLE: Record<string, Omit<IntakeProfile, "targetRole">> = {
   },
 };
 
+// Max probing follow-ups per question; mirrors backend FOLLOW_UP_BUDGET.
+const FOLLOW_UP_BUDGET: Record<string, number> = { behavioral: 3, technical: 3, system_design: 6 };
+
 // Follow-up probes keyed loosely to question type — one ask each.
 const PROBES: Record<string, string[]> = {
   behavioral: [
@@ -158,6 +161,9 @@ const PROBES: Record<string, string[]> = {
     "Before the components — what would you clarify about the requirements?",
     "Where's the bottleneck in that design, and what tradeoff would you make for it?",
     "What happens when that component fails?",
+    "How does the data model change once a single database can't hold it?",
+    "How would you know in production that this design is falling behind?",
+    "What would you build last, and what would you deliberately not build?",
   ],
 };
 
@@ -336,22 +342,23 @@ export const mockEngine = {
         : out("clarify", "Fair question — make whatever reasonable assumption you think is right and say it out loud. I'll tell you if it's off. Go ahead whenever you're ready.");
     }
 
+    const budget = FOLLOW_UP_BUDGET[question.type];
     const resolve = (reaction: string) =>
       isLast || !nextQuestion
         ? out("complete", `${reaction} That's everything I wanted to cover. What questions do you have for me?`)
         : out("advance", `${reaction} ${bridgeTo(question, nextQuestion)} ${nextQuestion.prompt}`);
 
     if (DONT_KNOW.test(reply) && reply.length < 220) {
-      if (followUpCount < 2) {
-        const hint = HINTS[question.type][Math.min(followUpCount, 1)];
+      if (followUpCount < HINTS[question.type].length) {
+        const hint = HINTS[question.type][followUpCount];
         const opener = followUpCount === 0 ? "That's okay, let's work through it together." : "No problem — let me make it smaller.";
         return out("follow_up", `${opener} ${hint}`, hint);
       }
       return resolve("Okay, let's leave that one — it's worth reviewing afterwards.");
     }
 
-    if (followUpCount < 2 && looksVague(reply)) {
-      const probe = PROBES[question.type][Math.min(followUpCount, 2)];
+    if (followUpCount < Math.min(budget, PROBES[question.type].length) && looksVague(reply)) {
+      const probe = PROBES[question.type][followUpCount];
       const reaction = reply.length < 80
         ? "Okay, that's pretty brief."
         : pick(["Okay.", "Alright, I'm following.", "Right."]);
@@ -365,7 +372,7 @@ export const mockEngine = {
           "Okay, the numbers make that easy to believe.",
           "Right, I can follow exactly what you did there.",
         ])
-      : followUpCount >= 2
+      : followUpCount >= Math.min(budget, PROBES[question.type].length)
       ? "Okay. I still don't have the specifics I was looking for there, but let's keep going."
       : "Okay, I've got a reasonable picture of that.");
   },

@@ -27,8 +27,15 @@ from agents.coach import CoachAgent
 from agents.evaluator import EvaluatorAgent
 from agents.interviewer import InterviewerAgent
 from agents.memory import MemoryAgent
+from models.loader import find_exemplar
+from models.question_data import QuestionExemplar
 from graph.session_start import build_session_start_graph
 from store.base import MemoryStore, VersionConflict
+
+
+def _exemplar_for(q: PlannedQuestion) -> QuestionExemplar | None:
+    ex = find_exemplar(q.exemplar_id)
+    return ex if ex and ex.type == q.type else None  # mismatched notes would contradict the question
 
 
 class _Base(BaseModel):
@@ -57,7 +64,7 @@ class StartSessionResponse(_Base):
 class TurnRequest(_Base):
     question: PlannedQuestion
     answer: str
-    follow_up_count: int
+    follow_up_count: int = Field(ge=0)
     is_last: bool
     # Conversational context so the interviewer can respond like a person:
     # which stage of the interview this is, what to ask next if it moves on,
@@ -65,15 +72,15 @@ class TurnRequest(_Base):
     phase: Literal["warmup", "background", "question", "closing"] = "question"
     next_question: PlannedQuestion | None = None
     candidate_name: str = ""
-    mode: str = ""
-    level: str = ""
+    mode: Literal["", "full", "behavioral", "technical", "system_design"] = ""
+    level: Literal["", "junior", "mid", "senior"] = ""
     profile: IntakeProfile | None = None
 
 
 class EvaluateRequest(_Base):
     question: PlannedQuestion
     transcript: str
-    follow_up_count: int
+    follow_up_count: int = Field(ge=0)
 
 
 class TurnResponse(_Base):
@@ -220,6 +227,8 @@ def build_session_router(
             mode=req.mode,
             level=req.level,
             usage_sink=usage,
+            # Warmup/background/closing carry an unrelated question; notes would mislead.
+            exemplar=_exemplar_for(req.question) if req.phase == "question" else None,
         )
         return TurnResponse(decision=decision, cost_usd=sum(u.cost_usd for u in usage))
 
@@ -231,6 +240,7 @@ def build_session_router(
             transcript=req.transcript,
             follow_up_count=req.follow_up_count,
             usage_sink=usage,
+            exemplar=_exemplar_for(req.question),
         )
         return EvaluateResponse(evaluation=evaluation, cost_usd=sum(u.cost_usd for u in usage))
 

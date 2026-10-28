@@ -28,6 +28,7 @@ export interface PlannedQuestion {
   prompt: string;
   targetDifficulty: Difficulty;
   weightedFromWeakness: boolean;
+  exemplarId?: string | null;
 }
 
 export interface QuestionPlan {

@@ -70,3 +70,26 @@ def test_interviewer_complete_on_last_question():
 
     assert decision.action == "complete"
     assert "isLastQuestion: true" in llm.last["user"]
+
+
+def test_interviewer_notes_included_with_exemplar_and_absent_without():
+    from models.loader import find_exemplar
+    ex = find_exemplar("sde-beh-ownership-1")
+    llm = _FakeLLM({"action": "advance", "followUpPrompt": None, "currentQuestionId": "q-beh-1"})
+    agent = InterviewerAgent(llm=llm, model="m")
+    agent.run_turn(question=_Q, candidate_answer="x", follow_up_count=0,
+                   is_last_question=False, exemplar=ex)
+    assert "Interviewer notes" in llm.last["user"]
+    assert ex.follow_up_hooks[0] in llm.last["user"]
+    agent.run_turn(question=_Q, candidate_answer="x", follow_up_count=0, is_last_question=False)
+    assert "Interviewer notes" not in llm.last["user"]
+
+
+def test_interviewer_follow_up_budget_per_type():
+    llm = _FakeLLM({"action": "advance", "followUpPrompt": None, "currentQuestionId": "q"})
+    agent = InterviewerAgent(llm=llm, model="m")
+    sd = _Q.model_copy(update={"type": "system_design"})
+    agent.run_turn(question=sd, candidate_answer="x", follow_up_count=0, is_last_question=False)
+    assert "followUpCount: 0\nfollowUpBudget: 6" in llm.last["user"]
+    agent.run_turn(question=_Q, candidate_answer="x", follow_up_count=0, is_last_question=False)
+    assert "followUpBudget: 3" in llm.last["user"]
