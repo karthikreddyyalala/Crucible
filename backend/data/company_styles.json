@@ -9,7 +9,7 @@
       "Handling Conflict",
       "Learning From Failure",
       "Leadership",
-      "Prioritisation",
+      "Prioritization",
       "Learning Quickly"
     ],
     "interviewerNote": "Marcus keeps the loop even and probes whichever answer is thinnest. He wants the candidate's own role in each story, the concrete result, and the reasoning behind each decision. A confident but vague answer gets a follow-up, not a pass."
@@ -26,7 +26,7 @@
       "Bias for Action",
       "Deliver Results",
       "Earn Trust",
-      "Are Right A Lot",
+      "Are Right, A Lot",
       "Have Backbone; Disagree and Commit"
     ],
     "interviewerNote": "Marcus wants real stories with specific numbers: what the metric was, what changed, and by how much. He keeps asking what the candidate personally decided and did, separating \"I\" from \"we\". He pushes on the moments of disagreement, the data used to settle them, and what the candidate would do differently."
@@ -38,7 +38,7 @@
     "questionMix": { "behavioral": 2, "technical": 3, "system_design": 2, "coding": 5 },
     "behavioralThemes": [
       "Problem Solving",
-      "General Cognitive Ability",
+      "Leadership",
       "Collaboration",
       "Handling Ambiguity",
       "Googleyness",
