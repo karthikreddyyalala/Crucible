@@ -1,0 +1,68 @@
+{
+  "id": "code-house-robber-ii",
+  "title": "House Robber II",
+  "difficulty": "medium",
+  "topics": ["dynamic programming", "array"],
+  "asked": "very_common",
+  "statement": "This time the houses stand in a circle: the first house is a neighbour of the last one as well as the second. You still must not rob two neighbouring houses. Given `nums` with the money in each house in order around the circle, return the largest total you can rob.\n\nWith a single house there is nobody next to it, so you can rob it.\n\nConstraints: 1 <= len(nums) <= 400; 0 <= nums[i] <= 400.",
+  "functionName": "rob",
+  "signature": "def rob(nums: list[int]) -> int:",
+  "starterCode": "def rob(nums: list[int]) -> int:\n    \"\"\"Return the most money you can take from houses in a circle without robbing neighbours.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "nums = [4, 1, 2, 4]", "output": "6", "explanation": "The first and last houses are neighbours, so you can't take both 4s. Take 4 + 2 instead."},
+    {"input": "nums = [5, 2, 6]", "output": "6", "explanation": "With three houses in a circle every pair is adjacent, so you can only rob one."},
+    {"input": "nums = [9]", "output": "9", "explanation": "A lone house has no neighbours."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args":[[4,1,2,4]],"expected":6},
+    {"args":[[5,2,6]],"expected":6},
+    {"args":[[9]],"expected":9},
+    {"args":[[3,8]],"expected":8},
+    {"args":[[8,3]],"expected":8},
+    {"args":[[0]],"expected":0},
+    {"args":[[1,1,1,1]],"expected":2},
+    {"args":[[2,7,9,3,1]],"expected":11},
+    {"args":[[200,3,1,1,200]],"expected":203},
+    {"args":[[6,1,1,6,1,1]],"expected":12},
+    {"args":[[1,2,3,1,9,2,8]],"expected":20},
+    {"args":[[302,317,170,54,262,67,273,219,362,8,89,335,199,263,346,181,103,194,128,287,246,150,86,227,124,169,267,15,151,121,52,254,265,191,26,56,178,305,313,66,20,24,45,375,117,5,35,353,75,328,306,336,147,196,347,179,76,166,153,262,58,269,175,396,158,31,101,371,49,394,161,190,215,189,380,57,37,30,94,300,41,130,193,334,132,233,366,227,277,108,165,340,60,17,283,16,268,180,85,36,259,210,134,211,386,398,175,94,43,115,337,378,361,149,252,76,105,242,22,114,257,73,139,49,232,205,310,237,221,11,237,50,327,106,74,85,374,244,331,352,20,70,326,162,14,231,51,157,312,102,145,5,85,238,301,257,230,191,335,65,360,333,234,160,375,22,281,276,161,399,313,72,106,316,348,316,392,9,354,369,131,258,107,41,143,389,383,47,179,78,366,220,316,93,232,380,288,196,4,245,357,297,207,142,105,237,352,325,218,284,133,369,261,76,235,117,64,232,199,19,279,224,204,62,396,164,294,188,18,10,156,276,281,184,177,23,296,140,347,93,132,352,50,346,91,154,288,103,60,330,88,278,396,83,241,130,287,270,75,308,81,301,58,50,374,92,294,199,361,364,354,303,291,8,355,268,192,143,400,205,83,274,162,127,381,166,353,271,212,144,334,37,84,112,209,71,97,110,132,261,94,388,280,278,277,307,91,54,95,305,7,201,134,381,36,115,245,124,253,263,313,378,222,230,192,33,228,240,255,245,235,336,32,216,43,30,297,83,121,291,204,43,28,25,304,217,206,344,67,44,290,175,376,279,398,2,154,285,332,166,231,158,297,101,114,193,337,305,388,97,95,317,100,307,331,77,290,250,7,291,312,309,75,183,60,100,85,207,280,319,218,284,390,10,138,213,303,296,89,221]],"expected":47146},
+    {"args":[[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7]],"expected":1400}
+  ],
+  "compare": "exact",
+  "referenceSolution": "def rob(nums: list[int]) -> int:\n    def line(lo: int, hi: int) -> int:\n        skip = take = 0\n        for i in range(lo, hi):\n            skip, take = max(skip, take), skip + nums[i]\n        return max(skip, take)\n\n    n = len(nums)\n    return nums[0] if n == 1 else max(line(0, n - 1), line(1, n))\n",
+  "targetComplexity": {"time": "O(n)", "space": "O(1)"},
+  "hints": [
+    "Compare with the street version. Which pair of houses is newly adjacent here?",
+    "In any valid plan, can the first and the last house both be robbed? What does that tell you about the possible plans?",
+    "Try [5, 2, 6] and [2, 7, 9, 3, 1]. What goes wrong if you run the straight-street solution on the whole list?",
+    "Split the problem into two cases so that the first and last houses are never both available. Which houses does each case cover?",
+    "Run the straight-street solution twice, once without the last house and once without the first, and take the larger. Watch out for the single-house case."
+  ],
+  "followUps": [
+    "What are the time and space complexity, and how many passes does your solution make over the input?",
+    "Why is it enough to consider two cases (skip the first house, or skip the last), even though a plan may skip both?",
+    "How do you avoid copying the list when you handle the two cases?",
+    "What would you do if the houses formed a binary tree instead of a street or a circle?",
+    "How would you report which houses to rob, not only the total?"
+  ],
+  "idealAnswerPoints": [
+    "Recognises the circle means the first and last houses can't both be robbed",
+    "Reduces the problem to two straight-street problems: houses 0..n-2 and houses 1..n-1",
+    "Reuses the take-or-skip DP from the linear version as a helper",
+    "Handles a single house separately so the two ranges don't both come out empty",
+    "States O(n) time and O(1) space"
+  ],
+  "weakAnswerSigns": [
+    "Runs the linear solution on the whole list and ignores the wrap-around",
+    "Excludes only the first house, or only the last, never trying both",
+    "Returns 0 for a single house because both sub-ranges are empty",
+    "Copies the list twice with slicing and doesn't mention the extra memory"
+  ],
+  "rubric": {
+    "correctness": "Maximum total on every test, including one house, two houses, and lists where the best plan uses the first or the last house.",
+    "efficiency": "Two linear passes, O(n) time. Anything exponential fails the 400-house inputs.",
+    "code_quality": "One reusable helper for the straight-street case; the single-house edge case handled explicitly.",
+    "communication": "Explains the two-case split before coding and shows with a small example why the full-list answer would be wrong."
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "id": "code-coin-change",
+  "title": "Coin Change",
+  "difficulty": "medium",
+  "topics": ["dynamic programming", "array"],
+  "asked": "very_common",
+  "statement": "You're given a list of distinct coin values `coins` and a target `amount`. You have an unlimited supply of every coin. Return the fewest coins that add up to exactly `amount`, or -1 if no combination of coins can make it.\n\nMaking an amount of 0 takes 0 coins. Be careful: always taking the biggest coin that fits does not always give the fewest coins.\n\nConstraints: 1 <= len(coins) <= 12; 1 <= coins[i] <= 1000, all distinct; 0 <= amount <= 300.",
+  "functionName": "coin_change",
+  "signature": "def coin_change(coins: list[int], amount: int) -> int:",
+  "starterCode": "def coin_change(coins: list[int], amount: int) -> int:\n    \"\"\"Return the fewest coins that sum to amount, or -1 if impossible.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "coins = [1, 2, 5], amount = 11", "output": "3", "explanation": "5 + 5 + 1 uses three coins, and no two coins reach 11."},
+    {"input": "coins = [1, 3, 4], amount = 6", "output": "2", "explanation": "3 + 3 works. Starting with the biggest coin gives 4 + 1 + 1, which needs three."},
+    {"input": "coins = [4, 6], amount = 7", "output": "-1", "explanation": "Every combination of 4s and 6s is even, so 7 can't be made."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args":[[1,2,5],11],"expected":3},
+    {"args":[[1,3,4],6],"expected":2},
+    {"args":[[4,6],7],"expected":-1},
+    {"args":[[1],0],"expected":0},
+    {"args":[[2],1],"expected":-1},
+    {"args":[[7],14],"expected":2},
+    {"args":[[5,10],3],"expected":-1},
+    {"args":[[2,5,10,1],27],"expected":4},
+    {"args":[[1,6,10],12],"expected":2},
+    {"args":[[9,6,5,1],11],"expected":2},
+    {"args":[[100,1],5],"expected":5},
+    {"args":[[5,13,29,41],298],"expected":10},
+    {"args":[[1,5,10,25,50],299],"expected":12},
+    {"args":[[2,4,6,8],299],"expected":-1}
+  ],
+  "compare": "exact",
+  "referenceSolution": "def coin_change(coins: list[int], amount: int) -> int:\n    best = [0] + [amount + 1] * amount\n    for total in range(1, amount + 1):\n        for coin in coins:\n            if coin <= total and best[total - coin] + 1 < best[total]:\n                best[total] = best[total - coin] + 1\n    return best[amount] if best[amount] <= amount else -1\n",
+  "targetComplexity": {"time": "O(amount * len(coins))", "space": "O(amount)"},
+  "hints": [
+    "Try coins [1, 3, 4] by hand for amounts 1 to 6. Does always taking the biggest coin that fits give the fewest coins?",
+    "Suppose you already knew the fewest coins for every smaller amount. How would that help with amount a?",
+    "Think about the last coin used to reach amount a. What are the possible last coins, and which smaller amount does each leave behind?",
+    "Try coins [2] with amount 3. How will you mark an amount that can't be made so it doesn't corrupt larger amounts?",
+    "Fill a table from 0 up to amount, where each entry is the best of 1 + table[a - coin] over the coins that fit."
+  ],
+  "followUps": [
+    "What are the time and space complexity in terms of the amount and the number of coins?",
+    "Why does the greedy approach fail here? Can you give one coin set where it happens to work and one where it doesn't?",
+    "How did you represent an amount that can't be made, and what would go wrong if you used 0 or -1 for it inside the table?",
+    "How would you count the number of distinct combinations that make the amount, instead of the fewest coins?",
+    "If you wrote this top-down with memoisation, what could go wrong with Python's recursion limit and how would you avoid it?"
+  ],
+  "idealAnswerPoints": [
+    "Rejects greedy largest-coin-first with a counterexample such as coins [1, 3, 4] and amount 6",
+    "Defines best[a] as the fewest coins for amount a, with best[0] = 0",
+    "Uses the transition best[a] = 1 + min(best[a - c]) over coins c <= a",
+    "Marks unreachable amounts with a sentinel (infinity or amount + 1) and converts it to -1 at the end",
+    "States O(amount * len(coins)) time and O(amount) space"
+  ],
+  "weakAnswerSigns": [
+    "Repeatedly takes the largest coin and returns the wrong count for [1, 3, 4] with amount 6",
+    "Returns 0 or a huge sentinel instead of -1 when the amount can't be made",
+    "Plain recursion with no memoisation that times out on amounts in the thousands",
+    "Forgets that amount = 0 needs 0 coins"
+  ],
+  "rubric": {
+    "correctness": "Fewest coins on every test, -1 when impossible (for example only even coins with an odd amount), and 0 for amount 0.",
+    "efficiency": "O(amount * coins) dynamic programming. Greedy gives wrong answers and unmemoised recursion is exponential.",
+    "code_quality": "A clearly defined table, one sentinel for unreachable amounts, no tangled special cases.",
+    "communication": "Explains why greedy fails with a concrete counterexample and states the recurrence before coding."
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "id": "code-sum-of-two-integers",
+  "title": "Sum of Two Integers",
+  "difficulty": "medium",
+  "topics": ["bit manipulation", "math"],
+  "asked": "common",
+  "statement": "Given two integers `a` and `b`, return their sum without using the `+` or `-` operators. Use bitwise operations instead.\n\nBoth inputs and the true sum fit in a 32-bit signed integer. Python integers have no fixed width, so a negative number has no sign bit that stops carries; you have to cap your working values at 32 bits yourself and turn the result back into a normal signed value.\n\nConstraints: -2^31 <= a, b <= 2^31 - 1, and -2^31 <= a + b <= 2^31 - 1.",
+  "functionName": "get_sum",
+  "signature": "def get_sum(a: int, b: int) -> int:",
+  "starterCode": "def get_sum(a: int, b: int) -> int:\n    \"\"\"Return a + b using bit operations only (no + or - operators).\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "a = 13, b = 29", "output": "42", "explanation": "In binary 01101 + 11101. XOR adds without carries, AND shifted left gives the carries."},
+    {"input": "a = -6, b = 4", "output": "-2", "explanation": "Negative numbers work too once the values are treated as 32-bit two's complement."},
+    {"input": "a = 7, b = -7", "output": "0", "explanation": "The carries cascade through every bit and the result wraps to zero."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args":[13,29],"expected":42},
+    {"args":[-6,4],"expected":-2},
+    {"args":[7,-7],"expected":0},
+    {"args":[1,2],"expected":3},
+    {"args":[0,0],"expected":0},
+    {"args":[-2,-3],"expected":-5},
+    {"args":[-1000,1000],"expected":0},
+    {"args":[123456,654321],"expected":777777},
+    {"args":[2147483647,-1],"expected":2147483646},
+    {"args":[-2147483648,0],"expected":-2147483648},
+    {"args":[-2147483648,2147483647],"expected":-1},
+    {"args":[1073741824,1073741823],"expected":2147483647},
+    {"args":[-1073741824,-1073741824],"expected":-2147483648},
+    {"args":[-1,-1],"expected":-2}
+  ],
+  "compare": "exact",
+  "referenceSolution": "def get_sum(a: int, b: int) -> int:\n    mask = 0xFFFFFFFF\n    while b != 0:\n        a, b = (a ^ b) & mask, ((a & b) << 1) & mask\n    return a if a <= 0x7FFFFFFF else ~(a ^ mask)\n",
+  "targetComplexity": {"time": "O(1)", "space": "O(1)"},
+  "hints": [
+    "Add two single bits by hand. Which bitwise operator gives the digit you write down, and which gives the carry?",
+    "Do that for every bit at once: one operation gives the sum without carries, and another tells you where carries are produced. Where does a produced carry need to be added?",
+    "Repeat until no carries remain. Try 5 + 3 in binary and count how many rounds it takes.",
+    "Python integers are unbounded, so a negative number is an endless run of leading 1 bits and your loop may never finish. Try -1 + 1.",
+    "Mask every step to 32 bits with 0xFFFFFFFF, and at the end convert a result that has bit 31 set back into a negative Python integer."
+  ],
+  "followUps": [
+    "How many iterations can the loop take at most, and what are the time and space complexity?",
+    "Why is the 0xFFFFFFFF mask needed in Python but not in a language with 32-bit ints, and how do you turn the masked result back into a negative number?",
+    "How would you subtract two integers using the same idea and no - operator?",
+    "Can you write the same thing recursively, and what is its stack depth?",
+    "What would you do for 64-bit inputs?"
+  ],
+  "idealAnswerPoints": [
+    "Splits addition into a carry-free sum (XOR) and carries ((AND) << 1)",
+    "Repeats until the carry is zero",
+    "Explains that Python's unbounded ints need a 32-bit mask on the working values to terminate for negatives",
+    "Converts the masked result back to a signed value when bit 31 is set",
+    "Does not use + or - anywhere, and states the loop runs at most 32 times"
+  ],
+  "weakAnswerSigns": [
+    "Returns a + b or uses - and + in disguise (sum(), operator.add, etc.)",
+    "Loops forever on negative inputs because there is no mask",
+    "Masks the result but forgets to convert it back, returning 4294967295 instead of -1",
+    "Cannot explain what the XOR and AND steps each compute"
+  ],
+  "rubric": {
+    "correctness": "Right signed sum on every test, including negatives, zero, and values at the 32-bit limits, with no + or - operators used.",
+    "efficiency": "At most 32 loop iterations: constant time and space.",
+    "code_quality": "Short loop with a named mask, and no hidden arithmetic helpers.",
+    "communication": "Explains XOR as sum-without-carry and AND-shift as carry, and why Python needs the mask."
+  }
+}

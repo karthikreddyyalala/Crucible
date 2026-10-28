@@ -1,0 +1,69 @@
+{
+  "id": "code-jump-game",
+  "title": "Jump Game",
+  "difficulty": "medium",
+  "topics": ["greedy", "array", "dynamic programming"],
+  "asked": "very_common",
+  "statement": "You're given a list `nums` where nums[i] is the farthest you can jump forward from index i (you may also jump any shorter distance, including 1). You start at index 0. Return `True` if you can reach the last index, and `False` otherwise.\n\nA 0 means you can't move forward from that spot, so landing on one is a dead end unless you got past it earlier.\n\nConstraints: 1 <= len(nums) <= 400; 0 <= nums[i] <= 10^5.",
+  "functionName": "can_jump",
+  "signature": "def can_jump(nums: list[int]) -> bool:",
+  "starterCode": "def can_jump(nums: list[int]) -> bool:\n    \"\"\"Return True if you can get from index 0 to the last index.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "nums = [2, 2, 0, 1, 4]", "output": "True", "explanation": "Jump 1 step to index 1, then 2 steps to index 3 (skipping the 0), then 1 step to the end."},
+    {"input": "nums = [2, 1, 0, 0, 3]", "output": "False", "explanation": "From indexes 0, 1 and 2 you can get no farther than index 2, and the 0 there traps you."},
+    {"input": "nums = [0]", "output": "True", "explanation": "You already stand on the last index."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args":[[2,2,0,1,4]],"expected":true},
+    {"args":[[2,1,0,0,3]],"expected":false},
+    {"args":[[0]],"expected":true},
+    {"args":[[0,1]],"expected":false},
+    {"args":[[1,0]],"expected":true},
+    {"args":[[2,5,0,0]],"expected":true},
+    {"args":[[5,4,3,2,1,0,0]],"expected":false},
+    {"args":[[1,1,1,1,0]],"expected":true},
+    {"args":[[3,0,0,0,1]],"expected":false},
+    {"args":[[1,0,1]],"expected":false},
+    {"args":[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],"expected":true},
+    {"args":[[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]],"expected":false},
+    {"args":[[400,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],"expected":true},
+    {"args":[[2,4,4,0,2,3,0,2,2,0,3,3,0,3,2,0,2,4,0,3,2,0,2,4,0,2,4,0,2,4,0,3,2,0,3,3,0,2,2,0,3,2,0,2,2,0,3,3,0,3,3,0,4,4,0,2,4,0,4,2,0,4,2,0,3,4,0,2,2,0,2,4,0,4,3,0,4,2,0,4,2,0,2,3,0,3,3,0,3,4,0,3,4,0,3,3,0,3,2,0,2,2,0,2,2,0,4,2,0,3,3,0,4,3,0,2,3,0,3,2,0,4,3,0,2,2,0,2,3,0,3,4,0,3,4,0,4,3,0,3,2,0,2,2,0,2,2,0,3,2,0,4,3,0,4,2,0,3,2,0,4,4,0,4,2,0,3,3,0,3,4,0,4,2,0,2,3,0,3,2,0,3,2,0,2,2,0,4,4,0,4,4,0,4,2,0,4,4,0,4,2,0,2,3,0,2,4,0,3,3,0,4,3,0,3,2,0,3,4,0,2,4,0,2,3,0,4,3,0,3,3,0,3,2,0,2,4,0,2,2,0,4,2,0,3,2,0,3,2,0,2,3,0,2,3,0,3,4,0,4,4,0,2,3,0,2,3,0,4,4,0,3,4,0,3,2,0,3,3,0,2,3,0,3,3,0,4,3,0,3,3,0,4,3,0,4,2,0,2,2,0,3,2,0,2,2,0,2,3,0,2,4,0,2,2,0,3,4,0,2,4,0,3,3,0,3,3,0,4,2,0,4,3,0,2,3,0,3,3,0,2,2,0,2,4,0,2,3,0,2,4,0,2,2,0,4,3,0,4,3,0,3,3,0,3,4,0,4,2,0,2,2,0,3,3,0,2,3,0,2,2,0,3,3,0,4,2,0,3,4,0,4,3,0,2,3,0,2,4,0]],"expected":true}
+  ],
+  "compare": "exact",
+  "referenceSolution": "def can_jump(nums: list[int]) -> bool:\n    farthest = 0\n    for i, step in enumerate(nums):\n        if i > farthest:\n            return False\n        farthest = max(farthest, i + step)\n    return True\n",
+  "targetComplexity": {"time": "O(n)", "space": "O(1)"},
+  "hints": [
+    "Think about which indexes you can reach at all, rather than which path to take. What does the set of reachable indexes look like?",
+    "If you can reach index i, which indexes does that make reachable? Is the reachable set always a solid block starting at 0?",
+    "So one number may be enough to describe it. What is the single most useful thing to remember as you scan left to right?",
+    "Try [3, 2, 1, 0, 4] and [2, 5, 0, 0]. When exactly is a 0 a trap, and when can you hop over it?",
+    "Track the farthest index reachable so far, update it at each index you can reach, and fail if you ever stand beyond it."
+  ],
+  "followUps": [
+    "What are the time and space complexity of your solution, and what did a recursive or table approach cost by comparison?",
+    "Why is it enough to track only the farthest reachable index instead of exploring individual paths?",
+    "How would you return the minimum number of jumps needed to reach the end?",
+    "What if you could also jump backwards by the same amount?",
+    "How would you return an actual sequence of jumps that reaches the end?"
+  ],
+  "idealAnswerPoints": [
+    "Recognises that the reachable indexes always form a contiguous block starting at 0",
+    "Tracks the farthest reachable index in one left-to-right pass",
+    "Fails as soon as the current index is beyond the farthest reachable",
+    "Explains why a 0 is only fatal when it is the farthest reachable position",
+    "States O(n) time and O(1) space, and contrasts with exponential recursion or an O(n^2) table"
+  ],
+  "weakAnswerSigns": [
+    "Tries every jump length recursively with no memoisation, which times out on a few hundred elements",
+    "Returns False whenever it sees any 0 in the list",
+    "Only jumps the maximum distance each time, which can skip over the end or a better spot",
+    "Fails the single-element case"
+  ],
+  "rubric": {
+    "correctness": "Right answer on every test, including a single element, zeros that can be hopped over, and zeros that form a wall.",
+    "efficiency": "Single pass, O(n) time and O(1) space. O(n^2) dynamic programming is only acceptable if named as a stepping stone.",
+    "code_quality": "One variable for the farthest reach, a clear early exit, and no unnecessary data structures.",
+    "communication": "Explains why the reachable set is contiguous before writing code."
+  }
+}

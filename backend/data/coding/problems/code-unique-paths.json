@@ -1,0 +1,68 @@
+{
+  "id": "code-unique-paths",
+  "title": "Unique Paths",
+  "difficulty": "medium",
+  "topics": ["dynamic programming", "math"],
+  "asked": "very_common",
+  "statement": "A robot stands in the top-left cell of a grid with `m` rows and `n` columns and wants to reach the bottom-right cell. On every move it can step one cell right or one cell down. Return the number of different routes it can take.\n\nThere are no obstacles. Each test is chosen so the answer fits in a 32-bit signed integer.\n\nConstraints: 1 <= m, n <= 100.",
+  "functionName": "unique_paths",
+  "signature": "def unique_paths(m: int, n: int) -> int:",
+  "starterCode": "def unique_paths(m: int, n: int) -> int:\n    \"\"\"Return the number of right/down routes from the top-left to the bottom-right of an m x n grid.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "m = 3, n = 3", "output": "6", "explanation": "Every route makes two right moves and two down moves in some order, and there are 6 orders."},
+    {"input": "m = 2, n = 4", "output": "4", "explanation": "One down move can happen at any of 4 points along the way."},
+    {"input": "m = 1, n = 5", "output": "1", "explanation": "A single row leaves only one route: always go right."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args":[3,3],"expected":6},
+    {"args":[2,4],"expected":4},
+    {"args":[1,5],"expected":1},
+    {"args":[1,1],"expected":1},
+    {"args":[5,1],"expected":1},
+    {"args":[2,2],"expected":2},
+    {"args":[3,2],"expected":3},
+    {"args":[4,5],"expected":35},
+    {"args":[10,10],"expected":48620},
+    {"args":[17,17],"expected":601080390},
+    {"args":[2,100],"expected":100},
+    {"args":[100,2],"expected":100},
+    {"args":[3,50],"expected":1275}
+  ],
+  "compare": "exact",
+  "referenceSolution": "def unique_paths(m: int, n: int) -> int:\n    total = m + n - 2\n    k = min(m, n) - 1\n    paths = 1\n    for i in range(1, k + 1):\n        paths = paths * (total - k + i) // i  # now C(total - k + i, i)\n    return paths\n",
+  "targetComplexity": {"time": "O(min(m, n))", "space": "O(1)"},
+  "hints": [
+    "How many routes are there in a grid with one row, or one column? What does that say about the cells along the top and left edges?",
+    "For an inner cell, which two cells could the robot have just come from?",
+    "So the routes into a cell are the routes into those two neighbours added together. Do you need the whole table at once, or only part of it?",
+    "Look at what every route has in common. How many right moves and how many down moves does each one make, and what differs between routes?",
+    "Choosing which of the m + n - 2 moves are the down moves is a binomial coefficient, which a short loop can build without any table."
+  ],
+  "followUps": [
+    "What are the time and space complexity of your solution, and how does a full m x n table compare with one row?",
+    "Can you get the answer without a table at all? What formula would you use, and how do you avoid overflow or fractions when computing it?",
+    "How would the count change if some cells were blocked?",
+    "What if the robot could also move diagonally down-right?",
+    "How would you return the k-th route in lexicographic order rather than just counting them?"
+  ],
+  "idealAnswerPoints": [
+    "Defines routes(r, c) = routes(r-1, c) + routes(r, c-1) with 1s along the top row and left column",
+    "Reduces the table to a single row (O(n) space) after noticing each row only needs the previous one",
+    "Spots the combinatorial answer C(m + n - 2, m - 1)",
+    "Computes the binomial with integer arithmetic so no fractions or large factorials are needed",
+    "States the resulting time and space honestly for the approach used"
+  ],
+  "weakAnswerSigns": [
+    "Plain recursion with no memoisation that times out on a 17 x 17 grid",
+    "Initialises the first row and column to 0 so everything comes out 0",
+    "Computes factorials of m + n and divides with floats, losing precision",
+    "Mixes up m and n so non-square grids come out wrong"
+  ],
+  "rubric": {
+    "correctness": "Right count on every test, including single rows and columns, non-square grids, and the largest values that still fit in 32 bits.",
+    "efficiency": "O(m * n) with a rolling row is acceptable; the closed form in O(min(m, n)) time and O(1) space is the target.",
+    "code_quality": "Clear base cases, integer-only arithmetic, and no needless full table.",
+    "communication": "Explains either the recurrence or the counting argument and checks it on a 3 x 3 grid."
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "id": "code-combination-sum",
+  "title": "Combination Sum",
+  "difficulty": "medium",
+  "topics": ["backtracking", "array"],
+  "asked": "very_common",
+  "statement": "You're given a list of distinct positive integers `candidates` and a positive integer `target`. Find every unique combination of candidates that adds up to `target`. Each candidate may be used any number of times, and two combinations are different only if some number is used a different number of times.\n\nReturn the combinations as a list of lists, in any order. The order of numbers inside a combination doesn't matter either, so [2, 3] and [3, 2] are the same combination and must appear only once. Return an empty list if none exist.\n\nConstraints: 1 <= len(candidates) <= 12; 1 <= candidates[i] <= 40, all distinct; 1 <= target <= 40.",
+  "functionName": "combination_sum",
+  "signature": "def combination_sum(candidates: list[int], target: int) -> list[list[int]]:",
+  "starterCode": "def combination_sum(candidates: list[int], target: int) -> list[list[int]]:\n    \"\"\"Return every unique combination of candidates (reuse allowed) that sums to target.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "candidates = [2, 4, 5], target = 9", "output": "[[2, 2, 5], [4, 5]]", "explanation": "2 + 2 + 5 and 4 + 5 both make 9. Order within a combination and between combinations is free."},
+    {"input": "candidates = [3, 5, 7], target = 10", "output": "[[3, 7], [5, 5]]", "explanation": "5 can be used twice in the same combination."},
+    {"input": "candidates = [6, 8], target = 5", "output": "[]", "explanation": "Every candidate is bigger than the target, so nothing works."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args":[[2,4,5],9],"expected":[[2,2,5],[4,5]]},
+    {"args":[[3,5,7],10],"expected":[[3,7],[5,5]]},
+    {"args":[[6,8],5],"expected":[]},
+    {"args":[[1],1],"expected":[[1]]},
+    {"args":[[1],6],"expected":[[1,1,1,1,1,1]]},
+    {"args":[[2,3,5],8],"expected":[[2,2,2,2],[2,3,3],[3,5]]},
+    {"args":[[7,3,2],12],"expected":[[2,2,2,2,2,2],[2,2,2,3,3],[2,3,7],[3,3,3,3]]},
+    {"args":[[4,6,8],10],"expected":[[4,6]]},
+    {"args":[[10,20],5],"expected":[]},
+    {"args":[[5],40],"expected":[[5,5,5,5,5,5,5,5]]},
+    {"args":[[3],7],"expected":[]},
+    {"args":[[1,2,3],10],"expected":[[1,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,2],[1,1,1,1,1,1,1,3],[1,1,1,1,1,1,2,2],[1,1,1,1,1,2,3],[1,1,1,1,2,2,2],[1,1,1,1,3,3],[1,1,1,2,2,3],[1,1,2,2,2,2],[1,1,2,3,3],[1,2,2,2,3],[1,3,3,3],[2,2,2,2,2],[2,2,3,3]]},
+    {"args":[[2,3,5,7,11,13],40],"expected":[[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,5],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,7],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,5,5],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,5,7],[2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,5],[2,2,2,2,2,2,2,2,2,2,2,2,2,3,11],[2,2,2,2,2,2,2,2,2,2,2,2,2,7,7],[2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,7],[2,2,2,2,2,2,2,2,2,2,2,2,3,3,5,5],[2,2,2,2,2,2,2,2,2,2,2,2,3,13],[2,2,2,2,2,2,2,2,2,2,2,2,5,11],[2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3],[2,2,2,2,2,2,2,2,2,2,2,3,3,5,7],[2,2,2,2,2,2,2,2,2,2,2,3,5,5,5],[2,2,2,2,2,2,2,2,2,2,2,5,13],[2,2,2,2,2,2,2,2,2,2,2,7,11],[2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,5],[2,2,2,2,2,2,2,2,2,2,3,3,3,11],[2,2,2,2,2,2,2,2,2,2,3,3,7,7],[2,2,2,2,2,2,2,2,2,2,3,5,5,7],[2,2,2,2,2,2,2,2,2,2,5,5,5,5],[2,2,2,2,2,2,2,2,2,2,7,13],[2,2,2,2,2,2,2,2,2,3,3,3,3,3,7],[2,2,2,2,2,2,2,2,2,3,3,3,3,5,5],[2,2,2,2,2,2,2,2,2,3,3,3,13],[2,2,2,2,2,2,2,2,2,3,3,5,11],[2,2,2,2,2,2,2,2,2,3,5,7,7],[2,2,2,2,2,2,2,2,2,5,5,5,7],[2,2,2,2,2,2,2,2,2,11,11],[2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3],[2,2,2,2,2,2,2,2,3,3,3,3,5,7],[2,2,2,2,2,2,2,2,3,3,3,5,5,5],[2,2,2,2,2,2,2,2,3,3,5,13],[2,2,2,2,2,2,2,2,3,3,7,11],[2,2,2,2,2,2,2,2,3,5,5,11],[2,2,2,2,2,2,2,2,3,7,7,7],[2,2,2,2,2,2,2,2,5,5,7,7],[2,2,2,2,2,2,2,2,11,13],[2,2,2,2,2,2,2,3,3,3,3,3,3,3,5],[2,2,2,2,2,2,2,3,3,3,3,3,11],[2,2,2,2,2,2,2,3,3,3,3,7,7],[2,2,2,2,2,2,2,3,3,3,5,5,7],[2,2,2,2,2,2,2,3,3,5,5,5,5],[2,2,2,2,2,2,2,3,3,7,13],[2,2,2,2,2,2,2,3,5,5,13],[2,2,2,2,2,2,2,3,5,7,11],[2,2,2,2,2,2,2,5,5,5,11],[2,2,2,2,2,2,2,5,7,7,7],[2,2,2,2,2,2,2,13,13],[2,2,2,2,2,2,3,3,3,3,3,3,3,7],[2,2,2,2,2,2,3,3,3,3,3,3,5,5],[2,2,2,2,2,2,3,3,3,3,3,13],[2,2,2,2,2,2,3,3,3,3,5,11],[2,2,2,2,2,2,3,3,3,5,7,7],[2,2,2,2,2,2,3,3,5,5,5,7],[2,2,2,2,2,2,3,3,11,11],[2,2,2,2,2,2,3,5,5,5,5,5],[2,2,2,2,2,2,3,5,7,13],[2,2,2,2,2,2,3,7,7,11],[2,2,2,2,2,2,5,5,5,13],[2,2,2,2,2,2,5,5,7,11],[2,2,2,2,2,2,7,7,7,7],[2,2,2,2,2,3,3,3,3,3,3,3,3,3,3],[2,2,2,2,2,3,3,3,3,3,3,5,7],[2,2,2,2,2,3,3,3,3,3,5,5,5],[2,2,2,2,2,3,3,3,3,5,13],[2,2,2,2,2,3,3,3,3,7,11],[2,2,2,2,2,3,3,3,5,5,11],[2,2,2,2,2,3,3,3,7,7,7],[2,2,2,2,2,3,3,5,5,7,7],[2,2,2,2,2,3,3,11,13],[2,2,2,2,2,3,5,5,5,5,7],[2,2,2,2,2,3,5,11,11],[2,2,2,2,2,3,7,7,13],[2,2,2,2,2,5,5,5,5,5,5],[2,2,2,2,2,5,5,7,13],[2,2,2,2,2,5,7,7,11],[2,2,2,2,3,3,3,3,3,3,3,3,3,5],[2,2,2,2,3,3,3,3,3,3,3,11],[2,2,2,2,3,3,3,3,3,3,7,7],[2,2,2,2,3,3,3,3,3,5,5,7],[2,2,2,2,3,3,3,3,5,5,5,5],[2,2,2,2,3,3,3,3,7,13],[2,2,2,2,3,3,3,5,5,13],[2,2,2,2,3,3,3,5,7,11],[2,2,2,2,3,3,5,5,5,11],[2,2,2,2,3,3,5,7,7,7],[2,2,2,2,3,3,13,13],[2,2,2,2,3,5,5,5,7,7],[2,2,2,2,3,5,11,13],[2,2,2,2,3,7,11,11],[2,2,2,2,5,5,5,5,5,7],[2,2,2,2,5,5,11,11],[2,2,2,2,5,7,7,13],[2,2,2,2,7,7,7,11],[2,2,2,3,3,3,3,3,3,3,3,3,7],[2,2,2,3,3,3,3,3,3,3,3,5,5],[2,2,2,3,3,3,3,3,3,3,13],[2,2,2,3,3,3,3,3,3,5,11],[2,2,2,3,3,3,3,3,5,7,7],[2,2,2,3,3,3,3,5,5,5,7],[2,2,2,3,3,3,3,11,11],[2,2,2,3,3,3,5,5,5,5,5],[2,2,2,3,3,3,5,7,13],[2,2,2,3,3,3,7,7,11],[2,2,2,3,3,5,5,5,13],[2,2,2,3,3,5,5,7,11],[2,2,2,3,3,7,7,7,7],[2,2,2,3,5,5,5,5,11],[2,2,2,3,5,5,7,7,7],[2,2,2,3,5,13,13],[2,2,2,3,7,11,13],[2,2,2,5,5,5,5,7,7],[2,2,2,5,5,11,13],[2,2,2,5,7,11,11],[2,2,2,7,7,7,13],[2,2,3,3,3,3,3,3,3,3,3,3,3,3],[2,2,3,3,3,3,3,3,3,3,5,7],[2,2,3,3,3,3,3,3,3,5,5,5],[2,2,3,3,3,3,3,3,5,13],[2,2,3,3,3,3,3,3,7,11],[2,2,3,3,3,3,3,5,5,11],[2,2,3,3,3,3,3,7,7,7],[2,2,3,3,3,3,5,5,7,7],[2,2,3,3,3,3,11,13],[2,2,3,3,3,5,5,5,5,7],[2,2,3,3,3,5,11,11],[2,2,3,3,3,7,7,13],[2,2,3,3,5,5,5,5,5,5],[2,2,3,3,5,5,7,13],[2,2,3,3,5,7,7,11],[2,2,3,5,5,5,5,13],[2,2,3,5,5,5,7,11],[2,2,3,5,7,7,7,7],[2,2,3,7,13,13],[2,2,3,11,11,11],[2,2,5,5,5,5,5,11],[2,2,5,5,5,7,7,7],[2,2,5,5,13,13],[2,2,5,7,11,13],[2,2,7,7,11,11],[2,3,3,3,3,3,3,3,3,3,3,3,5],[2,3,3,3,3,3,3,3,3,3,11],[2,3,3,3,3,3,3,3,3,7,7],[2,3,3,3,3,3,3,3,5,5,7],[2,3,3,3,3,3,3,5,5,5,5],[2,3,3,3,3,3,3,7,13],[2,3,3,3,3,3,5,5,13],[2,3,3,3,3,3,5,7,11],[2,3,3,3,3,5,5,5,11],[2,3,3,3,3,5,7,7,7],[2,3,3,3,3,13,13],[2,3,3,3,5,5,5,7,7],[2,3,3,3,5,11,13],[2,3,3,3,7,11,11],[2,3,3,5,5,5,5,5,7],[2,3,3,5,5,11,11],[2,3,3,5,7,7,13],[2,3,3,7,7,7,11],[2,3,5,5,5,5,5,5,5],[2,3,5,5,5,7,13],[2,3,5,5,7,7,11],[2,3,7,7,7,7,7],[2,3,11,11,13],[2,5,5,5,5,5,13],[2,5,5,5,5,7,11],[2,5,5,7,7,7,7],[2,5,7,13,13],[2,5,11,11,11],[2,7,7,11,13],[3,3,3,3,3,3,3,3,3,3,3,7],[3,3,3,3,3,3,3,3,3,3,5,5],[3,3,3,3,3,3,3,3,3,13],[3,3,3,3,3,3,3,3,5,11],[3,3,3,3,3,3,3,5,7,7],[3,3,3,3,3,3,5,5,5,7],[3,3,3,3,3,3,11,11],[3,3,3,3,3,5,5,5,5,5],[3,3,3,3,3,5,7,13],[3,3,3,3,3,7,7,11],[3,3,3,3,5,5,5,13],[3,3,3,3,5,5,7,11],[3,3,3,3,7,7,7,7],[3,3,3,5,5,5,5,11],[3,3,3,5,5,7,7,7],[3,3,3,5,13,13],[3,3,3,7,11,13],[3,3,5,5,5,5,7,7],[3,3,5,5,11,13],[3,3,5,7,11,11],[3,3,7,7,7,13],[3,5,5,5,5,5,5,7],[3,5,5,5,11,11],[3,5,5,7,7,13],[3,5,7,7,7,11],[3,11,13,13],[5,5,5,5,5,5,5,5],[5,5,5,5,7,13],[5,5,5,7,7,11],[5,7,7,7,7,7],[5,11,11,13],[7,7,13,13],[7,11,11,11]]}
+  ],
+  "compare": "unordered_nested",
+  "referenceSolution": "def combination_sum(candidates: list[int], target: int) -> list[list[int]]:\n    candidates = sorted(candidates)\n    result, path = [], []\n\n    def search(start: int, remaining: int) -> None:\n        if remaining == 0:\n            result.append(path[:])\n            return\n        for i in range(start, len(candidates)):\n            if candidates[i] > remaining:\n                break\n            path.append(candidates[i])\n            search(i, remaining - candidates[i])\n            path.pop()\n\n    search(0, target)\n    return result\n",
+  "targetComplexity": {"time": "O(N^(T/M)) where N is the number of candidates, T the target and M the smallest candidate", "space": "O(T/M) recursion depth, excluding the output"},
+  "hints": [
+    "Think about building one combination step by step. What do you need to remember about a partial combination?",
+    "After choosing a number, what is the remaining target, and which numbers should you still be allowed to choose?",
+    "If every step may pick any candidate, [2, 3] and [3, 2] both show up. How could remembering a starting index prevent that, while still allowing the same number again?",
+    "When is a partial combination hopeless? Would sorting the candidates let you stop a loop early?",
+    "A backtracking search that carries a start index and the remaining target, records the path when the remaining target is 0, and undoes each choice afterwards."
+  ],
+  "followUps": [
+    "What are the time and space complexity, and what bounds the depth of your recursion?",
+    "How do you make sure [2, 3] and [3, 2] aren't both returned, and what would the output look like without that guard?",
+    "How does sorting the candidates let you prune the search?",
+    "What changes if the candidates may contain duplicates and each element can be used at most once?",
+    "If you only needed the number of combinations rather than the combinations themselves, how would you compute it faster?"
+  ],
+  "idealAnswerPoints": [
+    "Uses backtracking with a path, a remaining target and a start index",
+    "Recurses with the same index so a candidate can be reused, and never goes back to earlier indices, so each combination appears once",
+    "Records the path when the remaining target hits 0 and backtracks by removing the last choice",
+    "Sorts the candidates so the loop can break as soon as a candidate exceeds the remaining target",
+    "Explains the exponential worst case and that the output itself can be large"
+  ],
+  "weakAnswerSigns": [
+    "Loops over all candidates at every step and returns permutations like [2, 3] and [3, 2] separately",
+    "Appends the path list without copying it, so every result ends up empty",
+    "Doesn't allow a number to be reused, missing combinations like [2, 2, 3]",
+    "Keeps recursing after the remaining target goes negative"
+  ],
+  "rubric": {
+    "correctness": "Every unique combination exactly once, including reuse of a number, no duplicates from reordering, and an empty list when none exist.",
+    "efficiency": "Backtracking with a start index and pruning. Generating all orderings and de-duplicating afterwards is only acceptable if the candidate names the cost.",
+    "code_quality": "Copies the path when recording, undoes choices cleanly, and keeps the recursion small and readable.",
+    "communication": "Explains the decision tree and how the start index prevents reordered duplicates."
+  }
+}
