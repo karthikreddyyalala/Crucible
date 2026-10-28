@@ -10,10 +10,12 @@ interface Props {
   insetBefore?: string;
   /** Narrow column inside the coding workspace. */
   compact?: boolean;
+  /** Announce new lines to screen readers. Off while the voice speaks them, so nothing is heard twice. */
+  live?: boolean;
 }
 
 /** The interview thread: scrolls to the newest line and says so when the interviewer is slow. */
-export function ChatTranscript({ messages, thinking, inset, insetBefore, compact = false }: Props) {
+export function ChatTranscript({ messages, thinking, inset, insetBefore, compact = false, live = true }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [slow, setSlow] = useState(false);
 
@@ -34,11 +36,18 @@ export function ChatTranscript({ messages, thinking, inset, insetBefore, compact
 
   return (
     <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
-      <div className={compact ? "space-y-5 px-6 py-6" : "mx-auto max-w-[820px] space-y-5 px-5 py-8 sm:px-8"}>
+      <div
+        role="log"
+        aria-label="Conversation with Marcus"
+        aria-live={live ? "polite" : "off"}
+        aria-relevant="additions"
+        className={compact ? "space-y-5 px-6 py-6" : "mx-auto max-w-[820px] space-y-5 px-5 py-8 sm:px-8"}
+      >
         <AnimatePresence initial={false}>
           {messages.map((m) => (
             <Fragment key={m.id}>
-              {inset && m.id === insetBefore && <div>{inset}</div>}
+              {/* Read on demand, not announced in full when it appears. */}
+              {inset && m.id === insetBefore && <div aria-live="off">{inset}</div>}
               <motion.div
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}

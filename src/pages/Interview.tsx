@@ -517,7 +517,7 @@ export function Interview() {
                     </button>
                   )}
                 </div>
-                <ChatTranscript messages={messages} thinking={thinking} compact />
+                <ChatTranscript messages={messages} thinking={thinking} compact live={!voiceOn} />
                 {renderComposer(true)}
               </div>
             }
@@ -570,6 +570,7 @@ export function Interview() {
           <ChatTranscript
             messages={messages}
             thinking={thinking}
+            live={!voiceOn}
             inset={codingQ ? <CodingBrief question={codingQ} /> : undefined}
             insetBefore={codingQ ? messages.find((m) => m.questionId === codingQ.id)?.id : undefined}
           />
