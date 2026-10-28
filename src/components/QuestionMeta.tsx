@@ -4,6 +4,7 @@ const TYPE_LABEL: Record<QuestionType, string> = {
   behavioral: "BEHAVIORAL",
   technical: "TECHNICAL",
   system_design: "SYSTEM DESIGN",
+  coding: "CODING",
 };
 
 export function TypeChip({ type }: { type: QuestionType }) {

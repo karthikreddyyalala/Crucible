@@ -25,11 +25,12 @@ class IntakeProfile(_Base):
 
 class PlannedQuestion(_Base):
     id: str
-    type: Literal["behavioral", "technical", "system_design"]
+    type: Literal["behavioral", "technical", "system_design", "coding"]
     prompt: str
     target_difficulty: Literal[1, 2, 3, 4, 5]
     weighted_from_weakness: bool
-    exemplar_id: str | None = None  # bank question this was built from; None = custom
+    # Bank question this was built from (a coding problem id for type "coding"); None = custom.
+    exemplar_id: str | None = None
 
 
 class QuestionPlan(_Base):
@@ -101,6 +102,8 @@ class SessionRecord(_Base):
     # start + turns, plus this finalize call's own Memory Agent cost). Default
     # keeps deserializing session records written before this field existed.
     cost_usd: float = 0.0
+    company_style: str = "general"
+    ended_for_conduct: bool = False  # the interviewer ended it after the third conduct strike
 
     def summary(self) -> SessionSummary:
         survived = sum(1 for e in self.evaluations if e.would_survive_real_interview)
@@ -117,7 +120,8 @@ class SessionRecord(_Base):
 class InterviewDecision(_Base):
     # clarify: the candidate asked something back (repeat that, what do you
     # mean, how are you) — answer it and re-ask; not a follow-up, not scored.
-    action: Literal["follow_up", "clarify", "advance", "complete"]
+    # end: the session stops for conduct (third strike) — set by the server, never the model.
+    action: Literal["follow_up", "clarify", "advance", "complete", "end"]
     follow_up_prompt: str | None = None
     current_question_id: str
     # Exactly what the interviewer says out loud this turn: a genuine reaction

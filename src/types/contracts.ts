@@ -16,11 +16,14 @@ export interface IntakeProfile {
   resumeToJdGaps: string[];
 }
 
-export type QuestionType = "behavioral" | "technical" | "system_design";
+export type QuestionType = "behavioral" | "technical" | "system_design" | "coding";
 export type Difficulty = 1 | 2 | 3 | 4 | 5;
 
-export type InterviewMode = "full" | "behavioral" | "technical" | "system_design";
+export type InterviewMode = "full" | "behavioral" | "technical" | "system_design" | "coding";
 export type InterviewLevel = "junior" | "mid" | "senior";
+export type CompanyStyleId = "general" | "amazon" | "google" | "meta" | "microsoft" | "startup";
+// Coding round stage, tracked client-side and sent with each turn ("" outside coding).
+export type CodingStage = "" | "approach" | "coding" | "review";
 
 export interface PlannedQuestion {
   id: string;
@@ -28,6 +31,7 @@ export interface PlannedQuestion {
   prompt: string;
   targetDifficulty: Difficulty;
   weightedFromWeakness: boolean;
+  // Bank question id, or the coding problem id for type "coding". null = custom.
   exemplarId?: string | null;
 }
 
@@ -36,7 +40,8 @@ export interface QuestionPlan {
   questions: PlannedQuestion[];
 }
 
-export type DecisionAction = "follow_up" | "clarify" | "advance" | "complete";
+// "end": the server stopped the session for conduct (third strike).
+export type DecisionAction = "follow_up" | "clarify" | "advance" | "complete" | "end";
 
 // Which stage of a real interview a turn belongs to.
 export type InterviewPhase = "warmup" | "background" | "question" | "closing";
@@ -106,4 +111,7 @@ export interface SessionRecord {
   questions: PlannedQuestion[];
   evaluations: AnswerEvaluation[];
   costUsd: number;
+  // Older records (and demo-mode ones) omit these; the server defaults them.
+  companyStyle?: string;
+  endedForConduct?: boolean;
 }

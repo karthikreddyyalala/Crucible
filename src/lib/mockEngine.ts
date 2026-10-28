@@ -8,6 +8,7 @@ import type {
   CoachResponse,
   IntakeProfile,
   InterviewDecision,
+  InterviewMode,
   MemoryProfile,
   PlannedQuestion,
   QuestionPlan,
@@ -276,7 +277,7 @@ function scoreAnswer(
 export const mockEngine = {
   buildSession(
     role: string,
-    mode: "full" | "behavioral" | "technical" | "system_design" = "full"
+    mode: InterviewMode = "full"
   ): { profile: IntakeProfile; plan: QuestionPlan } {
     const key = QUESTION_BANK[role] ? role : "sde";
     const intake = INTAKE_BY_ROLE[key];
