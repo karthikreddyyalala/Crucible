@@ -18,5 +18,6 @@ def test_every_bank_case_points_at_a_real_matching_exemplar():
     for c in json.loads((GOLDEN / "interview_turn_bank_cases.json").read_text()):
         ex = find_exemplar(c["exemplar_id"])
         assert ex and ex.type == c["question"]["type"] and ex.prompt == c["question"]["prompt"]
-        assert 2 <= len(c["expect_probe_targets"]) <= 4
+        # ≤8: system-design cases also accept scoping words (skipped requirements is a gap too)
+        assert 2 <= len(c["expect_probe_targets"]) <= 8
         assert all(k == k.lower() for k in c["expect_probe_targets"])

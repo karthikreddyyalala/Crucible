@@ -28,7 +28,7 @@
     "question": {
       "id": "sde-tech-lru-cache-1",
       "type": "technical",
-      "prompt": "Our service calls a slow pricing API \u2014 how would you build an in-process cache that evicts the least recently used entry when it's full?",
+      "prompt": "Our service calls a slow pricing API — how would you build an in-process cache that evicts the least recently used entry when it's full?",
       "targetDifficulty": 3,
       "weightedFromWeakness": false,
       "exemplarId": "sde-tech-lru-cache-1"
@@ -87,9 +87,14 @@
     "expect_probe_targets": [
       "301",
       "302",
+      "clarif",
       "permanent",
-      "temporary"
-    ]
+      "requirement",
+      "scope",
+      "temporary",
+      "want to know"
+    ],
+    "note": "The answer jumps into components without scoping; the bank's first strong-answer point is requirements-gathering, so a scoping probe also targets a missing strong point."
   },
   {
     "case": "bank_sde_sd_rate_limiter_1_misses_key_point",
@@ -109,10 +114,15 @@
     "expect_would_survive": false,
     "expect_probe_targets": [
       "atomic",
-      "race",
+      "clarif",
       "fail",
-      "unavailable"
-    ]
+      "race",
+      "requirement",
+      "scope",
+      "unavailable",
+      "want to know"
+    ],
+    "note": "The answer jumps into components without scoping; the bank's first strong-answer point is requirements-gathering, so a scoping probe also targets a missing strong point."
   },
   {
     "case": "bank_sde_beh_ownership_1_misses_key_point",
@@ -143,7 +153,7 @@
     "question": {
       "id": "aie-tech-rag-1",
       "type": "technical",
-      "prompt": "Your RAG chatbot over internal docs keeps giving confident but wrong answers \u2014 how would you find out why?",
+      "prompt": "Your RAG chatbot over internal docs keeps giving confident but wrong answers — how would you find out why?",
       "targetDifficulty": 4,
       "weightedFromWeakness": false,
       "exemplarId": "aie-tech-rag-1"
@@ -177,10 +187,15 @@
     "expect_action": "follow_up",
     "expect_would_survive": false,
     "expect_probe_targets": [
-      "human",
       "calibrat",
       "canary",
-      "shadow"
-    ]
+      "clarif",
+      "human",
+      "requirement",
+      "scope",
+      "shadow",
+      "want to know"
+    ],
+    "note": "The answer jumps into components without scoping; the bank's first strong-answer point is requirements-gathering, so a scoping probe also targets a missing strong point."
   }
 ]
