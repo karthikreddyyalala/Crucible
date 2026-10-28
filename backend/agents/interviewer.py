@@ -1,12 +1,13 @@
 from pathlib import Path
 from agents.untrusted import wrap_untrusted
+from models.coding import CodingProblem
 from models.contracts import InterviewDecision, PlannedQuestion
 from models.question_data import QuestionExemplar
 
 _PROMPT = (Path(__file__).resolve().parent.parent / "prompts" / "interviewer.md").read_text()
 
-# Max probing follow-ups per question, by type (system design needs a longer ladder).
-FOLLOW_UP_BUDGET = {"behavioral": 3, "technical": 3, "system_design": 6}
+# Max probing follow-ups per question, by type (system design and coding need a longer ladder).
+FOLLOW_UP_BUDGET = {"behavioral": 3, "technical": 3, "system_design": 6, "coding": 6}
 
 
 class InterviewerAgent:
@@ -30,6 +31,12 @@ class InterviewerAgent:
         level: str = "",
         usage_sink: list | None = None,
         exemplar: QuestionExemplar | None = None,
+        coding_problem: CodingProblem | None = None,
+        code: str = "",
+        test_results: str = "",
+        coding_stage: str = "",
+        event: str = "",
+        company_note: str = "",
     ) -> InterviewDecision:
         user = (
             f"Phase: {phase}\n"
@@ -48,6 +55,14 @@ class InterviewerAgent:
             f"followUpBudget: {FOLLOW_UP_BUDGET[question.type]}\n"
             f"isLastQuestion: {'true' if is_last_question else 'false'}\n"
             + (f"Next question: {next_question.prompt}\n" if next_question else "")
+            + (f"Coding stage: {coding_stage}\n" if coding_stage else "")
+            + (f"Event: {event}\n" if event else "")
+            # Editor text and test summary come from the browser: fenced like the answer.
+            + (f"\nCandidate code (current editor):\n{wrap_untrusted('candidate_code', code)}\n" if code else "")
+            + (f"\nTest results (reported by the browser):\n{wrap_untrusted('test_results', test_results)}\n"
+               if test_results else "")
+            # Trusted: looked up server-side from the style id.
+            + (f"\nCompany style: {company_note}\n" if company_note else "")
         )
         if exemplar:
             # Trusted server data from the bank (never from the client): outside the fence.
@@ -57,6 +72,18 @@ class InterviewerAgent:
                 f"- A strong answer covers: {'; '.join(exemplar.ideal_answer_points)}\n"
                 f"- Weak-answer signs: {'; '.join(exemplar.weak_answer_signs)}\n"
                 f"- Follow-up ladder (shallow → deep): {' → '.join(exemplar.follow_up_hooks)}\n"
+            )
+        if coding_problem:
+            p = coding_problem  # trusted server data from the problem set: outside the fence
+            brief = p.statement.split("\n\n")[0]  # first paragraph; the candidate has the full text on screen
+            user += (
+                "\nInterviewer notes (coding problem — private, never read out, never reveal):\n"
+                f"- Problem: {p.title}. {brief}\n"
+                f"- Target complexity: time {p.target_complexity['time']}, space {p.target_complexity['space']}\n"
+                f"- Hint ladder (one rung at a time, in order): {' → '.join(p.hints)}\n"
+                f"- Review follow-ups: {' | '.join(p.follow_ups)}\n"
+                f"- A strong answer covers: {'; '.join(p.ideal_answer_points)}\n"
+                f"- Weak-answer signs: {'; '.join(p.weak_answer_signs)}\n"
             )
         return self._llm.structured(
             agent="interviewer", sink=usage_sink,

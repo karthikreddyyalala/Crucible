@@ -91,3 +91,51 @@ def test_planner_forwards_temperature():
     assert llm.last["temperature"] == 0.2
     PlannerAgent(llm=llm, model="m").run(**kw)
     assert llm.last["temperature"] == 0.0
+
+
+def _run_planner(**kw):
+    llm = _FakeLLM({"sessionId": "s", "questions": [
+        {"id": "q1", "type": "coding", "prompt": "Let's do a coding problem: find two numbers that add up to a target.",
+         "targetDifficulty": 2, "weightedFromWeakness": False, "exemplarId": "code-two-sum"}]})
+    mem = MemoryProfile(candidateId="c1", recurringWeaknesses=[], improvementTrend=[], strongAreas=[])
+    PlannerAgent(llm=llm, model="m").run(
+        session_id="s", profile=_profile(), memory=mem, competency_map=load_competency_map("sde"),
+        mode="coding", level="junior", **kw)
+    return llm.last["user"]
+
+
+def test_planner_receives_coding_problems_without_private_fields():
+    import json
+    from models.coding import problems_for
+    problems = problems_for({"easy"})
+    user = _run_planner(coding_problems=problems)
+    header = "CodingProblems (choose from these for coding questions):\n"
+    assert header in user
+    listed = json.loads(user.split(header, 1)[1].split("\n\n")[0])
+    assert [p["id"] for p in listed] == [p.id for p in problems]
+    assert all(set(p) == {"id", "title", "difficulty", "topics", "asked"} for p in listed)
+    assert problems[0].statement not in user and problems[0].reference_solution not in user
+    assert "CodingProblems" not in _run_planner()
+
+
+def test_planner_receives_company_style_guidance():
+    from models.company_style import find_style
+    style = find_style("amazon")
+    user = _run_planner(company_style=style)
+    assert style.name in user
+    assert "weight question choice toward these themes" in user
+    for theme in style.behavioral_themes:
+        assert theme in user
+    for kind, weight in style.question_mix.items():
+        assert f"{kind} {weight}" in user
+    assert style.interviewer_note not in user  # that one is for Marcus, not the Planner
+
+
+def test_planner_prompt_describes_coding_shapes_and_company_style():
+    from agents.planner import _PROMPT
+    assert '"coding"' in _PROMPT and "CodingProblems" in _PROMPT and "CompanyStyle" in _PROMPT
+    full = _PROMPT.split('- "full":', 1)[1].split("\n- ", 1)[0]
+    assert "1 behavioral" in full and "1 coding" in full and "1 technical" in full and "1 system_design" in full
+    coding = _PROMPT.split('- "coding":', 1)[1].split("\n## ", 1)[0]
+    for shape in ("2 easy", "1 easy + 1 medium", "1 medium + 1 hard", "2 medium"):
+        assert shape in coding
