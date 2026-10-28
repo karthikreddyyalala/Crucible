@@ -1,0 +1,293 @@
+{
+  "variant": "phase1_bank_v4",
+  "case_count": 8,
+  "repeat": 3,
+  "decision_agreement": 1.0,
+  "survival_agreement": 1.0,
+  "action_accuracy": 1.0,
+  "action_correct": 8,
+  "survive_accuracy": 1.0,
+  "survive_correct": 8,
+  "survive_case_count": 8,
+  "stacked_ask_rate": 0.0,
+  "judgment_leak_rate": 0.0,
+  "say_check_pass_rate": null,
+  "say_check_case_count": 0,
+  "total_input_tokens": 203289,
+  "total_output_tokens": 7512,
+  "estimated_cost_usd": 0.7225,
+  "results": [
+    {
+      "case": "bank_sde_tech_top_k_1_misses_key_point",
+      "type": "technical",
+      "exemplar_id": "sde-tech-top-k-1",
+      "probe_on_target": false,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate gives a correct baseline (hash map + sort) and mentions normalisation, but never discusses the O(n log k) heap optimisation or distributed/out-of-memory scenarios, and the rubric anchors explicitly flag 'sorts everything with no complexity comparison' as a weak-answer sign \u2014 depth scores below 3, which fails the survival threshold.",
+      "say": "Okay \u2014 sort on the full count list. What's the time and space complexity of that approach?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 2.24,
+      "evaluator_latency_s": 2.52,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 sort on the full count list. What's the time and space complexity of that approach?",
+        "Okay \u2014 sort on the full count list. What's the time and space complexity of that approach?",
+        "Okay \u2014 sort on the full count list. What's the time and space complexity of that approach?"
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "case": "bank_sde_tech_lru_cache_1_misses_key_point",
+      "type": "technical",
+      "exemplar_id": "sde-tech-lru-cache-1",
+      "probe_on_target": true,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate correctly nails the core data structure and O(1) complexity, but a real interviewer would immediately probe on staleness (prices go stale, TTL is needed) and concurrent access \u2014 both of which are entirely absent from the answer, leaving edge_cases at 1 and depth capped at 3.",
+      "say": "Okay \u2014 hash map plus doubly linked list, O(1) both ways. One thing I want to dig into: prices change over time. How do you stop the cache from serving a stale price?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.81,
+      "evaluator_latency_s": 2.62,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 hash map plus doubly linked list, O(1) both ways. One thing I want to dig into: prices change over time. How do you stop the cache from serving a stale price?",
+        "Okay \u2014 hash map plus doubly linked list, O(1) both ways. One thing I'm curious about: prices change over time, so how do you stop the cache from serving a stale price?",
+        "Okay \u2014 hash map plus doubly linked list, O(1) both ways. Prices change though \u2014 what happens when the cached price is just... old?"
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "case": "bank_sde_tech_pagination_1_misses_key_point",
+      "type": "technical",
+      "exemplar_id": "sde-tech-pagination-1",
+      "probe_on_target": false,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "The answer proposes offset-and-limit with no awareness of its core problem \u2014 rows can be skipped or repeated when new orders arrive between pages \u2014 which is exactly what the rubric tests for correctness. A real interviewer would immediately probe this and the candidate has shown no knowledge of cursor-based pagination or stable sort keys to fall back on.",
+      "say": "Okay \u2014 offset and limit, capped at a hundred. What happens if a new order arrives while someone is paging through the list?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.55,
+      "evaluator_latency_s": 2.71,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 offset and limit, capped at a hundred. What happens if a new order arrives while someone is paging through the list?",
+        "Okay \u2014 offset and limit, capped at a hundred. What happens if a new order comes in while a user is paging through their list?",
+        "Okay \u2014 offset and limit, capped at a hundred. What happens if a new order arrives while someone is paging through the list?"
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "case": "bank_sde_sd_shortener_1_misses_key_point",
+      "type": "system_design",
+      "exemplar_id": "sde-sd-shortener-1",
+      "probe_on_target": true,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate jumped straight to components without asking a single clarifying question about read/write ratio, link lifetime, or custom aliases \u2014 a clear weak-answer sign per the rubric \u2014 and never compared ID-generation schemes or addressed failure modes on the redirect path, leaving depth and tradeoffs both below the 3-threshold required for survival.",
+      "say": "Okay \u2014 counter-based codes, key-value store, cache in front. Before we go deeper on any of that, what would you want to know about the product before you commit to this design?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.75,
+      "evaluator_latency_s": 2.4,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 counter-based codes, key-value store, cache in front. Before we go deeper on any of that, what would you want to know about the product before you commit to this design?",
+        "Okay \u2014 counter-based codes, key-value store, cache in front. Before we go deeper on any of that... what would you want to know about the product before you committed to this design?",
+        "Okay \u2014 counter-based codes, key-value store, cache in front. Before we go deeper on any of that... what would you want to know about the product before you committed to this design?"
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "case": "bank_sde_sd_rate_limiter_1_misses_key_point",
+      "type": "system_design",
+      "exemplar_id": "sde-sd-rate-limiter-1",
+      "probe_on_target": true,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "The candidate never clarified the limiting key scope (per endpoint? per user? per IP?), stated no numeric limits, and only named token bucket without comparing it to fixed or sliding window on burst behaviour or memory \u2014 matching multiple weak-answer signs. There is also no mention of atomic counter updates to prevent races or what happens when Redis goes down, leaving the depth criterion at 1.",
+      "say": "Okay \u2014 token bucket in the gateway, counts in Redis. How do you make sure two gateway nodes don't race on the same counter?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.63,
+      "evaluator_latency_s": 3.07,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 token bucket in the gateway, counts in Redis. How do you make sure two gateway nodes don't race on the same counter?",
+        "Okay \u2014 token bucket in the gateway, counts in Redis. How do you make sure two gateway nodes don't race on the same counter?",
+        "Okay \u2014 token bucket in the gateway, counts in Redis. How do you make sure two gateway nodes don't race when they both try to update the same counter at the same moment?"
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "case": "bank_sde_beh_ownership_1_misses_key_point",
+      "type": "behavioral",
+      "exemplar_id": "sde-beh-ownership-1",
+      "probe_on_target": false,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "The answer never states an actual outcome \u2014 what shipped, when, and whether the date was met \u2014 which is the core of what the rubric requires; 'impact' scores 1 because there is no result at all, and a real interviewer would immediately probe 'so did you hit the launch date?' and expose the gap.",
+      "say": "Okay \u2014 cutting the dashboard and front-loading the database change. Who had to agree to drop the reporting piece?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.68,
+      "evaluator_latency_s": 2.48,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 cutting the dashboard and front-loading the database change. Who had to agree to drop the reporting piece?",
+        "Okay \u2014 cutting the dashboard and front-loading the database change. Who had to agree to dropping the dashboard from the first release?",
+        "Okay \u2014 cutting the dashboard and front-loading the database change. Who had to agree to dropping the dashboard from the first release?"
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "case": "bank_aie_tech_rag_1_misses_key_point",
+      "type": "technical",
+      "exemplar_id": "aie-tech-rag-1",
+      "probe_on_target": true,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "The answer matches multiple weak-answer signs exactly \u2014 it only suggests a bigger model and a prompt tweak, has no evaluation plan, and never separates retrieval failures from generation failures, which is the core diagnostic skill this question tests.",
+      "say": "Okay \u2014 system prompt, bigger model, user flags. How would you tell whether the problem is that the wrong chunks are being retrieved versus the model just generating something wrong from the right chunks?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 1.9,
+      "evaluator_latency_s": 2.39,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 system prompt, bigger model, user flags. How would you tell whether the problem is that the wrong chunks are being retrieved versus the model just generating something wrong from the right chunks?",
+        "Okay \u2014 system prompt, bigger model, user flags. How would you tell whether the problem is that the wrong chunks are being retrieved versus the model just generating something wrong from the right chunks?",
+        "Okay \u2014 system prompt, bigger model, user flags. How would you tell whether the problem is that the wrong chunks are being retrieved versus the model just generating something wrong from the right chunks?"
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "case": "bank_aie_sd_eval_system_1_misses_key_point",
+      "type": "system_design",
+      "exemplar_id": "aie-sd-eval-system-1",
+      "probe_on_target": true,
+      "expected_action": "follow_up",
+      "actual_action": "follow_up",
+      "action_match": true,
+      "expected_would_survive": false,
+      "actual_would_survive": false,
+      "would_survive_match": true,
+      "survival_reasoning": "The answer matches multiple weak-answer signs from the rubric: it relies on an LLM judge with no mention of calibration against human labels, proposes no online stage (shadow/canary traffic), and never clarifies what 'good enough' means per task or who signs off \u2014 all of which a real interviewer would immediately probe and expose as gaps.",
+      "say": "Okay \u2014 golden set, LLM judge, score gate. Before we go deeper, what would you want to clarify about the product before you start building any of this?",
+      "say_check": null,
+      "judgment_leak": null,
+      "stacked_ask": false,
+      "interviewer_latency_s": 2.09,
+      "evaluator_latency_s": 2.33,
+      "actions": [
+        "follow_up",
+        "follow_up",
+        "follow_up"
+      ],
+      "says": [
+        "Okay \u2014 golden set, LLM judge, score gate. Before we go deeper, what would you want to clarify about the product before you start building any of this?",
+        "Okay \u2014 golden set, LLM judge, score gate. Before we go deeper, what would you want to clarify about the product before you start building this?",
+        "Okay \u2014 golden set, LLM judge, score gate. Before we go deeper on the mechanics, what would you want to clarify about the product before you started building this?"
+      ],
+      "survival_verdicts": [
+        false,
+        false,
+        false
+      ]
+    }
+  ]
+}

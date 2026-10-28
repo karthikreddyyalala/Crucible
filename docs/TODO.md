@@ -69,7 +69,15 @@ Roadmap for all phases: docs/ROADMAP.md
 - [x] Final whole-branch review: no critical issues; must-fixes in progress (strike bypass via a
       typed "Q:" line, phone talk-through stage, topic chips, lazy editor, planner ids, coach gate,
       evaluator transcript echo, seeded variety) + 6 spoken-line fixes from the evals
-- [ ] Re-run evals after fixes · live coding interview transcript · README · PR (no push to main)
+- [x] Review fixes landed (strike bypass, talk stage, topic chips, lazy editor 1,142 → 668 kB,
+      planner ids, coach gate + candidate id, evaluator transcript, seeded variety)
+- [x] One ask per follow-up enforced in code; "take your time" on a failing run; no invented
+      question count in the warmup
+- [x] Final live evals (v4): 76/76 decisions, 34/34 survival verdicts (docs/evals-phase-1.md)
+- [x] Live end-to-end coding interview saved (docs/sample-coding-interview-2026-10-28.md)
+- [x] README updated · PR opened from `feat/phase-1` (not merged, nothing pushed to main)
+- [ ] Wording left: small-talk praise on off-topic answers, praise in advance/closing lines
+      the regex misses (needs an LLM judge), Spanish two-part questions
 
 Found while planning: every agent was running at the default temperature (1.0), scoring
 included. Phase 1 sets 0 for scoring/planning/extraction and 0.3 for Marcus.

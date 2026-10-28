@@ -24,7 +24,44 @@ How to read the table:
 - **Say checks**: coding cases only. The spoken line must contain an expected phrase
   and none of the forbidden ones (code, the technique's name before the candidate says it).
 
-## Results
+## Final run (v4, after every fix in this branch)
+
+Same setup, re-run on the final prompts. Files: `interview_turn_phase1_*_v4.json`.
+
+| Suite | Cases | Right call | Survival right | Same call x3 | Spoken verdicts (all runs) | Two asks (all runs) | Say checks | Cost |
+|---|---|---|---|---|---|---|---|---|
+| Coding | 20 | 20/20 | 4/4 | 100% | 0/60 | 1/60 | 18/18 | $1.46 |
+| Core | 28 | 28/28 | 18/18 | 96% | 0/84 | 0/84 | n/a | $2.15 |
+| Adversarial | 12 | 12/12 | 2/2 | 100% | 0/36 | 0/36 | n/a | $0.79 |
+| Adversarial input | 8 | 8/8 | 2/2 | 100% | 3/24 | 6/24 | n/a | $0.53 |
+| Question bank | 8 | 8/8 | 8/8 | 100% | 0/24 | 0/24 | n/a | $0.72 |
+
+76/76 decisions and 34/34 survival verdicts, with the verdicts identical across all 3 runs.
+Bank first probes on the biggest gap: 5/8 (was 4/8).
+
+What changed since v3:
+- Two asks in core went from 11/84 to 0/84. The prompt alone never got there, so
+  `agents/interviewer.py` now cuts a second ask after ", and what/how/..." or " — and ..."
+  on follow-up turns (tested; it never crosses a sentence end, and the next question on an
+  advance is left whole). This also covers the review follow-ups in the problem files,
+  many of which are written as two asks.
+- New coding case `coding_failing_run_lets_them_debug_two_sum`, from the live end-to-end run
+  (docs/sample-coding-interview-2026-10-28.md): after a failing run the candidate says "let
+  me look", and Marcus used to hint at the fix. Now "Mm-hm — take your time." in 3/3 runs.
+- The warmup no longer states a number of questions (Marcus is never told it and guessed).
+
+Still open, all wording, none changing a decision:
+- The 6 "two asks" in adversarial input are the runner's `?.*?` pattern catching a question
+  plus a clarifier ("...a technical decision? What was the situation?"), not two separate
+  asks. The one real two-part question in that suite is in Spanish, which the English-only
+  guard doesn't catch.
+- The 3 spoken verdicts are all small talk on the off-topic case ("that's a good hobby").
+- Advance and closing acknowledgements can still carry praise the regex misses ("that's the
+  right move", "complexity is right"). Seen in 2 coding lines; worth an LLM-judge check.
+- E5: with only hidden tests failing, Marcus can still name "2^31 − 1" when it's in the
+  candidate's own code.
+
+## Results (v1, first run)
 
 | Suite | Cases | Right call | Survival right | Spoken verdicts (run 1 / all) | Two asks (run 1 / all) | Same call x3 | Same verdict x3 | Say checks | Cost |
 |---|---|---|---|---|---|---|---|---|---|
