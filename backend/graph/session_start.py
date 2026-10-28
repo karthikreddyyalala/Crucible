@@ -35,17 +35,20 @@ def keep_known_exemplars(plan: QuestionPlan, bank: list[QuestionExemplar],
 
 
 def assign_coding_problems(plan: QuestionPlan, coding: list[CodingProblem]) -> QuestionPlan:
-    """The editor needs a real problem for every coding question. One left without an id gets the
-    first unused offered problem (its slot's difficulty first); with none left it becomes technical."""
+    """The editor needs a real problem for every coding question. One left without an id gets an unused
+    offered problem — its slot's difficulty first, then very_common, then a topic the plan doesn't
+    have yet, then by id — and with none left it becomes technical."""
     used = {q.exemplar_id for q in plan.questions}
+    topics = {t for p in coding if p.id in used for t in p.topics}
     qs = []
     for q in plan.questions:
         if q.type == "coding" and q.exemplar_id is None:
             want = "easy" if q.target_difficulty <= 2 else "hard" if q.target_difficulty == 5 else "medium"
-            free = [p for p in coding if p.id not in used]
-            pick = next((p for p in free if p.difficulty == want), free[0] if free else None)
+            pick = min((p for p in coding if p.id not in used), default=None, key=lambda p: (
+                p.difficulty != want, p.asked != "very_common", bool(topics.intersection(p.topics)), p.id))
             if pick:
                 used.add(pick.id)
+                topics.update(pick.topics)
                 q = q.model_copy(update={"exemplar_id": pick.id, "prompt": f"Let's do a coding problem — {pick.title}."})
             else:
                 q = q.model_copy(update={"type": "technical"})

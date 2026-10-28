@@ -204,3 +204,29 @@ def test_graph_passes_company_style_to_the_planner():
     assert "CompanyStyle: Google-style" in user
     _, user = _invoke([_coding_q(0, None, "behavioral")], mode="behavioral", level="mid")
     assert "CompanyStyle: General" in user
+
+
+def _problem(pid, **update):
+    from models.coding import find_problem
+    return find_problem("code-two-sum").model_copy(update={"id": pid, "title": pid, **update})
+
+
+def test_assign_coding_problems_prefers_very_common_then_new_topics():
+    from graph.session_start import assign_coding_problems
+    chosen = _problem("code-house-robber", topics=("dynamic programming",))
+    offered = [
+        chosen,
+        _problem("code-a-common", asked="common", topics=("graph",)),
+        _problem("code-house-robber-ii", topics=("dynamic programming",)),
+        _problem("code-z-fresh", topics=("intervals",)),
+    ]
+    plan = QuestionPlan.model_validate({"sessionId": "s", "questions": [
+        _coding_q(0, "code-house-robber"), _coding_q(1, None), _coding_q(2, None), _coding_q(3, None)]})
+    picked = [q.exemplar_id for q in assign_coding_problems(plan, offered).questions]
+    # very_common first; among those a topic not already in the plan; then a repeat topic; common last
+    assert picked == ["code-house-robber", "code-z-fresh", "code-house-robber-ii", "code-a-common"]
+    assert [q.exemplar_id for q in assign_coding_problems(plan, list(reversed(offered))).questions] == picked
+
+
+def test_bank_for_coding_mode_is_empty():
+    assert bank_for("sde", mode="coding", level="mid") == []
