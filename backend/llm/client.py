@@ -71,7 +71,9 @@ class LLMClient:
                 message = client.messages.create(
                     model=model,
                     max_tokens=max_tokens,
-                    temperature=temperature,
+                    # The installed SDK's create() has no `temperature` parameter;
+                    # Bedrock still honours it in the request body.
+                    extra_body={"temperature": temperature},
                     system=system,
                     messages=[{"role": "user", "content": prompt}],
                 )
