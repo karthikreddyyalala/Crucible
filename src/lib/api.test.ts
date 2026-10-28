@@ -48,3 +48,19 @@ describe("api.coachAnswer", () => {
     expect(sentBody()).not.toHaveProperty("sessionId");
   });
 });
+
+describe("request errors", () => {
+  it("shows a validation error's message instead of [object Object]", async () => {
+    const api = await realApi();
+    fetchMock.mockResolvedValueOnce(json({
+      detail: [{ type: "string_too_long", loc: ["body", "answer"], msg: "String should have at most 40000 characters" }],
+    }, 422));
+    await expect(api.getProblem("code-two-sum")).rejects.toThrow("String should have at most 40000 characters");
+  });
+
+  it("keeps a plain detail string as it is", async () => {
+    const api = await realApi();
+    fetchMock.mockResolvedValueOnce(json({ detail: "Problem not found." }, 404));
+    await expect(api.getProblem("nope")).rejects.toThrow("Problem not found.");
+  });
+});

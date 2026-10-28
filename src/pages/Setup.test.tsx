@@ -39,6 +39,8 @@ describe("Setup — accessible pickers", () => {
   it("labels the name, resume and job description fields", () => {
     renderSetup();
     expect(screen.getByLabelText("YOUR NAME").tagName).toBe("INPUT");
+    // The server rejects longer names; stop at the same limit instead.
+    expect(screen.getByLabelText("YOUR NAME")).toHaveAttribute("maxLength", "80");
     expect(screen.getByLabelText("YOUR RESUME").tagName).toBe("TEXTAREA");
     expect(screen.getByLabelText("JOB DESCRIPTION").tagName).toBe("TEXTAREA");
   });

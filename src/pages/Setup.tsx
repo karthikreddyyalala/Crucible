@@ -124,6 +124,7 @@ export function Setup() {
             </label>
             <input
               id="setup-name"
+              maxLength={80}
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="What should the interviewer call you?"

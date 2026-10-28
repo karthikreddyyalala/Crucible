@@ -53,7 +53,9 @@ async function safeFetch(url: string, options?: RequestInit): Promise<Response> 
     let detail = "";
     try {
       const body = await res.json();
-      detail = body?.detail ?? body?.message ?? "";
+      const raw = body?.detail ?? body?.message ?? "";
+      // FastAPI validation errors (422) carry a list of {loc, msg, type}: show the first msg.
+      detail = Array.isArray(raw) ? String(raw[0]?.msg ?? "") : String(raw);
     } catch {
       detail = await res.text().catch(() => "");
     }
