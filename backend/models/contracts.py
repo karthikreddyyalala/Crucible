@@ -29,6 +29,7 @@ class PlannedQuestion(_Base):
     prompt: str
     target_difficulty: Literal[1, 2, 3, 4, 5]
     weighted_from_weakness: bool
+    exemplar_id: str | None = None  # bank question this was built from; None = custom
 
 
 class QuestionPlan(_Base):

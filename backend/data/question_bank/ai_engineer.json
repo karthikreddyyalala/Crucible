@@ -1,0 +1,1456 @@
+{
+  "role": "AI Engineer",
+  "questions": [
+    {
+      "id": "aie-beh-drift-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "behavioral",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Has operated a model in production and learned from it going wrong",
+      "prompt": "Tell me about a time a model you shipped behaved worse in production than in evaluation.",
+      "idealAnswerPoints": [
+        "how the problem was detected, and whether a user or a metric found it first",
+        "the size of the gap between offline and production performance",
+        "a root cause such as drift, train/serve skew or leakage, confirmed with evidence",
+        "the specific fix they drove",
+        "the monitoring or eval change they added afterward"
+      ],
+      "weakAnswerSigns": [
+        "only discusses offline metrics",
+        "no root cause found",
+        "'the team' fixed it"
+      ],
+      "followUpHooks": [
+        "How did you first find out?",
+        "How big was the gap?",
+        "How did you separate a data problem from a model problem?",
+        "What was the actual root cause?",
+        "What monitoring did you add afterward?",
+        "Would that monitoring have caught it a week earlier?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from detection through diagnosis and fix to the prevention added afterward",
+          "specificity": "Names the model, the metric, the size of the gap and the actual root cause",
+          "impact": "States how production performance recovered, with a number",
+          "ownership": "Names the debugging steps and fixes they personally drove"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-beh-not-ml-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "behavioral",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Has the engineering judgment to say a model isn't worth it, and backs it with a baseline",
+      "prompt": "Tell me about a time you argued against using an ML model or an LLM for a problem.",
+      "idealAnswerPoints": [
+        "the problem and who wanted a model for it",
+        "why a simpler approach (rules, search, a heuristic) was enough: data, accuracy needs, cost, explainability",
+        "evidence: a baseline they built, or a cost and accuracy comparison",
+        "the outcome, and whether the simpler approach held up over time"
+      ],
+      "weakAnswerSigns": [
+        "the objection was opinion with no baseline",
+        "the story is really about choosing one model over another",
+        "no outcome"
+      ],
+      "followUpHooks": [
+        "Who wanted to use a model?",
+        "What simpler approach did you propose?",
+        "How did you show it was good enough?",
+        "What would have made a model worth it?",
+        "How has the simpler approach held up since?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Sets up the proposal, their counter-case, the evidence and the decision in order",
+          "specificity": "Names the problem, the baseline built and the numbers compared",
+          "impact": "States what was shipped and how it performed afterward",
+          "ownership": "Shows they personally built the baseline and made the argument"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-beh-launch-block-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "behavioral",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Treats evaluation as the launch gate and can defend a delay with a specific flaw",
+      "prompt": "Tell me about a time you held back a model or prompt change from launching because you didn't trust the evaluation.",
+      "idealAnswerPoints": [
+        "what looked good on paper and the specific reason to doubt it: leakage, an unrepresentative eval set, judge bias, a tiny sample",
+        "what they did to get a trustworthy signal: a new eval slice, human review, shadow traffic",
+        "how they handled pressure to ship",
+        "what the better evaluation showed and the final decision"
+      ],
+      "weakAnswerSigns": [
+        "a gut feeling with no specific flaw in the eval",
+        "a delay with no plan to resolve it",
+        "no outcome"
+      ],
+      "followUpHooks": [
+        "What did the original numbers say?",
+        "What specifically made you distrust them?",
+        "Who wanted to ship anyway?",
+        "What did you do to get a number you trusted?",
+        "What did it show?",
+        "How did you change the eval process afterward?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from the promising result through the doubt and the better eval to the decision",
+          "specificity": "Names the metric, the specific flaw in the eval and what the new eval measured",
+          "impact": "States what the better eval revealed and what was shipped or stopped",
+          "ownership": "Shows they personally raised the concern and built the better evaluation"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-beh-explain-failure-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Explains model behaviour honestly to people who don't think in probabilities",
+      "prompt": "Tell me about a time you had to explain to a non-technical stakeholder why a model got something wrong.",
+      "idealAnswerPoints": [
+        "the specific failure and the stakeholder's concern",
+        "how they explained it without jargon: concrete examples, error rates in plain terms",
+        "honest about what could and couldn't be fixed",
+        "the concrete next step agreed: a fix, a guardrail, human review or changed expectations"
+      ],
+      "weakAnswerSigns": [
+        "blames the stakeholder for not understanding AI",
+        "overpromises a fix",
+        "the explanation is full of jargon"
+      ],
+      "followUpHooks": [
+        "What exactly went wrong?",
+        "What did they think had happened?",
+        "How did you actually explain it?",
+        "What did you promise them?",
+        "Did it happen again?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Sets up the failure, the conversation and the agreed next step in order",
+          "specificity": "Names the failure case and how they described it in plain words",
+          "impact": "States what changed afterward for the stakeholder or the product",
+          "ownership": "Shows they personally owned the explanation and the follow-up"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-beh-bad-data-1",
+      "role": "AI Engineer",
+      "competency": "Data Pipelines & Feature Engineering",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Traces model problems back to data and builds checks so they can't recur silently",
+      "prompt": "Tell me about a time bad data caused a problem in a model or pipeline you worked on.",
+      "idealAnswerPoints": [
+        "the symptom and how it surfaced",
+        "how they traced it to the data: a schema change, nulls, duplicates, label errors or an upstream bug",
+        "the fix to the data and to the damage already done (retraining, backfill)",
+        "validation added at the pipeline boundary: schema, distribution or row-count checks"
+      ],
+      "weakAnswerSigns": [
+        "'the data was bad' with no specific defect",
+        "fixed the data once with no check added",
+        "someone else found and fixed it"
+      ],
+      "followUpHooks": [
+        "How did it show up?",
+        "How did you trace it back to the data?",
+        "What exactly was wrong with it?",
+        "How much had it already affected?",
+        "What check did you add so it can't happen silently again?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Walks from the symptom to the data defect, the fix and the prevention",
+          "specificity": "Names the dataset, the specific defect and the check that was added",
+          "impact": "States the damage done and what the fix recovered",
+          "ownership": "Shows they personally traced and fixed it"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-beh-cost-cut-1",
+      "role": "AI Engineer",
+      "competency": "MLOps / Deployment / Monitoring",
+      "type": "behavioral",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Optimises against a measured baseline while proving quality held",
+      "prompt": "Tell me about a time you cut the cost or latency of a model running in production.",
+      "idealAnswerPoints": [
+        "the baseline cost or latency and why it mattered",
+        "the levers tried: a smaller or distilled model, caching, batching, quantisation, shorter prompts, routing",
+        "how they showed quality didn't drop, offline and online",
+        "the measured saving"
+      ],
+      "weakAnswerSigns": [
+        "no baseline number",
+        "no quality check after the change",
+        "'we switched to a cheaper model' with no evaluation"
+      ],
+      "followUpHooks": [
+        "What did it cost before?",
+        "What did you try first?",
+        "How did you know quality didn't drop?",
+        "What was the final saving?",
+        "What did you try that didn't work?",
+        "If you had to halve it again, what would you trade off?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from the baseline through what was tried to the measured result",
+          "specificity": "Gives the cost or latency numbers and the specific technique used",
+          "impact": "States the saving and the quality evidence side by side",
+          "ownership": "Shows they personally ran the experiments and made the call"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-beh-failed-idea-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "behavioral",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Runs experiments honestly and learns from negative results",
+      "prompt": "Tell me about a modeling idea you were confident in that didn't work.",
+      "idealAnswerPoints": [
+        "the hypothesis and why they believed it",
+        "how they tested it: the baseline, the metric and the eval set",
+        "the result, stated plainly",
+        "their analysis of why it failed",
+        "what they did next with that knowledge"
+      ],
+      "weakAnswerSigns": [
+        "blames data or compute with no analysis",
+        "no baseline comparison",
+        "'it didn't work' with no lesson"
+      ],
+      "followUpHooks": [
+        "Why were you confident?",
+        "What did you compare it against?",
+        "How did you know it really didn't work, rather than being noise?",
+        "Why do you think it failed?",
+        "How long did you keep trying before stopping?",
+        "What did you do next?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from the hypothesis through the test and result to what they did next",
+          "specificity": "Names the idea, the baseline, the metric and the result",
+          "impact": "States the effect the failed experiment had on the project's direction",
+          "ownership": "Shows the idea and the decision to stop were theirs"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-beh-dataset-build-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Gets unblocked by building the data an ML problem needs, and treats label quality as engineering",
+      "prompt": "Tell me about a time you had to build a labelled dataset yourself because the one you needed didn't exist.",
+      "idealAnswerPoints": [
+        "why no usable data existed and what the model or eval needed it for",
+        "how they decided what to label: sampling from real traffic, covering hard and rare cases",
+        "labelling guidelines and how they checked consistency, such as double-labelling a sample and measuring agreement",
+        "how many examples, how long it took and what it cost",
+        "what the dataset unlocked, and what they'd label differently now"
+      ],
+      "weakAnswerSigns": [
+        "labelled whatever was easiest to get with no sampling plan",
+        "no check on label quality or agreement",
+        "can't say how big the dataset was or what it was used for"
+      ],
+      "followUpHooks": [
+        "What did you need the data for?",
+        "How did you choose which examples to label?",
+        "How did you know the labels were consistent?",
+        "Where did labellers disagree most?",
+        "What did the dataset let you do that you couldn't before?",
+        "What would you label differently now?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from the missing data through how it was built to what it enabled",
+          "specificity": "Names the task, the sampling approach, the dataset size and the agreement check",
+          "impact": "States the model or eval result the dataset made possible",
+          "ownership": "Shows they personally designed the labelling and checked its quality"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-beh-demo-to-prod-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "behavioral",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Knows the gap between a working demo and a dependable AI product",
+      "prompt": "Tell me about an LLM or ML prototype you took from a demo to something real users relied on.",
+      "idealAnswerPoints": [
+        "what the demo did and what broke once real users arrived",
+        "an eval set built from real usage rather than the demo examples",
+        "reliability work: fallbacks, timeouts, guardrails, validated structured output",
+        "cost and latency at real volume",
+        "monitoring and a feedback loop after launch"
+      ],
+      "weakAnswerSigns": [
+        "'we deployed it' with no reliability work",
+        "the eval set is the demo examples",
+        "no data from after launch"
+      ],
+      "followUpHooks": [
+        "What broke first when real users touched it?",
+        "How did you evaluate it before launch?",
+        "What happens when the model call fails?",
+        "What did it cost per request at real volume?",
+        "How do you find out it's getting worse?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from demo through hardening and launch to how it ran afterward",
+          "specificity": "Names the product, the failure modes found and the specific reliability work",
+          "impact": "States usage, reliability or quality numbers after launch",
+          "ownership": "Shows which hardening decisions they personally made"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-beh-disagree-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Settles modeling disagreements with experiments, not opinions",
+      "prompt": "Tell me about a time you disagreed with a teammate about which modeling approach to use.",
+      "idealAnswerPoints": [
+        "both approaches stated fairly, including the merit of the other side",
+        "an experiment or comparison designed to decide it, with an agreed metric",
+        "what the result showed and the decision taken",
+        "how the working relationship held up"
+      ],
+      "weakAnswerSigns": [
+        "decided by seniority or volume",
+        "no experiment or shared metric",
+        "the teammate is painted as simply wrong"
+      ],
+      "followUpHooks": [
+        "What was their approach?",
+        "What was the strongest argument for it?",
+        "How did you decide between them?",
+        "What did the comparison show?",
+        "Who turned out to be right?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Explains the two approaches, how it was decided and the result in order",
+          "specificity": "Names the models or methods, the metric and the result of the comparison",
+          "impact": "States what was shipped and how it performed",
+          "ownership": "Describes what they personally did to settle it"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-tech-rag-1",
+      "role": "AI Engineer",
+      "competency": "LLM / Prompting / RAG / Agents",
+      "type": "technical",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Understands why retrieval-augmented systems fail and how to measure them",
+      "prompt": "Your RAG chatbot over internal docs keeps giving confident but wrong answers — how would you find out why?",
+      "idealAnswerPoints": [
+        "separates retrieval failures from generation failures by inspecting the retrieved chunks for failing questions",
+        "builds a labelled set of real questions with the passages that answer them and measures retrieval recall at k",
+        "retrieval fixes tied to failure modes: chunking, hybrid keyword plus dense search, reranking, metadata filters",
+        "generation fixes: grounding instructions, citations and abstaining when the context doesn't answer",
+        "changes one thing at a time and re-runs the eval"
+      ],
+      "weakAnswerSigns": [
+        "only suggests a bigger model",
+        "no evaluation plan",
+        "changes several things at once without measuring"
+      ],
+      "followUpHooks": [
+        "How would you tell a retrieval failure from a generation failure?",
+        "How would you build an evaluation set for this?",
+        "The right chunk is retrieved but the answer is still wrong — what next?",
+        "What should it do when nothing relevant comes back?",
+        "Two documents contradict each other — which one wins?",
+        "How would you catch a regression after the next re-index?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Separates retrieval from generation and targets the stage that is actually failing",
+          "depth": "Explains why each fix addresses a specific failure mode and measures it with recall or faithfulness",
+          "edge_cases": "Considers empty retrieval, stale or conflicting chunks, and questions whose answer lies outside the retrieved context",
+          "communication": "Explains clearly how they would isolate retrieval failures from generation failures"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-tech-agent-loop-1",
+      "role": "AI Engineer",
+      "competency": "LLM / Prompting / RAG / Agents",
+      "type": "technical",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Debugs agent behaviour from traces instead of blindly editing the prompt",
+      "prompt": "Your tool-using agent sometimes calls the same tool over and over until it hits the step limit — how would you fix it?",
+      "idealAnswerPoints": [
+        "reads traces of looping runs to see what the tool returned and what the model did next",
+        "common causes: tool errors or empty results the model can't interpret, ambiguous tool descriptions, no clear stopping condition",
+        "fixes: informative tool results and error messages, tool descriptions that say when to use them, explicit completion criteria",
+        "runtime guards: detect repeated identical calls, step and cost budgets, a graceful exit with a partial answer or escalation",
+        "a regression set of looping cases plus normal tasks to measure the fix"
+      ],
+      "weakAnswerSigns": [
+        "just raises the step limit",
+        "only edits the system prompt, with no traces looked at",
+        "no way to measure whether the fix worked"
+      ],
+      "followUpHooks": [
+        "What would you look at first?",
+        "What did the tool return on the turns where it looped?",
+        "How would you detect a loop at runtime?",
+        "What should the agent do when it gives up?",
+        "How would you know your fix didn't break other tasks?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Finds the cause in the traces and fixes it rather than raising the limit",
+          "depth": "Explains why the model repeats itself given what the tool returns",
+          "edge_cases": "Covers tool errors, empty results, ambiguous tools and graceful exit",
+          "communication": "Describes the debugging process step by step"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-tech-prompt-injection-1",
+      "role": "AI Engineer",
+      "competency": "LLM / Prompting / RAG / Agents",
+      "type": "technical",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Understands indirect prompt injection and designs trust boundaries rather than trusting the prompt",
+      "prompt": "Your assistant reads users' incoming email and can send replies — how would you stop a malicious email from taking control of it?",
+      "idealAnswerPoints": [
+        "names indirect prompt injection: untrusted content in the context can carry instructions",
+        "prompt-level defences (delimiting untrusted text, instructions) help but are not sufficient",
+        "least privilege: limit what tools can do and require user confirmation for sending or forwarding",
+        "separates reading untrusted content from taking actions, or drops tool access while untrusted content is in context",
+        "a red-team set of injection emails as a regression test, plus logging of every tool call"
+      ],
+      "weakAnswerSigns": [
+        "'tell the model to ignore instructions in emails' is the whole answer",
+        "relies on an injection classifier alone",
+        "no human confirmation for high-risk actions"
+      ],
+      "followUpHooks": [
+        "How exactly would the attack work?",
+        "Why isn't an instruction in the system prompt enough?",
+        "Which actions would you make the user confirm?",
+        "What if the injection is hidden in an attachment or a linked page?",
+        "How would you test your defences?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Identifies indirect injection and limits what a hijacked model can do",
+          "depth": "Explains why prompt-only defences fail and why privilege separation works",
+          "edge_cases": "Covers hidden instructions in attachments and links, and data exfiltration through replies",
+          "communication": "Explains the attack and the defence layers clearly"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-tech-imbalance-1",
+      "role": "AI Engineer",
+      "competency": "ML Fundamentals",
+      "type": "technical",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Picks metrics that match the problem instead of the default",
+      "prompt": "Your fraud model reports ninety-nine percent accuracy but the fraud team says it's useless — what's going on?",
+      "idealAnswerPoints": [
+        "class imbalance: predicting 'not fraud' for everything scores high accuracy",
+        "precision, recall and PR-AUC instead of accuracy, noting ROC-AUC can also flatter a model under heavy imbalance",
+        "the threshold set from the cost of missed fraud versus investigator capacity",
+        "class weights or resampling, noting they distort predicted probabilities unless recalibrated"
+      ],
+      "weakAnswerSigns": [
+        "suggests more data or a bigger model",
+        "never mentions the base rate",
+        "switches to ROC-AUC as if that solves it"
+      ],
+      "followUpHooks": [
+        "What would you check first?",
+        "What would a model that never predicts fraud score?",
+        "Which metric would you use instead?",
+        "How would you pick the decision threshold?",
+        "What happens to the predicted probabilities if you oversample fraud?",
+        "Fraud labels arrive weeks later — how does that affect evaluation?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Identifies imbalance as the reason accuracy misleads",
+          "depth": "Explains why precision and recall reflect the business problem and how the threshold trades them",
+          "edge_cases": "Covers threshold choice, calibration after resampling and delayed labels",
+          "communication": "Explains the metrics in terms the fraud team would follow"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-tech-offline-online-1",
+      "role": "AI Engineer",
+      "competency": "ML Fundamentals",
+      "type": "technical",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Understands why offline metrics and online outcomes diverge",
+      "prompt": "Your new ranking model beats the old one offline, but the A/B test shows no improvement — what could explain that?",
+      "idealAnswerPoints": [
+        "the offline metric doesn't track the product metric",
+        "offline data was logged under the old model, so it's biased by what that model chose to show",
+        "train/serve skew: features differ between training and serving",
+        "the test itself: underpowered, diluted, novelty effects or the wrong randomisation unit",
+        "how to investigate: feature parity checks, segment results, offline-online correlation from past launches"
+      ],
+      "weakAnswerSigns": [
+        "concludes the test is broken without checking",
+        "suggests training longer",
+        "no mention of bias in logged data"
+      ],
+      "followUpHooks": [
+        "What exactly did you measure offline?",
+        "How was the offline test data collected?",
+        "How would you check the model sees the same features online?",
+        "Was the test powered to detect the gain you expected?",
+        "How would you change your offline eval so this happens less?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Names plausible causes on both the offline and online side",
+          "depth": "Explains logged-data bias and metric mismatch mechanistically",
+          "edge_cases": "Covers skew, underpowered tests and segment effects that cancel out",
+          "communication": "Lays out an investigation order rather than a list of guesses"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-tech-overfit-1",
+      "role": "AI Engineer",
+      "competency": "ML Fundamentals",
+      "type": "technical",
+      "difficulty": 2,
+      "levels": [
+        "junior"
+      ],
+      "signal": "Recognises overfitting and knows the practical levers",
+      "prompt": "Your training loss keeps falling but your validation loss started rising a few epochs ago — what would you do?",
+      "idealAnswerPoints": [
+        "identifies overfitting: the model is memorising training data",
+        "early stopping on the validation curve, keeping the best checkpoint",
+        "regularisation options: weight decay, dropout, augmentation, a smaller model",
+        "more data if available, using a learning curve to judge whether it would help",
+        "checks the validation set is representative and not leaking"
+      ],
+      "weakAnswerSigns": [
+        "keeps training and hopes it recovers",
+        "changes the learning rate with no reason",
+        "no idea what early stopping is"
+      ],
+      "followUpHooks": [
+        "What would you check first?",
+        "What's happening to the model?",
+        "Which fix would you try first?",
+        "How would you tell whether more data would help?",
+        "When would rising validation loss not mean overfitting?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Identifies overfitting and proposes a sensible first fix",
+          "depth": "Explains why each lever reduces variance",
+          "edge_cases": "Considers a small or unrepresentative validation set and distribution mismatch",
+          "communication": "Explains the curves clearly"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-tech-train-serve-skew-1",
+      "role": "AI Engineer",
+      "competency": "Data Pipelines & Feature Engineering",
+      "type": "technical",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Understands train/serve skew and how feature pipelines prevent it",
+      "prompt": "A feature is computed by a nightly batch job for training but by application code at serving time — what can go wrong?",
+      "idealAnswerPoints": [
+        "the two implementations drift: null handling, units, time zones, library versions",
+        "point-in-time correctness: training must use values as they were at prediction time, or future data leaks in",
+        "freshness differs: nightly values can be a day stale at serving",
+        "one shared feature definition for both paths, such as a feature store or shared library, or logging served features for training",
+        "detection: compare served feature distributions with training distributions"
+      ],
+      "weakAnswerSigns": [
+        "says nothing goes wrong if the code is tested",
+        "no mention of leaking future data",
+        "no plan to detect it"
+      ],
+      "followUpHooks": [
+        "What's a concrete way the two values could end up different?",
+        "How would you notice it happening?",
+        "What does point-in-time correctness mean here?",
+        "How would you make both paths use the same logic?",
+        "What if serving can't afford the batch job's computation?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Identifies skew and leakage as the two core risks",
+          "depth": "Explains how skew silently degrades the model and how a shared definition prevents it",
+          "edge_cases": "Covers staleness, nulls, time zones and expensive features that can't run online",
+          "communication": "Uses a concrete example to explain the risk"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-tech-data-split-1",
+      "role": "AI Engineer",
+      "competency": "Data Pipelines & Feature Engineering",
+      "type": "technical",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Designs evaluation splits that don't leak",
+      "prompt": "How would you split a dataset of user sessions into training and test sets for a model that predicts a user's next action?",
+      "idealAnswerPoints": [
+        "a random row split leaks: the same user's sessions land in both sets",
+        "group by user so test users are unseen, when generalising to new users matters",
+        "a time-based split so the test period comes strictly after training, matching how the model is used",
+        "a validation set for tuning, separate from the final test set",
+        "checks that segments and label balance are similar across splits"
+      ],
+      "weakAnswerSigns": [
+        "random split with no leakage discussion",
+        "tunes on the test set",
+        "ignores time"
+      ],
+      "followUpHooks": [
+        "What goes wrong with a random split?",
+        "Would you split by user or by time?",
+        "Where does hyperparameter tuning happen?",
+        "Your test score is much higher than production — what would you suspect first?",
+        "How would you check the split is representative?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Produces a split that measures performance the way the model will be used",
+          "depth": "Explains why user overlap and time ordering inflate scores",
+          "edge_cases": "Covers tuning leakage, users with very few sessions and seasonality",
+          "communication": "Explains the trade-off between user and time splits clearly"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-tech-kv-cache-1",
+      "role": "AI Engineer",
+      "competency": "MLOps / Deployment / Monitoring",
+      "type": "technical",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Knows where inference memory goes and the levers that control it",
+      "prompt": "Your self-hosted LLM server runs out of GPU memory as soon as a few long conversations run at once — what's using the memory?",
+      "idealAnswerPoints": [
+        "weights are fixed, but the KV cache grows with sequence length times the number of concurrent requests",
+        "a rough per-token estimate: layers times key and value heads times head size times bytes per value",
+        "fixes: paged KV cache allocation to avoid fragmentation, caps on context length or concurrency, KV cache quantisation",
+        "model-side options: grouped-query attention, weight quantisation to free memory for the cache",
+        "the trade-offs between throughput, latency and maximum context, and admission control"
+      ],
+      "weakAnswerSigns": [
+        "just buy bigger GPUs",
+        "thinks the weights grow with the number of users",
+        "doesn't know the KV cache exists"
+      ],
+      "followUpHooks": [
+        "What would you look at first?",
+        "What's stored in GPU memory besides the weights?",
+        "How does that grow with conversation length?",
+        "Roughly how would you estimate it per token?",
+        "How would you fit more concurrent users on the same GPU?",
+        "What do you give up with each of those options?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Identifies the KV cache as the memory that grows with load",
+          "depth": "Explains why it scales with tokens and concurrency and how to estimate it",
+          "edge_cases": "Covers fragmentation, very long contexts and bursts of concurrent requests",
+          "communication": "Explains the memory budget clearly"
+        }
+      },
+      "source": "adapted from KalyanKS LLM Interview Questions and Answers Hub"
+    },
+    {
+      "id": "aie-tech-ab-test-1",
+      "role": "AI Engineer",
+      "competency": "Python Coding & Math/Stats",
+      "type": "technical",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Applies statistics to a real launch decision",
+      "prompt": "An A/B test of your new recommendation model shows a two percent lift after three days — would you ship it?",
+      "idealAnswerPoints": [
+        "looks at the confidence interval and significance, not just the point estimate",
+        "asks whether sample size was planned for this effect size, or whether this is early peeking",
+        "novelty effects and weekly cycles make three days short",
+        "checks guardrail metrics (latency, complaints, revenue) and segment effects",
+        "checks randomisation health, such as a sample ratio mismatch"
+      ],
+      "weakAnswerSigns": [
+        "ships because the number is positive",
+        "never asks about variance",
+        "stops the test the first time it looks significant"
+      ],
+      "followUpHooks": [
+        "What would you need to know about that two percent?",
+        "What's wrong with checking every day and stopping when it looks significant?",
+        "Why might three days be misleading?",
+        "What other metrics would you check before shipping?",
+        "How would you notice the randomisation was broken?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Reaches a defensible ship decision based on uncertainty, not the point estimate",
+          "depth": "Explains why peeking inflates false positives and how power relates to effect size",
+          "edge_cases": "Covers novelty, weekly cycles, guardrails and sample ratio mismatch",
+          "communication": "Explains the statistics in plain terms"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-tech-reembed-1",
+      "role": "AI Engineer",
+      "competency": "Python Coding & Math/Stats",
+      "type": "technical",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Knows embeddings from different models aren't comparable and can write a safe, resumable migration",
+      "prompt": "How would you write the job that re-embeds your document corpus when you switch to a new embedding model?",
+      "idealAnswerPoints": [
+        "vectors from two models live in different spaces even at the same dimension, so old and new can never share an index or be compared",
+        "builds a new index alongside the old one, keeps serving from the old, and writes new or edited documents to both during the backfill",
+        "stores model name and version plus a content hash with each vector, so reruns skip unchanged documents and only changed ones are re-embedded",
+        "batched, rate-limited, checkpointed backfill with idempotent upserts so a crash resumes instead of restarting",
+        "compares retrieval recall on a labelled query set before cutting over, and keeps the old index for rollback",
+        "re-embeds queries with the same new model at cutover, since query and document vectors must match"
+      ],
+      "weakAnswerSigns": [
+        "overwrites vectors in place in the live index",
+        "assumes vectors with the same dimension are interchangeable",
+        "no evaluation before switching traffic",
+        "re-embeds everything from scratch on every run"
+      ],
+      "followUpHooks": [
+        "Why can't you just overwrite the vectors in place?",
+        "What if the new model has the same dimension as the old one?",
+        "How does the job know which documents still need embedding?",
+        "What happens to documents edited while the backfill is running?",
+        "How would you decide it's safe to switch queries to the new index?",
+        "The job dies halfway through — what happens?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Never mixes vectors from two models and switches queries and documents together",
+          "depth": "Explains why embedding spaces are incompatible and how versioning and hashing make the job incremental",
+          "edge_cases": "Covers edits during backfill, crashes mid-run, rate limits and rollback",
+          "communication": "Describes the job's stages in a clear order"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-tech-similarity-search-1",
+      "role": "AI Engineer",
+      "competency": "Python Coding & Math/Stats",
+      "type": "technical",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Connects vector maths to efficient code and knows when to reach for an index",
+      "prompt": "How would you find the documents most similar to a query among a million embeddings in Python?",
+      "idealAnswerPoints": [
+        "normalises vectors so cosine similarity becomes a dot product",
+        "one matrix-vector product in numpy, then argpartition for the top k instead of a full sort",
+        "a memory estimate: count times dimension times bytes per value",
+        "for many queries or a much larger corpus, an approximate index (HNSW, IVF) and its recall trade-off"
+      ],
+      "weakAnswerSigns": [
+        "a Python loop over every vector",
+        "sorts all the scores",
+        "uses an approximate index without knowing it's approximate"
+      ],
+      "followUpHooks": [
+        "Which similarity measure would you use?",
+        "How would you avoid a Python loop?",
+        "How much memory do the embeddings take?",
+        "Why not just sort all the scores?",
+        "When would you switch to an approximate index?",
+        "How would you measure the recall you lose with it?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Returns the true top-k by cosine similarity",
+          "depth": "Explains why normalisation turns cosine into a dot product and the cost of top-k selection",
+          "edge_cases": "Covers memory limits, many concurrent queries and the recall of approximate search",
+          "communication": "Explains the maths and the code path clearly"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-sd-rag-assistant-1",
+      "role": "AI Engineer",
+      "competency": "LLM / Prompting / RAG / Agents",
+      "type": "system_design",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Designs a RAG system end to end, including permissions, freshness and evaluation",
+      "prompt": "Design an assistant that answers employees' questions using the company's internal documents.",
+      "idealAnswerPoints": [
+        "clarifies document sources, permissions, how fresh answers must be and what a good answer is",
+        "ingestion: parsing, chunking, embeddings and incremental re-indexing on edits and deletes",
+        "permission-aware retrieval that filters by the asking user's access at query time",
+        "hybrid retrieval plus reranking, answers with citations, and abstaining when context is insufficient",
+        "an eval set of real questions with expected sources, measuring retrieval recall and answer faithfulness",
+        "cost and latency per query, monitoring and user feedback capture"
+      ],
+      "weakAnswerSigns": [
+        "embeds everything with no permission model",
+        "no evaluation plan",
+        "no plan for documents changing"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "How do documents get into the system?",
+        "How do you stop someone getting an answer from a document they can't access?",
+        "How do you know the answers are good?",
+        "A document is edited — how long until answers reflect it?",
+        "Where would you spend money to make it better, retrieval or the model?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Clarifies sources, permissions, freshness and what a good answer means before designing",
+          "scalability": "Explains how ingestion and retrieval scale with corpus size and query volume, and what each query costs",
+          "tradeoffs": "Weighs chunking, retrieval and model choices against cost and quality",
+          "depth": "Goes deep on permission-aware retrieval, re-indexing or the evaluation plan"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-sd-eval-system-1",
+      "role": "AI Engineer",
+      "competency": "MLOps / Deployment / Monitoring",
+      "type": "system_design",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Treats evaluation as infrastructure: representative data, calibrated scoring and release gates",
+      "prompt": "Design the system that decides whether a new prompt or model version is good enough to ship.",
+      "idealAnswerPoints": [
+        "clarifies the product tasks, the cost of each failure type and who signs off",
+        "versioned golden sets per task built from real traffic, including hard and safety cases",
+        "scoring: programmatic checks where possible, an LLM judge calibrated against human labels, a human review sample",
+        "regression gates in CI comparing against the current version, with enough examples to trust the difference",
+        "an online stage: shadow or canary traffic with product metrics and guardrails",
+        "eval sets kept fresh by adding production failures"
+      ],
+      "weakAnswerSigns": [
+        "eyeballs a handful of examples",
+        "an LLM judge with no calibration",
+        "no online stage"
+      ],
+      "followUpHooks": [
+        "What questions do you have before we start?",
+        "Where do your test cases come from?",
+        "How do you score open-ended answers?",
+        "How do you know the LLM judge agrees with people?",
+        "The new version is better on average but worse on one category — do you ship?",
+        "How do you stop the eval set going stale?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Defines what good enough means per task and who decides before designing the pipeline",
+          "scalability": "Explains how eval cost and time scale with the number of cases, versions and judges",
+          "tradeoffs": "Weighs programmatic, LLM-judge and human scoring on cost and trustworthiness",
+          "depth": "Goes deep on judge calibration, release gates or keeping eval sets representative"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-sd-llm-serving-1",
+      "role": "AI Engineer",
+      "competency": "MLOps / Deployment / Monitoring",
+      "type": "system_design",
+      "difficulty": 5,
+      "levels": [
+        "senior"
+      ],
+      "signal": "Understands LLM inference economics: batching, memory, GPU utilisation and latency targets",
+      "prompt": "Design a platform that serves open-weight LLMs to teams across the company.",
+      "idealAnswerPoints": [
+        "clarifies models, traffic shape, latency targets (time to first token versus throughput) and interactive versus batch use",
+        "an inference engine with continuous batching and paged KV cache",
+        "GPU capacity: model placement, tensor parallelism for large models, autoscaling with slow model loads",
+        "routing, per-team quotas and priority between interactive and batch traffic",
+        "quantisation and speculative decoding as cost and latency levers",
+        "metrics: time to first token, tokens per second, GPU utilisation, queue depth, cost per token"
+      ],
+      "weakAnswerSigns": [
+        "one request per GPU at a time with no batching",
+        "autoscales as if model servers were stateless web servers that start instantly",
+        "no distinction between latency and throughput"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "How do you get good GPU utilisation?",
+        "A model takes minutes to load — how does that change autoscaling?",
+        "How do you stop a batch job starving interactive users?",
+        "Where does most of the cost go?",
+        "What breaks first when traffic doubles?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Clarifies models, traffic mix and which latency metric matters before designing",
+          "scalability": "Explains how batching, placement and autoscaling determine GPU utilisation and capacity",
+          "tradeoffs": "Weighs latency against throughput and cost, including quantisation's quality cost",
+          "depth": "Goes deep on batching and KV cache memory, scheduling or autoscaling"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-sd-llm-gateway-1",
+      "role": "AI Engineer",
+      "competency": "MLOps / Deployment / Monitoring",
+      "type": "system_design",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Designs shared LLM infrastructure with quotas, fallback, cost attribution and data controls",
+      "prompt": "Design a gateway that every team in the company uses to call external LLM providers.",
+      "idealAnswerPoints": [
+        "clarifies providers, how many teams, cost-tracking needs and data policy",
+        "one API across providers, with routing and fallback when a provider errors or slows down",
+        "per-team keys, quotas, rate limits and cost attribution",
+        "caching: exact-match, and semantic caching with its wrong-hit risk",
+        "PII redaction or policy enforcement, and logging with retention controls",
+        "streaming support and the gateway's own added latency"
+      ],
+      "weakAnswerSigns": [
+        "a thin proxy with no quotas or cost tracking",
+        "fails over blindly between models that behave differently",
+        "semantic caching with no thought about wrong hits"
+      ],
+      "followUpHooks": [
+        "What questions do you have before we start?",
+        "What does the API look like to a calling team?",
+        "A provider starts timing out — what happens to requests?",
+        "How do you attribute cost to teams?",
+        "When is caching responses dangerous?",
+        "How do you keep sensitive data from going to a provider?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Clarifies providers, tenants and data policy before designing",
+          "scalability": "Explains how the gateway handles provider limits and its own throughput without adding much latency",
+          "tradeoffs": "Weighs fallback across models, caching and redaction against quality and cost",
+          "depth": "Goes deep on fallback, quotas and cost attribution, or data controls"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-sd-support-agent-1",
+      "role": "AI Engineer",
+      "competency": "LLM / Prompting / RAG / Agents",
+      "type": "system_design",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Designs an agent that takes real actions safely, with guardrails, escalation and evaluation",
+      "prompt": "Design a customer-support agent that can look up orders and issue refunds.",
+      "idealAnswerPoints": [
+        "clarifies allowed actions, refund limits, escalation policy and channels",
+        "an agent loop with typed tool schemas, validated arguments and server-side authorisation of every action",
+        "guardrails: refund limits, confirmation steps, human approval above a threshold",
+        "conversation state and order context, with a handoff to humans that carries a summary",
+        "evaluation of multi-step tasks with simulated customers, including adversarial ones",
+        "monitoring: resolution and escalation rates, refund amounts, loops and cost per conversation"
+      ],
+      "weakAnswerSigns": [
+        "the model decides refunds with no server-side checks",
+        "no escalation path",
+        "evaluated by chatting with it a few times"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "What does a single turn of the agent loop look like?",
+        "What stops it refunding an order that isn't the customer's?",
+        "How do you hand off to a human?",
+        "How would you test it before launch?",
+        "What would you watch after launch?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Pins down allowed actions, limits and escalation rules before designing the agent",
+          "scalability": "Explains per-conversation cost and latency and how they grow with tool calls and volume",
+          "tradeoffs": "Weighs autonomy against human approval, and model capability against cost",
+          "depth": "Goes deep on action authorisation, multi-step evaluation or escalation"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-sd-invoice-extraction-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "system_design",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Builds an extraction pipeline that knows when it's wrong",
+      "prompt": "Design a pipeline that pulls structured fields out of scanned invoices.",
+      "idealAnswerPoints": [
+        "clarifies which fields, invoice variety, volume, accuracy needs and what happens downstream with an error",
+        "OCR or a vision model, then extraction into a strict schema with validation (totals add up, dates parse)",
+        "per-field confidence, with low-confidence fields routed to human review",
+        "field-level accuracy measured on a labelled set covering vendors and formats",
+        "reviewer corrections fed back into evaluation and improvement"
+      ],
+      "weakAnswerSigns": [
+        "sends the image to an LLM and trusts the output",
+        "no validation",
+        "accuracy measured per document only, or not at all"
+      ],
+      "followUpHooks": [
+        "What questions do you have before we start?",
+        "What happens to a single invoice from upload to output?",
+        "How do you know an extracted total is wrong?",
+        "Which invoices go to a human?",
+        "How would you measure accuracy?",
+        "A new vendor's format breaks extraction — how do you find out?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Clarifies fields, accuracy needs and the cost of errors before designing",
+          "scalability": "Explains throughput and how much human review volume the design creates",
+          "tradeoffs": "Weighs automation rate against accuracy when setting review thresholds",
+          "depth": "Goes deep on validation, confidence routing or field-level evaluation"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-sd-semantic-search-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "system_design",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Combines embeddings with classic search and measures whether it's actually better",
+      "prompt": "Design semantic product search for an online marketplace.",
+      "idealAnswerPoints": [
+        "clarifies the kinds of queries, catalog size, how often products change and the latency target",
+        "embeds products and queries into an approximate nearest-neighbour index, combined with keyword search for exact matches like SKUs",
+        "a reranking stage using business signals such as stock and popularity",
+        "index updates as products change, without re-embedding the whole catalog",
+        "offline relevance evaluation plus online click and conversion metrics"
+      ],
+      "weakAnswerSigns": [
+        "pure embeddings with no keyword fallback",
+        "no evaluation",
+        "re-embeds the whole catalog for every change"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "Where does keyword search still beat embeddings?",
+        "How do you search a huge number of vectors quickly?",
+        "A product's price or stock changes — what updates?",
+        "How would you know the new search is better than the old one?",
+        "What do you do for a query that returns nothing relevant?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Clarifies query types, catalog size and latency before designing",
+          "scalability": "Explains how the index scales with catalog size and query volume",
+          "tradeoffs": "Weighs keyword against semantic retrieval and exact against approximate search",
+          "depth": "Goes deep on hybrid retrieval, index updates or the evaluation plan"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-sd-moderation-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "system_design",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Balances model cost, precision, recall and human review capacity in a classification system",
+      "prompt": "Design a system that flags harmful user posts for human review.",
+      "idealAnswerPoints": [
+        "clarifies harm categories, volume, reviewer capacity and whether checks run before or after publishing",
+        "a cascade: cheap rules and a small classifier first, a larger model only for uncertain cases",
+        "thresholds per category set from reviewer capacity and the cost of a miss",
+        "a review queue prioritised by severity, with reviewer decisions fed back as labels",
+        "drift from users adapting to evade it, with monitoring and retraining",
+        "appeals, and precision and recall measured per category"
+      ],
+      "weakAnswerSigns": [
+        "one large LLM on every post",
+        "one global threshold",
+        "no feedback loop from reviewers"
+      ],
+      "followUpHooks": [
+        "What questions do you have before we start?",
+        "Is a post checked before or after it's visible?",
+        "How do you decide what goes to a reviewer?",
+        "Reviewers can only see a small fraction of posts — how do you set the threshold?",
+        "Users start misspelling words to get past it — what happens?",
+        "How do you measure what you're missing?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Clarifies categories, volume, review capacity and timing before designing",
+          "scalability": "Explains model cost at full post volume and how the cascade keeps it manageable",
+          "tradeoffs": "Weighs precision against recall per category and automation against review cost",
+          "depth": "Goes deep on thresholds, the review feedback loop or adversarial drift"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-sd-fraud-1",
+      "role": "AI Engineer",
+      "competency": "Data Pipelines & Feature Engineering",
+      "type": "system_design",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Designs a low-latency ML system around real-time features and delayed labels",
+      "prompt": "Design a real-time fraud scoring system for card payments.",
+      "idealAnswerPoints": [
+        "clarifies the latency budget inside authorisation, the fraud rate and the cost of false declines",
+        "an online feature store with real-time aggregates such as velocity counts, sharing definitions with offline training",
+        "low-latency model serving inside the budget, with rules alongside the model",
+        "label delay from chargebacks and how it shapes training windows and monitoring",
+        "retraining cadence, drift monitoring and a fallback if scoring is unavailable"
+      ],
+      "weakAnswerSigns": [
+        "batch features only",
+        "ignores label delay",
+        "no fallback when scoring fails"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "Which features need to be computed in real time?",
+        "How do you keep online and offline features identical?",
+        "You only learn about fraud weeks later — how does that affect training?",
+        "The scoring service is down — do you approve or decline?",
+        "Fraudsters change tactics — how do you notice?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Clarifies the latency budget, fraud rate and cost of false declines before designing",
+          "scalability": "Explains how real-time features and scoring fit the latency budget at peak payment volume",
+          "tradeoffs": "Weighs false declines against missed fraud, and fail-open against fail-closed",
+          "depth": "Goes deep on the feature store, label delay or fallback behaviour"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-beh-constrained-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Makes an ML or LLM feature work under real constraints instead of waiting for ideal conditions",
+      "prompt": "Tell me about a time you had to make a model work with much less data, compute or time than you wanted.",
+      "idealAnswerPoints": [
+        "the feature and the specific constraint: a few hundred examples, one GPU, a two-week deadline",
+        "the approach chosen because of the constraint: a pretrained model, prompting, a simpler model, a smaller scope",
+        "how they checked it was good enough with the little they had",
+        "what shipped and how it performed",
+        "what they would do with more resources, and whether that turned out to matter"
+      ],
+      "weakAnswerSigns": [
+        "complains about the constraint with no adapted approach",
+        "no check that the result was good enough",
+        "nothing shipped"
+      ],
+      "followUpHooks": [
+        "What exactly were you short of?",
+        "What did you choose to do because of that?",
+        "What did you give up?",
+        "How did you know it was good enough?",
+        "What would you have done with ten times the resources?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from the constraint through the approach chosen to what shipped",
+          "specificity": "Names the constraint in numbers and the specific technique used",
+          "impact": "States how the shipped result performed",
+          "ownership": "Shows the adapted approach was their decision"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-beh-too-good-1",
+      "role": "AI Engineer",
+      "competency": "ML Fundamentals",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Is sceptical of their own results and knows how leakage and evaluation bugs hide",
+      "prompt": "Tell me about a time a model's results looked too good to be true.",
+      "idealAnswerPoints": [
+        "the result and why it looked suspicious: far above the baseline, or perfect on a hard slice",
+        "how they investigated: checking the split, looking for leaked features, inspecting predictions by hand",
+        "what the cause turned out to be, such as leakage, duplicates across splits or a metric bug",
+        "the corrected result and how it changed the plan",
+        "a check they now run by default"
+      ],
+      "weakAnswerSigns": [
+        "celebrated the result and only found out later from someone else",
+        "can't name the actual cause",
+        "no lasting change to how they evaluate"
+      ],
+      "followUpHooks": [
+        "What was the number?",
+        "What made you suspicious?",
+        "What did you check first?",
+        "What was actually going on?",
+        "What did the real number turn out to be?",
+        "What do you check by default now?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from the suspicious result through the investigation to the corrected number",
+          "specificity": "Names the metric, the baseline and the specific cause",
+          "impact": "States the corrected result and what it changed",
+          "ownership": "Shows they personally doubted the result and ran the investigation"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-sd-handoff-summary-1",
+      "role": "AI Engineer",
+      "competency": "LLM / Prompting / RAG / Agents",
+      "type": "system_design",
+      "difficulty": 2,
+      "levels": [
+        "junior"
+      ],
+      "signal": "Scopes a simple LLM feature end to end: when it runs, what it costs and how you'd know it's good",
+      "prompt": "Design a feature that summarises a customer-support conversation for the next agent who picks it up.",
+      "idealAnswerPoints": [
+        "asks what the next agent needs from a summary, how long conversations get and when the summary must be ready",
+        "starts simple: on handoff, send the conversation to an LLM with a prompt that asks for a fixed structure",
+        "runs it in the background when the conversation is handed off, with a fallback to the raw transcript if it fails",
+        "handles conversations longer than the context window, for example by summarising in parts",
+        "evaluates with agents' ratings of real summaries and checks for invented details",
+        "estimates cost per summary and removes personal data the summary doesn't need"
+      ],
+      "weakAnswerSigns": [
+        "no plan for checking whether summaries are accurate",
+        "makes the agent wait for the model with no fallback",
+        "ignores conversations longer than the model's context window"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "What should a summary actually contain?",
+        "When does the summary get generated?",
+        "What happens with a conversation too long for the model?",
+        "The summary invents a refund that never happened — how would you catch that?",
+        "What does each summary cost?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Asks what agents need, how long conversations get and the timing before designing",
+          "scalability": "Estimates cost and latency per summary and how they grow with conversation length and volume",
+          "tradeoffs": "Weighs a larger model against cost, and generating ahead of time against generating on demand",
+          "depth": "Goes deep on long-conversation handling, hallucination checks or evaluation"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "aie-sd-retrain-pipeline-1",
+      "role": "AI Engineer",
+      "competency": "MLOps / Deployment / Monitoring",
+      "type": "system_design",
+      "difficulty": 2,
+      "levels": [
+        "junior"
+      ],
+      "signal": "Automates retraining with a gate, so a worse model never replaces a better one",
+      "prompt": "Design a pipeline that retrains a customer churn model every week.",
+      "idealAnswerPoints": [
+        "asks where the training data comes from, how labels are defined and who uses the predictions",
+        "a scheduled job that snapshots the data, trains and saves a versioned model with its metrics",
+        "an evaluation gate that compares the new model with the current one on the same holdout before promoting it",
+        "data checks before training: row counts, missing values, label rate",
+        "deployment by switching to the new model version, with one-step rollback",
+        "an alert when the job fails or the gate rejects a model"
+      ],
+      "weakAnswerSigns": [
+        "deploys every new model automatically with no comparison",
+        "no versioning, so there's nothing to roll back to",
+        "never asks how churn labels are defined"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "How would you run it with a simple script on a schedule?",
+        "How do you decide whether this week's model is better than last week's?",
+        "What if this week's data is half the usual size?",
+        "The new model turns out to be worse in production — what do you do?",
+        "How would you know the job failed?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Asks about data sources, label definitions and consumers before designing",
+          "scalability": "Explains how the job handles growing data and how long each run can take",
+          "tradeoffs": "Weighs fully automatic promotion against a human check, and weekly retraining against cost",
+          "depth": "Goes deep on the evaluation gate, data checks or rollback"
+        }
+      },
+      "source": "original"
+    }
+  ]
+}

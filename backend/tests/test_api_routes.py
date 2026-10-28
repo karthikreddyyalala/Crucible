@@ -717,3 +717,65 @@ def test_tts_enabled_only_when_key_in_environment(monkeypatch):
     assert Settings().elevenlabs_enabled is False
     monkeypatch.setenv("ELEVENLABS_API_KEY", "x")
     assert Settings().elevenlabs_enabled is True
+
+
+def _spy_client(payloads):
+    seen: dict = {}
+
+    class _Spy(_FakeLLM):
+        def structured(self, **kw):
+            seen["user"] = kw["user"]
+            return super().structured(**kw)
+
+    return TestClient(create_app(llm=_Spy(payloads), store=InMemoryStore())), seen
+
+
+def test_turn_and_evaluate_look_up_exemplar_server_side():
+    from models.loader import find_exemplar
+    ex = find_exemplar("sde-beh-ownership-1")
+    q = {**_QUESTION_BODY, "exemplarId": "sde-beh-ownership-1"}
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP, "AnswerEvaluation": _EVAL})
+    client.post("/api/session/turn", json={
+        "question": q, "answer": "a", "followUpCount": 0, "isLast": False, "phase": "question"})
+    assert ex.follow_up_hooks[0] in seen["user"]
+    client.post("/api/session/evaluate", json={"question": q, "transcript": "a", "followUpCount": 0})
+    assert ex.ideal_answer_points[0] in seen["user"]
+
+
+def test_unknown_exemplar_id_yields_no_notes_and_no_error():
+    q = {**_QUESTION_BODY, "exemplarId": "does-not-exist"}
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP, "AnswerEvaluation": _EVAL})
+    r = client.post("/api/session/turn", json={
+        "question": q, "answer": "a", "followUpCount": 0, "isLast": False, "phase": "question"})
+    assert r.status_code == 200 and "Interviewer notes" not in seen["user"]
+    r = client.post("/api/session/evaluate", json={"question": q, "transcript": "a", "followUpCount": 0})
+    assert r.status_code == 200 and "Rubric anchors" not in seen["user"]
+
+
+def test_exemplar_with_mismatched_type_is_ignored():
+    q = {**_QUESTION_BODY, "type": "technical", "exemplarId": "sde-beh-ownership-1"}
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP, "AnswerEvaluation": _EVAL})
+    client.post("/api/session/turn", json={
+        "question": q, "answer": "a", "followUpCount": 0, "isLast": False, "phase": "question"})
+    assert "Interviewer notes" not in seen["user"]
+    client.post("/api/session/evaluate", json={"question": q, "transcript": "a", "followUpCount": 0})
+    assert "Rubric anchors" not in seen["user"]
+
+
+def test_bank_notes_only_attached_during_the_question_phase():
+    q = {**_QUESTION_BODY, "exemplarId": "sde-beh-ownership-1"}
+    body = {"question": q, "answer": "a", "followUpCount": 0, "isLast": False}
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP})
+    client.post("/api/session/turn", json={**body, "phase": "background"})
+    assert "Interviewer notes" not in seen["user"]
+    client.post("/api/session/turn", json={**body, "phase": "question"})
+    assert "Interviewer notes" in seen["user"]
+
+
+def test_turn_rejects_negative_follow_up_count_and_bad_level():
+    client = _client({})
+    base = {"question": _QUESTION_BODY, "answer": "a", "isLast": False}
+    assert client.post("/api/session/turn", json={**base, "followUpCount": -1}).status_code == 422
+    assert client.post("/api/session/turn", json={**base, "followUpCount": 0, "level": "wizard"}).status_code == 422
+    assert client.post("/api/session/evaluate", json={
+        "question": _QUESTION_BODY, "transcript": "a", "followUpCount": -1}).status_code == 422

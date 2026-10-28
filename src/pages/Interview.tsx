@@ -309,7 +309,7 @@ export function Interview() {
             )}
             {inQuestions && followUpCount > 0 && (
               <span className="font-mono text-[10px] tracking-[0.16em] text-accent">
-                FOLLOW-UP {followUpCount}/2
+                FOLLOW-UP {followUpCount}
               </span>
             )}
             {voiceOn && (
@@ -546,7 +546,7 @@ export function Interview() {
             thinking={thinking}
             sttSupported={stt.supported}
             followUpLabel={
-              inQuestions && followUpCount > 0 ? `FOLLOW-UP ${followUpCount}/2` : undefined
+              inQuestions && followUpCount > 0 ? `FOLLOW-UP ${followUpCount}` : undefined
             }
             onToggleMic={toggleMic}
             onSend={send}

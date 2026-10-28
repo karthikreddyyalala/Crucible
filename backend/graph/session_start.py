@@ -1,9 +1,21 @@
 from typing import TypedDict
 from langgraph.graph import StateGraph, START, END
 from models.contracts import IntakeProfile, MemoryProfile, QuestionPlan
-from models.loader import load_competency_map
+from models.question_data import QuestionExemplar
+from models.loader import bank_for, load_competency_map
 from agents.intake import IntakeAgent
 from agents.planner import PlannerAgent
+
+
+def keep_known_exemplars(plan: QuestionPlan, bank: list[QuestionExemplar]) -> QuestionPlan:
+    """The model may invent, misspell or repeat bank ids; only the session bank's, once each, survive."""
+    allowed, types, qs = {q.id for q in bank}, {q.id: q.type for q in bank}, []
+    for q in plan.questions:
+        ok = q.exemplar_id in allowed and types[q.exemplar_id] == q.type
+        if ok:
+            allowed.discard(q.exemplar_id)
+        qs.append(q.model_copy(update={"exemplar_id": q.exemplar_id if ok else None}))
+    return plan.model_copy(update={"questions": qs})
 
 
 class SessionStartState(TypedDict, total=False):
@@ -31,16 +43,19 @@ def build_session_start_graph(*, llm, intake_model: str, planner_model: str):
         return {"profile": profile}
 
     def planner_node(state: SessionStartState) -> SessionStartState:
+        mode, level = state.get("mode", "full"), state.get("level", "mid")
+        bank = bank_for(state["role_key"], mode=mode, level=level)
         plan = planner.run(
             session_id=state["session_id"],
             profile=state["profile"],
             memory=state["memory"],
             competency_map=load_competency_map(state["role_key"]),
-            mode=state.get("mode", "full"),
-            level=state.get("level", "mid"),
+            mode=mode,
+            level=level,
             usage_sink=state.get("usage"),
+            bank=bank,
         )
-        return {"plan": plan}
+        return {"plan": keep_known_exemplars(plan, bank)}
 
     g = StateGraph(SessionStartState)
     g.add_node("intake", intake_node)

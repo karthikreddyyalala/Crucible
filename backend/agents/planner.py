@@ -1,6 +1,7 @@
+import json
 from pathlib import Path
 from models.contracts import IntakeProfile, MemoryProfile, QuestionPlan
-from models.question_data import CompetencyMap
+from models.question_data import CompetencyMap, QuestionExemplar
 
 _PROMPT = (Path(__file__).resolve().parent.parent / "prompts" / "planner.md").read_text()
 
@@ -13,7 +14,8 @@ class PlannerAgent:
     def run(self, *, session_id: str, profile: IntakeProfile,
             memory: MemoryProfile, competency_map: CompetencyMap,
             mode: str = "full", level: str = "mid",
-            usage_sink: list | None = None) -> QuestionPlan:
+            usage_sink: list | None = None,
+            bank: list[QuestionExemplar] | None = None) -> QuestionPlan:
         user = (
             f"sessionId: {session_id}\n"
             f"mode: {mode}\n"
@@ -22,6 +24,10 @@ class PlannerAgent:
             f"MemoryProfile:\n{memory.model_dump_json(by_alias=True, indent=2)}\n\n"
             f"CompetencyMap:\n{competency_map.model_dump_json(by_alias=True, indent=2)}"
         )
+        if bank:
+            keys = ("id", "type", "competency", "difficulty", "levels", "signal", "prompt")
+            user += "\n\nQuestionBank (choose from these):\n" + json.dumps(
+                [{k: getattr(q, k) for k in keys} for q in bank], indent=2)
         return self._llm.structured(
             agent="planner", sink=usage_sink,
             model=self._model, system=_PROMPT, user=user, schema=QuestionPlan,

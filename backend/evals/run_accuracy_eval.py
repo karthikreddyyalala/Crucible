@@ -23,6 +23,7 @@ from anthropic import AnthropicBedrock
 from config.settings import Settings
 from llm.client import LLMClient
 from models.contracts import PlannedQuestion
+from models.loader import find_exemplar
 from agents.interviewer import InterviewerAgent
 from agents.evaluator import EvaluatorAgent
 
@@ -31,15 +32,37 @@ CASES_FILE = Path(__file__).parent / "golden" / "interview_turn_cases.json"
 # Real interviewers keep a neutral face; the verdict belongs to the Evaluator.
 # Any of these in a spoken line is a judgment leaking out loud.
 JUDGMENT = re.compile(
-    r"\b(great|good|nice|solid|strong|perfect|excellent|awesome|impressive|exactly"
+    r"\b(great|good|nice|solid|strong|perfect|excellent|awesome|impressive|exactly right|that's exactly"
     r"|reasonable|fair point|that's right|that's wrong|pretty thin|what i was looking for)\b",
     re.IGNORECASE,
 )
 
 
+# Two asks in one turn ("What went wrong, and what would you do differently?").
+STACKED = re.compile(r"\?.*\?|,\s*and\s+(what|how|why|who|when|where|which)\b", re.IGNORECASE)
+
+
+def stacked_ask(say: str) -> bool:
+    # "...? Like, what's actually happening?" restates one question the way people talk.
+    return bool(STACKED.search(say.replace("? Like,", ", like").replace("? Like ", ", like ")))
+
+
 def judgment_leak(say: str) -> str | None:
     m = JUDGMENT.search(say)
     return m.group(0) if m else None
+
+
+def load_cases(cases_file: Path) -> list[dict]:
+    """Golden cases; optional `exemplar_id` makes the case run on the bank path
+    (and is stamped onto the question), optional `expect_probe_targets` lists
+    lowercase keywords the follow-up should be about."""
+    cases = json.loads(cases_file.read_text())
+    for c in cases:
+        if c.get("exemplar_id"):
+            c["question"] = {**c["question"], "exemplarId": c["exemplar_id"]}
+    return cases
+
+
 RESULTS_DIR = Path(__file__).parent / "results"
 
 # Anthropic list pricing for claude-sonnet-4-6 ($/MTok). Bedrock pricing may
@@ -77,7 +100,7 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
     interviewer = InterviewerAgent(llm=llm, model=settings.interviewer_model)
     evaluator = EvaluatorAgent(llm=llm, model=settings.evaluator_model)
 
-    cases = json.loads(cases_file.read_text())
+    cases = load_cases(cases_file)
     results = []
 
     print(f"Running {len(cases)} cases against interviewer_model={settings.interviewer_model} "
@@ -85,6 +108,7 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
 
     for case in cases:
         question = PlannedQuestion.model_validate(case["question"])
+        exemplar = find_exemplar(case.get("exemplar_id"))
 
         t0 = time.monotonic()
         decision = interviewer.run_turn(
@@ -92,9 +116,11 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
             candidate_answer=case["candidate_answer"],
             follow_up_count=case["follow_up_count"],
             is_last_question=case["is_last_question"],
+            exemplar=exemplar,
         )
         interviewer_latency = time.monotonic() - t0
-        action_match = decision.action == case["expect_action"]
+        expected = case["expect_action"]  # a string, or a list of acceptable actions
+        action_match = decision.action in (expected if isinstance(expected, list) else [expected])
 
         would_survive_actual = None
         would_survive_match = None
@@ -105,14 +131,20 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
                 question=question,
                 transcript=case["candidate_answer"],
                 follow_up_count=case["follow_up_count"],
+                exemplar=exemplar,
             )
             evaluator_latency = time.monotonic() - t1
             would_survive_actual = evaluation.would_survive_real_interview
             would_survive_match = would_survive_actual == case["expect_would_survive"]
 
+        targets = case.get("expect_probe_targets")
+        probe_on_target = any(k in decision.say.lower() for k in targets) if targets else None
+
         row = {
             "case": case["case"],
             "type": case["question"]["type"],
+            "exemplar_id": case.get("exemplar_id"),
+            "probe_on_target": probe_on_target,
             "expected_action": case["expect_action"],
             "actual_action": decision.action,
             "action_match": action_match,
@@ -121,6 +153,7 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
             "would_survive_match": would_survive_match,
             "say": decision.say,
             "judgment_leak": judgment_leak(decision.say),
+            "stacked_ask": decision.action == "follow_up" and stacked_ask(decision.say),
             "interviewer_latency_s": round(interviewer_latency, 2),
             "evaluator_latency_s": round(evaluator_latency, 2) if evaluator_latency is not None else None,
         }
@@ -130,6 +163,8 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
         detail = f"action={decision.action} (expected {case['expect_action']})"
         if would_survive_match is not None:
             detail += f", survive={would_survive_actual} (expected {case['expect_would_survive']})"
+        if row["stacked_ask"]:
+            detail += f", STACKED ASK in: {decision.say}"
         if row["judgment_leak"]:
             detail += f", JUDGMENT '{row['judgment_leak']}' in: {decision.say}"
         print(f"  {'PASS' if ok else 'FAIL'}  {case['case']}: {detail}")
@@ -155,6 +190,7 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
         "survive_accuracy": round(survive_accuracy, 4) if survive_accuracy is not None else None,
         "survive_correct": sum(1 for r in survive_cases if r["would_survive_match"]),
         "survive_case_count": len(survive_cases),
+        "stacked_ask_rate": round(mean(1.0 if r["stacked_ask"] else 0.0 for r in results), 4),
         "judgment_leak_rate": round(mean(1.0 if r["judgment_leak"] else 0.0 for r in results), 4),
         "total_input_tokens": total_input,
         "total_output_tokens": total_output,
@@ -172,6 +208,12 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
     if survive_accuracy is not None:
         print(f"Evaluator wouldSurviveRealInterview accuracy: {survive_accuracy:.1%} "
               f"({summary['survive_correct']}/{summary['survive_case_count']})")
+    print(f"Bank-backed cases: {sum(1 for r in results if r['exemplar_id'])}")
+    probe_cases = [r for r in results if r["probe_on_target"] is not None]
+    if probe_cases:
+        print(f"Follow-ups aimed at the missing strong point: "
+              f"{sum(1 for r in probe_cases if r['probe_on_target'])}/{len(probe_cases)}")
+    print(f"Stacked two-question follow-ups: {summary['stacked_ask_rate']:.1%} of lines")
     print(f"Spoken judgment leaks: {summary['judgment_leak_rate']:.1%} of lines")
     print(f"Tokens: {total_input} in / {total_output} out — est. cost ${estimated_cost:.4f}")
     print(f"Results written to {out_file}")

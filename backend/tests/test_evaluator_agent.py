@@ -61,3 +61,17 @@ def test_evaluator_strong_answer_survives():
     assert ev.would_survive_real_interview is True
     assert ev.survival_reasoning  # non-empty reasoning required
     assert not ev.weakness_tags
+
+
+def test_evaluator_anchors_included_with_exemplar_and_absent_without():
+    from models.loader import find_exemplar
+    ex = find_exemplar("sde-beh-ownership-1")
+    llm = _FakeLLM(_EVAL_PAYLOAD_WEAK)
+    agent = EvaluatorAgent(llm=llm, model="m")
+    agent.run(question=_Q_TECHNICAL, transcript="t", follow_up_count=1, exemplar=ex)
+    assert "Rubric anchors" in llm.last["user"]
+    assert ex.ideal_answer_points[0] in llm.last["user"]
+    for desc in ex.rubric.criteria.values():
+        assert desc in llm.last["user"]
+    agent.run(question=_Q_TECHNICAL, transcript="t", follow_up_count=1)
+    assert "Rubric anchors" not in llm.last["user"]
