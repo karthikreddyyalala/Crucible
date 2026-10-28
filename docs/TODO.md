@@ -55,9 +55,13 @@ Roadmap for all phases: docs/ROADMAP.md
 
 - [x] Design agreed (Python in the browser, Blind 75, coding mode + 1 coding question in full
       mocks, real-interviewer coding flow, warn → warn → end, company styles, low temperatures)
-- [~] Wave 1: moderation · temperatures + repeat agreement · coding schema/harness · company styles
-- [ ] Wave 2: 75 problems (4 parallel batches) · Python runner · backend integration
-- [ ] Wave 3: session flow + setup · coding workspace UI · Playwright end-to-end tests
+- [x] Wave 1: moderation · temperatures + repeat agreement · coding schema/harness · company styles
+      (review: moderation false positives 30/86 → 2/86, missed abuse 31/41 → 0/41, slow inputs fixed;
+      real names never block; only the latest reply is moderated)
+- [x] Wave 2: all 75 Blind 75 problems (19 easy / 49 medium / 7 hard; reference solution passes
+      every test, starter fails, common wrong solutions fail) · Python runner (Pyodide 314.0.7,
+      verified in Chromium) · backend integration (strikes, coding notes, company styles)
+- [~] Wave 3: session flow + setup · coding workspace UI · Playwright end-to-end tests
 - [ ] Wave 4: live evals (coding + repeat-3) · live coding interview transcript · final review ·
       docs · PR (no direct push to main)
 
