@@ -64,7 +64,7 @@ in CPython with the same harness the browser uses. A problem with a wrong test c
 A second test checks that the starter code fails at least one test (no accidental freebies).
 
 The browser receives problems from `GET /api/coding/problems/{id}` **without**
-`referenceSolution`, hints, follow-ups or rubric (those stay server-side for Marcus and the
+`referenceSolution`, `targetComplexity`, hints, follow-ups, ideal-answer points, weak-answer signs or rubric (those stay server-side for Marcus and the
 Evaluator). Hidden tests are sent (the browser must run them) but their inputs are not shown
 in the UI.
 
@@ -84,7 +84,7 @@ bundle never contains reference solutions.
   `{passed, got, expected, error, stdout, ms}`.
 - `src/hooks/usePythonRunner.ts`: owns the worker. **Hard timeout 5 s per run** → terminate
   and recreate the worker, report "Time limit exceeded (possible infinite loop)". Output
-  capped at 10 KB. Never blocks the page.
+  capped at 2,000 characters of stdout per test (harness). Never blocks the page.
 - The harness lives once, in `backend/data/coding/harness.py`. The worker imports it as text
   (Vite `?raw`) and the backend reference-solution test runs it in CPython, so browser and CI
   judge code identically.
@@ -115,8 +115,7 @@ Code is autosaved into the session store (survives refresh, like the rest of the
   (summary from the browser). Both go to the model **inside untrusted fences** — they come
   from the client.
 - Stage is tracked client-side and sent as `codingStage: "approach" | "coding" | "review"`.
-  Stage moves to `coding` when the candidate first edits the starter code or says they're
-  ready; to `review` after the first Submit.
+  Stage moves to `coding` when the candidate first edits the starter code; to `review` after the first Submit.
 - Check-in: if the stage is `coding` and there are no edits and no messages for 180 s,
   the client sends one turn with `event: "checkin"`; Marcus says one short line. At most one
   check-in per problem.
@@ -129,6 +128,20 @@ Code is autosaved into the session store (survives refresh, like the rest of the
   problem rubric; survival is false if the final code fails visible tests or the complexity
   is worse than target without the candidate recognising it.
 - Follow-up budget for coding: 6.
+
+### 1.4a Events and stages as built
+
+- `event: "checkin"` (180 s with no edits/messages in the coding stage, once per problem) and
+  `event: "submit"` (after Submit; empty answer plus the thread so far) — neither adds a
+  candidate chat line.
+- `coding_stage: "talk"` when no editor is shown (screens < 1024 px): Marcus asks for the
+  approach, then a verbal walk-through, then complexity/edge cases — never "code it up".
+- The first line of a coding question ends with "Before you start coding, talk me through
+  your approach."
+- Topic tags are not shown to the candidate (they name the technique).
+- Planner question ids are normalized to q1..qN; bank and problem candidates are shuffled
+  with a seed derived from the session id (same session → same order, new session → new
+  order).
 
 ### 1.5 Session shapes
 

@@ -3,7 +3,7 @@
 Living list. Updated as work happens; newest decisions at the bottom of each section.
 Status: `[ ]` open · `[~]` in progress · `[x]` done · `[-]` dropped (with reason)
 
-## Now — Question quality (branch `feat/question-bank`)
+## Done — Question quality (branch `feat/question-bank`, merged)
 
 Goal: every question Marcus asks is one a strong real interviewer would ask, with
 planned follow-up depth and fair, calibrated scoring.
@@ -64,8 +64,12 @@ Roadmap for all phases: docs/ROADMAP.md
 - [x] Wave 3: session flow + setup (strikes, queued submits, refresh-safe) · coding workspace UI
       (CodeMirror, Run/Submit, every runner state, 3 dividers, mobile notice) · Playwright e2e
       (8 tests, 3 clean runs + 32/32 stress, `npm run test:e2e`)
-- [~] Wave 4: live evals (coding + repeat-3) · final review · live coding interview transcript ·
-      docs · PR (no direct push to main)
+- [x] Live evals (5 suites × 3 runs): 74/74 decisions, 34/34 survival verdicts, survival verdict
+      identical across runs; found an SDK bug that would have failed every real call (fixed, guarded)
+- [x] Final whole-branch review: no critical issues; must-fixes in progress (strike bypass via a
+      typed "Q:" line, phone talk-through stage, topic chips, lazy editor, planner ids, coach gate,
+      evaluator transcript echo, seeded variety) + 6 spoken-line fixes from the evals
+- [ ] Re-run evals after fixes · live coding interview transcript · README · PR (no push to main)
 
 Found while planning: every agent was running at the default temperature (1.0), scoring
 included. Phase 1 sets 0 for scoring/planning/extraction and 0.3 for Marcus.
