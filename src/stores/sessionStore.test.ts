@@ -731,7 +731,7 @@ describe("sessionStore — turnError", () => {
       status: "live", phase: "question", mode: "coding", level: "mid", plan: CODING_PLAN, profile: null,
       currentIdx: 0, followUpCount: 0, pendingEvals: [], messages: [], evaluations: [], turnError: null,
       strikes: 0, endedForConduct: false, companyStyle: "google", nameUsable: true, candidateName: "Karthik",
-      codeByQuestion: {}, codingStage: "approach", lastRun: {}, checkinSent: {},
+      codeByQuestion: {}, codingStage: "approach", lastRun: {}, checkinSent: {}, editorShown: true,
       ...over,
     });
   }
@@ -888,6 +888,37 @@ describe("sessionStore — turnError", () => {
         codingStage: "coding",
       });
       expect(useSessionStore.getState().codingStage).toBe("coding"); // a Run doesn't end the coding stage
+    });
+
+    describe("without the editor (small screen): the talk stage", () => {
+      it("sends codingStage 'talk' and doesn't move the stage on edits", async () => {
+        seedCoding({ editorShown: true });
+        useSessionStore.getState().setEditorShown(false);
+        useSessionStore.getState().setCode("c1", "x = 1");
+        expect(useSessionStore.getState().codingStage).toBe("approach");
+
+        const { api } = await import("@/lib/api");
+        vi.mocked(api.submitAnswer).mockResolvedValue(reply("follow_up", "And the complexity?"));
+        await useSessionStore.getState().submitAnswer("I'd use a hash map.");
+        expect(vi.mocked(api.submitAnswer).mock.calls[0][0].codingStage).toBe("talk");
+      });
+
+      it("picks the normal stages back up when the editor comes back", async () => {
+        seedCoding({ editorShown: false });
+        useSessionStore.getState().setEditorShown(true);
+        const { api } = await import("@/lib/api");
+        vi.mocked(api.submitAnswer).mockResolvedValue(reply("follow_up", "And the complexity?"));
+        await useSessionStore.getState().submitAnswer("Here's my plan.");
+        expect(vi.mocked(api.submitAnswer).mock.calls[0][0].codingStage).toBe("approach");
+        useSessionStore.getState().setCode("c1", "x = 1");
+        expect(useSessionStore.getState().codingStage).toBe("coding");
+      });
+
+      it("isn't saved across a refresh", () => {
+        localStorage.clear();
+        seedCoding({ editorShown: false });
+        expect(JSON.parse(localStorage.getItem("crucible.session.v1")!).state).not.toHaveProperty("editorShown");
+      });
     });
 
     it("doesn't send code for a non-coding question", async () => {

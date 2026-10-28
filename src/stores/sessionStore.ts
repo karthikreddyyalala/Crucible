@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type {
   AnswerEvaluation,
-  CodingStage,
   CompanyStyleId,
   IntakeProfile,
   InterviewDecision,
@@ -36,7 +35,8 @@ export interface ChatMessage {
 
 export type SessionStatus = "idle" | "starting" | "live" | "thinking" | "wrapping" | "complete";
 // Where the current coding question is: plan → code → review (spec 1.4).
-export type CodingStep = Exclude<CodingStage, "">;
+// "talk" (no editor on screen) is never stored: it's what a turn sends while editorShown is false.
+export type CodingStep = "approach" | "coding" | "review";
 type TurnEvent = NonNullable<TurnInput["event"]>;
 
 interface SessionState {
@@ -91,6 +91,9 @@ interface SessionState {
   // True while a check-in / Submit turn the candidate didn't type is in flight: the
   // composer stays open and an answer sent now is queued behind it. Not persisted.
   eventInFlight: boolean;
+  // False while the coding question is shown without the editor (small screen): turns
+  // send codingStage "talk" and edits don't move the stage. Not persisted.
+  editorShown: boolean;
 
   loadMemory: () => Promise<void>;
   start: (input: {
@@ -109,6 +112,8 @@ interface SessionState {
   // Call on the candidate's edits only (not when loading starter code): the first
   // edit of the current problem moves it from "approach" to "coding".
   setCode: (questionId: string, code: string) => void;
+  // The Interview page reports whether the coding editor is on screen.
+  setEditorShown: (shown: boolean) => void;
   // After every Run / Submit. visibleCount = the problem's visibleTestCount. A Submit
   // moves to "review" and sends Marcus a "submit" turn so he starts the review.
   recordRun: (questionId: string, outcome: RunOutcome, kind: "run" | "submit", visibleCount: number) => Promise<void>;
@@ -314,7 +319,7 @@ export const useSessionStore = create<SessionState>()(
             profile: state.profile,
             companyStyle: state.companyStyle,
             strikes: state.strikes,
-            ...(coding && { ...coding, codingStage: state.codingStage }),
+            ...(coding && { ...coding, codingStage: state.editorShown ? state.codingStage : "talk" }),
             ...(event && { event }),
           });
           ({ decision, costUsd: turnCostUsd } = result);
@@ -495,6 +500,7 @@ export const useSessionStore = create<SessionState>()(
       finalizing: false,
       companyStyle: "general",
       nameUsable: false,
+      editorShown: true,
       ...FRESH_ROUND,
 
       loadMemory: async () => {
@@ -572,8 +578,12 @@ export const useSessionStore = create<SessionState>()(
         set((s) => ({
           codeByQuestion: { ...s.codeByQuestion, [questionId]: code },
           codingStage:
-            s.codingStage === "approach" && currentCoding(s)?.id === questionId ? "coding" : s.codingStage,
+            s.editorShown && s.codingStage === "approach" && currentCoding(s)?.id === questionId
+              ? "coding"
+              : s.codingStage,
         })),
+
+      setEditorShown: (shown) => set({ editorShown: shown }),
 
       recordRun: async (questionId, outcome, kind, visibleCount) => {
         const submitted = kind === "submit" && currentCoding(get())?.id === questionId;

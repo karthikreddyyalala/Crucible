@@ -143,10 +143,11 @@ export interface TurnInput {
   companyStyle: CompanyStyleId;
   // Conduct strikes so far this session; the result carries the new count.
   strikes: number;
-  // Coding questions only: the editor text, the last run's summary, and the stage.
+  // Coding questions only: the editor text, the last run's summary, and the stage
+  // ("talk": the problem is on screen without the editor, so it's talked through).
   code?: string;
   testResults?: string;
-  codingStage?: CodingStage;
+  codingStage?: CodingStage | "talk";
   // No new candidate reply: answer is the thread so far, ending with Marcus's last line.
   // "checkin": quiet for a while mid-coding. "submit": just pressed Submit; Marcus starts the review.
   event?: "" | "checkin" | "submit";
