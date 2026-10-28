@@ -25,6 +25,13 @@ def test_exemplar_accepts_signal_levels_and_weak_signs():
     assert q.signal and q.levels == ("mid", "senior") and q.weak_answer_signs
 
 
+def test_exemplar_asked_defaults_to_occasional_and_reads_camel_case():
+    assert QuestionExemplar.model_validate(_Q).asked == "occasional"
+    assert QuestionExemplar.model_validate({**_Q, "asked": "very_common"}).asked == "very_common"
+    with pytest.raises(ValidationError):
+        QuestionExemplar.model_validate({**_Q, "asked": "always"})
+
+
 def test_exemplar_requires_at_least_three_follow_ups():
     with pytest.raises(ValidationError):
         QuestionExemplar.model_validate({**_Q, "followUpHooks": ["only one"]})

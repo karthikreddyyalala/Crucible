@@ -25,7 +25,7 @@ class PlannerAgent:
             f"CompetencyMap:\n{competency_map.model_dump_json(by_alias=True, indent=2)}"
         )
         if bank:
-            keys = ("id", "type", "competency", "difficulty", "levels", "signal", "prompt")
+            keys = ("id", "type", "competency", "difficulty", "levels", "signal", "prompt", "asked")
             user += "\n\nQuestionBank (choose from these):\n" + json.dumps(
                 [{k: getattr(q, k) for k in keys} for q in bank], indent=2)
         return self._llm.structured(
