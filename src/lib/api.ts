@@ -8,6 +8,8 @@ import type {
   AnswerEvaluation,
   AvatarSessionResponse,
   CoachResponse,
+  CodingStage,
+  CompanyStyleId,
   IntakeProfile,
   InterviewDecision,
   InterviewLevel,
@@ -19,6 +21,7 @@ import type {
   SessionRecord,
   SessionSummary,
 } from "@/types/contracts";
+import type { PublicProblem } from "./coding/types";
 import { mockEngine } from "./mockEngine";
 import { authApi } from "./auth";
 
@@ -137,11 +140,23 @@ export interface TurnInput {
   mode: InterviewMode;
   level: InterviewLevel;
   profile: IntakeProfile | null;
+  companyStyle: CompanyStyleId;
+  // Conduct strikes so far this session; the result carries the new count.
+  strikes: number;
+  // Coding questions only: the editor text, the last run's summary, and the stage.
+  code?: string;
+  testResults?: string;
+  codingStage?: CodingStage;
+  // Sent with an empty answer. "checkin": quiet for a while mid-coding.
+  // "submit": the candidate just pressed Submit; Marcus starts the review.
+  event?: "" | "checkin" | "submit";
 }
 
 export interface TurnResult {
   decision: InterviewDecision;
   costUsd: number;
+  // The new strike count (higher than sent = this turn was struck). Older servers omit it.
+  strikes?: number;
 }
 
 export interface EvaluateResult {
@@ -167,10 +182,16 @@ export const api = {
     candidateId: string;
     mode: InterviewMode;
     level: InterviewLevel;
+    candidateName: string;
+    companyStyle: CompanyStyleId;
   }): Promise<StartSessionResult> {
     if (USE_MOCK) {
       await latency(1400);
-      return { ...mockEngine.buildSession(input.role, input.mode), costUsd: 0 };
+      return {
+        ...mockEngine.buildSession(input.role, input.mode, input.level),
+        costUsd: 0,
+        nameUsable: mockEngine.nameUsable(input.candidateName),
+      };
     }
     const res = await safeFetch(apiUrl("/api/session/start"), {
       method: "POST",
@@ -185,7 +206,7 @@ export const api = {
   async submitAnswer(input: TurnInput): Promise<TurnResult> {
     if (USE_MOCK) {
       await latency(700 + Math.random() * 900);
-      return { decision: mockEngine.decide(input), costUsd: 0 };
+      return { ...mockEngine.turn(input), costUsd: 0 };
     }
     const res = await safeFetch(apiUrl("/api/session/turn"), {
       method: "POST",
@@ -199,11 +220,14 @@ export const api = {
     question: PlannedQuestion;
     transcript: string;
     followUpCount: number;
+    // Coding questions: the final code and the last run's summary.
+    code?: string;
+    testResults?: string;
   }): Promise<EvaluateResult> {
     if (USE_MOCK) {
       await latency(600);
       return {
-        evaluation: mockEngine.evaluate(input.question, input.transcript, input.followUpCount),
+        evaluation: mockEngine.evaluate(input.question, input.transcript, input.followUpCount, input.testResults),
         costUsd: 0,
       };
     }
@@ -211,6 +235,21 @@ export const api = {
       method: "POST",
       headers: await authHeaders(),
       body: JSON.stringify(input),
+    });
+    return res.json();
+  },
+
+  // The browser's copy of a coding problem (no solution, hints or rubric). Demo mode
+  // loads the exported set lazily so its ~2 MB only ships when it's actually used.
+  async getProblem(id: string): Promise<PublicProblem> {
+    if (USE_MOCK) {
+      const { default: problems } = await import("./coding/problems.public.json");
+      const problem = (problems as PublicProblem[]).find((p) => p.id === id);
+      if (!problem) throw new Error("Problem not found.");
+      return problem;
+    }
+    const res = await safeFetch(apiUrl(`/api/coding/problems/${encodeURIComponent(id)}`), {
+      headers: await authHeaders(false),
     });
     return res.json();
   },
@@ -285,6 +324,8 @@ export const api = {
     // (see StartSessionResult/TurnResult) — the backend adds its own
     // finalize-call cost on top before persisting the SessionRecord.
     costUsd: number;
+    companyStyle: CompanyStyleId;
+    endedForConduct: boolean;
   }): Promise<MemoryProfile> {
     if (USE_MOCK) {
       await latency(900);
@@ -302,6 +343,8 @@ export const api = {
         questions: input.questions,
         evaluations: input.evaluations,
         costUsd: input.costUsd,
+        companyStyle: input.companyStyle,
+        endedForConduct: input.endedForConduct,
       });
       return updated;
     }

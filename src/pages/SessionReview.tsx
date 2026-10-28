@@ -19,6 +19,7 @@ const MODE_LABEL: Record<string, string> = {
   behavioral: "Behavioral",
   technical: "Technical",
   system_design: "System Design",
+  coding: "Coding",
 };
 
 export function SessionReview() {

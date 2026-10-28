@@ -10,7 +10,7 @@ const q = (id: string, type: PlannedQuestion["type"] = "technical"): PlannedQues
 const turn = (over: Partial<TurnInput>): TurnInput => ({
   question: q("q0"), answer: "", followUpCount: 0, isLast: false, phase: "question",
   nextQuestion: q("q1", "system_design"), candidateName: "Karthik", mode: "full", level: "mid",
-  profile: null, ...over,
+  profile: null, companyStyle: "general", strikes: 0, ...over,
 });
 
 const PRAISE = /\b(good|great|nice|perfect|awesome|excellent)\b/i;

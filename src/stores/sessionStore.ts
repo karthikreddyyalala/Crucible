@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type {
   AnswerEvaluation,
+  CodingStage,
+  CompanyStyleId,
   IntakeProfile,
   InterviewDecision,
   InterviewLevel,
@@ -12,7 +14,11 @@ import type {
   QuestionPlan,
 } from "@/types/contracts";
 import { api } from "@/lib/api";
+import type { TurnInput } from "@/lib/api";
 import { getCandidateId } from "@/lib/identity";
+import { summarizeOutcome } from "@/lib/coding/summary";
+import type { RunSummary } from "@/lib/coding/summary";
+import type { RunOutcome } from "@/lib/coding/types";
 
 export type Speaker = "interviewer" | "candidate";
 export type MessageKind = "question" | "answer" | "follow_up";
@@ -29,6 +35,9 @@ export interface ChatMessage {
 }
 
 export type SessionStatus = "idle" | "starting" | "live" | "thinking" | "wrapping" | "complete";
+// Where the current coding question is: plan → code → review (spec 1.4).
+export type CodingStep = Exclude<CodingStage, "">;
+type TurnEvent = NonNullable<TurnInput["event"]>;
 
 interface SessionState {
   status: SessionStatus;
@@ -64,6 +73,18 @@ interface SessionState {
   // one independently re-runs the Memory Agent merge and writes — so this
   // guards against a double-click firing two concurrent finalize requests.
   finalizing: boolean;
+  companyStyle: CompanyStyleId;
+  // False when the server flagged (or there is no) name: Marcus doesn't say it.
+  nameUsable: boolean;
+  // Conduct strikes; the third ends the session (endedForConduct).
+  strikes: number;
+  endedForConduct: boolean;
+  // Coding round, keyed by question id. codingStage is the current coding question's
+  // stage; it resets to "approach" whenever a new question starts.
+  codeByQuestion: Record<string, string>;
+  codingStage: CodingStep;
+  lastRun: Record<string, RunSummary>;
+  checkinSent: Record<string, boolean>;
 
   loadMemory: () => Promise<void>;
   start: (input: {
@@ -74,8 +95,17 @@ interface SessionState {
     level: InterviewLevel;
     candidateName: string;
     useVideo: boolean;
+    companyStyle: CompanyStyleId;
   }) => Promise<void>;
   submitAnswer: (text: string) => Promise<void>;
+  // Call on the candidate's edits only (not when loading starter code): the first
+  // edit of the current problem moves it from "approach" to "coding".
+  setCode: (questionId: string, code: string) => void;
+  // After every Run / Submit. visibleCount = the problem's visibleTestCount. A Submit
+  // moves to "review" and sends Marcus a "submit" turn so he starts the review.
+  recordRun: (questionId: string, outcome: RunOutcome, kind: "run" | "submit", visibleCount: number) => Promise<void>;
+  // The quiet-for-a-while nudge: at most once per problem, only in the "coding" stage.
+  sendCheckin: (questionId: string) => Promise<void>;
   endInterview: () => Promise<void>;
   retryFinalize: () => Promise<void>;
   clearRestored: () => void;
@@ -87,6 +117,9 @@ export interface PendingEval {
   question: PlannedQuestion;
   transcript: string;
   followUpCount: number;
+  // Coding questions: the final code and the last run's summary.
+  code?: string;
+  testResults?: string;
 }
 
 // The only scripted line: there's nothing to react to yet. Everything after
@@ -110,6 +143,22 @@ const mkId = (): string =>
 function hasMemory(m: MemoryProfile | null): boolean {
   return !!m && m.recurringWeaknesses.length > 0;
 }
+
+// The coding question the candidate is on right now, if any.
+function currentCoding(s: SessionState): PlannedQuestion | null {
+  const q = s.phase === "question" ? s.plan?.questions[s.currentIdx] : undefined;
+  return q?.type === "coding" ? q : null;
+}
+
+// Cleared at the start of every session.
+const FRESH_ROUND = {
+  strikes: 0,
+  endedForConduct: false,
+  codeByQuestion: {},
+  codingStage: "approach" as CodingStep,
+  lastRun: {},
+  checkinSent: {},
+};
 
 export const useSessionStore = create<SessionState>()(
   persist(
@@ -148,117 +197,10 @@ export const useSessionStore = create<SessionState>()(
         return run;
       };
 
-      const runFinalize = async () => {
-        // In-flight guard: a duplicate call (e.g. a double-click on RETRY)
-        // must be a no-op, not a second concurrent finalize request.
-        if (get().finalizing) return;
-        set({ finalizing: true });
-        try {
-          // Every answer must be scored before memory is written.
-          await Promise.all(
-            get().pendingEvals.map((p) => inflightEvals.get(p.question.id) ?? scoreInBackground(p))
-          );
-          if (get().pendingEvals.length > 0) {
-            throw new Error("Couldn't score every answer — tap retry.");
-          }
-          const state = get();
-          const updated = await api.finalizeSession({
-            candidateId: getCandidateId(),
-            evaluations: state.evaluations,
-            sessionId: state.plan!.sessionId,
-            mode: state.mode,
-            level: state.level,
-            questions: state.plan!.questions,
-            costUsd: state.sessionCostUsd,
-          });
-          set({ status: "complete", updatedMemory: updated, turnError: null, finalizing: false });
-        } catch (e) {
-          set({
-            turnError: e instanceof Error ? e.message : "Request failed — please try again.",
-            finalizing: false,
-          });
-        }
-      };
-
-      return {
-      status: "idle",
-      role: "sde",
-      mode: "full",
-      level: "mid",
-      candidateName: "",
-      useVideo: false,
-      phase: "warmup",
-      pendingEvals: [],
-      profile: null,
-      plan: null,
-      currentIdx: 0,
-      followUpCount: 0,
-      messages: [],
-      evaluations: [],
-      sessionCostUsd: 0,
-      priorMemory: null,
-      updatedMemory: null,
-      justRestored: false,
-      turnError: null,
-      finalizing: false,
-
-      loadMemory: async () => {
-        const memory = await api.getMemory(getCandidateId());
-        set({ priorMemory: hasMemory(memory) ? memory : null });
-      },
-
-      start: async ({ resumeText, jdText, role, mode, level, candidateName, useVideo }) => {
-        set({
-          status: "starting", role, mode, level, candidateName, useVideo,
-          phase: "warmup", pendingEvals: [], messages: [], evaluations: [], updatedMemory: null,
-          sessionCostUsd: 0,
-          // A leftover finalize error from a prior session (turnError is
-          // persisted, see the partialize comment below) must not bleed
-          // into a brand-new session's UI. finalizing itself always
-          // rehydrates to false (it's not persisted), so clearing it here
-          // is just defensive symmetry with turnError.
-          turnError: null, finalizing: false,
-        });
-        try {
-        const candidateId = getCandidateId();
-        const prior = await api.getMemory(candidateId);
-        const { profile, plan, costUsd } = await api.startSession({
-          resumeText,
-          jdText,
-          role,
-          candidateId,
-          mode,
-          level,
-        });
-        // Open with the greeting only — background and the first question come
-        // from the interviewer reacting to the candidate's replies.
-        set({
-          status: "live",
-          profile,
-          plan,
-          priorMemory: hasMemory(prior) ? prior : null,
-          currentIdx: 0,
-          followUpCount: 0,
-          justRestored: false,
-          phase: "warmup",
-          sessionCostUsd: costUsd,
-          messages: [
-            {
-              id: mkId(),
-              speaker: "interviewer",
-              kind: "question",
-              text: warmGreeting(candidateName),
-              questionId: "intro",
-            },
-          ],
-        });
-        } catch (e) {
-          set({ status: "idle" });
-          throw e;
-        }
-      },
-
-      submitAnswer: async (text) => {
+      // One interviewer turn. A candidate answer (event "") is added to the thread
+      // first; an event turn ("checkin" / "submit") sends an empty answer and adds no
+      // candidate line, and its failure stays quiet (the candidate can just talk).
+      const runTurn = async (text: string, event: "" | TurnEvent) => {
         const state = get();
         const plan = state.plan;
         if (!plan || state.status !== "live") return;
@@ -275,46 +217,59 @@ export const useSessionStore = create<SessionState>()(
           : phase === "question" ? questions[state.currentIdx + 1] ?? null
           : null;
         const isLast = phase === "question" && !nextQuestion;
+        const candidateMsg: ChatMessage | null = event
+          ? null
+          : { id: mkId(), speaker: "candidate", kind: "answer", text, questionId: threadId };
 
         set({
           status: "thinking",
           turnError: null,
-          messages: [
-            ...state.messages,
-            { id: mkId(), speaker: "candidate", kind: "answer", text, questionId: threadId },
-          ],
+          messages: candidateMsg ? [...state.messages, candidateMsg] : state.messages,
         });
 
         // The full thread for this question (or stage), so the interviewer
         // reacts in context and the Evaluator scores the whole exchange.
-        const priorMsgs = state.messages.filter((m) => m.questionId === threadId);
-        const thread =
-          priorMsgs.length > 0
-            ? priorMsgs
-                .map((m) => `${m.speaker === "interviewer" ? "Q" : "A"}: ${m.text}`)
-                .join("\n") + `\nA: ${text}`
-            : text;
+        const priorThread = state.messages
+          .filter((m) => m.questionId === threadId)
+          .map((m) => `${m.speaker === "interviewer" ? "Q" : "A"}: ${m.text}`)
+          .join("\n");
+        const thread = event ? priorThread : priorThread ? `${priorThread}\nA: ${text}` : text;
+
+        // Code and test results go with coding questions only (the backend fences them).
+        const coding = currentCoding(state)
+          ? {
+              code: state.codeByQuestion[question.id] ?? "",
+              testResults: state.lastRun[question.id]?.summary ?? "",
+            }
+          : null;
 
         let decision: InterviewDecision;
         let turnCostUsd = 0;
+        let strikes = state.strikes;
         try {
-          ({ decision, costUsd: turnCostUsd } = await api.submitAnswer({
+          const result = await api.submitAnswer({
             question,
-            answer: thread,
+            answer: event ? "" : thread,
             followUpCount: state.followUpCount,
             isLast,
             phase,
             nextQuestion,
-            candidateName: state.candidateName,
+            candidateName: state.nameUsable ? state.candidateName : "",
             mode: state.mode,
             level: state.level,
             profile: state.profile,
-          }));
+            companyStyle: state.companyStyle,
+            strikes: state.strikes,
+            ...(coding && { ...coding, codingStage: state.codingStage }),
+            ...(event && { event }),
+          });
+          ({ decision, costUsd: turnCostUsd } = result);
+          strikes = result.strikes ?? state.strikes;
         } catch (e) {
           set((s) => ({
             status: "live",
-            turnError: e instanceof Error ? e.message : "Request failed — please try again.",
-            messages: s.messages.slice(0, -1),
+            turnError: event ? null : e instanceof Error ? e.message : "Request failed — please try again.",
+            messages: s.messages.filter((m) => m !== candidateMsg),
           }));
           return;
         }
@@ -323,6 +278,33 @@ export const useSessionStore = create<SessionState>()(
         const reply = (questionId: string, kind: MessageKind, fallback: string, weighted?: boolean): ChatMessage =>
           ({ id: mkId(), speaker: "interviewer", kind, text: say(fallback), questionId, weighted });
         const addCost = (s: SessionState) => s.sessionCostUsd + turnCostUsd;
+
+        // A struck turn (abuse or blocked text): the line leaves the transcript for
+        // good, the stage stays where it was, and the third strike ends the session.
+        if (strikes > state.strikes || decision.action === "end") {
+          const ended = decision.action === "end";
+          set((s) => ({
+            status: ended ? "wrapping" : "live",
+            strikes,
+            endedForConduct: ended,
+            sessionCostUsd: addCost(s),
+            messages: [
+              ...s.messages.filter((m) => m !== candidateMsg),
+              reply(threadId, "question", "Let's keep this professional."),
+            ],
+          }));
+          if (ended) await runFinalize();
+          return;
+        }
+
+        // A check-in is one line from Marcus; nothing else moves.
+        if (event === "checkin") {
+          set((s) => ({
+            status: "live", sessionCostUsd: addCost(s),
+            messages: [...s.messages, reply(threadId, "question", "How's it going?")],
+          }));
+          return;
+        }
 
         if (phase === "warmup") {
           set((s) => ({
@@ -336,7 +318,8 @@ export const useSessionStore = create<SessionState>()(
         if (phase === "background") {
           const first = questions[0];
           set((s) => ({
-            status: "live", phase: "question", currentIdx: 0, followUpCount: 0, sessionCostUsd: addCost(s),
+            status: "live", phase: "question", currentIdx: 0, followUpCount: 0, codingStage: "approach",
+            sessionCostUsd: addCost(s),
             messages: [...s.messages, reply(first.id, "question", first.prompt, first.weightedFromWeakness)],
           }));
           return;
@@ -373,7 +356,7 @@ export const useSessionStore = create<SessionState>()(
         // Resolved (advance / complete): score it in the background and move on
         // without waiting. Where we go next follows the plan, not the label —
         // an "advance" on the last question still leads into the closing.
-        void scoreInBackground({ question, transcript: thread, followUpCount: state.followUpCount });
+        void scoreInBackground({ question, transcript: thread, followUpCount: state.followUpCount, ...coding });
 
         if (!nextQuestion) {
           set((s) => ({
@@ -388,9 +371,156 @@ export const useSessionStore = create<SessionState>()(
           status: "live",
           currentIdx: s.currentIdx + 1,
           followUpCount: 0,
+          codingStage: "approach",
           sessionCostUsd: addCost(s),
           messages: [...s.messages, reply(nextQuestion.id, "question", nextQuestion.prompt, nextQuestion.weightedFromWeakness)],
         }));
+      };
+
+      const runFinalize = async () => {
+        // In-flight guard: a duplicate call (e.g. a double-click on RETRY)
+        // must be a no-op, not a second concurrent finalize request.
+        if (get().finalizing) return;
+        set({ finalizing: true });
+        try {
+          // Every answer must be scored before memory is written.
+          await Promise.all(
+            get().pendingEvals.map((p) => inflightEvals.get(p.question.id) ?? scoreInBackground(p))
+          );
+          if (get().pendingEvals.length > 0) {
+            throw new Error("Couldn't score every answer — tap retry.");
+          }
+          const state = get();
+          const updated = await api.finalizeSession({
+            candidateId: getCandidateId(),
+            evaluations: state.evaluations,
+            sessionId: state.plan!.sessionId,
+            mode: state.mode,
+            level: state.level,
+            questions: state.plan!.questions,
+            costUsd: state.sessionCostUsd,
+            companyStyle: state.companyStyle,
+            endedForConduct: state.endedForConduct,
+          });
+          set({ status: "complete", updatedMemory: updated, turnError: null, finalizing: false });
+        } catch (e) {
+          set({
+            turnError: e instanceof Error ? e.message : "Request failed — please try again.",
+            finalizing: false,
+          });
+        }
+      };
+
+      return {
+      status: "idle",
+      role: "sde",
+      mode: "full",
+      level: "mid",
+      candidateName: "",
+      useVideo: false,
+      phase: "warmup",
+      pendingEvals: [],
+      profile: null,
+      plan: null,
+      currentIdx: 0,
+      followUpCount: 0,
+      messages: [],
+      evaluations: [],
+      sessionCostUsd: 0,
+      priorMemory: null,
+      updatedMemory: null,
+      justRestored: false,
+      turnError: null,
+      finalizing: false,
+      companyStyle: "general",
+      nameUsable: false,
+      ...FRESH_ROUND,
+
+      loadMemory: async () => {
+        const memory = await api.getMemory(getCandidateId());
+        set({ priorMemory: hasMemory(memory) ? memory : null });
+      },
+
+      start: async ({ resumeText, jdText, role, mode, level, candidateName, useVideo, companyStyle }) => {
+        set({
+          status: "starting", role, mode, level, candidateName, useVideo, companyStyle, ...FRESH_ROUND,
+          phase: "warmup", pendingEvals: [], messages: [], evaluations: [], updatedMemory: null,
+          sessionCostUsd: 0,
+          // A leftover finalize error from a prior session (turnError is
+          // persisted, see the partialize comment below) must not bleed
+          // into a brand-new session's UI. finalizing itself always
+          // rehydrates to false (it's not persisted), so clearing it here
+          // is just defensive symmetry with turnError.
+          turnError: null, finalizing: false,
+        });
+        try {
+        const candidateId = getCandidateId();
+        const prior = await api.getMemory(candidateId);
+        const { profile, plan, costUsd, nameUsable: usable } = await api.startSession({
+          resumeText,
+          jdText,
+          role,
+          candidateId,
+          mode,
+          level,
+          candidateName,
+          companyStyle,
+        });
+        // Older servers don't screen the name; keep using it as before.
+        const nameUsable = usable ?? candidateName.trim() !== "";
+        // Open with the greeting only — background and the first question come
+        // from the interviewer reacting to the candidate's replies.
+        set({
+          status: "live",
+          profile,
+          plan,
+          priorMemory: hasMemory(prior) ? prior : null,
+          currentIdx: 0,
+          followUpCount: 0,
+          justRestored: false,
+          phase: "warmup",
+          sessionCostUsd: costUsd,
+          nameUsable,
+          messages: [
+            {
+              id: mkId(),
+              speaker: "interviewer",
+              kind: "question",
+              text: warmGreeting(nameUsable ? candidateName : ""),
+              questionId: "intro",
+            },
+          ],
+        });
+        } catch (e) {
+          set({ status: "idle" });
+          throw e;
+        }
+      },
+
+      submitAnswer: (text) => runTurn(text, ""),
+
+      setCode: (questionId, code) =>
+        set((s) => ({
+          codeByQuestion: { ...s.codeByQuestion, [questionId]: code },
+          codingStage:
+            s.codingStage === "approach" && currentCoding(s)?.id === questionId ? "coding" : s.codingStage,
+        })),
+
+      recordRun: async (questionId, outcome, kind, visibleCount) => {
+        const submitted = kind === "submit" && currentCoding(get())?.id === questionId;
+        set((s) => ({
+          lastRun: { ...s.lastRun, [questionId]: summarizeOutcome(outcome, visibleCount) },
+          codingStage: submitted ? "review" : s.codingStage,
+        }));
+        if (submitted) await runTurn("", "submit");
+      },
+
+      sendCheckin: async (questionId) => {
+        const s = get();
+        if (s.status !== "live" || currentCoding(s)?.id !== questionId) return;
+        if (s.codingStage !== "coding" || s.checkinSent[questionId]) return;
+        set({ checkinSent: { ...s.checkinSent, [questionId]: true } });
+        await runTurn("", "checkin");
       },
 
       // Candidate skips (or is done with) their questions for the interviewer.
@@ -426,6 +556,7 @@ export const useSessionStore = create<SessionState>()(
           justRestored: false,
           turnError: null,
           finalizing: false,
+          ...FRESH_ROUND,
         }),
       };
     },
@@ -464,6 +595,14 @@ export const useSessionStore = create<SessionState>()(
         priorMemory: s.priorMemory,
         updatedMemory: s.updatedMemory,
         turnError: s.turnError,
+        companyStyle: s.companyStyle,
+        nameUsable: s.nameUsable,
+        strikes: s.strikes,
+        endedForConduct: s.endedForConduct,
+        codeByQuestion: s.codeByQuestion,
+        codingStage: s.codingStage,
+        lastRun: s.lastRun,
+        checkinSent: s.checkinSent,
       }),
       onRehydrateStorage: () => (state) => {
         // Flag a mid-interview resume so the UI can acknowledge it.

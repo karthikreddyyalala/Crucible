@@ -5,8 +5,9 @@ import { ArrowRight, Sparkle, Brain, UploadSimple, VideoCamera } from "@phosphor
 import { TopBar } from "@/components/TopBar";
 import { MagneticButton } from "@/components/MagneticButton";
 import { useSessionStore } from "@/stores/sessionStore";
-import type { InterviewLevel, InterviewMode } from "@/types/contracts";
+import type { CompanyStyleId, InterviewLevel, InterviewMode } from "@/types/contracts";
 import { extractPdfText } from "@/lib/pdf";
+import { COMPANY_STYLES } from "@/lib/companyStyles";
 
 const SAMPLE_RESUME = `Maya Okonkwo — Backend Engineer
 4 years experience. Built a realtime pricing engine in Go that cut p99 latency from 940ms to 180ms under burst load. Led active-active failover for checkout across 3 AWS regions using Kubernetes and Envoy. Strong in distributed systems, Postgres, Kafka. Mentored 2 junior engineers.`;
@@ -24,7 +25,13 @@ const MODES: { key: InterviewMode; label: string }[] = [
   { key: "behavioral", label: "Behavioral" },
   { key: "technical", label: "Technical" },
   { key: "system_design", label: "System Design" },
+  { key: "coding", label: "Coding" },
 ];
+
+const MODE_HINT: Partial<Record<InterviewMode, string>> = {
+  full: "Mixed, adaptive — behavioral, one coding problem, technical & system design.",
+  coding: "Live coding in Python — problems from the Blind 75.",
+};
 
 const LEVELS: { key: InterviewLevel; label: string }[] = [
   { key: "junior", label: "Junior" },
@@ -43,6 +50,7 @@ export function Setup() {
   const [role, setRole] = useState("sde");
   const [mode, setMode] = useState<InterviewMode>("full");
   const [level, setLevel] = useState<InterviewLevel>("mid");
+  const [companyStyle, setCompanyStyle] = useState<CompanyStyleId>("general");
   const [useVideo, setUseVideo] = useState(false);
   const [resume, setResume] = useState("");
   const [jd, setJd] = useState("");
@@ -59,7 +67,7 @@ export function Setup() {
   const handleStart = async () => {
     setStartError("");
     try {
-      await start({ resumeText: resume, jdText: jd, role, mode, level, candidateName: name, useVideo });
+      await start({ resumeText: resume, jdText: jd, role, mode, level, candidateName: name, useVideo, companyStyle });
       navigate("/interview");
     } catch (e) {
       setStartError(
@@ -153,17 +161,20 @@ export function Setup() {
 
           {/* mode */}
           <div className="mt-7">
-            <label className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-fog">
+            <label id="mode-label" className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-fog">
               INTERVIEW MODE
             </label>
-            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-              {MODES.map((m) => {
+            <div role="group" aria-labelledby="mode-label" className="grid grid-cols-2 gap-2.5 sm:grid-cols-5">
+              {MODES.map((m, i) => {
                 const active = mode === m.key;
                 return (
                   <button
                     key={m.key}
                     onClick={() => setMode(m.key)}
+                    aria-pressed={active}
                     className={`rounded-xl border px-3 py-2.5 text-center font-display text-[15px] font-semibold tracking-tight tactile transition-colors ${
+                      i === 0 ? "col-span-2 sm:col-span-1" : ""
+                    } ${
                       active
                         ? "border-accent bg-accent/10 text-chalk"
                         : "border-line bg-ink text-mist hover:border-line-bright"
@@ -175,9 +186,7 @@ export function Setup() {
               })}
             </div>
             <p className="mt-2 text-xs text-fog">
-              {mode === "full"
-                ? "Mixed, adaptive — opens behavioral, then technical & system design."
-                : "Focused track — every question stays in this area."}
+              {MODE_HINT[mode] ?? "Focused track — every question stays in this area."}
             </p>
           </div>
 
@@ -205,6 +214,40 @@ export function Setup() {
             <p className="mt-2 text-xs text-fog">
               Controls difficulty and how much each question asks — Junior is smaller and guided.
             </p>
+          </div>
+
+          {/* company style */}
+          <div className="mt-7">
+            <label id="company-style-label" className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-fog">
+              COMPANY STYLE
+            </label>
+            <div role="group" aria-labelledby="company-style-label" className="grid gap-3 sm:grid-cols-2">
+              {COMPANY_STYLES.map((c) => {
+                const active = companyStyle === c.id;
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => setCompanyStyle(c.id)}
+                    aria-pressed={active}
+                    className={`rounded-2xl border p-4 text-left tactile transition-colors ${
+                      active
+                        ? "border-accent bg-accent/10"
+                        : "border-line bg-ink hover:border-line-bright"
+                    }`}
+                  >
+                    <span
+                      className={`font-display text-lg font-semibold tracking-tight ${
+                        active ? "text-chalk" : "text-mist"
+                      }`}
+                    >
+                      {c.name}
+                    </span>
+                    <span className="mt-1 block text-xs text-fog">{c.description}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-2 text-xs text-fog">Crucible isn't affiliated with these companies.</p>
           </div>
 
           {/* video interview opt-in */}

@@ -8,6 +8,7 @@ import type {
   CoachResponse,
   IntakeProfile,
   InterviewDecision,
+  InterviewLevel,
   InterviewMode,
   MemoryProfile,
   PlannedQuestion,
@@ -15,6 +16,8 @@ import type {
   RecurringWeakness,
 } from "@/types/contracts";
 import type { TurnInput } from "./api";
+
+const pick = <T,>(xs: T[]): T => xs[Math.floor(Math.random() * xs.length)];
 
 const ROLE_LABEL: Record<string, string> = {
   sde: "Software Engineer",
@@ -144,7 +147,45 @@ const INTAKE_BY_ROLE: Record<string, Omit<IntakeProfile, "targetRole">> = {
 };
 
 // Max probing follow-ups per question; mirrors backend FOLLOW_UP_BUDGET.
-const FOLLOW_UP_BUDGET: Record<string, number> = { behavioral: 3, technical: 3, system_design: 6 };
+const FOLLOW_UP_BUDGET: Record<string, number> = { behavioral: 3, technical: 3, system_design: 6, coding: 6 };
+
+// A few real problem ids per difficulty (each must exist in coding/problems.public.json,
+// which the workspace loads through api.getProblem). One-sentence prompts, like the Planner's.
+type CodingDifficulty = "easy" | "medium" | "hard";
+const CODING_PROBLEMS: Record<CodingDifficulty, { id: string; prompt: string }[]> = {
+  easy: [
+    { id: "code-two-sum", prompt: "Let's do a coding problem: given a list of numbers and a target, find the two that add up to it." },
+    { id: "code-valid-parentheses", prompt: "Let's do a coding problem: check whether a string of brackets is balanced." },
+    { id: "code-contains-duplicate", prompt: "Let's do a coding problem: tell me whether any number appears more than once in a list." },
+    { id: "code-best-time-to-buy-and-sell-stock", prompt: "Let's do a coding problem: given daily prices, find the best profit from one buy and one later sell." },
+  ],
+  medium: [
+    { id: "code-group-anagrams", prompt: "Let's do a coding problem: group a list of words into sets of anagrams." },
+    { id: "code-top-k-frequent-elements", prompt: "Let's do a coding problem: return the k most frequent numbers in a list." },
+    { id: "code-longest-substring-without-repeating-characters", prompt: "Let's do a coding problem: find the length of the longest part of a string with no repeated characters." },
+    { id: "code-product-of-array-except-self", prompt: "Let's do a coding problem: for each position, return the product of every other number, without using division." },
+  ],
+  hard: [
+    { id: "code-minimum-window-substring", prompt: "Let's do a coding problem: find the shortest part of one string that contains every character of another." },
+    { id: "code-merge-k-sorted-lists", prompt: "Let's do a coding problem: merge k sorted linked lists into one sorted list." },
+  ],
+};
+
+// Spec 1.5: coding mode is two problems, easier first; a full mock has one.
+const CODING_ROUND: Record<InterviewLevel, CodingDifficulty[]> = {
+  junior: ["easy", "easy"], mid: ["easy", "medium"], senior: ["medium", "hard"],
+};
+const FULL_MOCK_CODING: Record<InterviewLevel, CodingDifficulty> = { junior: "easy", mid: "medium", senior: "medium" };
+
+function codingQuestions(difficulties: CodingDifficulty[], level: InterviewLevel): Omit<PlannedQuestion, "id">[] {
+  const used = new Set<string>();
+  return difficulties.map((d) => {
+    const problem = pick(CODING_PROBLEMS[d].filter((p) => !used.has(p.id)));
+    used.add(problem.id);
+    const targetDifficulty = d === "easy" ? 2 : d === "hard" ? 5 : level === "senior" ? 4 : 3;
+    return { type: "coding", prompt: problem.prompt, targetDifficulty, weightedFromWeakness: false, exemplarId: problem.id };
+  });
+}
 
 // Follow-up probes keyed loosely to question type — one ask each.
 const PROBES: Record<string, string[]> = {
@@ -184,7 +225,6 @@ const HINTS: Record<string, string[]> = {
   ],
 };
 
-const pick = <T,>(xs: T[]): T => xs[Math.floor(Math.random() * xs.length)];
 
 // The client sends the whole thread for a question; react to the newest reply.
 function latestReply(answer: string): string {
@@ -196,6 +236,39 @@ const DONT_KNOW = /\b(i\s*don'?t\s*know|not\s*sure|no\s*idea|no\s*clue|i'?m\s*st
 const CLARIFY = /\b(repeat|rephrase|say\s*that\s*again|what\s*do\s*you\s*mean|can\s*you\s*clarify|could\s*you\s*explain\s*the\s*question|can\s*i\s*assume|should\s*i\s*assume)\b/i;
 const ASKED_BACK = /\b(what about you|how about you|and you|how are you|how'?s your day)\b/i;
 
+// Demo stand-in for backend/safety/moderation.py: insults aimed at the interviewer.
+// Deliberately small; the backend's screen is the real one.
+const ABUSE = /\b(?:f+u+c+k+\s*(?:you|u|off)|screw\s+you|stfu|shut\s+up(?!\s+(?:the|my|that|this|those)\b)|(?:you'?re|you\s+are|ur)\s+(?:an?\s+|so\s+|such\s+an?\s+)?(?:idiot|moron|stupid|useless|dumb|pathetic)|(?:stupid|dumb|useless)\s+(?:bot|ai|marcus))\b/i;
+
+// What Marcus re-asks after a warning outside the planned questions (mirrors _PHASE_ASK).
+const PHASE_ASK: Record<string, string> = {
+  warmup: "how are you doing today?",
+  background: "tell me a bit about your background.",
+  closing: "what questions do you have for me?",
+};
+
+const CHECKIN = "How's it going — want to talk me through where you are?";
+const PLAN_COMPLEXITY = "Before you code it — what's the time and space complexity of that plan?";
+const BRUTE_FORCE = "That's okay — start with the brute force. What's the simplest thing that would work, even if it's slow?";
+const COMPLEXITY = "What's the time and space complexity?";
+const EDGE_CASES = "What edge cases would you test?";
+
+// What a run summary (lib/coding/summary.ts) says went wrong, as Marcus's question; null if nothing did.
+function failureAsk(summary: string): string | null {
+  const broken = summary.match(/^(?:Load error|Runner error): (.*)$/);
+  if (broken) return `It didn't run: ${broken[1]}. What's going on there?`;
+  if (summary.startsWith("Timed out")) return "It timed out — that usually means a loop that never ends. Where could that happen in your code?";
+  const example = summary.match(/example (\d+) failed/);
+  if (example) return `Example ${example[1]} fails. Walk me through what your code does on that input — where does it go wrong?`;
+  const hidden = summary.match(/Hidden tests: (\d+)\/(\d+)/);
+  if (hidden && Number(hidden[1]) < Number(hidden[2])) return "The examples pass, but some hidden tests fail. What inputs might you not be handling?";
+  return null;
+}
+
+// A coding question opens by asking for the approach (as the real Interviewer does).
+const opening = (q: PlannedQuestion): string =>
+  q.type === "coding" ? `${q.prompt} Before you start coding, talk me through your approach.` : q.prompt;
+
 function firstName(name: string): string {
   return name.trim().split(/\s+/)[0] ?? "";
 }
@@ -206,6 +279,8 @@ function bridgeTo(from: PlannedQuestion, next: PlannedQuestion): string {
     ? "Let me switch gears to something about how you work."
     : next.type === "technical"
     ? "Let me switch to something more technical."
+    : next.type === "coding"
+    ? "Let's write some code."
     : "Let's do some system design.";
 }
 
@@ -223,7 +298,8 @@ function looksVague(answer: string): boolean {
 function scoreAnswer(
   question: PlannedQuestion,
   answer: string,
-  followUpCount: number
+  followUpCount: number,
+  testResults = ""
 ): AnswerEvaluation {
   const trimmed = answer.trim();
   const hasNumbers = /\d/.test(trimmed);
@@ -234,8 +310,11 @@ function scoreAnswer(
     behavioral: ["structure", "specificity", "impact", "ownership"],
     technical: ["correctness", "depth", "edge_cases", "communication"],
     system_design: ["requirements", "scalability", "tradeoffs", "depth"],
+    coding: ["correctness", "efficiency", "code_quality", "communication"],
   };
   const criteria = criteriaByType[question.type];
+  // Coding: correctness follows the last run, not the talk. Never run counts as failing.
+  const testsFail = question.type === "coding" && (!testResults || failureAsk(testResults) !== null);
 
   const base = strong ? 4 : looksVague(answer) ? 2 : 3;
   const rubricScores: Record<string, number> = {};
@@ -244,6 +323,7 @@ function scoreAnswer(
     if (!hasNumbers && (c === "impact" || c === "edge_cases" || c === "tradeoffs")) s -= 1;
     rubricScores[c] = Math.max(0, Math.min(5, Math.round(s * 2) / 2));
   });
+  if (question.type === "coding") rubricScores.correctness = testsFail ? 2 : 4.5;
 
   const weaknessTags: string[] = [];
   if (!hasNumbers) weaknessTags.push(question.type === "behavioral" ? "vague-impact" : "no-edge-cases");
@@ -251,12 +331,15 @@ function scoreAnswer(
   if (question.type === "behavioral" && !/\bI\b/.test(trimmed)) weaknessTags.push("no-ownership");
   if (question.type === "system_design" && !/(tradeoff|bottleneck|scale)/i.test(trimmed))
     weaknessTags.push("no-tradeoffs");
+  if (testsFail) weaknessTags.push("failing-tests");
 
   const survives = Object.values(rubricScores).every((v) => v >= 3);
   const reasoning = survives
     ? `Concrete and specific — ${
         hasNumbers ? "quantified outcome and" : ""
       } a clear mechanism a real interviewer could follow without re-asking.`
+    : testsFail
+    ? "The final code still fails tests, and a real interviewer would hold the round on that."
     : `A real interviewer would keep digging: ${
         weaknessTags.includes("no-edge-cases")
           ? "no edge cases or numbers to verify the claim"
@@ -277,22 +360,44 @@ function scoreAnswer(
 export const mockEngine = {
   buildSession(
     role: string,
-    mode: InterviewMode = "full"
+    mode: InterviewMode = "full",
+    level: InterviewLevel = "mid"
   ): { profile: IntakeProfile; plan: QuestionPlan } {
     const key = QUESTION_BANK[role] ? role : "sde";
     const intake = INTAKE_BY_ROLE[key];
     const profile: IntakeProfile = { ...intake, targetRole: ROLE_LABEL[key] };
     const pool = mode === "full" ? QUESTION_BANK[key] : QUESTION_BANK[key].filter((q) => q.type === mode);
     const source = pool.length > 0 ? pool : QUESTION_BANK[key];
+    const bank = source.map((q, i) => ({ ...q, weightedFromWeakness: i === 1 }));
+    const ordered =
+      mode === "coding" ? codingQuestions(CODING_ROUND[level], level)
+      : mode === "full" ? [bank[0], ...codingQuestions([FULL_MOCK_CODING[level]], level), ...bank.slice(1)]
+      : bank;
     const plan: QuestionPlan = {
       sessionId: `sess-${Date.now()}`,
-      questions: source.map((q, i) => ({
-        ...q,
-        id: `q${i}`,
-        weightedFromWeakness: i === 1,
-      })),
+      questions: ordered.map((q, i) => ({ ...q, id: `q${i}` })),
     };
     return { profile, plan };
+  },
+
+  nameUsable(name: string): boolean {
+    return name.trim() !== "" && !ABUSE.test(name);
+  },
+
+  // The /session/turn stand-in: conduct screen first (abuse never reaches decide),
+  // fixed replies per strike like the backend's _conduct_decision.
+  turn(input: TurnInput): { decision: InterviewDecision; strikes: number } {
+    if (!ABUSE.test(latestReply(input.answer))) return { decision: mockEngine.decide(input), strikes: input.strikes };
+    const strikes = input.strikes + 1;
+    const currentQuestionId = input.question.id;
+    if (strikes >= 3) {
+      return { strikes, decision: { action: "end", followUpPrompt: null, currentQuestionId, say: "I'm going to end the interview here. Take care." } };
+    }
+    const warning = strikes === 1
+      ? "Let's keep this professional. "
+      : "I'll be straightforward: if that happens again, I'll have to end the interview. ";
+    const say = `${warning}So — ${PHASE_ASK[input.phase] ?? input.question.prompt}`;
+    return { strikes, decision: { action: "clarify", followUpPrompt: null, currentQuestionId, say } };
   },
 
   // Offline stand-in for the Interviewer Agent: same rules as the real prompt
@@ -323,7 +428,7 @@ export const mockEngine = {
       const reaction = hook
         ? `Thanks — the ${hook} part is something I might come back to.`
         : "Thanks, that's useful context.";
-      return out("advance", `${reaction} Let's get into it. ${nextQuestion?.prompt ?? question.prompt}`);
+      return out("advance", `${reaction} Let's get into it. ${opening(nextQuestion ?? question)}`);
     }
 
     if (phase === "closing") {
@@ -337,17 +442,45 @@ export const mockEngine = {
         : "Honestly, what separates people on this team is how clearly they reason about tradeoffs out loud — more than knowing every tool. Anything else you'd like to ask?");
     }
 
+    const budget = FOLLOW_UP_BUDGET[question.type];
+    const resolve = (reaction: string) =>
+      isLast || !nextQuestion
+        ? out("complete", `${reaction} That's everything I wanted to cover. What questions do you have for me?`)
+        : out("advance", `${reaction} ${bridgeTo(question, nextQuestion)} ${opening(nextQuestion)}`);
+
+    // Coding round, per stage: probe the plan, stay quiet while they code, then review.
+    if (question.type === "coding") {
+      const asked = (line: string) => input.answer.includes(line);
+      if (input.event === "checkin") return out("clarify", CHECKIN);
+      // "submit": the candidate just pressed Submit; review starts from the results.
+      const stage = input.event === "submit" ? "review" : input.codingStage || "approach";
+      if (stage === "approach") {
+        if (DONT_KNOW.test(reply) && !asked(BRUTE_FORCE)) return out("follow_up", BRUTE_FORCE, BRUTE_FORCE);
+        if (!asked(PLAN_COMPLEXITY)) return out("follow_up", `Okay. ${PLAN_COMPLEXITY}`, PLAN_COMPLEXITY);
+        return out("clarify", "Sounds good — go ahead and code it.");
+      }
+      if (stage === "coding") {
+        return out("clarify", /\b(done|finished|ready|submit)\b/i.test(reply)
+          ? "When you're happy with it, hit Submit and we'll go through the results together."
+          : "Okay — keep going. Think out loud whenever it helps.");
+      }
+      const failing = failureAsk(input.testResults ?? "");
+      if (followUpCount >= budget) return resolve("Okay, let's leave it there — worth revisiting afterwards.");
+      if (failing) {
+        return asked(failing)
+          ? out("clarify", "Take another look, fix it, and submit again when you're ready.")
+          : out("follow_up", failing, failing);
+      }
+      if (!asked(COMPLEXITY)) return out("follow_up", `Okay, it passes. ${COMPLEXITY}`, COMPLEXITY);
+      if (!asked(EDGE_CASES)) return out("follow_up", EDGE_CASES, EDGE_CASES);
+      return resolve("Okay, that's a working solution.");
+    }
+
     if (CLARIFY.test(reply) || (reply.endsWith("?") && reply.length < 160 && !DONT_KNOW.test(reply))) {
       return /\b(repeat|again|rephrase)\b/i.test(reply)
         ? out("clarify", `Sure. ${question.prompt}`)
         : out("clarify", "Fair question — make whatever reasonable assumption you think is right and say it out loud. I'll tell you if it's off. Go ahead whenever you're ready.");
     }
-
-    const budget = FOLLOW_UP_BUDGET[question.type];
-    const resolve = (reaction: string) =>
-      isLast || !nextQuestion
-        ? out("complete", `${reaction} That's everything I wanted to cover. What questions do you have for me?`)
-        : out("advance", `${reaction} ${bridgeTo(question, nextQuestion)} ${nextQuestion.prompt}`);
 
     if (DONT_KNOW.test(reply) && reply.length < 220) {
       if (followUpCount < HINTS[question.type].length) {
@@ -378,8 +511,8 @@ export const mockEngine = {
       : "Okay, I've got a reasonable picture of that.");
   },
 
-  evaluate(question: PlannedQuestion, transcript: string, followUpCount: number): AnswerEvaluation {
-    return scoreAnswer(question, transcript, followUpCount);
+  evaluate(question: PlannedQuestion, transcript: string, followUpCount: number, testResults?: string): AnswerEvaluation {
+    return scoreAnswer(question, transcript, followUpCount, testResults);
   },
 
   aggregate(

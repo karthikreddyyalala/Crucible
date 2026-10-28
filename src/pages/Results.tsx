@@ -12,17 +12,20 @@ export function Results() {
   const plan = useSessionStore((s) => s.plan);
   const evaluations = useSessionStore((s) => s.evaluations);
   const updatedMemory = useSessionStore((s) => s.updatedMemory);
+  const endedForConduct = useSessionStore((s) => s.endedForConduct);
   const reset = useSessionStore((s) => s.reset);
 
+  // A session ended for conduct may have no scored answers yet; it still gets its page.
+  const nothingToShow = !plan || (evaluations.length === 0 && !endedForConduct);
   useEffect(() => {
-    if (!plan || evaluations.length === 0) navigate("/setup");
-  }, [plan, evaluations, navigate]);
+    if (nothingToShow) navigate("/setup");
+  }, [nothingToShow, navigate]);
 
-  if (!plan || evaluations.length === 0) return null;
+  if (!plan || nothingToShow) return null;
 
   const survived = evaluations.filter((e) => e.wouldSurviveRealInterview).length;
   const total = evaluations.length;
-  const ratio = survived / total;
+  const ratio = total ? survived / total : 0;
   const verdictTone =
     ratio >= 0.6 ? "var(--color-survive)" : ratio >= 0.34 ? "var(--color-accent)" : "var(--color-fail)";
 
@@ -75,6 +78,12 @@ export function Results() {
           >
             {headline}
           </motion.h1>
+
+          {endedForConduct && (
+            <p className="mt-4 max-w-[60ch] text-sm text-mist">
+              This session ended early because of the conduct of the conversation.
+            </p>
+          )}
 
           <div className="mt-9 flex flex-wrap items-end gap-x-10 gap-y-6">
             <div>
