@@ -7,8 +7,8 @@ class _FakeLLM:
         self._payload = payload
         self.last: dict = {}
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
-        self.last = {"model": model, "system": system, "user": user}
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None, temperature=0.0):
+        self.last = {"model": model, "system": system, "user": user, "temperature": temperature}
         return schema.model_validate(self._payload)
 
 
@@ -58,3 +58,12 @@ def test_coach_handles_no_weakness_tags():
     agent = CoachAgent(llm=llm, model="coach-model")
     agent.run(question=_Q_BEHAVIORAL, transcript="Some answer.", weakness_tags=[])
     assert "none flagged" in llm.last["user"]
+
+
+def test_coach_forwards_temperature():
+    llm = _FakeLLM(_COACH_PAYLOAD)
+    CoachAgent(llm=llm, model="m", temperature=0.2).run(
+        question=_Q_BEHAVIORAL, transcript="t", weakness_tags=[])
+    assert llm.last["temperature"] == 0.2
+    CoachAgent(llm=llm, model="m").run(question=_Q_BEHAVIORAL, transcript="t", weakness_tags=[])
+    assert llm.last["temperature"] == 0.0

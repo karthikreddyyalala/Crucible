@@ -20,8 +20,8 @@ class _FakeLLM:
         self._payload = payload
         self.last: dict = {}
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
-        self.last = {"model": model, "user": user}
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None, temperature=0.0):
+        self.last = {"model": model, "user": user, "temperature": temperature}
         return schema.model_validate(self._payload)
 
 
@@ -93,3 +93,13 @@ def test_interviewer_follow_up_budget_per_type():
     assert "followUpCount: 0\nfollowUpBudget: 6" in llm.last["user"]
     agent.run_turn(question=_Q, candidate_answer="x", follow_up_count=0, is_last_question=False)
     assert "followUpBudget: 3" in llm.last["user"]
+
+
+def test_interviewer_forwards_temperature():
+    llm = _FakeLLM({"action": "advance", "followUpPrompt": None, "currentQuestionId": "q-beh-1"})
+    InterviewerAgent(llm=llm, model="m", temperature=0.3).run_turn(
+        question=_Q, candidate_answer="x", follow_up_count=0, is_last_question=False)
+    assert llm.last["temperature"] == 0.3
+    InterviewerAgent(llm=llm, model="m").run_turn(
+        question=_Q, candidate_answer="x", follow_up_count=0, is_last_question=False)
+    assert llm.last["temperature"] == 0.0

@@ -8,8 +8,8 @@ class _FakeLLM:
         self._payload = payload
         self.last = None
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
-        self.last = {"user": user, "model": model}
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None, temperature=0.0):
+        self.last = {"user": user, "model": model, "temperature": temperature}
         return schema.model_validate(self._payload)
 
 
@@ -79,3 +79,15 @@ def test_planner_receives_bank_candidates_as_input():
     assert "followUpHooks" not in llm.last["user"] and "follow_up_hooks" not in llm.last["user"]
     for hidden in ("rubric", "idealAnswerPoints", "ideal_answer_points", "weakAnswerSigns", "weak_answer_signs"):
         assert hidden not in llm.last["user"]
+
+
+def test_planner_forwards_temperature():
+    llm = _FakeLLM({"sessionId": "s", "questions": [
+        {"id": "q1", "type": "behavioral", "prompt": "p",
+         "targetDifficulty": 1, "weightedFromWeakness": False}]})
+    mem = MemoryProfile(candidateId="c1", recurringWeaknesses=[], improvementTrend=[], strongAreas=[])
+    kw = dict(session_id="s", profile=_profile(), memory=mem, competency_map=load_competency_map("sde"))
+    PlannerAgent(llm=llm, model="m", temperature=0.2).run(**kw)
+    assert llm.last["temperature"] == 0.2
+    PlannerAgent(llm=llm, model="m").run(**kw)
+    assert llm.last["temperature"] == 0.0

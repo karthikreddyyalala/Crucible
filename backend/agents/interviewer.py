@@ -10,9 +10,10 @@ FOLLOW_UP_BUDGET = {"behavioral": 3, "technical": 3, "system_design": 6}
 
 
 class InterviewerAgent:
-    def __init__(self, llm, model: str):
+    def __init__(self, llm, model: str, temperature: float = 0.0):
         self._llm = llm
         self._model = model
+        self._temperature = temperature
 
     def run_turn(
         self,
@@ -60,4 +61,5 @@ class InterviewerAgent:
         return self._llm.structured(
             agent="interviewer", sink=usage_sink,
             model=self._model, system=_PROMPT, user=user, schema=InterviewDecision,
+            temperature=self._temperature,
         )

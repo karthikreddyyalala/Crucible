@@ -7,8 +7,8 @@ class _FakeLLM:
         self._payload = payload
         self.last: dict = {}
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
-        self.last = {"model": model, "system": system, "user": user}
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None, temperature=0.0):
+        self.last = {"model": model, "system": system, "user": user, "temperature": temperature}
         return schema.model_validate(self._payload)
 
 
@@ -75,3 +75,12 @@ def test_evaluator_anchors_included_with_exemplar_and_absent_without():
         assert desc in llm.last["user"]
     agent.run(question=_Q_TECHNICAL, transcript="t", follow_up_count=1)
     assert "Rubric anchors" not in llm.last["user"]
+
+
+def test_evaluator_forwards_temperature():
+    llm = _FakeLLM(_EVAL_PAYLOAD_STRONG)
+    EvaluatorAgent(llm=llm, model="m", temperature=0.2).run(
+        question=_Q_TECHNICAL, transcript="t", follow_up_count=0)
+    assert llm.last["temperature"] == 0.2
+    EvaluatorAgent(llm=llm, model="m").run(question=_Q_TECHNICAL, transcript="t", follow_up_count=0)
+    assert llm.last["temperature"] == 0.0

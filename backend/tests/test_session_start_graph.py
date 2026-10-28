@@ -9,7 +9,7 @@ class _ScriptedLLM:
         self._payloads = [intake_payload, plan_payload]
         self.users = []
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None, temperature=0.0):
         self.users.append(user)
         return schema.model_validate(self._payloads.pop(0))
 
@@ -75,3 +75,27 @@ def test_keep_known_exemplars_nulls_ids_whose_bank_type_differs_from_planned_typ
     bank = bank_for("sde", mode="full", level="mid")
     tech = next(q for q in bank if q.type == "technical")
     assert _kept(_plan(tech.id), bank) == [None]  # _plan builds behavioral questions
+
+
+def test_graph_passes_each_agents_temperature():
+    intake_payload = {
+        "candidateSkills": [], "yearsExperience": 1.0, "projectHighlights": [],
+        "targetRole": "SDE", "targetCompany": None, "jdRequirements": [], "resumeToJdGaps": [],
+    }
+    plan_payload = {"sessionId": "s", "questions": [{
+        "id": "q1", "type": "technical", "prompt": "p", "targetDifficulty": 3, "weightedFromWeakness": False}]}
+    temps = {}
+
+    class _Spy(_ScriptedLLM):
+        def structured(self, **kw):
+            temps[kw["agent"]] = kw["temperature"]
+            return super().structured(**kw)
+
+    graph = build_session_start_graph(
+        llm=_Spy(intake_payload, plan_payload), intake_model="im", planner_model="pm",
+        intake_temperature=0.1, planner_temperature=0.2,
+    )
+    graph.invoke({"session_id": "s", "resume_text": "r", "jd_text": "j", "role_key": "sde",
+                  "memory": MemoryProfile(candidateId="c", recurringWeaknesses=[],
+                                          improvementTrend=[], strongAreas=[])})
+    assert temps == {"intake": 0.1, "planner": 0.2}

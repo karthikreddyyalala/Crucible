@@ -23,6 +23,16 @@ class Settings(BaseSettings):
     memory_model: str = haiku_model
     coach_model: str = sonnet_model
 
+    # Sampling temperature per agent. Scoring/planning agents run at 0 so the same
+    # input gives the same verdict; the interviewer gets a little variety so its
+    # phrasing doesn't sound canned. Override via INTERVIEWAI_<NAME>_TEMPERATURE.
+    intake_temperature: float = 0.0
+    planner_temperature: float = 0.0
+    interviewer_temperature: float = 0.3
+    evaluator_temperature: float = 0.0
+    memory_temperature: float = 0.0
+    coach_temperature: float = 0.0
+
     # Persistence. "memory" keeps everything in-process (tests, local dev with
     # no AWS tables). "dynamodb" persists MemoryProfile across sessions/devices.
     persistence: str = "memory"

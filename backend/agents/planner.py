@@ -7,9 +7,10 @@ _PROMPT = (Path(__file__).resolve().parent.parent / "prompts" / "planner.md").re
 
 
 class PlannerAgent:
-    def __init__(self, llm, model: str):
+    def __init__(self, llm, model: str, temperature: float = 0.0):
         self._llm = llm
         self._model = model
+        self._temperature = temperature
 
     def run(self, *, session_id: str, profile: IntakeProfile,
             memory: MemoryProfile, competency_map: CompetencyMap,
@@ -31,4 +32,5 @@ class PlannerAgent:
         return self._llm.structured(
             agent="planner", sink=usage_sink,
             model=self._model, system=_PROMPT, user=user, schema=QuestionPlan,
+            temperature=self._temperature,
         )

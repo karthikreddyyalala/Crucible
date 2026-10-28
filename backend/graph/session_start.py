@@ -31,9 +31,10 @@ class SessionStartState(TypedDict, total=False):
     usage: list
 
 
-def build_session_start_graph(*, llm, intake_model: str, planner_model: str):
-    intake = IntakeAgent(llm=llm, model=intake_model)
-    planner = PlannerAgent(llm=llm, model=planner_model)
+def build_session_start_graph(*, llm, intake_model: str, planner_model: str,
+                              intake_temperature: float = 0.0, planner_temperature: float = 0.0):
+    intake = IntakeAgent(llm=llm, model=intake_model, temperature=intake_temperature)
+    planner = PlannerAgent(llm=llm, model=planner_model, temperature=planner_temperature)
 
     def intake_node(state: SessionStartState) -> SessionStartState:
         profile = intake.run(

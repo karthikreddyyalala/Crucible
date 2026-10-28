@@ -133,3 +133,16 @@ def test_structured_raises_after_exhausting_retries():
             agent="test", model="m", system="s", user="u", schema=_Shape, max_retries=2)
     # 1 initial attempt + 2 retries = 3 calls
     assert len(fake.calls) == 3
+
+
+def test_structured_sends_temperature_zero_by_default():
+    fake = _FakeClient('{"name": "widget", "count": 3}')
+    LLMClient(client=fake).structured(agent="test", model="m", system="s", user="u", schema=_Shape)
+    assert fake.calls[0]["temperature"] == 0.0
+
+
+def test_structured_sends_explicit_temperature():
+    fake = _FakeClient('{"name": "widget", "count": 3}')
+    LLMClient(client=fake).structured(
+        agent="test", model="m", system="s", user="u", schema=_Shape, temperature=0.3)
+    assert fake.calls[0]["temperature"] == 0.3

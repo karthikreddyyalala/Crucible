@@ -28,7 +28,7 @@ class _FakeLLM:
     def __init__(self, payloads: dict):
         self._payloads = payloads
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None, temperature=0.0):
         if sink is not None:
             sink.append(CallUsage(
                 agent=agent, model="claude-haiku-4-5", latency_s=0.1,
@@ -309,10 +309,10 @@ class _CountingMemoryLLM(_FakeLLM):
         super().__init__(payloads)
         self.memory_calls: list[str] = []
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None, temperature=0.0):
         if schema.__name__ == "MemoryProfile":
             self.memory_calls.append(user)
-        return super().structured(agent=agent, model=model, system=system, user=user, schema=schema, max_tokens=max_tokens, sink=sink)
+        return super().structured(agent=agent, model=model, system=system, user=user, schema=schema, max_tokens=max_tokens, sink=sink, temperature=temperature)
 
 
 def test_finalize_retries_after_one_conflict_and_does_not_lose_data():
@@ -406,11 +406,11 @@ def test_start_loads_prior_memory_from_store():
     captured: dict = {}
 
     class _CapturingLLM(_FakeLLM):
-        def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
+        def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None, temperature=0.0):
             if schema.__name__ == "QuestionPlan":
                 captured["planner_user"] = user
             return super().structured(
-                agent=agent, model=model, system=system, user=user, schema=schema, max_tokens=max_tokens, sink=sink
+                agent=agent, model=model, system=system, user=user, schema=schema, max_tokens=max_tokens, sink=sink, temperature=temperature
             )
 
     # seed a prior memory for this candidate
@@ -441,7 +441,7 @@ def test_start_loads_prior_memory_from_store():
 class _RaisingLLM:
     """Simulates an agent call that fails even after retries are exhausted."""
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None, temperature=0.0):
         raise RuntimeError("bedrock throttled: too many requests")
 
 
@@ -779,3 +779,30 @@ def test_turn_rejects_negative_follow_up_count_and_bad_level():
     assert client.post("/api/session/turn", json={**base, "followUpCount": 0, "level": "wizard"}).status_code == 422
     assert client.post("/api/session/evaluate", json={
         "question": _QUESTION_BODY, "transcript": "a", "followUpCount": -1}).status_code == 422
+
+
+# --- per-agent temperature -------------------------------------------------
+
+def test_each_agent_gets_its_settings_temperature(monkeypatch):
+    from config.settings import Settings
+    temps = {"intake": 0.11, "planner": 0.22, "interviewer": 0.33, "evaluator": 0.44,
+             "memory": 0.55, "coach": 0.66}
+    for name, t in temps.items():
+        monkeypatch.setenv(f"INTERVIEWAI_{name.upper()}_TEMPERATURE", str(t))
+    seen: dict[str, float] = {}
+
+    class _Spy(_FakeLLM):
+        def structured(self, **kw):
+            seen[kw["agent"]] = kw["temperature"]
+            return super().structured(**kw)
+
+    llm = _Spy({"IntakeProfile": _INTAKE, "QuestionPlan": _PLAN, "InterviewDecision": _DECISION_ADVANCE,
+                "AnswerEvaluation": _EVAL, "MemoryProfile": _MEMORY, "CoachResponse": _COACH_PAYLOAD})
+    client = TestClient(create_app(llm=llm, settings=Settings(), store=InMemoryStore()))
+    client.post("/api/session/start", json={"resumeText": "r", "jdText": "j", "role": "sde"})
+    client.post("/api/session/turn", json={
+        "question": _QUESTION_BODY, "answer": "a", "followUpCount": 0, "isLast": False, "phase": "question"})
+    client.post("/api/session/evaluate", json={"question": _QUESTION_BODY, "transcript": "a", "followUpCount": 0})
+    client.post("/api/coach", json={"question": _QUESTION_BODY, "transcript": "a"})
+    client.post("/api/session/finalize", json={"evaluations": [_EVAL], "priorMemory": None})
+    assert seen == temps

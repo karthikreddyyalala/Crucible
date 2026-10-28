@@ -7,9 +7,10 @@ _PROMPT = (Path(__file__).resolve().parent.parent / "prompts" / "evaluator.md").
 
 
 class EvaluatorAgent:
-    def __init__(self, llm, model: str):
+    def __init__(self, llm, model: str, temperature: float = 0.0):
         self._llm = llm
         self._model = model
+        self._temperature = temperature
 
     def run(self, *, question: PlannedQuestion, transcript: str, follow_up_count: int,
             usage_sink: list | None = None,
@@ -34,4 +35,5 @@ class EvaluatorAgent:
         return self._llm.structured(
             agent="evaluator", sink=usage_sink,
             model=self._model, system=_PROMPT, user=user, schema=AnswerEvaluation,
+            temperature=self._temperature,
         )

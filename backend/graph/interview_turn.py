@@ -16,9 +16,11 @@ class InterviewTurnState(TypedDict, total=False):
     session_complete: bool
 
 
-def build_interview_turn_graph(*, llm, interviewer_model: str, evaluator_model: str):
-    interviewer = InterviewerAgent(llm=llm, model=interviewer_model)
-    evaluator = EvaluatorAgent(llm=llm, model=evaluator_model)
+def build_interview_turn_graph(*, llm, interviewer_model: str, evaluator_model: str,
+                               interviewer_temperature: float = 0.3,
+                               evaluator_temperature: float = 0.0):
+    interviewer = InterviewerAgent(llm=llm, model=interviewer_model, temperature=interviewer_temperature)
+    evaluator = EvaluatorAgent(llm=llm, model=evaluator_model, temperature=evaluator_temperature)
 
     def interviewer_node(state: InterviewTurnState) -> InterviewTurnState:
         idx = state["current_question_idx"]

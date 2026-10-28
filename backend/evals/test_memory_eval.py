@@ -21,7 +21,7 @@ pytestmark = pytest.mark.skipif(
 def agent():
     settings = Settings()
     llm = LLMClient(region=settings.aws_region)
-    return MemoryAgent(llm=llm, model=settings.planner_model)
+    return MemoryAgent(llm=llm, model=settings.planner_model, temperature=settings.memory_temperature)
 
 
 @pytest.mark.parametrize("case", json.loads(_CASES_FILE.read_text()))

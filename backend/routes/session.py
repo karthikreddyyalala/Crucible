@@ -171,11 +171,16 @@ def build_session_router(
         llm=llm,
         intake_model=settings.intake_model,
         planner_model=settings.planner_model,
+        intake_temperature=settings.intake_temperature,
+        planner_temperature=settings.planner_temperature,
     )
-    interviewer = InterviewerAgent(llm=llm, model=settings.interviewer_model)
-    evaluator = EvaluatorAgent(llm=llm, model=settings.evaluator_model)
-    memory_agent = MemoryAgent(llm=llm, model=settings.memory_model)
-    coach = CoachAgent(llm=llm, model=settings.coach_model)
+    interviewer = InterviewerAgent(
+        llm=llm, model=settings.interviewer_model, temperature=settings.interviewer_temperature)
+    evaluator = EvaluatorAgent(
+        llm=llm, model=settings.evaluator_model, temperature=settings.evaluator_temperature)
+    memory_agent = MemoryAgent(
+        llm=llm, model=settings.memory_model, temperature=settings.memory_temperature)
+    coach = CoachAgent(llm=llm, model=settings.coach_model, temperature=settings.coach_temperature)
 
     @router.get("/health")
     def health() -> dict[str, str]:

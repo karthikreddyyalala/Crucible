@@ -7,8 +7,8 @@ class _FakeLLM:
         self._payload = payload
         self.last: dict = {}
 
-    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None):
-        self.last = {"model": model, "user": user}
+    def structured(self, *, agent="test", model, system, user, schema, max_tokens=2000, sink=None, temperature=0.0):
+        self.last = {"model": model, "user": user, "temperature": temperature}
         return schema.model_validate(self._payload)
 
 
@@ -104,3 +104,13 @@ def test_memory_agent_merges_with_existing_weaknesses():
     assert len(result.improvement_trend) == 2
     # existing memory passed to LLM
     assert "2026-06-01" in llm.last["user"]
+
+
+def test_memory_agent_forwards_temperature():
+    empty = MemoryProfile(candidateId="c", recurringWeaknesses=[], improvementTrend=[], strongAreas=[])
+    llm = _FakeLLM(empty.model_dump(by_alias=True))
+    kw = dict(candidate_id="c", session_date="2026-06-22", evaluations=[], existing_memory=empty)
+    MemoryAgent(llm=llm, model="m", temperature=0.2).run(**kw)
+    assert llm.last["temperature"] == 0.2
+    MemoryAgent(llm=llm, model="m").run(**kw)
+    assert llm.last["temperature"] == 0.0
