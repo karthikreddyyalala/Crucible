@@ -47,8 +47,11 @@ ATTRIBUTION.md. See docs/research/question-sources-and-datasets.md.
 
 ## Later
 
-- [ ] Golden eval cases that use bank questions (with interviewer notes) — check the
-      follow-up targets the top uncovered strong-answer point
+- [x] Bank eval cases + A/B (with vs without notes): first-probe targeting 11/24 vs 14/24 —
+      no measurable gain at the first probe; kept the notes for deeper rungs
+- [ ] Measure the deeper rungs: multi-turn bank cases (probe 2–4) and an LLM-judge for
+      "is this follow-up on the biggest gap" instead of keyword matching
+- [ ] Human review of the question bank by 2–3 working interviewers (not yet verified by people)
 - [ ] Mark ideal-answer points core vs stretch so junior answers aren't scored against senior points
 - [ ] One verdict still slips through in ~20 live lines; keep watching the leak metric
 
