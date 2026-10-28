@@ -85,6 +85,8 @@ export interface MemoryProfile {
 export interface CoachResponse {
   modelAnswer: string;
   improvements: string[];
+  // Coding questions: clean Python for the approach. Empty or absent otherwise.
+  code?: string;
 }
 
 export interface AvatarSessionResponse {

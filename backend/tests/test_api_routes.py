@@ -1117,6 +1117,19 @@ def test_start_accepts_coding_mode_and_passes_company_style_to_the_planner():
     assert bad.status_code == 422
 
 
+def test_coach_looks_up_the_coding_problem_and_fences_the_code():
+    from models.coding import find_problem
+    client, seen = _spy_client({"CoachResponse": {**_COACH_PAYLOAD, "code": "def two_sum(nums, target): ..."}})
+    res = client.post("/api/coach", json={"question": _CODING_Q, "transcript": "A: hash map", "code": "print(1)"})
+    assert res.status_code == 200 and res.json()["code"].startswith("def two_sum")
+    assert find_problem("code-two-sum").reference_solution in seen["user"]
+    assert "<candidate_code>\nprint(1)\n</candidate_code>" in seen["user"]
+    client.post("/api/coach", json={"question": {**_CODING_Q, "type": "technical"}, "transcript": "t"})
+    assert "Coding problem" not in seen["user"]  # a problem id on a non-coding question is ignored
+    assert client.post("/api/coach", json={
+        "question": _CODING_Q, "transcript": "t", "code": "x" * 20001}).status_code == 422
+
+
 def test_coach_rejects_abusive_input():
     client = TestClient(create_app(llm=_NoCallLLM(), store=InMemoryStore()))
     res = client.post("/api/coach", json={"question": _QUESTION_BODY, "transcript": "A: f*** you"})

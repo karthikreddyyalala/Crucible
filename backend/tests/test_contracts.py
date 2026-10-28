@@ -87,3 +87,10 @@ def test_session_record_carries_company_style_and_conduct_flag_with_defaults():
     dumped = rec.model_dump(by_alias=True)
     assert dumped["companyStyle"] == "amazon" and dumped["endedForConduct"] is True
     assert SessionRecord.model_validate_json(rec.model_dump_json(by_alias=True)) == rec
+
+
+def test_coach_response_code_defaults_empty():
+    from models.contracts import CoachResponse
+    assert CoachResponse(modelAnswer="m", improvements=[]).code == ""
+    r = CoachResponse.model_validate({"modelAnswer": "m", "improvements": [], "code": "def f(): pass"})
+    assert r.model_dump(by_alias=True)["code"] == "def f(): pass"

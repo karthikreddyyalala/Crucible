@@ -209,6 +209,7 @@ class FinalizeRequest(_Base):
 class CoachRequest(_Base):
     question: ClientQuestion
     transcript: str = Field(max_length=40000)
+    code: str = Field("", max_length=20000)  # coding questions: the candidate's final code
     weakness_tags: list[str] = []
 
 
@@ -374,6 +375,8 @@ def build_session_router(
             question=req.question,
             transcript=req.transcript,
             weakness_tags=req.weakness_tags,
+            coding_problem=_problem_for(req.question),
+            code=req.code,
         )
 
     @router.post("/tts")
