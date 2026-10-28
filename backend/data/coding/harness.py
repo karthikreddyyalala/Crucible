@@ -279,13 +279,23 @@ def _row(index, error=None, stdout=""):
     return {"index": index, "passed": False, "got": None, "expected": None, "error": error, "stdout": stdout, "ms": 0.0}
 
 
+def _camel(name):
+    head, *rest = name.split("_")
+    return head + "".join(word[:1].upper() + word[1:] for word in rest)
+
+
 def _find(namespace, name):
-    fn = namespace.get(name)
-    if callable(fn):
-        return fn
-    solution = namespace.get("Solution")  # LeetCode style: a fresh instance per test
-    if isinstance(solution, type) and callable(getattr(solution, name, None)):
-        return lambda *args: getattr(solution(), name)(*args)
+    """name, then its camelCase form (two_sum -> twoSum, a LeetCode habit): at top level first,
+    then on a LeetCode-style class Solution, which gets a fresh instance per test."""
+    names = dict.fromkeys((name, _camel(name)))
+    for n in names:
+        if callable(namespace.get(n)):
+            return namespace[n]
+    solution = namespace.get("Solution")
+    if isinstance(solution, type):
+        for n in names:
+            if callable(getattr(solution, n, None)):
+                return lambda *args, n=n: getattr(solution(), n)(*args)
     return None
 
 
@@ -409,7 +419,8 @@ def run(code, problem, only_visible=False):
     kind = problem.get("kind", "function")
     fn = _find(namespace, name)
     if fn is None:
-        return [_row(-1, f"Couldn't find a {'function' if kind == 'function' else 'class'} named {name}")]
+        also = f" (or {_camel(name)})" if _camel(name) != name else ""
+        return [_row(-1, f"Couldn't find a {'function' if kind == 'function' else 'class'} named {name}{also}")]
     adapters = problem.get("adapters") or {}
     kinds = [adapters.get(p) for p in _param_names(problem.get("signature", ""))]
     body = _BODIES.get(kind, _function)

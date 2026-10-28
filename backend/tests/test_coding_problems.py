@@ -186,7 +186,28 @@ def test_system_exit_does_not_escape():
 def test_missing_function():
     [row] = harness.run("def something_else():\n    pass\n", _public("code-two-sum"))
     assert row["index"] == -1 and row["passed"] is False
-    assert row["error"] == "Couldn't find a function named two_sum"
+    assert row["error"] == "Couldn't find a function named two_sum (or twoSum)"
+
+
+_TWO_SUM_BODY = (
+    "        seen = {}\n"
+    "        for i, n in enumerate(nums):\n"
+    "            if target - n in seen:\n"
+    "                return [seen[target - n], i]\n"
+    "            seen[n] = i\n"
+)
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "def twoSum(nums, target):\n" + "".join(line[4:] for line in _TWO_SUM_BODY.splitlines(True)),
+        "class Solution:\n    def twoSum(self, nums, target):\n" + _TWO_SUM_BODY,
+    ],
+    ids=["module", "solution-class"],
+)
+def test_camel_case_names_from_leetcode_habits_are_accepted(code):
+    assert all(r["passed"] for r in harness.run(code, _public("code-two-sum")))
 
 
 def test_class_solution_style_is_supported():
