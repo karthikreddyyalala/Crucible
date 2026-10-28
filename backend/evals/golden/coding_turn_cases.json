@@ -558,5 +558,36 @@
       "return "
     ],
     "note": "No editor on screen: after a strong approach, ask them to walk through the code in words, never to type or run it."
+  },
+  {
+    "case": "coding_failing_run_lets_them_debug_two_sum",
+    "problem_id": "code-two-sum",
+    "question": {
+      "id": "q-code-two-sum",
+      "type": "coding",
+      "prompt": "Let's do a coding problem — Two Sum.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false
+    },
+    "candidate_answer": "Q: Let's do a coding problem — Two Sum. Before you start coding, talk me through your approach.\nA: One pass with a dictionary from value to index: for each number, check whether target minus it is already in the dictionary. O(n) time, O(n) space.\nQ: Okay — go ahead and code it up.\nA: Hmm, example two fails, I get zero zero. Let me look.",
+    "follow_up_count": 1,
+    "is_last_question": false,
+    "coding_stage": "coding",
+    "code": "def two_sum(nums: list[int], target: int) -> list[int]:\n    seen = {}\n    for i, n in enumerate(nums):\n        seen[n] = i\n        if target - n in seen:\n            return [seen[target - n], i]\n",
+    "test_results": "Examples: 1/3 passed (example 2 failed: expected [0, 1], got [0, 0]).",
+    "expect_action": "clarify",
+    "expect_would_survive": null,
+    "expect_say_excludes": [
+      "order",
+      "storing",
+      "store",
+      "look up",
+      "lookup",
+      "before you",
+      "[4, 4",
+      "same value",
+      "itself"
+    ],
+    "note": "A failing run the candidate is already debugging: give them room, no hint. Added after the live end-to-end run, where Marcus answered 'let me look' with 'think about the order you're storing versus looking up', which hands over the fix."
   }
 ]
