@@ -23,6 +23,7 @@ from anthropic import AnthropicBedrock
 from config.settings import Settings
 from llm.client import LLMClient
 from models.contracts import PlannedQuestion
+from models.loader import find_exemplar
 from agents.interviewer import InterviewerAgent
 from agents.evaluator import EvaluatorAgent
 
@@ -49,6 +50,19 @@ def stacked_ask(say: str) -> bool:
 def judgment_leak(say: str) -> str | None:
     m = JUDGMENT.search(say)
     return m.group(0) if m else None
+
+
+def load_cases(cases_file: Path) -> list[dict]:
+    """Golden cases; optional `exemplar_id` makes the case run on the bank path
+    (and is stamped onto the question), optional `expect_probe_targets` lists
+    lowercase keywords the follow-up should be about."""
+    cases = json.loads(cases_file.read_text())
+    for c in cases:
+        if c.get("exemplar_id"):
+            c["question"] = {**c["question"], "exemplarId": c["exemplar_id"]}
+    return cases
+
+
 RESULTS_DIR = Path(__file__).parent / "results"
 
 # Anthropic list pricing for claude-sonnet-4-6 ($/MTok). Bedrock pricing may
@@ -86,7 +100,7 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
     interviewer = InterviewerAgent(llm=llm, model=settings.interviewer_model)
     evaluator = EvaluatorAgent(llm=llm, model=settings.evaluator_model)
 
-    cases = json.loads(cases_file.read_text())
+    cases = load_cases(cases_file)
     results = []
 
     print(f"Running {len(cases)} cases against interviewer_model={settings.interviewer_model} "
@@ -94,6 +108,7 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
 
     for case in cases:
         question = PlannedQuestion.model_validate(case["question"])
+        exemplar = find_exemplar(case.get("exemplar_id"))
 
         t0 = time.monotonic()
         decision = interviewer.run_turn(
@@ -101,6 +116,7 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
             candidate_answer=case["candidate_answer"],
             follow_up_count=case["follow_up_count"],
             is_last_question=case["is_last_question"],
+            exemplar=exemplar,
         )
         interviewer_latency = time.monotonic() - t0
         expected = case["expect_action"]  # a string, or a list of acceptable actions
@@ -115,14 +131,20 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
                 question=question,
                 transcript=case["candidate_answer"],
                 follow_up_count=case["follow_up_count"],
+                exemplar=exemplar,
             )
             evaluator_latency = time.monotonic() - t1
             would_survive_actual = evaluation.would_survive_real_interview
             would_survive_match = would_survive_actual == case["expect_would_survive"]
 
+        targets = case.get("expect_probe_targets")
+        probe_on_target = any(k in decision.say.lower() for k in targets) if targets else None
+
         row = {
             "case": case["case"],
             "type": case["question"]["type"],
+            "exemplar_id": case.get("exemplar_id"),
+            "probe_on_target": probe_on_target,
             "expected_action": case["expect_action"],
             "actual_action": decision.action,
             "action_match": action_match,
@@ -186,6 +208,11 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
     if survive_accuracy is not None:
         print(f"Evaluator wouldSurviveRealInterview accuracy: {survive_accuracy:.1%} "
               f"({summary['survive_correct']}/{summary['survive_case_count']})")
+    print(f"Bank-backed cases: {sum(1 for r in results if r['exemplar_id'])}")
+    probe_cases = [r for r in results if r["probe_on_target"] is not None]
+    if probe_cases:
+        print(f"Follow-ups aimed at the missing strong point: "
+              f"{sum(1 for r in probe_cases if r['probe_on_target'])}/{len(probe_cases)}")
     print(f"Stacked two-question follow-ups: {summary['stacked_ask_rate']:.1%} of lines")
     print(f"Spoken judgment leaks: {summary['judgment_leak_rate']:.1%} of lines")
     print(f"Tokens: {total_input} in / {total_output} out — est. cost ${estimated_cost:.4f}")

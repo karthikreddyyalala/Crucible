@@ -1,0 +1,186 @@
+[
+  {
+    "case": "bank_sde_tech_top_k_1_misses_key_point",
+    "exemplar_id": "sde-tech-top-k-1",
+    "question": {
+      "id": "sde-tech-top-k-1",
+      "type": "technical",
+      "prompt": "How would you find the ten most frequent search queries from a day of query logs?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-top-k-1"
+    },
+    "candidate_answer": "I'd read the logs, count each query in a dictionary, and then sort the counts in descending order and take the first ten. The sort is n log n but a day of logs is fine for that. I'd lowercase and trim the queries first so the same search isn't counted twice.",
+    "follow_up_count": 0,
+    "is_last_question": false,
+    "expect_action": "follow_up",
+    "expect_would_survive": false,
+    "expect_probe_targets": [
+      "memory",
+      "shard",
+      "partition",
+      "merge"
+    ]
+  },
+  {
+    "case": "bank_sde_tech_lru_cache_1_misses_key_point",
+    "exemplar_id": "sde-tech-lru-cache-1",
+    "question": {
+      "id": "sde-tech-lru-cache-1",
+      "type": "technical",
+      "prompt": "Our service calls a slow pricing API \u2014 how would you build an in-process cache that evicts the least recently used entry when it's full?",
+      "targetDifficulty": 3,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-lru-cache-1"
+    },
+    "candidate_answer": "I'd keep a hash map from the key to the cached price and a doubly linked list ordered by recency. On every get I move the node to the front, and on put at capacity I drop the tail. Both operations are O(1).",
+    "follow_up_count": 0,
+    "is_last_question": false,
+    "expect_action": "follow_up",
+    "expect_would_survive": false,
+    "expect_probe_targets": [
+      "ttl",
+      "stale",
+      "expire",
+      "fresh"
+    ]
+  },
+  {
+    "case": "bank_sde_tech_pagination_1_misses_key_point",
+    "exemplar_id": "sde-tech-pagination-1",
+    "question": {
+      "id": "sde-tech-pagination-1",
+      "type": "technical",
+      "prompt": "How would you design pagination for an API endpoint that lists a user's orders?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-pagination-1"
+    },
+    "candidate_answer": "I'd use offset and limit: the client sends page and size, we run ORDER BY created_at DESC with LIMIT and OFFSET, and return the total count so the UI can show page numbers. I'd cap the size at 100.",
+    "follow_up_count": 0,
+    "is_last_question": false,
+    "expect_action": "follow_up",
+    "expect_would_survive": false,
+    "expect_probe_targets": [
+      "cursor",
+      "skip",
+      "repeat",
+      "deep"
+    ]
+  },
+  {
+    "case": "bank_sde_sd_shortener_1_misses_key_point",
+    "exemplar_id": "sde-sd-shortener-1",
+    "question": {
+      "id": "sde-sd-shortener-1",
+      "type": "system_design",
+      "prompt": "Design a URL shortener.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-sd-shortener-1"
+    },
+    "candidate_answer": "I'd have a POST endpoint that takes the long URL and returns a short code, and a GET that looks the code up and redirects. Codes would come from an auto-incrementing counter encoded in base62, stored in a key-value store, with a cache in front of the redirect path since reads dominate.",
+    "follow_up_count": 0,
+    "is_last_question": false,
+    "expect_action": "follow_up",
+    "expect_would_survive": false,
+    "expect_probe_targets": [
+      "301",
+      "302",
+      "permanent",
+      "temporary"
+    ]
+  },
+  {
+    "case": "bank_sde_sd_rate_limiter_1_misses_key_point",
+    "exemplar_id": "sde-sd-rate-limiter-1",
+    "question": {
+      "id": "sde-sd-rate-limiter-1",
+      "type": "system_design",
+      "prompt": "Design a rate limiter for a public API.",
+      "targetDifficulty": 3,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-sd-rate-limiter-1"
+    },
+    "candidate_answer": "I'd put the limiter in the API gateway and use a token bucket per API key, since it allows short bursts. Counts live in Redis so every gateway node sees the same numbers, and over-limit requests get a 429.",
+    "follow_up_count": 0,
+    "is_last_question": false,
+    "expect_action": "follow_up",
+    "expect_would_survive": false,
+    "expect_probe_targets": [
+      "atomic",
+      "race",
+      "fail",
+      "unavailable"
+    ]
+  },
+  {
+    "case": "bank_sde_beh_ownership_1_misses_key_point",
+    "exemplar_id": "sde-beh-ownership-1",
+    "question": {
+      "id": "sde-beh-ownership-1",
+      "type": "behavioral",
+      "prompt": "Tell me about a project you owned where the deadline felt unrealistic.",
+      "targetDifficulty": 4,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-ownership-1"
+    },
+    "candidate_answer": "We had a payments migration for a customer launch and I owned it. The date was tight so I proposed cutting the reporting dashboard from the first release and shipping the core transfer flow first, and I sequenced the work so the risky database change went in week one.",
+    "follow_up_count": 0,
+    "is_last_question": false,
+    "expect_action": "follow_up",
+    "expect_would_survive": false,
+    "expect_probe_targets": [
+      "stakeholder",
+      "told",
+      "outcome",
+      "slip"
+    ]
+  },
+  {
+    "case": "bank_aie_tech_rag_1_misses_key_point",
+    "exemplar_id": "aie-tech-rag-1",
+    "question": {
+      "id": "aie-tech-rag-1",
+      "type": "technical",
+      "prompt": "Your RAG chatbot over internal docs keeps giving confident but wrong answers \u2014 how would you find out why?",
+      "targetDifficulty": 4,
+      "weightedFromWeakness": false,
+      "exemplarId": "aie-tech-rag-1"
+    },
+    "candidate_answer": "I'd start by adding a stronger system prompt telling the model to only answer from the provided documents and to be careful, then try a bigger model, and ask users to flag the wrong answers so I can see which ones fail.",
+    "follow_up_count": 0,
+    "is_last_question": false,
+    "expect_action": "follow_up",
+    "expect_would_survive": false,
+    "expect_probe_targets": [
+      "retriev",
+      "chunk",
+      "recall",
+      "passage"
+    ]
+  },
+  {
+    "case": "bank_aie_sd_eval_system_1_misses_key_point",
+    "exemplar_id": "aie-sd-eval-system-1",
+    "question": {
+      "id": "aie-sd-eval-system-1",
+      "type": "system_design",
+      "prompt": "Design the system that decides whether a new prompt or model version is good enough to ship.",
+      "targetDifficulty": 4,
+      "weightedFromWeakness": false,
+      "exemplarId": "aie-sd-eval-system-1"
+    },
+    "candidate_answer": "I'd build a golden set of prompts with expected answers per task, run each new prompt or model version against it, and score the outputs with an LLM judge. The version has to beat the current score on the golden set before it ships.",
+    "follow_up_count": 0,
+    "is_last_question": false,
+    "expect_action": "follow_up",
+    "expect_would_survive": false,
+    "expect_probe_targets": [
+      "human",
+      "calibrat",
+      "canary",
+      "shadow"
+    ]
+  }
+]
