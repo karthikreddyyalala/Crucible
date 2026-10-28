@@ -247,7 +247,7 @@ function PushbackSection() {
               and what changed because you did it?"
             </p>
             <p className="mt-6 font-mono text-xs leading-relaxed text-fog">
-              // probes with why/how at least once, caps at two follow-ups, then scores
+              // probes with why/how at least once, sets follow-up depth by question type, deeper for system design, then scores
               whether it would actually hold up.
             </p>
           </div>

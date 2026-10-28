@@ -750,3 +750,13 @@ def test_unknown_exemplar_id_yields_no_notes_and_no_error():
     assert r.status_code == 200 and "Interviewer notes" not in seen["user"]
     r = client.post("/api/session/evaluate", json={"question": q, "transcript": "a", "followUpCount": 0})
     assert r.status_code == 200 and "Rubric anchors" not in seen["user"]
+
+
+def test_exemplar_with_mismatched_type_is_ignored():
+    q = {**_QUESTION_BODY, "type": "technical", "exemplarId": "sde-beh-ownership-1"}
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP, "AnswerEvaluation": _EVAL})
+    client.post("/api/session/turn", json={
+        "question": q, "answer": "a", "followUpCount": 0, "isLast": False, "phase": "question"})
+    assert "Interviewer notes" not in seen["user"]
+    client.post("/api/session/evaluate", json={"question": q, "transcript": "a", "followUpCount": 0})
+    assert "Rubric anchors" not in seen["user"]

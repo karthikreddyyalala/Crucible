@@ -28,8 +28,14 @@ from agents.evaluator import EvaluatorAgent
 from agents.interviewer import InterviewerAgent
 from agents.memory import MemoryAgent
 from models.loader import find_exemplar
+from models.question_data import QuestionExemplar
 from graph.session_start import build_session_start_graph
 from store.base import MemoryStore, VersionConflict
+
+
+def _exemplar_for(q: PlannedQuestion) -> QuestionExemplar | None:
+    ex = find_exemplar(q.exemplar_id)
+    return ex if ex and ex.type == q.type else None  # mismatched notes would contradict the question
 
 
 class _Base(BaseModel):
@@ -221,7 +227,7 @@ def build_session_router(
             mode=req.mode,
             level=req.level,
             usage_sink=usage,
-            exemplar=find_exemplar(req.question.exemplar_id),
+            exemplar=_exemplar_for(req.question),
         )
         return TurnResponse(decision=decision, cost_usd=sum(u.cost_usd for u in usage))
 
@@ -233,7 +239,7 @@ def build_session_router(
             transcript=req.transcript,
             follow_up_count=req.follow_up_count,
             usage_sink=usage,
-            exemplar=find_exemplar(req.question.exemplar_id),
+            exemplar=_exemplar_for(req.question),
         )
         return EvaluateResponse(evaluation=evaluation, cost_usd=sum(u.cost_usd for u in usage))
 
