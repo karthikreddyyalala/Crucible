@@ -1,6 +1,6 @@
 from agents.planner import PlannerAgent
 from models.contracts import IntakeProfile, MemoryProfile, RecurringWeakness
-from models.loader import load_competency_map
+from models.loader import bank_for, load_competency_map
 
 
 class _FakeLLM:
@@ -62,3 +62,17 @@ def test_planner_forwards_mode_and_level():
     )
     assert "mode: technical" in llm.last["user"]
     assert "level: senior" in llm.last["user"]
+
+
+def test_planner_receives_bank_candidates_as_input():
+    llm = _FakeLLM({"sessionId": "s", "questions": [
+        {"id": "q1", "type": "behavioral", "prompt": "p",
+         "targetDifficulty": 1, "weightedFromWeakness": False}]})
+    mem = MemoryProfile(candidateId="c1", recurringWeaknesses=[], improvementTrend=[], strongAreas=[])
+    PlannerAgent(llm=llm, model="m").run(
+        session_id="s", profile=_profile(), memory=mem,
+        competency_map=load_competency_map("sde"), mode="behavioral", level="junior",
+        bank=bank_for("sde", mode="behavioral", level="junior"))
+    assert "QuestionBank" in llm.last["user"]
+    assert "sde-beh-" in llm.last["user"]
+    assert "followUpHooks" not in llm.last["user"] and "follow_up_hooks" not in llm.last["user"]

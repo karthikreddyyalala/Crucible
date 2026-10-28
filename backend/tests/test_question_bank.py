@@ -1,7 +1,9 @@
 import re
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
+from models import loader
 from models.loader import bank_for, find_exemplar, load_competency_map, load_question_bank
 from models.question_data import QuestionBank, QuestionExemplar
 
@@ -56,7 +58,7 @@ def test_bank_for_filters_by_mode_and_level():
         "behavioral", "technical", "system_design"}
 
 
-_ROLE_KEYS = ("sde", "ai_engineer")
+_ROLE_KEYS = sorted(p.stem for p in (Path(loader.__file__).resolve().parent.parent / "data" / "question_bank").glob("*.json"))
 _ALL = [(r, q) for r in _ROLE_KEYS for q in load_question_bank(r).questions]
 _IDS = [q.id for _, q in _ALL]
 _TAG = {"behavioral": "beh", "technical": "tech", "system_design": "sd"}
@@ -70,7 +72,7 @@ _CRITERIA = {
 
 @pytest.mark.parametrize("role,q", _ALL, ids=_IDS)
 def test_question_content_rules(role, q):
-    assert q.id.startswith(f"{_PREFIX[role]}-{_TAG[q.type]}-")
+    assert q.id.startswith(f"{_PREFIX.get(role, role)}-{_TAG[q.type]}-")
     assert set(q.rubric.criteria) == _CRITERIA[q.type]
     assert q.role == load_question_bank(role).role
     assert len(re.findall(r"[.?!](\s|$)", q.prompt)) <= 1
