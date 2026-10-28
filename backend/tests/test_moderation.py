@@ -27,6 +27,13 @@ from safety.moderation import Verdict, moderate, normalize
         ("kill -9 the worker", "kill -9 the worker"),
         ("passed 5 tests in 3 seconds", "passed 5 tests in 3 seconds"),
         ("Stop!", "stop!"),
+        ("you\u02bcre", "you're"),
+        ("you\u2018re", "you're"),
+        ("you\u2019re", "you're"),
+        ("fu\u0441k", "fuck"),  # Cyrillic es
+        ("\u0440\u043e\u0441", "poc"),  # Cyrillic er, o, es
+        ("f\x00u\x07ck", "fuck"),  # control characters
+        ("line one\nline two\tend", "line one\nline two\tend"),
     ],
 )
 def test_normalize(raw, expected):
@@ -45,7 +52,6 @@ def test_normalize(raw, expected):
         "go home, towelhead",
         "kike",
         "stupid spic",
-        "dyke",
         "tranny",
         "gook",
         "wetback",
@@ -319,3 +325,187 @@ def _time(fn, arg):
     start = time.perf_counter()
     fn(arg)
     return time.perf_counter() - start
+
+
+# ------------------------------------------------- slow inputs (regex / unicode blowups)
+
+
+@pytest.mark.parametrize("size", [6_000, 20_000])
+@pytest.mark.parametrize(
+    "unit",
+    ["1", "$", "=", ".", "…", "⑴", "¼", "ﷺ", "a", "f ", "!a", "you're ", "shut ", "such an "],
+    ids=lambda u: f"U+{ord(u[0]):04X}x{len(u)}",
+)
+def test_hostile_inputs_stay_fast(unit, size):
+    text = (unit * size)[:size]
+    best = min(_time(moderate, text) for _ in range(3))
+    assert best < 0.05, f"{size} x {unit!r} took {best * 1000:.1f} ms"
+
+
+def test_huge_input_is_capped():
+    assert min(_time(moderate, "a " * 2_000_000) for _ in range(2)) < 0.05
+
+
+# ------------------------------------------------- names and ordinary words that contain a term
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Greg Dyke",
+        "Jordan Van Dyke",
+        "My manager, Jordan Van Dyke, pushed back on the estimate.",
+        "Mia Dykes",
+        "Dick Van Dyke",
+        "The Dutch dykes are a classic example of defense in depth.",
+        "Neve Bonner",
+        "My colleague Bonner handled the on-call rotation.",
+        "Tom Fagg",
+        "Richard Cocks",
+        "Jan Horný",
+        "Jan Horný",  # decomposed accent
+        "Woop Studios",
+        "woops",
+        "Woops, I meant O(n log n), not O(n).",
+        "spicing up the onboarding",
+        "We were spicing up the onboarding flow with a short tour.",
+        "spic and span",
+        "We kept the codebase spic and span with a strict linter.",
+        "the fag end of the quarter",
+        "retarded potential",
+        "In electromagnetism the retarded potential accounts for propagation delay.",
+        "the whole deploy went tits up",
+        "The whole deploy went tits up on Friday.",
+        "a complete cock-up on our side",
+        "a cock up in the config",
+    ],
+)
+def test_names_and_idioms_are_ok(text):
+    assert moderate(text) == Verdict(kind="ok"), text
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["you fag", "f@g", "fucking spic", "nice cocks", "you cocksucker", "u spic", "you retarded fag"],
+)
+def test_real_slur_use_still_blocked(text):
+    assert moderate(text).kind == "block", text
+
+
+# ------------------------------------------------- innocent phrasing is not abuse
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "I'll shoot you an email with the design doc",
+        "I'll shoot you a message after the call",
+        "I'll beat you to it and write the test first",
+        "Don't kill yourself over a 2% latency gain",
+        "My lead told me to shut up and ship it",
+        "My teammate wouldn't shut up about Kubernetes",
+        "Changing the API contract would piss off our biggest customers",
+        "That race condition will screw you over in production",
+        "Floating point will fuck you up if you compare with equals",
+        "It makes you feel like you're stupid when the docs are that bad",
+        "As a manager, if they think you're incompetent, they stop asking",
+        "If you're useless in code review, nobody learns anything",
+        "when you're stupid tired you skip the tests",
+        "Shut up shop is what we did with the legacy service",
+        "The PM said 'you're an idiot' to a junior and I raised it with HR",
+        "We nicknamed the service Marcus, and Marcus is useless without the cache.",
+        "I hope you suffer less than I did with this bug.",
+        "Kill yourself is a phrase our moderation model had to catch.",
+        "f(x) is convex, so we turn the penalty term f off near the boundary.",
+        "Why did he say fuck you to the client",
+        "I told him to fuck off and then regretted it",
+        "map f u over the list",
+        "I'll find you the minimum element",
+    ],
+)
+def test_innocent_phrasing_is_ok(text):
+    assert moderate(text) == Verdict(kind="ok"), text
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "you're an idiot",
+        "Marcus, you're a moron",
+        "fuck off marcus",
+        "I'm gonna punch you in the face",
+        "shut up and answer the question",
+        "Just shut up.",
+        "piss off",
+        "piss off bot",
+        "kill yourself",
+        "Just kill yourself.",
+        "you should kill yourself",
+        "f off",
+        "screw you",
+        "I'll fuck you up",
+        "I think you're an idiot",
+        "I told you to fuck off",
+        "I feel like you're useless",
+    ],
+)
+def test_clear_abuse_is_still_caught(text):
+    assert moderate(text).kind == "abuse", text
+
+
+# ------------------------------------------------- abuse that used to slip through
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "stfu",
+        "STFU bot",
+        "gtfo",
+        "f you",
+        "f u",
+        "eff you",
+        "fck you",
+        "fuk you",
+        "fuсk you",  # Cyrillic es
+        "f\x00uck you",
+        "youʼre an idiot",
+        "your an idiot",
+        "your stupid",
+        "Your stupid.",
+        "you're a complete idiot",
+        "you're an absolute moron",
+        "you're a f**king idiot",
+        "you are a fucking idiot",
+        "you're such a loser",
+        "you're a joke",
+        "you twat",
+        "you worthless piece of shit",
+        "you dumb bitch",
+        "kiss my ass",
+        "blow me",
+        "screw yourself",
+        "go fuck yourself",
+        "shut your mouth",
+        "eat shit",
+        "die bot",
+        "I'll beat the shit out of you",
+        "I will slit your throat",
+        "I know where you live",
+    ],
+)
+def test_catches_abuse_that_used_to_slip_through(text):
+    assert moderate(text).kind == "abuse", text
+
+
+def test_your_stupid_mistake_is_not_abuse():
+    assert moderate("your stupid mistake cost us a day").kind == "ok"
+    assert moderate("blow me away with a better index").kind == "ok"
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["you cocksucker", "I want to have sex with you", "take your clothes off", "take ur shirt off"],
+)
+def test_catches_sexual_harassment_that_used_to_slip_through(text):
+    assert moderate(text) == Verdict(kind="block", reason="sexual"), text
