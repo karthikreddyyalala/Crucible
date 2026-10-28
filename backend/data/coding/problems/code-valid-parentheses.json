@@ -1,0 +1,68 @@
+{
+  "id": "code-valid-parentheses",
+  "title": "Valid Parentheses",
+  "difficulty": "easy",
+  "topics": ["string", "stack"],
+  "asked": "very_common",
+  "statement": "You're given a string `s` made up only of the bracket characters `(`, `)`, `[`, `]`, `{` and `}`. Decide whether the brackets are balanced.\n\nA string is balanced when every opening bracket is closed by a bracket of the same kind, brackets close in the reverse order they were opened, and no closing bracket shows up without an opener waiting for it. An empty string is balanced.\n\nReturn `True` if `s` is balanced and `False` otherwise.\n\nConstraints: 0 <= len(s) <= 10^4.",
+  "functionName": "is_valid",
+  "signature": "def is_valid(s: str) -> bool:",
+  "starterCode": "def is_valid(s: str) -> bool:\n    \"\"\"Return True if every bracket in s is closed by the same kind, in the right order.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "s = \"([]{})\"", "output": "True", "explanation": "Each opener is closed by its own kind, innermost first."},
+    {"input": "s = \"([)]\"", "output": "False", "explanation": "The square bracket opens inside the round one, but the round one closes first."},
+    {"input": "s = \"((\"", "output": "False", "explanation": "Two brackets are opened and never closed."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args": ["([]{})"], "expected": true},
+    {"args": ["([)]"], "expected": false},
+    {"args": ["(("], "expected": false},
+    {"args": [""], "expected": true},
+    {"args": [")"], "expected": false},
+    {"args": ["("], "expected": false},
+    {"args": ["}{"], "expected": false},
+    {"args": ["()[]{}"], "expected": true},
+    {"args": ["{[()()]}"], "expected": true},
+    {"args": ["[(])"], "expected": false},
+    {"args": ["(()"], "expected": false},
+    {"args": ["())"], "expected": false},
+    {"args": ["{{{{[[[[(((())))]]]]}}}}"], "expected": true},
+    {"args": ["([{}])([{}])([{}])([{}])([{}])([{}])([{}])([{}])([{}])([{}])"], "expected": true},
+    {"args": ["([{}])([{}])([{}])([{}])([{}])([{}])([{}])([{}])([{}])([{}])("], "expected": false}
+  ],
+  "compare": "exact",
+  "referenceSolution": "def is_valid(s: str) -> bool:\n    pairs = {\")\": \"(\", \"]\": \"[\", \"}\": \"{\"}\n    stack = []\n    for ch in s:\n        if ch in pairs:\n            if not stack or stack.pop() != pairs[ch]:\n                return False\n        else:\n            stack.append(ch)\n    return not stack\n",
+  "targetComplexity": {"time": "O(n)", "space": "O(n)"},
+  "hints": [
+    "When several brackets are open at once, which one has to close first?",
+    "You need to remember the openers in the order you saw them and always check the most recent one. What structure gives you that?",
+    "When you meet a closer, compare it with the most recent unmatched opener. What should happen if there isn't one?",
+    "Trace \"((\" and \")(\" by hand. What has to be true once you reach the end of the string?",
+    "A stack of openers plus a map from each closer to its opener solves it in one pass."
+  ],
+  "followUps": [
+    "What are the time and space complexity, and which input makes the stack as large as possible?",
+    "If the string only ever contained round brackets, could you solve it without a stack?",
+    "How would you report the position of the first bracket that breaks the balance instead of just True or False?",
+    "How would your code change if the string could also contain letters and digits between the brackets?"
+  ],
+  "idealAnswerPoints": [
+    "Uses a stack of opening brackets and a map from each closer to its opener",
+    "Returns False as soon as a closer meets an empty stack or the wrong opener on top",
+    "Checks that the stack is empty at the end so unclosed openers fail",
+    "States O(n) time and O(n) space, and notes a simple counter works when there is only one bracket type"
+  ],
+  "weakAnswerSigns": [
+    "Counts each bracket type instead of tracking order, so \"([)]\" passes",
+    "Pops from an empty stack and crashes on a leading closer",
+    "Forgets to check for leftover openers at the end",
+    "Writes a separate branch per bracket type instead of a lookup"
+  ],
+  "rubric": {
+    "correctness": "Right answer for nesting, interleaving, leading closers, unclosed openers and the empty string.",
+    "efficiency": "One pass, O(n) time and O(n) space.",
+    "code_quality": "A closer-to-opener map instead of repeated branches; no special cases the general rule already covers.",
+    "communication": "Explains why a stack fits (last opened, first closed) and traces a failing example."
+  }
+}
