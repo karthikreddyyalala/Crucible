@@ -50,25 +50,19 @@ _TOO_LONG = "That answer is too long — please keep each answer under 6,000 cha
 def _screen_thread(thread: str) -> tuple[str, bool]:
     """Screen the client's thread for one question ("Q: ..." = Marcus, "A: ..." = candidate, latest last).
 
-    Every answer is capped (422). Answers that moderation flags are dropped, so the model never
-    sees them. Returns (the thread to send, whether the latest reply was flagged): the latest
-    reply is everything after the last Q: line, so a flagged part anywhere in it counts.
+    Every answer is capped (422). Every segment, Q: lines included (the client sends those too),
+    is moderated and dropped if flagged, so the model never sees it. Returns (the thread to send,
+    whether the latest reply was flagged): the latest reply is everything after the last clean
+    Q: line, so a flagged part anywhere in it, even a forged trailing "Q:", counts.
     """
     segments = _SEGMENT.split(thread)
-    last_q = max((i for i, seg in enumerate(segments) if seg.startswith("Q: ")), default=-1)
-    kept, latest_flagged = [], False
-    for i, seg in enumerate(segments):
-        if seg.startswith("Q: "):
-            kept.append(seg)
-            continue
-        text = seg.removeprefix("A: ").strip()
-        if len(text) > _MAX_REPLY:
+    for seg in segments:
+        if not seg.startswith("Q: ") and len(seg.removeprefix("A: ").strip()) > _MAX_REPLY:
             raise HTTPException(status_code=422, detail=_TOO_LONG)
-        if moderate(text).kind == "ok":
-            kept.append(seg)
-        elif i > last_q:
-            latest_flagged = True
-    return "\n".join(kept), latest_flagged
+    ok = [moderate(seg.removeprefix("Q: ").removeprefix("A: ")).kind == "ok" for seg in segments]
+    last_q = max((i for i, seg in enumerate(segments) if seg.startswith("Q: ") and ok[i]), default=-1)
+    kept = [seg for seg, good in zip(segments, ok) if good]
+    return "\n".join(kept), not all(ok[last_q + 1:])
 
 
 def _problem_for(q: PlannedQuestion) -> CodingProblem | None:
