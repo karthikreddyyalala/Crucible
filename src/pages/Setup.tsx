@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { ArrowRight, Sparkle, Brain, UploadSimple, VideoCamera } from "@phosphor-icons/react";
@@ -32,6 +32,9 @@ const MODE_HINT: Partial<Record<InterviewMode, string>> = {
   full: "Mixed, adaptive — behavioral, one coding problem, technical & system design.",
   coding: "Live coding in Python — problems from the Blind 75.",
 };
+
+// Keyboard focus ring for every control on this page.
+const FOCUS = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
 
 const LEVELS: { key: InterviewLevel; label: string }[] = [
   { key: "junior", label: "Junior" },
@@ -116,30 +119,32 @@ export function Setup() {
 
           {/* name */}
           <div className="mt-9">
-            <label className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-fog">
+            <label htmlFor="setup-name" className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-fog">
               YOUR NAME
             </label>
             <input
+              id="setup-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="What should the interviewer call you?"
-              className="w-full rounded-xl border border-line bg-ink px-4 py-3 text-[15px] text-chalk placeholder:text-fog focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/40"
+              className={`w-full rounded-xl border border-line bg-ink px-4 py-3 text-[15px] text-chalk placeholder:text-fog focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/40 ${FOCUS}`}
             />
           </div>
 
           {/* role */}
           <div className="mt-7">
-            <label className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-fog">
+            <p id="role-label" className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-fog">
               TARGET ROLE
-            </label>
-            <div className="grid gap-3 sm:grid-cols-2">
+            </p>
+            <div role="group" aria-labelledby="role-label" className="grid gap-3 sm:grid-cols-2">
               {ROLES.map((r) => {
                 const active = role === r.key;
                 return (
                   <button
                     key={r.key}
                     onClick={() => setRole(r.key)}
-                    className={`rounded-2xl border p-4 text-left tactile transition-colors ${
+                    aria-pressed={active}
+                    className={`rounded-2xl border p-4 text-left tactile transition-colors ${FOCUS} ${
                       active
                         ? "border-accent bg-accent/10"
                         : "border-line bg-ink hover:border-line-bright"
@@ -161,9 +166,9 @@ export function Setup() {
 
           {/* mode */}
           <div className="mt-7">
-            <label id="mode-label" className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-fog">
+            <p id="mode-label" className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-fog">
               INTERVIEW MODE
-            </label>
+            </p>
             <div role="group" aria-labelledby="mode-label" className="grid grid-cols-2 gap-2.5 sm:grid-cols-5">
               {MODES.map((m, i) => {
                 const active = mode === m.key;
@@ -172,7 +177,7 @@ export function Setup() {
                     key={m.key}
                     onClick={() => setMode(m.key)}
                     aria-pressed={active}
-                    className={`rounded-xl border px-3 py-2.5 text-center font-display text-[15px] font-semibold tracking-tight tactile transition-colors ${
+                    className={`rounded-xl border px-3 py-2.5 text-center font-display text-[15px] font-semibold tracking-tight tactile transition-colors ${FOCUS} ${
                       i === 0 ? "col-span-2 sm:col-span-1" : ""
                     } ${
                       active
@@ -192,17 +197,18 @@ export function Setup() {
 
           {/* level */}
           <div className="mt-7">
-            <label className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-fog">
+            <p id="level-label" className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-fog">
               LEVEL
-            </label>
-            <div className="inline-flex rounded-xl border border-line bg-ink p-1">
+            </p>
+            <div role="group" aria-labelledby="level-label" className="inline-flex rounded-xl border border-line bg-ink p-1">
               {LEVELS.map((l) => {
                 const active = level === l.key;
                 return (
                   <button
                     key={l.key}
                     onClick={() => setLevel(l.key)}
-                    className={`rounded-lg px-5 py-2 font-display text-sm font-semibold tracking-tight tactile transition-colors ${
+                    aria-pressed={active}
+                    className={`rounded-lg px-5 py-2 font-display text-sm font-semibold tracking-tight tactile transition-colors ${FOCUS} ${
                       active ? "bg-accent text-void" : "text-mist hover:text-chalk"
                     }`}
                   >
@@ -218,9 +224,9 @@ export function Setup() {
 
           {/* company style */}
           <div className="mt-7">
-            <label id="company-style-label" className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-fog">
+            <p id="company-style-label" className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-fog">
               COMPANY STYLE
-            </label>
+            </p>
             <div role="group" aria-labelledby="company-style-label" className="grid gap-3 sm:grid-cols-2">
               {COMPANY_STYLES.map((c) => {
                 const active = companyStyle === c.id;
@@ -229,7 +235,7 @@ export function Setup() {
                     key={c.id}
                     onClick={() => setCompanyStyle(c.id)}
                     aria-pressed={active}
-                    className={`rounded-2xl border p-4 text-left tactile transition-colors ${
+                    className={`rounded-2xl border p-4 text-left tactile transition-colors ${FOCUS} ${
                       active
                         ? "border-accent bg-accent/10"
                         : "border-line bg-ink hover:border-line-bright"
@@ -252,12 +258,13 @@ export function Setup() {
 
           {/* video interview opt-in */}
           <div className="mt-7">
-            <label className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-fog">
+            <p className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-fog">
               FORMAT
-            </label>
+            </p>
             <button
               onClick={() => setUseVideo((v) => !v)}
-              className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left tactile transition-colors ${
+              aria-pressed={useVideo}
+              className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left tactile transition-colors ${FOCUS} ${
                 useVideo ? "border-accent bg-accent/10" : "border-line bg-ink hover:border-line-bright"
               }`}
             >
@@ -313,7 +320,7 @@ export function Setup() {
 
           <div className="mt-9 flex flex-col gap-3">
             <div className="flex items-center gap-4">
-              <MagneticButton onClick={handleStart} disabled={!canStart}>
+              <MagneticButton onClick={handleStart} disabled={!canStart} className={FOCUS}>
                 {starting ? "Building your interview…" : "Begin interview"}
                 {!starting && <ArrowRight size={17} weight="bold" />}
               </MagneticButton>
@@ -349,6 +356,7 @@ function Field({
   onSample: () => void;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const id = useId();
   const [extracting, setExtracting] = useState(false);
   const [fileError, setFileError] = useState("");
 
@@ -376,19 +384,19 @@ function Field({
   return (
     <div className="mt-7">
       <div className="mb-2.5 flex items-center justify-between">
-        <label className="font-mono text-[11px] tracking-[0.16em] text-fog">{label}</label>
+        <label htmlFor={id} className="font-mono text-[11px] tracking-[0.16em] text-fog">{label}</label>
         <div className="flex items-center gap-3">
           <button
             onClick={() => fileRef.current?.click()}
             disabled={extracting}
-            className="inline-flex items-center gap-1.5 font-mono text-[11px] text-fog transition-colors hover:text-chalk disabled:opacity-40"
+            className={`inline-flex items-center gap-1.5 font-mono text-[11px] text-fog transition-colors hover:text-chalk disabled:opacity-40 ${FOCUS}`}
           >
             <UploadSimple size={13} weight="bold" />
             {extracting ? "READING…" : "UPLOAD PDF"}
           </button>
           <button
             onClick={onSample}
-            className="inline-flex items-center gap-1.5 font-mono text-[11px] text-accent transition-opacity hover:opacity-70"
+            className={`inline-flex items-center gap-1.5 font-mono text-[11px] text-accent transition-opacity hover:opacity-70 ${FOCUS}`}
           >
             <Sparkle size={13} weight="fill" />
             USE SAMPLE
@@ -407,11 +415,12 @@ function Field({
         }}
       />
       <textarea
+        id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         rows={6}
-        className="w-full resize-none rounded-2xl border border-line bg-ink p-4 text-sm leading-relaxed text-chalk placeholder:text-fog focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/40"
+        className={`w-full resize-none rounded-2xl border border-line bg-ink p-4 text-sm leading-relaxed text-chalk placeholder:text-fog focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/40 ${FOCUS}`}
       />
       {fileError && (
         <p className="mt-1.5 font-mono text-[11px] text-fail">{fileError}</p>
