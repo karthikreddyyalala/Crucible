@@ -226,10 +226,13 @@ const HINTS: Record<string, string[]> = {
 };
 
 
-// The client sends the whole thread for a question; react to the newest reply.
+// The client sends the whole thread for a question ("Q: " = Marcus, "A: " = candidate).
+// The newest reply is everything after Marcus's last line, like the backend's
+// _screen_thread; "" when the thread ends with his line (an event turn).
 function latestReply(answer: string): string {
-  const i = answer.lastIndexOf("\nA: ");
-  return (i >= 0 ? answer.slice(i + 4) : answer).trim();
+  const segments = answer.split(/\n(?=[QA]: )/);
+  const lastQ = segments.map((seg) => seg.startsWith("Q: ")).lastIndexOf(true);
+  return segments.slice(lastQ + 1).map((seg) => seg.replace(/^A: /, "")).join("\n").trim();
 }
 
 const DONT_KNOW = /\b(i\s*don'?t\s*know|not\s*sure|no\s*idea|no\s*clue|i'?m\s*stuck|i\s*can'?t\s*think|never\s*(done|worked|had)|i\s*have\s*no)\b/i;

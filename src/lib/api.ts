@@ -147,8 +147,8 @@ export interface TurnInput {
   code?: string;
   testResults?: string;
   codingStage?: CodingStage;
-  // Sent with an empty answer. "checkin": quiet for a while mid-coding.
-  // "submit": the candidate just pressed Submit; Marcus starts the review.
+  // No new candidate reply: answer is the thread so far, ending with Marcus's last line.
+  // "checkin": quiet for a while mid-coding. "submit": just pressed Submit; Marcus starts the review.
   event?: "" | "checkin" | "submit";
 }
 

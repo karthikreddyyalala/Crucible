@@ -938,7 +938,9 @@ describe("sessionStore — turnError", () => {
       await answering;
 
       expect(api.submitAnswer).toHaveBeenCalledTimes(2);
-      expect(vi.mocked(api.submitAnswer).mock.calls[1][0]).toMatchObject({ event: "submit", answer: "", codingStage: "review" });
+      expect(vi.mocked(api.submitAnswer).mock.calls[1][0]).toMatchObject({
+        event: "submit", answer: "A: Writing the loop now.\nQ: Keep going.", codingStage: "review",
+      });
       const s = useSessionStore.getState();
       expect(s.status).toBe("live");
       expect(s.messages.at(-1)?.text).toBe("Example 2 fails. Why?");
@@ -1016,6 +1018,25 @@ describe("sessionStore — turnError", () => {
       expect(s.checkinSent.c1).toBe(true);
       expect(s.messages.map((m) => m.text)).toEqual(["How's it going — want to talk me through where you are?"]);
       expect(s.followUpCount).toBe(0);
+    });
+
+    it("sends the question's thread, ending with Marcus's last line, with a check-in and a Submit", async () => {
+      const opener = { id: "o", speaker: "interviewer" as const, kind: "question" as const, text: "Two sum. Talk me through your approach.", questionId: "c1" };
+      const said = { id: "a", speaker: "candidate" as const, kind: "answer" as const, text: "Hash map.", questionId: "c1" };
+      const goAhead = { id: "g", speaker: "interviewer" as const, kind: "question" as const, text: "Go ahead and code it.", questionId: "c1" };
+      seedCoding({ codingStage: "coding", messages: [opener, said, goAhead] });
+      const { api } = await import("@/lib/api");
+      vi.mocked(api.submitAnswer)
+        .mockResolvedValueOnce(reply("clarify", "How's it going?"))
+        .mockResolvedValueOnce(reply("follow_up", "Example 2 fails. Why?"));
+      const thread = "Q: Two sum. Talk me through your approach.\nA: Hash map.\nQ: Go ahead and code it.";
+
+      await useSessionStore.getState().sendCheckin("c1");
+      expect(vi.mocked(api.submitAnswer).mock.calls[0][0].answer).toBe(thread);
+
+      await useSessionStore.getState().recordRun("c1", { kind: "results", results: [passed(0), passed(1, false)] }, "submit", 2);
+      expect(vi.mocked(api.submitAnswer).mock.calls[1][0].answer).toBe(`${thread}\nQ: How's it going?`);
+      expect(useSessionStore.getState().messages.filter((m) => m.speaker === "candidate")).toHaveLength(1);
     });
 
     it("keeps a failed check-in quiet", async () => {

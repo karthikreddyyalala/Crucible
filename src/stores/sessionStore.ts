@@ -217,8 +217,8 @@ export const useSessionStore = create<SessionState>()(
       };
 
       // One interviewer turn. A candidate answer (event "") is added to the thread
-      // first; an event turn ("checkin" / "submit") sends an empty answer and adds no
-      // candidate line, and its failure stays quiet (the candidate can just talk).
+      // first; an event turn ("checkin" / "submit") adds no candidate line, and its
+      // failure stays quiet (the candidate can just talk).
       const runTurn = async (text: string, event: "" | TurnEvent) => {
         await turnOnce(text, event);
         const queued = pendingSubmit;
@@ -261,6 +261,7 @@ export const useSessionStore = create<SessionState>()(
           .filter((m) => m.questionId === threadId)
           .map((m) => `${m.speaker === "interviewer" ? "Q" : "A"}: ${m.text}`)
           .join("\n");
+        // An event turn sends the thread as it stands, ending with Marcus's last line.
         const thread = event ? priorThread : priorThread ? `${priorThread}\nA: ${text}` : text;
 
         // Code and test results go with coding questions only (the backend fences them).
@@ -277,7 +278,7 @@ export const useSessionStore = create<SessionState>()(
         try {
           const result = await api.submitAnswer({
             question,
-            answer: (event ? "" : thread).slice(-LIMIT.thread),
+            answer: thread.slice(-LIMIT.thread),
             followUpCount: state.followUpCount,
             isLast,
             phase,

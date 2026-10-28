@@ -74,6 +74,22 @@ describe("mockEngine.decide — coding stages", () => {
     expect(d.say).toMatch(/example 2/i);
   });
 
+  it("on a re-submit with the same failure, asks for a fix instead of repeating itself", () => {
+    const summary = "Examples: 1/2 passed (example 2 failed: expected [1, 2], got [2, 1]).";
+    const first = mockEngine.decide(turn({ event: "submit", codingStage: "review", testResults: summary, answer: "Q: Talk me through it.\nA: Hash map." }));
+    const again = mockEngine.decide(turn({
+      event: "submit", codingStage: "review", testResults: summary,
+      answer: `Q: Talk me through it.\nA: Hash map.\nQ: ${first.say}`,
+    }));
+    expect(again.action).toBe("clarify");
+    expect(again.say).toMatch(/submit again/i);
+  });
+
+  it("treats a thread that ends with Marcus's line as no new reply", () => {
+    const d = mockEngine.decide(turn({ event: "checkin", codingStage: "coding", answer: "Q: Go ahead.\nA: ok\nQ: Go ahead and code it." }));
+    expect(d.say).toBe("How's it going — want to talk me through where you are?");
+  });
+
   it("opens a coding question by asking for the approach", () => {
     const d = mockEngine.decide(turn({
       question: next, nextQuestion: coding("q2"), codingStage: "",
@@ -146,6 +162,11 @@ describe("mockEngine.turn — conduct", () => {
     expect(three.strikes).toBe(3);
     expect(three.decision.action).toBe("end");
     expect(three.decision.say).toBe("I'm going to end the interview here. Take care.");
+  });
+
+  it("screens everything after Marcus's last line, and nothing when the thread ends with his line", () => {
+    expect(mockEngine.turn(turn({ answer: "Q: x\nA: Fine.\nA: stfu" })).strikes).toBe(1);
+    expect(mockEngine.turn(turn({ answer: "Q: x\nA: stfu\nQ: Let's keep this professional.", event: "checkin" })).strikes).toBe(0);
   });
 
   it("only screens the latest reply, not earlier lines in the thread", () => {
