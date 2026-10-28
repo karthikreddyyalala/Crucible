@@ -50,8 +50,10 @@ class EvaluatorAgent:
                 f"- Weak-answer signs: {'; '.join(p.weak_answer_signs)}\n"
                 + "".join(f"- {k}: {v}\n" for k, v in p.rubric.items())
             )
-        return self._llm.structured(
+        evaluation = self._llm.structured(
             agent="evaluator", sink=usage_sink,
             model=self._model, system=_PROMPT, user=user, schema=AnswerEvaluation,
             temperature=self._temperature,
         )
+        # The model outputs "" (echoing a long thread would eat its output budget); the record keeps the real one.
+        return evaluation.model_copy(update={"transcript": transcript})

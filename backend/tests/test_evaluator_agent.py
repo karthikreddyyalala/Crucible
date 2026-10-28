@@ -124,3 +124,11 @@ def test_evaluator_prompt_coding_caps_and_talk_through_scoring():
     coding = " ".join(_PROMPT.split('CODING (type: "coding")', 1)[1].split("\n\n", 1)[0].split())
     assert "No code submitted (talk-through only)" in coding
     assert "code_quality at most 2" in coding
+
+
+def test_transcript_is_restored_server_side_not_echoed_by_the_model():
+    long = "A: " + "word " * 6000  # ~30k characters: echoing it would blow the output budget
+    llm = _FakeLLM({**_EVAL_PAYLOAD_WEAK, "transcript": ""})
+    ev = EvaluatorAgent(llm=llm, model="m").run(question=_Q_TECHNICAL, transcript=long, follow_up_count=1)
+    assert ev.transcript == long
+    assert 'transcript: string  (always output "")' in llm.last["system"]

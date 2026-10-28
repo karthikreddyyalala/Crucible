@@ -48,7 +48,7 @@ CODING (type: "coding"):
 
 Output schema (camelCase keys):
 - questionId: string  (echo the Question ID you received)
-- transcript: string  (echo the exact answer you received)
+- transcript: string  (always output "" — the server fills it in)
 - rubricScores: object  (keys = criteria for the question type, values = 0-5 float)
 - weaknessTags: string[]  (pick from: vague-impact, no-edge-cases, rambling,
     no-star-structure, no-ownership, incorrect-core, shallow-depth,
