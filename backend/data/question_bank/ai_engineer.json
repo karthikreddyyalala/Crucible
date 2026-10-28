@@ -41,7 +41,8 @@
           "ownership": "Names the debugging steps and fixes they personally drove"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "aie-beh-not-ml-1",
@@ -81,7 +82,8 @@
           "ownership": "Shows they personally built the baseline and made the argument"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "aie-beh-launch-block-1",
@@ -122,7 +124,8 @@
           "ownership": "Shows they personally raised the concern and built the better evaluation"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "aie-beh-explain-failure-1",
@@ -162,7 +165,8 @@
           "ownership": "Shows they personally owned the explanation and the follow-up"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "aie-beh-bad-data-1",
@@ -202,7 +206,8 @@
           "ownership": "Shows they personally traced and fixed it"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "occasional"
     },
     {
       "id": "aie-beh-cost-cut-1",
@@ -243,7 +248,8 @@
           "ownership": "Shows they personally ran the experiments and made the call"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "aie-beh-failed-idea-1",
@@ -284,7 +290,8 @@
           "ownership": "Shows the idea and the decision to stop were theirs"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "aie-beh-dataset-build-1",
@@ -326,7 +333,8 @@
           "ownership": "Shows they personally designed the labelling and checked its quality"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "occasional"
     },
     {
       "id": "aie-beh-demo-to-prod-1",
@@ -367,7 +375,8 @@
           "ownership": "Shows which hardening decisions they personally made"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "aie-beh-disagree-1",
@@ -407,7 +416,8 @@
           "ownership": "Describes what they personally did to settle it"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "aie-tech-rag-1",
@@ -449,7 +459,8 @@
           "communication": "Explains clearly how they would isolate retrieval failures from generation failures"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "aie-tech-agent-loop-1",
@@ -490,7 +501,8 @@
           "communication": "Describes the debugging process step by step"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "aie-tech-prompt-injection-1",
@@ -531,7 +543,8 @@
           "communication": "Explains the attack and the defence layers clearly"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "aie-tech-imbalance-1",
@@ -572,7 +585,8 @@
           "communication": "Explains the metrics in terms the fraud team would follow"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "aie-tech-offline-online-1",
@@ -613,7 +627,8 @@
           "communication": "Lays out an investigation order rather than a list of guesses"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "aie-tech-overfit-1",
@@ -653,7 +668,8 @@
           "communication": "Explains the curves clearly"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "aie-tech-train-serve-skew-1",
@@ -694,7 +710,8 @@
           "communication": "Uses a concrete example to explain the risk"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "occasional"
     },
     {
       "id": "aie-tech-data-split-1",
@@ -735,7 +752,8 @@
           "communication": "Explains the trade-off between user and time splits clearly"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "occasional"
     },
     {
       "id": "aie-tech-kv-cache-1",
@@ -777,7 +795,8 @@
           "communication": "Explains the memory budget clearly"
         }
       },
-      "source": "adapted from KalyanKS LLM Interview Questions and Answers Hub"
+      "source": "adapted from KalyanKS LLM Interview Questions and Answers Hub",
+      "asked": "common"
     },
     {
       "id": "aie-tech-ab-test-1",
@@ -817,7 +836,8 @@
           "communication": "Explains the statistics in plain terms"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "occasional"
     },
     {
       "id": "aie-tech-reembed-1",
@@ -860,7 +880,8 @@
           "communication": "Describes the job's stages in a clear order"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "occasional"
     },
     {
       "id": "aie-tech-similarity-search-1",
@@ -901,7 +922,8 @@
           "communication": "Explains the maths and the code path clearly"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "aie-sd-rag-assistant-1",
@@ -944,7 +966,8 @@
           "depth": "Goes deep on permission-aware retrieval, re-indexing or the evaluation plan"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "aie-sd-eval-system-1",
@@ -987,7 +1010,8 @@
           "depth": "Goes deep on judge calibration, release gates or keeping eval sets representative"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "aie-sd-llm-serving-1",
@@ -1029,7 +1053,8 @@
           "depth": "Goes deep on batching and KV cache memory, scheduling or autoscaling"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "aie-sd-llm-gateway-1",
@@ -1072,7 +1097,8 @@
           "depth": "Goes deep on fallback, quotas and cost attribution, or data controls"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "aie-sd-support-agent-1",
@@ -1115,7 +1141,8 @@
           "depth": "Goes deep on action authorisation, multi-step evaluation or escalation"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "aie-sd-invoice-extraction-1",
@@ -1157,7 +1184,8 @@
           "depth": "Goes deep on validation, confidence routing or field-level evaluation"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "occasional"
     },
     {
       "id": "aie-sd-semantic-search-1",
@@ -1199,7 +1227,8 @@
           "depth": "Goes deep on hybrid retrieval, index updates or the evaluation plan"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "aie-sd-moderation-1",
@@ -1241,7 +1270,8 @@
           "depth": "Goes deep on thresholds, the review feedback loop or adversarial drift"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "occasional"
     },
     {
       "id": "aie-sd-fraud-1",
@@ -1283,7 +1313,8 @@
           "depth": "Goes deep on the feature store, label delay or fallback behaviour"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "aie-beh-constrained-1",
@@ -1324,7 +1355,8 @@
           "ownership": "Shows the adapted approach was their decision"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "occasional"
     },
     {
       "id": "aie-beh-too-good-1",
@@ -1366,7 +1398,8 @@
           "ownership": "Shows they personally doubted the result and ran the investigation"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "occasional"
     },
     {
       "id": "aie-sd-handoff-summary-1",
@@ -1408,7 +1441,8 @@
           "depth": "Goes deep on long-conversation handling, hallucination checks or evaluation"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "occasional"
     },
     {
       "id": "aie-sd-retrain-pipeline-1",
@@ -1450,7 +1484,550 @@
           "depth": "Goes deep on the evaluation gate, data checks or rollback"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "occasional"
+    },
+    {
+      "id": "aie-beh-hardest-project-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "behavioral",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Can explain an ML or LLM system they built in depth, including how they knew it worked",
+      "prompt": "Walk me through the most complex ML or LLM system you've built.",
+      "idealAnswerPoints": [
+        "the problem and the success metric",
+        "the architecture: data, model or prompt, retrieval, serving",
+        "decisions they made and the alternatives rejected",
+        "how it was evaluated before and after launch",
+        "what broke in production and what they'd change"
+      ],
+      "weakAnswerSigns": [
+        "describes the model but not how it was evaluated",
+        "the team built it, their part is unclear",
+        "no production experience behind the story"
+      ],
+      "followUpHooks": [
+        "What was the success metric?",
+        "Which part did you build yourself?",
+        "Why that model or approach over the alternatives?",
+        "How did you evaluate it before launch?",
+        "What broke once real users had it?",
+        "What would you change now?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from problem and metric to design, evaluation and production outcome",
+          "specificity": "Names the models, data, metrics and numbers",
+          "impact": "States the measured effect for users or the business",
+          "ownership": "Separates their own decisions from the team's"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "aie-beh-vague-ai-ask-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "behavioral",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Turns a vague 'add AI' request into a measurable problem, or argues it down",
+      "prompt": "Tell me about a time you were asked to add AI to a product without a clear goal.",
+      "idealAnswerPoints": [
+        "how they found the real user problem behind the ask",
+        "the success metric they proposed and who agreed to it",
+        "a cheap baseline or prototype before committing",
+        "what was built, or why they argued not to build it",
+        "the measured result"
+      ],
+      "weakAnswerSigns": [
+        "built whatever was asked with no metric",
+        "the goal stayed vague to the end",
+        "no baseline to compare against"
+      ],
+      "followUpHooks": [
+        "What exactly were you asked for?",
+        "How did you find the real problem underneath?",
+        "What metric did you agree on, and with whom?",
+        "What was the simplest baseline you tried?",
+        "How did it turn out against that metric?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from the vague ask to the defined problem, the experiment and the result",
+          "specificity": "Names the product, the metric and the baseline",
+          "impact": "Shows a measured outcome or a well-argued decision not to build",
+          "ownership": "Drove the scoping themselves rather than waiting for a spec"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "aie-beh-new-technique-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Evaluates new models and techniques with evidence instead of chasing hype",
+      "prompt": "Tell me about a time you tested whether a newer model or technique was worth switching to.",
+      "idealAnswerPoints": [
+        "what prompted trying it",
+        "how they compared it against what was already there",
+        "the metric and test set used",
+        "the decision and its cost, including latency or price",
+        "what they'd check before trying the next one"
+      ],
+      "weakAnswerSigns": [
+        "adopted it because it was new",
+        "compared on a few hand-picked examples",
+        "ignored cost or latency"
+      ],
+      "followUpHooks": [
+        "Why did you try it?",
+        "What did you compare it against?",
+        "How did you measure the difference?",
+        "What did it cost compared with the old approach?",
+        "Did you keep it, and would you decide the same now?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Gives the motivation, the comparison, the result and the decision in order",
+          "specificity": "Names the model or technique, the metric and the test set",
+          "impact": "States the measured difference and the decision it led to",
+          "ownership": "Ran the comparison themselves"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "aie-tech-rag-vs-finetune-1",
+      "role": "AI Engineer",
+      "competency": "LLM / Prompting / RAG / Agents",
+      "type": "technical",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Chooses between prompting, retrieval and fine-tuning from the problem, data and cost",
+      "prompt": "Your team wants the model to answer questions about your product — would you use prompting, RAG or fine-tuning?",
+      "idealAnswerPoints": [
+        "prompting first as the cheap baseline",
+        "RAG when the knowledge is large, changing or must be cited",
+        "fine-tuning for format, style or behaviour, not for adding fresh facts",
+        "data, cost, latency and maintenance for each",
+        "an evaluation set to decide between them"
+      ],
+      "weakAnswerSigns": [
+        "fine-tuning to teach the model new facts that change weekly",
+        "picks one with no evaluation",
+        "ignores cost and update frequency"
+      ],
+      "followUpHooks": [
+        "What would you try first, and why?",
+        "When does RAG beat fine-tuning?",
+        "When would fine-tuning be worth it?",
+        "The docs change every week — does that change your answer?",
+        "How would you decide with evidence?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Gives a decision rule that matches each approach to the problem it solves",
+          "depth": "Explains why fine-tuning doesn't reliably add fresh facts and what retrieval adds",
+          "edge_cases": "Considers changing data, citations, cost and combining approaches",
+          "communication": "Lays out the trade-off clearly and reaches a decision"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "aie-tech-hallucination-1",
+      "role": "AI Engineer",
+      "competency": "LLM / Prompting / RAG / Agents",
+      "type": "technical",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Reduces hallucination with grounding and checks, and measures whether it worked",
+      "prompt": "Your feature that summarises customer calls sometimes states things nobody said — how would you reduce that?",
+      "idealAnswerPoints": [
+        "measures how often it happens on a labelled set first",
+        "grounds the summary in the transcript with instructions and quoted evidence",
+        "checks each claim against the source, with a model or a rule",
+        "lower temperature and a tighter output format",
+        "a fallback when the check fails"
+      ],
+      "weakAnswerSigns": [
+        "'use a bigger model' only",
+        "no way to measure the rate",
+        "assumes prompt wording alone fixes it"
+      ],
+      "followUpHooks": [
+        "How often does it happen today?",
+        "Why do models make things up in a summary?",
+        "How could you check a summary against the transcript automatically?",
+        "What should the feature do when the check fails?",
+        "How would you know your fix worked?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Proposes fixes that actually reduce unsupported claims",
+          "depth": "Explains why models fill gaps and how grounding and verification counter it",
+          "edge_cases": "Considers long transcripts, crosstalk and claims that are implied but not stated",
+          "communication": "Presents the plan as measure, fix and re-measure"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "aie-tech-llm-eval-1",
+      "role": "AI Engineer",
+      "competency": "MLOps / Deployment / Monitoring",
+      "type": "technical",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Builds evaluation for open-ended LLM output that people can trust",
+      "prompt": "How would you evaluate an LLM feature whose answers have no single right answer?",
+      "idealAnswerPoints": [
+        "a test set of real inputs with criteria for a good answer",
+        "a rubric scored by people on a sample",
+        "an LLM judge calibrated against those human scores",
+        "known judge biases: position, length, self-preference",
+        "run on every prompt or model change as a regression gate"
+      ],
+      "weakAnswerSigns": [
+        "eyeballing a few outputs",
+        "trusting an LLM judge with no calibration",
+        "BLEU or exact match for open-ended answers"
+      ],
+      "followUpHooks": [
+        "Where would the test inputs come from?",
+        "What makes an answer good here?",
+        "How would you know your LLM judge agrees with people?",
+        "What biases would you watch for in the judge?",
+        "How would this stop a bad prompt change from shipping?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Proposes an evaluation that measures what users care about",
+          "depth": "Explains how human labels calibrate an automated judge",
+          "edge_cases": "Covers judge bias, small samples and inputs not represented in the set",
+          "communication": "Describes the pipeline clearly from data to decision"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "aie-tech-attention-1",
+      "role": "AI Engineer",
+      "competency": "ML Fundamentals",
+      "type": "technical",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Understands self-attention well enough to reason about cost and behaviour",
+      "prompt": "How does self-attention work in a transformer?",
+      "idealAnswerPoints": [
+        "queries, keys and values computed from each token",
+        "scores from query-key dot products, scaled and passed through a softmax",
+        "the output as a weighted sum of values",
+        "why multiple heads, and positional information",
+        "quadratic cost in sequence length"
+      ],
+      "weakAnswerSigns": [
+        "'it pays attention to important words' with no mechanism",
+        "can't say why the cost grows with context length",
+        "confuses attention with the feed-forward layer"
+      ],
+      "followUpHooks": [
+        "What are the queries, keys and values?",
+        "Why scale the scores before the softmax?",
+        "Why use several heads instead of one?",
+        "How does the model know word order?",
+        "Why does doubling the context more than double the cost?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Describes the computation correctly",
+          "depth": "Explains why each piece is there: scaling, heads, positions",
+          "edge_cases": "Covers the quadratic cost and causal masking",
+          "communication": "Explains the mechanism clearly without hiding behind jargon"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "aie-tech-lora-1",
+      "role": "AI Engineer",
+      "competency": "MLOps / Deployment / Monitoring",
+      "type": "technical",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Knows how parameter-efficient fine-tuning works and when it pays off",
+      "prompt": "How would you fine-tune an open-weight model for your task on a single GPU?",
+      "idealAnswerPoints": [
+        "LoRA: train small low-rank adapters while the base weights stay frozen",
+        "quantizing the base model to fit memory, as in QLoRA",
+        "data preparation and a held-out evaluation set",
+        "watching for overfitting and catastrophic forgetting",
+        "serving the adapters: merged or swapped per task"
+      ],
+      "weakAnswerSigns": [
+        "full fine-tuning of a large model on one GPU",
+        "no evaluation set",
+        "can't explain what LoRA trains"
+      ],
+      "followUpHooks": [
+        "What does LoRA actually train?",
+        "How would you fit the model in memory?",
+        "How much data would you need, and how would you prepare it?",
+        "How would you know it didn't get worse at everything else?",
+        "How would you serve several fine-tuned versions?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Gives a workable recipe for the memory budget",
+          "depth": "Explains why low-rank adapters and quantization cut memory",
+          "edge_cases": "Covers forgetting, overfitting and serving multiple adapters",
+          "communication": "Explains the plan in a clear order from data to deployment"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "aie-tech-chunking-1",
+      "role": "AI Engineer",
+      "competency": "LLM / Prompting / RAG / Agents",
+      "type": "technical",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Chooses chunking and retrieval settings from the documents and the questions",
+      "prompt": "How would you split long documents into chunks for retrieval?",
+      "idealAnswerPoints": [
+        "chunk by document structure: headings, sections, paragraphs",
+        "chunk size balanced between precision and context",
+        "some overlap so answers aren't cut in half",
+        "metadata such as title and section attached to each chunk",
+        "tested with retrieval recall on real questions"
+      ],
+      "weakAnswerSigns": [
+        "fixed-size chunks with no reason",
+        "never measures retrieval quality",
+        "ignores tables and headings"
+      ],
+      "followUpHooks": [
+        "What size would you start with, and why?",
+        "What goes wrong if chunks are too small?",
+        "What goes wrong if they're too large?",
+        "How would you handle tables?",
+        "How would you know your chunking is good?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Proposes chunking that keeps answers intact and retrievable",
+          "depth": "Explains the precision-versus-context trade-off of chunk size",
+          "edge_cases": "Covers tables, overlap and answers spread across sections",
+          "communication": "Explains the choice clearly with a way to test it"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "aie-tech-llm-latency-1",
+      "role": "AI Engineer",
+      "competency": "MLOps / Deployment / Monitoring",
+      "type": "technical",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Cuts LLM latency and cost without quietly hurting quality",
+      "prompt": "Your LLM feature takes several seconds to respond and users are complaining — how would you speed it up?",
+      "idealAnswerPoints": [
+        "measures where the time goes: retrieval, time to first token, generation",
+        "streaming so users see output sooner",
+        "shorter prompts and outputs, and prompt caching",
+        "a smaller or routed model for easy requests",
+        "checks quality on the eval set after each change"
+      ],
+      "weakAnswerSigns": [
+        "only 'use a faster model'",
+        "no measurement of where time goes",
+        "never checks quality after the change"
+      ],
+      "followUpHooks": [
+        "Where does the time actually go?",
+        "What's the difference between time to first token and total time?",
+        "What would you cut from the prompt?",
+        "When would you route to a smaller model?",
+        "How would you make sure quality didn't drop?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Proposes changes that target the slowest stage",
+          "depth": "Explains what drives prefill and decode time",
+          "edge_cases": "Considers long outputs, cache misses and quality regressions",
+          "communication": "Lays out the plan as measure, change and re-check"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "aie-tech-temperature-1",
+      "role": "AI Engineer",
+      "competency": "ML Fundamentals",
+      "type": "technical",
+      "difficulty": 1,
+      "levels": [
+        "junior"
+      ],
+      "signal": "Understands how decoding settings change model output",
+      "prompt": "What do temperature and top-p change about a model's output?",
+      "idealAnswerPoints": [
+        "temperature reshapes the probability distribution before sampling",
+        "top-p samples from the smallest set of tokens covering a probability mass",
+        "low temperature for extraction and classification, higher for creative text",
+        "temperature zero is close to greedy but not always fully deterministic"
+      ],
+      "weakAnswerSigns": [
+        "'temperature makes it more creative' with no mechanism",
+        "thinks temperature zero fixes hallucination",
+        "can't say when to use low settings"
+      ],
+      "followUpHooks": [
+        "What does temperature do to the probabilities?",
+        "How is top-p different?",
+        "What settings would you use for pulling fields out of a form?",
+        "Does temperature zero give the same answer every time?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "States correctly what each setting does to sampling",
+          "depth": "Explains the mechanism in terms of the token distribution",
+          "edge_cases": "Covers determinism limits and the effect on factual tasks",
+          "communication": "Explains clearly with a concrete example"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "aie-sd-chat-assistant-1",
+      "role": "AI Engineer",
+      "competency": "LLM / Prompting / RAG / Agents",
+      "type": "system_design",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Designs a conversational LLM product end to end: context, streaming, safety and cost",
+      "prompt": "Design a consumer chat assistant that answers questions with an LLM.",
+      "idealAnswerPoints": [
+        "asks about users, conversation length, model choice and budget first",
+        "conversation storage and how history fits into the context window",
+        "streaming responses to the client",
+        "safety checks on input and output",
+        "cost per conversation and limits per user"
+      ],
+      "weakAnswerSigns": [
+        "sends the whole history every turn with no limit",
+        "no streaming",
+        "no safety or abuse limits"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "Conversations get longer than the context window — what do you do?",
+        "How do tokens get from the model to the user's screen?",
+        "How would you stop abuse and unsafe output?",
+        "What does one conversation cost, and how would you cap it?",
+        "The model provider goes down — what do users see?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Asks about users, conversation length and budget before designing",
+          "scalability": "Estimates token volume and cost and plans for peak load",
+          "tradeoffs": "Compares history strategies and model choices",
+          "depth": "Goes deep on context management, streaming or safety"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "aie-sd-recommendations-1",
+      "role": "AI Engineer",
+      "competency": "ML System Design & Behavioral",
+      "type": "system_design",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Designs a two-stage recommender with sound metrics, features and feedback loops",
+      "prompt": "Design a system that recommends items to users on a shopping site.",
+      "idealAnswerPoints": [
+        "asks about users, catalogue size, latency budget and the success metric first",
+        "candidate generation, then ranking",
+        "features and training data from user interactions",
+        "cold start for new users and new items",
+        "offline metrics plus an A/B test, and feedback loops"
+      ],
+      "weakAnswerSigns": [
+        "one model scoring every item for every request",
+        "no success metric",
+        "ignores cold start"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "How do you narrow the catalogue down to a few hundred candidates?",
+        "What would the ranking model use as features?",
+        "What do you show a brand-new user?",
+        "How would you know the new model is better?",
+        "How do you stop it recommending only what's already popular?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Asks about scale, latency and the business metric before designing",
+          "scalability": "Sizes the catalogue and request rate and splits retrieval from ranking",
+          "tradeoffs": "Compares candidate-generation approaches and offline versus online evaluation",
+          "depth": "Goes deep on ranking, cold start or feedback loops"
+        }
+      },
+      "source": "original",
+      "asked": "common"
     }
   ]
 }

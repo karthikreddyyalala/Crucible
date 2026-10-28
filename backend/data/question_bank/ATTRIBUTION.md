@@ -31,3 +31,13 @@ not anyone's expression, and are marked original.
 - Used for: the question stem about KV cache memory in LLM inference (`aie-tech-kv-cache-1`).
 - Changes: turned into a production scenario (a server running out of GPU memory);
   ideal-answer points, ladder and rubric are ours.
+
+## How often a question is asked (`asked`)
+
+The `asked` tag (`very_common`, `common`, `occasional`) comes from counting how
+many independent public prep sources mention each question theme; see
+`docs/research/most-asked-questions.md` for the sources and counts. The
+sources were only counted, never copied: the classic themes they share
+("tell me about a time you failed", "design a chat app", "what happens when you
+type a URL") are generic ideas, and every question added for them is written in
+our own words and marked original.

@@ -170,3 +170,12 @@ def test_bank_meets_planner_need_for_every_mode_and_level(role, mode, level):
     picked = bank_for(role, mode=mode, level=level)
     for t, need in _PLANNER_NEED[mode].items():
         assert sum(q.type == t for q in picked) >= need, (t, need)
+
+
+@pytest.mark.parametrize("role", _ROLE_KEYS)
+def test_bank_carries_the_classics_candidates_expect(role):
+    qs = load_question_bank(role).questions
+    classics = [q for q in qs if q.asked == "very_common"]
+    assert len(classics) >= 10, len(classics)
+    for t in ("behavioral", "technical", "system_design"):
+        assert sum(q.type == t for q in classics) >= 2, t
