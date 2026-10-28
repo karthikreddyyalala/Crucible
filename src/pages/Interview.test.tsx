@@ -25,8 +25,8 @@ vi.mock("@/hooks/useElevenLabsTTS", () => ({
 vi.mock("@/hooks/useSpeechSynthesis", () => ({
   useSpeechSynthesis: () => ({ speak: vi.fn(), cancel: vi.fn(), speaking: false, supported: false }),
 }));
-vi.mock("@/hooks/useSpeechRecognition", () => ({
-  useSpeechRecognition: () => ({ supported: false, listening: false, transcript: "", start: vi.fn(), stop: vi.fn() }),
+vi.mock("@/hooks/useSpeechInput", () => ({
+  useSpeechInput: () => ({ supported: false, listening: false, transcript: "", start: vi.fn(), stop: vi.fn() }),
 }));
 vi.mock("@/hooks/useTavus", () => ({
   useTavus: () => ({

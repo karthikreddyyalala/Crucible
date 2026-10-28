@@ -23,7 +23,7 @@ import { CodingBrief, CodingWorkspace } from "@/components/coding/CodingWorkspac
 import { StageIndicator } from "@/components/coding/StageIndicator";
 import { ElapsedTime } from "@/components/coding/ElapsedTime";
 import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
-import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { useSpeechInput } from "@/hooks/useSpeechInput";
 import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
 import { useTavus } from "@/hooks/useTavus";
 import { usePythonRunner } from "@/hooks/usePythonRunner";
@@ -84,7 +84,7 @@ export function Interview() {
   // built-in voice as the fallback when it isn't configured or a call fails.
   const eleven = useElevenLabsTTS();
   const webSpeech = useSpeechSynthesis();
-  const stt = useSpeechRecognition();
+  const stt = useSpeechInput();
 
   // Optional Tavus video avatar. Dormant unless the backend has a key; when it
   // becomes ready it takes over both the face and the voice (it speaks the
