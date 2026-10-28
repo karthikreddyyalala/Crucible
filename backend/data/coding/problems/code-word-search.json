@@ -1,0 +1,70 @@
+{
+  "id": "code-word-search",
+  "title": "Word Search",
+  "difficulty": "medium",
+  "topics": ["backtracking", "matrix", "depth-first search"],
+  "asked": "very_common",
+  "statement": "You're given a grid of lowercase letters, `board`, and a string `word`. Return `True` if `word` can be spelled by starting at some cell and repeatedly stepping to a cell directly above, below, left or right of the current one, and `False` otherwise.\n\nEach step must land on the next letter of the word, and a path may not use the same cell more than once. Diagonal steps are not allowed.\n\nConstraints: 1 <= rows, columns <= 6; 1 <= len(word) <= 15; the board and the word contain lowercase English letters only.",
+  "kind": "function",
+  "functionName": "exist",
+  "signature": "def exist(board: List[List[str]], word: str) -> bool:",
+  "starterCode": "def exist(board: List[List[str]], word: str) -> bool:\n    \"\"\"Return True if word can be traced through adjacent cells without reusing a cell.\"\"\"\n    pass\n",
+  "examples": [
+    {"input": "board = [[\"t\", \"r\", \"a\"], [\"o\", \"e\", \"n\"], [\"p\", \"s\", \"i\"]], word = \"rani\"", "output": "True", "explanation": "r, a, n, i is a path: right along the top, then down the last column."},
+    {"input": "board = [[\"t\", \"r\", \"a\"], [\"o\", \"e\", \"n\"], [\"p\", \"s\", \"i\"]], word = \"pose\"", "output": "False", "explanation": "p and o are adjacent, but s is not adjacent to o, so the path breaks."},
+    {"input": "board = [[\"a\", \"b\"]], word = \"aba\"", "output": "False", "explanation": "There is only one a, and a path cannot use a cell twice."}
+  ],
+  "visibleTestCount": 3,
+  "tests": [
+    {"args": [[["t", "r", "a"], ["o", "e", "n"], ["p", "s", "i"]], "rani"], "expected": true},
+    {"args": [[["t", "r", "a"], ["o", "e", "n"], ["p", "s", "i"]], "pose"], "expected": false},
+    {"args": [[["a", "b"]], "aba"], "expected": false},
+    {"args": [[["a"]], "a"], "expected": true},
+    {"args": [[["a"]], "b"], "expected": false},
+    {"args": [[["a", "b"], ["c", "d"]], "ad"], "expected": false},
+    {"args": [[["a", "b"], ["c", "d"]], "acdb"], "expected": true},
+    {"args": [[["a", "b"], ["c", "d"]], "abdca"], "expected": false},
+    {"args": [[["a", "a"], ["a", "a"]], "aaaaa"], "expected": false},
+    {"args": [[["a", "a"], ["a", "a"]], "aaaa"], "expected": true},
+    {"args": [[["a", "b", "c"], ["a", "e", "d"], ["a", "f", "g"]], "abcdefg"], "expected": true},
+    {"args": [[["b", "c", "b", "b", "a"], ["c", "c", "c", "c", "b"], ["c", "c", "c", "b", "a"], ["c", "b", "a", "b", "b"], ["b", "c", "c", "b", "c"]], "abcbcccbc"], "expected": true},
+    {"args": [[["b", "c", "b", "b", "a"], ["c", "c", "c", "c", "b"], ["c", "c", "c", "b", "a"], ["c", "b", "a", "b", "b"], ["b", "c", "c", "b", "c"]], "abcbcccbac"], "expected": false},
+    {"args": [[["c", "d", "b", "d", "a", "c"], ["a", "a", "a", "c", "c", "b"], ["a", "a", "d", "a", "c", "c"], ["a", "d", "c", "c", "b", "b"], ["d", "a", "a", "c", "c", "d"], ["c", "a", "b", "d", "a", "c"]], "dbcccbcadbdcaaa"], "expected": true},
+    {"args": [[["a", "a", "a", "a"], ["a", "a", "a", "a"], ["a", "a", "a", "a"], ["a", "a", "a", "a"]], "aaaaaaaaab"], "expected": false}
+  ],
+  "compare": "exact",
+  "referenceSolution": "from collections import Counter\n\ndef exist(board: List[List[str]], word: str) -> bool:\n    rows, cols = len(board), len(board[0])\n    available = Counter(ch for row in board for ch in row)\n    if any(available[ch] < need for ch, need in Counter(word).items()):\n        return False\n\n    def search(r: int, c: int, i: int) -> bool:\n        if i == len(word):\n            return True\n        if not (0 <= r < rows and 0 <= c < cols) or board[r][c] != word[i]:\n            return False\n        board[r][c] = \"#\"\n        found = (search(r + 1, c, i + 1) or search(r - 1, c, i + 1)\n                 or search(r, c + 1, i + 1) or search(r, c - 1, i + 1))\n        board[r][c] = word[i]\n        return found\n\n    return any(search(r, c, 0) for r in range(rows) for c in range(cols))\n",
+  "targetComplexity": {"time": "O(m * n * 3^L), L = len(word)", "space": "O(L) recursion depth"},
+  "hints": [
+    "Spell the first letter: which cells could you start from? Then where could the second letter be?",
+    "At each step the choices depend on where you are and which cells the path has already used. What does your search need to remember about the path so far?",
+    "When a path fails halfway you have to try a different route from an earlier cell. How would you undo the effect of the failed attempt so other paths can use those cells again?",
+    "Stop a path as soon as the current cell doesn't match the next letter, is off the grid, or is already used. Do you need a separate visited grid, or can you mark the board itself?",
+    "Run a depth-first search from every cell, mark the current cell as used, try the four neighbours for the rest of the word, then restore the cell before returning."
+  ],
+  "followUps": [
+    "What is the time complexity in terms of the board size and the word length, and what dominates the space?",
+    "Which inputs make the search slow, and what cheap checks, such as letter counts or trying the reversed word, can prune it?",
+    "What are the risks of marking visited cells by overwriting the board, and how do you make sure it is always restored?",
+    "How would you search for a whole list of words at once, and which data structure would you add?"
+  ],
+  "idealAnswerPoints": [
+    "Runs a DFS from every cell that matches the first letter",
+    "Marks the cell as used on the way in and restores it on the way out (backtracking)",
+    "Checks bounds, letter match and used-cell status before recursing, and returns True the moment the word is complete",
+    "Explains the cost as roughly m * n * 3^L, since each step has at most 3 new directions",
+    "Mentions pruning, for example comparing letter counts before searching"
+  ],
+  "weakAnswerSigns": [
+    "Forgets to unmark a cell after a failed path, so later paths wrongly see it as used",
+    "Lets a path reuse a cell, accepting words like \"aba\" on a board with one a",
+    "Allows diagonal moves",
+    "Only tries to start from the top-left cell"
+  ],
+  "rubric": {
+    "correctness": "Rejects reused cells and diagonal steps, finds paths that need backtracking, and starts from every cell.",
+    "efficiency": "DFS with early cut-offs at O(m * n * 3^L); a path-copying or visited-set-per-call version should be flagged as heavier.",
+    "code_quality": "One recursive helper with a clear base case, bounds check, mark and restore, and no duplicated direction code.",
+    "communication": "States what the recursion means (matched i letters so far, standing on this cell) and how the undo step keeps paths independent."
+  }
+}
