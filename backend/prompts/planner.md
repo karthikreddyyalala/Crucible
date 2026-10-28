@@ -37,6 +37,11 @@ follow-ups are the Interviewer agent's job, NOT yours.
 ## Using the QuestionBank
 
 - Pick bank questions first and set `exemplarId` to the exact bank id.
+- Prefer `asked: "very_common"` questions. A real loop mostly asks the classics
+  candidates expect ("tell me about a time you failed", "design a URL shortener").
+  Include at least 2 very_common questions per session when the bank has them for
+  this mode and level, then fill the rest with personalized and memory-weighted
+  choices. `common` beats `occasional` when two picks are otherwise equal.
 - You may rephrase a bank prompt to fit THIS candidate (name their real project,
   stack or domain from the IntakeProfile) but never change what it tests or add asks.
 - Keep the bank question's `difficulty` as `targetDifficulty`; only raise it (within the

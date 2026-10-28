@@ -42,7 +42,8 @@
           "ownership": "Names the scope or sequencing calls they personally made and the risk they personally raised"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "sde-beh-conflict-1",
@@ -83,7 +84,8 @@
           "ownership": "Describes what they personally did to resolve it, not just what a lead decided"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "sde-beh-pushback-1",
@@ -125,7 +127,8 @@
           "ownership": "Shows they personally made the case and personally owned execution afterward, whichever way it went"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "sde-beh-wrong-call-1",
@@ -165,7 +168,8 @@
           "ownership": "Says plainly the call was theirs and describes their own recovery without shifting blame"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-beh-ambiguity-1",
@@ -206,7 +210,8 @@
           "ownership": "Shows they personally drove the scoping rather than waiting for a decision"
         }
       },
-      "source": "adapted from Tech Interview Handbook"
+      "source": "adapted from Tech Interview Handbook",
+      "asked": "very_common"
     },
     {
       "id": "sde-beh-ramp-up-1",
@@ -246,7 +251,8 @@
           "ownership": "Describes their own learning steps, not just that a mentor walked them through it"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-beh-feedback-1",
@@ -286,7 +292,8 @@
           "ownership": "Owns the gap the feedback exposed rather than explaining it away"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "sde-beh-tech-debt-1",
@@ -328,7 +335,8 @@
           "ownership": "Shows they personally built the case and drove the plan"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-beh-mentoring-1",
@@ -369,7 +377,8 @@
           "ownership": "Shows the candidate's own judgment in how to help, not just that they were available"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-beh-hardest-bug-1",
@@ -410,7 +419,8 @@
           "ownership": "Shows they personally drove the investigation, not that someone else spotted it"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-beh-incident-1",
@@ -452,7 +462,8 @@
           "ownership": "Shows the candidate made the mitigation call and owned the follow-ups"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-tech-merge-bookings-1",
@@ -494,7 +505,8 @@
           "communication": "States the approach before details and walks a small example"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-tech-top-k-1",
@@ -535,7 +547,8 @@
           "communication": "States the baseline first, then each improvement and what it buys"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-tech-build-order-1",
@@ -576,7 +589,8 @@
           "communication": "Explains the graph model before the algorithm and walks a small example"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-tech-lru-cache-1",
@@ -617,7 +631,8 @@
           "communication": "Describes the structure clearly before the code"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-tech-retry-client-1",
@@ -657,7 +672,8 @@
           "communication": "Walks through the client's structure and the reasoning for each guard"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-tech-legacy-refactor-1",
@@ -699,7 +715,8 @@
           "communication": "Lays the plan out as clear, ordered steps"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "occasional"
     },
     {
       "id": "sde-tech-pagination-1",
@@ -740,7 +757,8 @@
           "communication": "Describes the request and response shape clearly"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "occasional"
     },
     {
       "id": "sde-tech-shared-counter-1",
@@ -779,7 +797,8 @@
           "communication": "Walks through a concrete interleaving step by step"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "sde-tech-double-spend-1",
@@ -820,7 +839,8 @@
           "communication": "Describes the interleaving that breaks the naive version before the fix"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-tech-run-once-1",
@@ -860,7 +880,8 @@
           "communication": "Explains the failure scenarios clearly before the fixes"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "occasional"
     },
     {
       "id": "sde-tech-p99-bursts-1",
@@ -902,7 +923,8 @@
           "communication": "Describes the investigation as a clear sequence of checks"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "sde-tech-flaky-test-1",
@@ -942,7 +964,8 @@
           "communication": "Lays out the hunt as clear, ordered steps"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-sd-shortener-1",
@@ -984,7 +1007,8 @@
           "depth": "Goes deep on code generation or the cached redirect path, including what happens on failure"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "sde-sd-rate-limiter-1",
@@ -1026,7 +1050,8 @@
           "depth": "Goes deep on atomic counter updates or on behaviour when the store fails"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "sde-sd-news-feed-1",
@@ -1069,7 +1094,8 @@
           "depth": "Goes deep on the timeline cache, pagination or the celebrity path"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "sde-sd-chat-1",
@@ -1112,7 +1138,8 @@
           "depth": "Goes deep on ordering, delivery acknowledgement or connection-server failure"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "sde-sd-notifications-1",
@@ -1155,7 +1182,8 @@
           "depth": "Goes deep on retries and deduplication or on provider failure"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "sde-sd-autocomplete-1",
@@ -1196,7 +1224,8 @@
           "depth": "Goes deep on the prefix structure or the offline update pipeline"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-sd-web-crawler-1",
@@ -1239,7 +1268,8 @@
           "depth": "Goes deep on the frontier, deduplication or trap handling"
         }
       },
-      "source": "adapted from system-design-primer"
+      "source": "adapted from system-design-primer",
+      "asked": "very_common"
     },
     {
       "id": "sde-sd-kv-store-1",
@@ -1281,7 +1311,8 @@
           "depth": "Goes deep on conflict resolution, failure detection or repair"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-sd-ticketing-1",
@@ -1324,7 +1355,8 @@
           "depth": "Goes deep on holds, contention on a seat or the payment failure path"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-beh-initiative-1",
@@ -1364,7 +1396,8 @@
           "ownership": "Shows they chose to take it on and saw it through themselves"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "very_common"
     },
     {
       "id": "sde-beh-stuck-1",
@@ -1406,7 +1439,8 @@
           "ownership": "Shows their own attempts and their own decision to escalate"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-sd-profile-photos-1",
@@ -1448,7 +1482,8 @@
           "depth": "Goes deep on thumbnail generation, cache invalidation or upload validation"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "common"
     },
     {
       "id": "sde-sd-leaderboard-1",
@@ -1490,7 +1525,1126 @@
           "depth": "Goes deep on rank lookup, ties or weekly resets"
         }
       },
-      "source": "original"
+      "source": "original",
+      "asked": "occasional"
+    },
+    {
+      "id": "sde-beh-failure-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Owns a real failure, explains their part in it and shows they changed how they work",
+      "prompt": "Tell me about a time you failed.",
+      "idealAnswerPoints": [
+        "a real failure with consequences, not a disguised success",
+        "exactly what went wrong, in order",
+        "their own part in it, separated from bad luck and other people",
+        "a concrete change in how they work afterward",
+        "evidence the change held up the next time a similar situation came up"
+      ],
+      "weakAnswerSigns": [
+        "the 'failure' is a strength in disguise, like working too hard",
+        "blames circumstances or other people for everything",
+        "the lesson is a slogan with no change in behaviour"
+      ],
+      "followUpHooks": [
+        "What exactly went wrong?",
+        "What was your part in it?",
+        "When did you first realise it was going wrong?",
+        "What did you change afterwards?",
+        "How do you know the change worked?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from what was at stake, to what went wrong, to what they changed",
+          "specificity": "Names the project, the moment it broke and the concrete cost",
+          "impact": "Shows a lasting change in their behaviour and a later situation where it paid off",
+          "ownership": "States their own mistake plainly instead of spreading it across the team"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "sde-beh-mistake-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Surfaces their own mistake fast when it hurts other people, and repairs the damage",
+      "prompt": "Tell me about a mistake you made that affected other people.",
+      "idealAnswerPoints": [
+        "what the mistake was and who it affected",
+        "how quickly they raised it and to whom",
+        "what they did to limit the damage",
+        "how they rebuilt trust with the people affected",
+        "the safeguard they added so it couldn't happen the same way again"
+      ],
+      "weakAnswerSigns": [
+        "waited for someone else to find it",
+        "minimises the impact on others",
+        "no safeguard, only 'I'm more careful now'"
+      ],
+      "followUpHooks": [
+        "Who was affected, and how?",
+        "How did you find out it was your mistake?",
+        "Who did you tell first, and how soon?",
+        "What did you do to fix the damage?",
+        "What did you put in place so it couldn't happen again?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Gives the mistake, the disclosure, the repair and the prevention in order",
+          "specificity": "Names the people affected and what it cost them",
+          "impact": "Shows the damage contained and a safeguard that later held",
+          "ownership": "Raised it themselves rather than being caught"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "sde-beh-challenging-project-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Can explain a hard project in depth and show what they personally contributed",
+      "prompt": "Walk me through the most technically challenging project you've worked on.",
+      "idealAnswerPoints": [
+        "what made it hard technically, stated precisely",
+        "the architecture or approach and why it was chosen",
+        "the decisions they personally made and the alternatives they rejected",
+        "a measured result",
+        "what they'd do differently with hindsight"
+      ],
+      "weakAnswerSigns": [
+        "the hard part is scale or deadline with no technical detail",
+        "describes the team's work without their own contribution",
+        "can't go one level deeper when asked"
+      ],
+      "followUpHooks": [
+        "What made it technically hard?",
+        "Which part did you build yourself?",
+        "What was the hardest decision you made on it?",
+        "What alternative did you reject, and why?",
+        "How did you measure whether it worked?",
+        "What would you do differently now?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Sets the context, then the hard problem, their approach and the result",
+          "specificity": "Names concrete components, technologies and numbers",
+          "impact": "States what changed for users or the business, with a measurement",
+          "ownership": "Separates their own design and code from the rest of the team's"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "sde-beh-intro-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Gives a focused career story that leads to this role, backed by real work",
+      "prompt": "Walk me through your background.",
+      "idealAnswerPoints": [
+        "a short arc that ends at why this role is the next step",
+        "one or two pieces of work with concrete results",
+        "what they personally did in that work",
+        "stays within a couple of minutes"
+      ],
+      "weakAnswerSigns": [
+        "reads the resume line by line",
+        "rambles with no thread connecting the roles",
+        "only job titles, no work or results"
+      ],
+      "followUpHooks": [
+        "What's the piece of work you're proudest of?",
+        "What did you personally do on it?",
+        "Why did you move on from your last role?",
+        "What do you want to do more of next?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Tells a short, ordered story that ends with why they're here",
+          "specificity": "Names concrete projects, technologies and results instead of titles",
+          "impact": "Gives at least one result with a number or an observable effect",
+          "ownership": "Makes clear what they drove themselves"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "sde-beh-why-role-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Has specific, researched reasons for wanting this role, tied to their own experience",
+      "prompt": "Why do you want this role?",
+      "idealAnswerPoints": [
+        "specific things about the team, product or problem space, not generic praise",
+        "a link between those things and work they've already done",
+        "what they want to learn or own in the role",
+        "honest about what they're moving away from without bad-mouthing"
+      ],
+      "weakAnswerSigns": [
+        "generic praise that would fit any company",
+        "only about pay, perks or brand",
+        "can't name anything the team actually works on"
+      ],
+      "followUpHooks": [
+        "What do you know about what this team works on?",
+        "What in your past work prepares you for that?",
+        "What do you expect to be hardest for you here?",
+        "What would make you leave a role like this in a year?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Gives reasons in a clear order: the work, their fit and what they want to grow",
+          "specificity": "Names specific products, problems or technologies of this role",
+          "impact": "Ties the role to a result they've already delivered elsewhere",
+          "ownership": "Speaks to what they would take on, not just what they'd receive"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "sde-beh-influence-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Changes what other people do without having authority over them",
+      "prompt": "Tell me about a time you got people to change direction when you weren't their manager.",
+      "idealAnswerPoints": [
+        "who had to change and why they didn't want to",
+        "how they built the case: data, a prototype, a written proposal",
+        "how they handled the strongest objection",
+        "the result, and whether people stayed convinced afterward"
+      ],
+      "weakAnswerSigns": [
+        "'I explained it and they agreed' with no resistance",
+        "got a manager to order it, which isn't influence",
+        "no evidence the change happened"
+      ],
+      "followUpHooks": [
+        "Who had to change, and why didn't they want to?",
+        "What was the strongest objection you heard?",
+        "What did you show them that changed their mind?",
+        "Who still disagreed at the end?",
+        "How did it turn out?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Explains the starting position, the case they built, the pushback and the result",
+          "specificity": "Names the people or teams, the objection and the evidence used",
+          "impact": "Shows the direction actually changed and what that led to",
+          "ownership": "Shows the persuasion was their own work, not borrowed authority"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "sde-beh-priorities-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Makes explicit trade-offs between competing work and communicates them",
+      "prompt": "Tell me about a time you had more work than you could finish.",
+      "idealAnswerPoints": [
+        "the competing work and the real deadlines",
+        "how they decided what came first, with a reason",
+        "who they told about what would slip, and when",
+        "the result for the work that slipped"
+      ],
+      "weakAnswerSigns": [
+        "'I just worked late' as the whole answer",
+        "no trade-off made, everything got done somehow",
+        "nobody was told what would slip"
+      ],
+      "followUpHooks": [
+        "What was on your plate?",
+        "How did you decide what came first?",
+        "What did you drop or delay?",
+        "Who did you tell, and how did they react?",
+        "Would you prioritise the same way again?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Lays out the load, the decision, the communication and the outcome in order",
+          "specificity": "Names the actual tasks, deadlines and the rule used to rank them",
+          "impact": "States what shipped, what slipped and the effect of the slip",
+          "ownership": "Made the call and the communication themselves rather than waiting to be told"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "sde-beh-difficult-coworker-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Handles a hard working relationship directly and fairly, and keeps the work moving",
+      "prompt": "Tell me about a time you worked with someone who was difficult to work with.",
+      "idealAnswerPoints": [
+        "the specific behaviour that made it hard, described fairly",
+        "an attempt to understand the other person's side",
+        "a direct conversation with them before escalating",
+        "what changed in the relationship and the work"
+      ],
+      "weakAnswerSigns": [
+        "the other person is simply a villain",
+        "went straight to the manager",
+        "avoided them until the project ended"
+      ],
+      "followUpHooks": [
+        "What exactly did they do that made it hard?",
+        "Why do you think they behaved that way?",
+        "What did you say to them directly?",
+        "What changed after that conversation?",
+        "What would you do differently with them now?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Describes the behaviour, their response and the outcome in order",
+          "specificity": "Gives concrete incidents rather than personality labels",
+          "impact": "Shows the work got delivered and how the relationship ended up",
+          "ownership": "Takes responsibility for their own side of the relationship"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "sde-beh-explain-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Explains technical trade-offs to non-engineers in terms they can act on",
+      "prompt": "Tell me about a time you had to explain a technical problem to someone non-technical.",
+      "idealAnswerPoints": [
+        "who the audience was and what decision they had to make",
+        "how they translated the problem into cost, risk or time",
+        "how they checked the person had actually understood",
+        "the decision that came out of it"
+      ],
+      "weakAnswerSigns": [
+        "simplified to the point of being wrong",
+        "jargon-heavy explanation retold to the interviewer",
+        "no decision or action resulted"
+      ],
+      "followUpHooks": [
+        "Who was it, and what did they need to decide?",
+        "How did you explain it?",
+        "How did you know they understood?",
+        "What did they decide?",
+        "What would you explain differently next time?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Gives the audience, the explanation, the check and the decision in order",
+          "specificity": "Quotes or closely paraphrases the explanation they actually used",
+          "impact": "Shows a decision was made because of the explanation",
+          "ownership": "Owned the explanation instead of handing it to their manager"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "sde-beh-customer-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Puts real user needs ahead of internal convenience, with evidence of what users needed",
+      "prompt": "Tell me about a time you changed what you were building because of what users actually needed.",
+      "idealAnswerPoints": [
+        "how they learned what users needed: data, support tickets, talking to users",
+        "what they had planned and why it didn't fit",
+        "the cost of changing course and who agreed to it",
+        "a measured effect on users"
+      ],
+      "weakAnswerSigns": [
+        "the user is imagined, not observed",
+        "no change was actually made",
+        "no measure of the effect"
+      ],
+      "followUpHooks": [
+        "How did you find out what users needed?",
+        "What had you planned to build instead?",
+        "What did changing course cost?",
+        "How did you measure the effect on users?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from the user signal to the change and the measured result",
+          "specificity": "Names the user group, the evidence and the feature that changed",
+          "impact": "States the effect on users with a number or concrete feedback",
+          "ownership": "Shows they pushed for the change themselves"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "sde-beh-changing-reqs-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Adapts to changing requirements without losing control of scope or quality",
+      "prompt": "Tell me about a time the requirements changed after you'd already started building.",
+      "idealAnswerPoints": [
+        "what changed and how late",
+        "what they kept, what they threw away and why",
+        "how they renegotiated scope or the date",
+        "what they did afterward to make late changes cheaper"
+      ],
+      "weakAnswerSigns": [
+        "just absorbed the change with overtime",
+        "complains about the product team with no action",
+        "no renegotiation of scope or date"
+      ],
+      "followUpHooks": [
+        "What changed, and how far in were you?",
+        "What did you throw away?",
+        "How did you handle the deadline?",
+        "What do you do differently now to make changes cheaper?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Gives the original plan, the change, their response and the result in order",
+          "specificity": "Names what changed and how much work it invalidated",
+          "impact": "States the outcome for scope, the date and quality",
+          "ownership": "Drove the replanning conversation themselves"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "sde-beh-give-feedback-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Gives hard feedback directly and kindly, and follows up",
+      "prompt": "Tell me about a time you gave a colleague difficult feedback.",
+      "idealAnswerPoints": [
+        "what the problem was and why it mattered",
+        "how and where they delivered it, specifically",
+        "how the colleague reacted",
+        "whether behaviour changed, and how they followed up"
+      ],
+      "weakAnswerSigns": [
+        "hinted instead of saying it",
+        "went to the manager instead of the person",
+        "no follow-up on whether anything changed"
+      ],
+      "followUpHooks": [
+        "What exactly did you say?",
+        "Why did you decide to say it rather than let it go?",
+        "How did they react?",
+        "Did anything change afterwards?",
+        "What would you say differently now?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Gives the problem, the conversation, the reaction and the follow-up in order",
+          "specificity": "Quotes the feedback closely and names the behaviour it targeted",
+          "impact": "Shows whether the colleague's work changed",
+          "ownership": "Delivered it themselves rather than routing it through someone else"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "sde-tech-url-1",
+      "role": "SDE",
+      "competency": "Concurrency & CS Fundamentals",
+      "type": "technical",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Understands the layers of the web stack well enough to debug across them",
+      "prompt": "What happens when you type a URL into a browser and press enter?",
+      "idealAnswerPoints": [
+        "DNS resolution, including caches along the way",
+        "a TCP connection and a TLS handshake before any HTTP",
+        "the HTTP request reaching a server, often via a load balancer or CDN",
+        "the response being parsed and rendered, which triggers more requests",
+        "goes deep on at least one layer when asked"
+      ],
+      "weakAnswerSigns": [
+        "only 'it sends a request and gets the page'",
+        "skips DNS or TLS entirely",
+        "can't go deeper on any single step"
+      ],
+      "followUpHooks": [
+        "How does the browser find the server's address?",
+        "What happens before the first HTTP byte is sent?",
+        "What sits between the browser and the application server?",
+        "The page loads slowly — which step would you suspect first?",
+        "How does HTTPS stop someone in the middle from reading the request?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Gets the order of the steps right",
+          "depth": "Explains at least one layer (DNS, TLS, load balancing or rendering) in real detail",
+          "edge_cases": "Mentions caching, redirects or failed lookups along the way",
+          "communication": "Walks through the steps in a clear sequence without rambling"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "sde-tech-sql-nosql-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "technical",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Chooses a datastore from the access patterns and consistency needs, not fashion",
+      "prompt": "How would you choose between a relational database and a NoSQL store for a new service?",
+      "idealAnswerPoints": [
+        "starts from access patterns, data shape and query flexibility",
+        "transactions and consistency needs across records",
+        "scale and how each option partitions",
+        "operational cost and the team's experience",
+        "names a concrete case where each one wins"
+      ],
+      "weakAnswerSigns": [
+        "'NoSQL scales, SQL doesn't'",
+        "picks by popularity",
+        "ignores transactions and joins"
+      ],
+      "followUpHooks": [
+        "What would make you pick a relational database?",
+        "When does a document or key-value store win?",
+        "What do you lose when you give up multi-row transactions?",
+        "How would each one handle ten times the data?",
+        "You picked wrong a year in — how painful is the migration?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Gives a sound decision rule tied to access patterns and consistency",
+          "depth": "Explains why each store behaves as it does at scale, not just that it does",
+          "edge_cases": "Considers transactions, ad hoc queries, hot partitions and migrations",
+          "communication": "States the decision and the reasons in a clear order"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "sde-tech-slow-query-1",
+      "role": "SDE",
+      "competency": "Debugging & Testing Reasoning",
+      "type": "technical",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Finds and fixes a slow query from the query plan instead of guessing",
+      "prompt": "A page in your app got slow and you suspect a database query — how would you fix it?",
+      "idealAnswerPoints": [
+        "confirms which query is slow with logs or a profiler first",
+        "reads the query plan to see full scans or bad joins",
+        "adds or adjusts an index that matches the filter and sort",
+        "spots N+1 query patterns from the ORM",
+        "measures before and after"
+      ],
+      "weakAnswerSigns": [
+        "adds indexes on every column",
+        "never looks at the query plan",
+        "no measurement before or after"
+      ],
+      "followUpHooks": [
+        "How would you confirm which query is slow?",
+        "What would you look for in the query plan?",
+        "Which index would you add, and why that column order?",
+        "What does an extra index cost you?",
+        "The page runs a hundred small queries — what's going on?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Arrives at a fix that targets the actual slow query",
+          "depth": "Explains how an index changes the access path, including column order",
+          "edge_cases": "Considers write cost, low-selectivity columns and N+1 patterns",
+          "communication": "Describes the investigation as an ordered set of checks"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "sde-tech-cache-invalidation-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "technical",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Uses caching with a clear plan for staleness, invalidation and failure",
+      "prompt": "How would you add a cache in front of a database for data that's read often but changes occasionally?",
+      "idealAnswerPoints": [
+        "picks a pattern, such as cache-aside or write-through, with a reason",
+        "a plan for invalidation: TTL, delete on write, or both",
+        "the race between a write and a concurrent read that refills stale data",
+        "what happens on a cache miss storm or when the cache is down",
+        "how much staleness the product can tolerate"
+      ],
+      "weakAnswerSigns": [
+        "'just add Redis' with no invalidation plan",
+        "assumes the cache and database never disagree",
+        "no thought about the cache going down"
+      ],
+      "followUpHooks": [
+        "Which caching pattern would you use, and why?",
+        "How does the cache find out the data changed?",
+        "Can a reader put stale data back after a write?",
+        "A popular key expires and a thousand requests miss at once — what happens?",
+        "What happens when the cache cluster goes down?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Chooses a pattern and invalidation scheme that keep staleness within the stated limit",
+          "depth": "Explains why the write and read race happens and how the chosen order avoids it",
+          "edge_cases": "Covers stampedes, hot keys and cache outages",
+          "communication": "Explains the read and write paths clearly"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "sde-tech-transactions-1",
+      "role": "SDE",
+      "competency": "Concurrency & CS Fundamentals",
+      "type": "technical",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Knows what isolation levels do and don't protect against in real code",
+      "prompt": "Two requests read the same row, change it and write it back at the same time — what can go wrong?",
+      "idealAnswerPoints": [
+        "names the lost update, and why read-then-write is the problem",
+        "explains what the default isolation level does and does not prevent",
+        "fixes: atomic update statements, row locks, optimistic version checks",
+        "trade-offs between locking and retries under contention",
+        "deadlocks and how to avoid or handle them"
+      ],
+      "weakAnswerSigns": [
+        "assumes wrapping it in a transaction fixes everything",
+        "can't name an isolation level",
+        "no mention of retries for optimistic schemes"
+      ],
+      "followUpHooks": [
+        "What exactly is lost, and when?",
+        "Does wrapping both steps in a transaction fix it at the default isolation level?",
+        "How would you fix it with a version column?",
+        "When would you take a row lock instead?",
+        "What causes a deadlock here, and what would you do about it?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Identifies the lost update and picks a fix that actually prevents it",
+          "depth": "Explains isolation levels and locking in terms of which anomalies they allow",
+          "edge_cases": "Covers retries, deadlocks and high contention on one row",
+          "communication": "Walks through the interleaving step by step"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "sde-tech-api-style-1",
+      "role": "SDE",
+      "competency": "Coding & Implementation Quality",
+      "type": "technical",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Picks an API style from who the clients are and how the API will evolve",
+      "prompt": "When would you use REST, gRPC or GraphQL for an API?",
+      "idealAnswerPoints": [
+        "REST for public and browser clients, with simple caching and tooling",
+        "gRPC for internal service-to-service calls with typed contracts and streaming",
+        "GraphQL when many clients need different shapes of the same data",
+        "versioning and backward compatibility for each",
+        "the operational cost: debugging, caching, tooling"
+      ],
+      "weakAnswerSigns": [
+        "one style is always better",
+        "no mention of the clients",
+        "ignores versioning and compatibility"
+      ],
+      "followUpHooks": [
+        "Who are the clients of this API?",
+        "Why not use gRPC from the browser?",
+        "What problem does GraphQL solve, and what does it cost you?",
+        "How would you change a field without breaking old clients?",
+        "How would you debug a failing call in each style?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Matches each style to the right kind of client and use case",
+          "depth": "Explains why each style behaves as it does: HTTP caching, schemas, single endpoint",
+          "edge_cases": "Considers browser support, versioning and expensive queries",
+          "communication": "Gives a clear decision rule rather than a feature list"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "sde-tech-idempotency-1",
+      "role": "SDE",
+      "competency": "Coding & Implementation Quality",
+      "type": "technical",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Makes a write endpoint safe to retry so a timeout never doubles an action",
+      "prompt": "A mobile client retries a create-order request after a timeout — how would you make sure it doesn't create two orders?",
+      "idealAnswerPoints": [
+        "idempotency key generated by the client and stored by the server",
+        "storing the key and the result atomically with the order",
+        "returning the original result on a repeat request",
+        "the concurrent case where both requests arrive at once",
+        "how long keys are kept and what a mismatched payload means"
+      ],
+      "weakAnswerSigns": [
+        "'check if an order exists' with no key",
+        "ignores two requests arriving at the same moment",
+        "relies on the client never retrying"
+      ],
+      "followUpHooks": [
+        "Why is the retry dangerous in the first place?",
+        "Where does the idempotency key come from?",
+        "Both requests arrive at the same instant — what stops two orders?",
+        "What do you return on the second request?",
+        "How long would you keep the keys?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Prevents duplicates even when the first request actually succeeded",
+          "depth": "Explains why the key and the order must be written atomically",
+          "edge_cases": "Covers concurrent duplicates, expired keys and a reused key with a different payload",
+          "communication": "Explains the request flow clearly from client to database"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "sde-tech-cap-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "technical",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Applies consistency trade-offs to a concrete product decision, not as a slogan",
+      "prompt": "During a network partition between two data centres, should your shopping cart keep accepting writes?",
+      "idealAnswerPoints": [
+        "frames it as consistency versus availability during a partition",
+        "what each choice means for users in this product",
+        "how conflicting writes are merged afterward if it stays available",
+        "that different data in the same product may choose differently",
+        "the latency-versus-consistency trade-off even without a partition"
+      ],
+      "weakAnswerSigns": [
+        "recites 'pick two of three'",
+        "no link to what users see",
+        "no plan to reconcile conflicting writes"
+      ],
+      "followUpHooks": [
+        "What does each choice mean for a shopper?",
+        "If both sides accept writes, how do you merge the carts?",
+        "Would you make the same choice for payments?",
+        "What does eventual consistency look like to a user?",
+        "With no partition at all, what are you still trading off?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Makes a defensible choice for this data and explains it in user terms",
+          "depth": "Explains why the trade-off exists during a partition",
+          "edge_cases": "Covers conflict resolution and data that needs a different choice",
+          "communication": "States the decision and its consequences clearly"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "sde-sd-video-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Separates the upload pipeline from the playback path and sizes both",
+      "prompt": "Design a video streaming service where people upload and watch videos.",
+      "idealAnswerPoints": [
+        "asks about upload volume, watch volume, video length and regions first",
+        "an upload path: resumable uploads to blob storage, then an async transcoding pipeline",
+        "multiple resolutions in chunks for adaptive bitrate playback",
+        "a CDN serving the video chunks, with metadata in a separate store",
+        "view counts and other high-volume counters handled separately"
+      ],
+      "weakAnswerSigns": [
+        "streams video from the app servers",
+        "transcodes synchronously inside the upload request",
+        "no CDN"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "How does an upload get from a phone to playable video?",
+        "Why split the video into chunks at several resolutions?",
+        "Where do the video bytes come from when someone presses play?",
+        "A transcoding worker dies halfway through — what happens?",
+        "How would you count views for a video that goes viral?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Asks about upload versus watch volume, video length and regions before designing",
+          "scalability": "Estimates storage and egress and puts a CDN on the playback path",
+          "tradeoffs": "Compares synchronous and pipelined transcoding, and the cost of more resolutions",
+          "depth": "Goes deep on the transcoding pipeline or playback, including failures"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "sde-sd-file-sync-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Designs sync that moves only what changed and resolves conflicts sensibly",
+      "prompt": "Design a file storage and sync service that keeps files the same across a user's devices.",
+      "idealAnswerPoints": [
+        "asks about file sizes, number of devices and offline editing first",
+        "files split into chunks, stored by content hash, so only changed chunks move",
+        "a metadata service tracking file versions and chunk lists",
+        "a way for devices to learn about changes: long polling, push or a change feed",
+        "a conflict policy when two devices edit offline"
+      ],
+      "weakAnswerSigns": [
+        "re-uploads the whole file on every change",
+        "no metadata separate from the bytes",
+        "ignores offline edits and conflicts"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "A user changes one line in a large file — what gets uploaded?",
+        "How does another device find out the file changed?",
+        "Two devices edit the same file offline — what happens?",
+        "Where does the metadata live, and what must be consistent?",
+        "How would you resume an upload that drops halfway?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Asks about file sizes, devices and offline use before designing",
+          "scalability": "Sizes storage and change traffic and keeps the bytes path off the metadata path",
+          "tradeoffs": "Compares whole-file and chunked sync, and conflict-resolution choices",
+          "depth": "Goes deep on chunking, change notification or conflicts, including failures"
+        }
+      },
+      "source": "original",
+      "asked": "very_common"
+    },
+    {
+      "id": "sde-sd-distributed-cache-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Designs a shared cache tier with sensible partitioning, eviction and failure handling",
+      "prompt": "Design a distributed in-memory cache that many services share.",
+      "idealAnswerPoints": [
+        "asks about data size, read and write rates, and tolerance for stale or lost data",
+        "partitioning keys across nodes with consistent hashing",
+        "eviction policy per node and memory limits",
+        "replication or not, and what happens when a node dies",
+        "hot keys and stampedes on popular entries"
+      ],
+      "weakAnswerSigns": [
+        "one big cache server",
+        "modulo hashing with no thought for adding nodes",
+        "no plan for a node failing"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "How do clients know which node holds a key?",
+        "What happens to the keys when you add a node?",
+        "A node dies — what do clients see?",
+        "One key gets most of the traffic — what do you do?",
+        "Would you replicate the cache, and what does that cost?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Asks about data size, rates and how much loss or staleness is acceptable",
+          "scalability": "Sizes memory and throughput per node and plans for adding nodes",
+          "tradeoffs": "Compares modulo and consistent hashing, and replicated and unreplicated designs",
+          "depth": "Goes deep on rebalancing, hot keys or node failure"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "sde-sd-ride-hailing-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 5,
+      "levels": [
+        "senior"
+      ],
+      "signal": "Handles fast-changing location data and matching with consistent driver state",
+      "prompt": "Design the backend for a ride-hailing app that matches riders with nearby drivers.",
+      "idealAnswerPoints": [
+        "asks about cities, drivers online and update frequency first",
+        "a geospatial index (geohash, quadtree or grid cells) kept in memory",
+        "frequent location updates written without hitting the main database each time",
+        "matching that stops two riders from being given the same driver",
+        "trip state handled separately from location tracking"
+      ],
+      "weakAnswerSigns": [
+        "stores every location update in a relational table and queries by distance",
+        "no locking on driver assignment",
+        "one global matching service with no partitioning"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "How do you find drivers near a rider quickly?",
+        "Drivers send their location every few seconds — where does that go?",
+        "How do you stop two riders getting the same driver?",
+        "How would you split the work across cities or regions?",
+        "A driver's phone loses signal mid-trip — what happens?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Asks about cities, active drivers and how often locations update",
+          "scalability": "Estimates location-update throughput and partitions by area",
+          "tradeoffs": "Compares geospatial indexing options and the consistency of driver assignment",
+          "depth": "Goes deep on matching or the location pipeline, including failures"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "sde-sd-payments-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 5,
+      "levels": [
+        "senior"
+      ],
+      "signal": "Never loses or double-charges money, even when calls time out",
+      "prompt": "Design a payment system that charges customers through an external payment provider.",
+      "idealAnswerPoints": [
+        "asks about payment methods, volume, refunds and regions first",
+        "idempotency keys on every charge so retries can't double-charge",
+        "a payment state machine and a double-entry ledger",
+        "handling a provider timeout where the charge may or may not have happened",
+        "daily reconciliation against the provider's records"
+      ],
+      "weakAnswerSigns": [
+        "retries charges blindly after a timeout",
+        "a single balance column updated in place",
+        "no reconciliation"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "The provider times out — did the customer get charged?",
+        "How do you make sure a retry can't charge twice?",
+        "How would you record the money movements?",
+        "Your records and the provider's disagree — what happens?",
+        "How would you handle a refund on a partially shipped order?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Asks about payment methods, volume, refunds and regions before designing",
+          "scalability": "Identifies peak charge rates and the external provider as the bottleneck and risk",
+          "tradeoffs": "Compares synchronous and asynchronous charging and justifies the consistency choices",
+          "depth": "Goes deep on idempotency, the ledger or reconciliation, including timeouts"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "sde-sd-id-generator-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Generates unique IDs across many machines without a single point of failure",
+      "prompt": "Design a service that hands out unique IDs to many servers.",
+      "idealAnswerPoints": [
+        "asks whether IDs must be sortable by time, how big they can be, and the rate",
+        "compares a database counter, UUIDs and a time-plus-machine-plus-sequence layout",
+        "how machine IDs are assigned",
+        "what happens when the clock goes backwards"
+      ],
+      "weakAnswerSigns": [
+        "one auto-increment column for the whole company",
+        "random numbers with no collision reasoning",
+        "ignores clock problems"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "Why not just use a database auto-increment?",
+        "What's wrong with random UUIDs here?",
+        "How would you lay out the bits of the ID?",
+        "What happens if a machine's clock jumps backwards?",
+        "How does a new machine get its machine ID?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Asks about ordering, size and rate before choosing a scheme",
+          "scalability": "Estimates the ID rate and shows the chosen scheme handles it without coordination",
+          "tradeoffs": "Compares at least two schemes and justifies one",
+          "depth": "Goes deep on the bit layout or clock skew"
+        }
+      },
+      "source": "original",
+      "asked": "common"
+    },
+    {
+      "id": "sde-sd-metrics-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Designs a write-heavy time-series pipeline with sensible retention and alerting",
+      "prompt": "Design a metrics and monitoring system that collects measurements from every service and alerts on problems.",
+      "idealAnswerPoints": [
+        "asks about number of hosts, metrics per host, resolution and retention first",
+        "a push or pull collection model with reasons",
+        "a time-series store with downsampling of older data",
+        "alerting rules evaluated on a schedule with deduplication",
+        "high cardinality as the main way the system blows up"
+      ],
+      "weakAnswerSigns": [
+        "a relational table with one row per data point and no retention",
+        "no downsampling",
+        "ignores cardinality"
+      ],
+      "followUpHooks": [
+        "What would you want to know before you start designing?",
+        "Would services push metrics or would you pull them?",
+        "How would you store a year of data cheaply?",
+        "Someone adds a user ID as a metric label — what happens?",
+        "How do alerts get evaluated and sent?",
+        "The monitoring system itself goes down — how would you know?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Asks about hosts, metrics, resolution and retention before designing",
+          "scalability": "Estimates write throughput and storage and plans downsampling",
+          "tradeoffs": "Compares push and pull collection and storage options",
+          "depth": "Goes deep on storage, cardinality or alerting"
+        }
+      },
+      "source": "original",
+      "asked": "common"
     }
   ]
 }

@@ -42,6 +42,8 @@ class QuestionExemplar(_Base):
     weak_answer_signs: tuple[str, ...] = ()
     # "original", or "adapted from <name>" where <name> is listed in data/question_bank/ATTRIBUTION.md.
     source: str = "original"
+    # How often candidates report getting this question (docs/research/most-asked-questions.md).
+    asked: Literal["very_common", "common", "occasional"] = "occasional"
 
 
 class QuestionBank(_Base):

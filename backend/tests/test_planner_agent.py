@@ -75,6 +75,7 @@ def test_planner_receives_bank_candidates_as_input():
         bank=bank_for("sde", mode="behavioral", level="junior"))
     assert "QuestionBank" in llm.last["user"]
     assert "sde-beh-" in llm.last["user"]
+    assert '"asked":' in llm.last["user"]
     assert "followUpHooks" not in llm.last["user"] and "follow_up_hooks" not in llm.last["user"]
     for hidden in ("rubric", "idealAnswerPoints", "ideal_answer_points", "weakAnswerSigns", "weak_answer_signs"):
         assert hidden not in llm.last["user"]

@@ -38,6 +38,16 @@ interviews and the open HF "interview" sets are private or scraped — we write 
 and ladders ourselves; stems only from MIT / CC BY sources, with a `source` field and
 ATTRIBUTION.md. See docs/research/question-sources-and-datasets.md.
 
+## Done — Most-asked questions (branch `feat/most-asked-questions`)
+
+- [x] Research: which questions recur across the most prep guides and candidate reports
+      → `docs/research/most-asked-questions.md` (counts are approximate)
+- [x] 40 new questions (bank now 111: SDE 63, AI 48), tagged very_common / common / occasional
+- [x] Planner includes at least 2 very_common questions per session
+- [x] README rewritten in plain language with a real interview excerpt
+- [ ] Gaps: strengths/weaknesses, Google Docs, message queue, backend security,
+      tokenization/context windows, RLHF
+
 ## Next — Voice feel (needs a Deepgram account + key)
 
 - [ ] Deepgram Flux streaming STT with semantic end-of-turn (replaces browser STT)

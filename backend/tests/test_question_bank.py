@@ -25,6 +25,13 @@ def test_exemplar_accepts_signal_levels_and_weak_signs():
     assert q.signal and q.levels == ("mid", "senior") and q.weak_answer_signs
 
 
+def test_exemplar_asked_defaults_to_occasional_and_reads_camel_case():
+    assert QuestionExemplar.model_validate(_Q).asked == "occasional"
+    assert QuestionExemplar.model_validate({**_Q, "asked": "very_common"}).asked == "very_common"
+    with pytest.raises(ValidationError):
+        QuestionExemplar.model_validate({**_Q, "asked": "always"})
+
+
 def test_exemplar_requires_at_least_three_follow_ups():
     with pytest.raises(ValidationError):
         QuestionExemplar.model_validate({**_Q, "followUpHooks": ["only one"]})
@@ -163,3 +170,12 @@ def test_bank_meets_planner_need_for_every_mode_and_level(role, mode, level):
     picked = bank_for(role, mode=mode, level=level)
     for t, need in _PLANNER_NEED[mode].items():
         assert sum(q.type == t for q in picked) >= need, (t, need)
+
+
+@pytest.mark.parametrize("role", _ROLE_KEYS)
+def test_bank_carries_the_classics_candidates_expect(role):
+    qs = load_question_bank(role).questions
+    classics = [q for q in qs if q.asked == "very_common"]
+    assert len(classics) >= 10, len(classics)
+    for t in ("behavioral", "technical", "system_design"):
+        assert sum(q.type == t for q in classics) >= 2, t
