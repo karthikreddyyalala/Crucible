@@ -35,12 +35,17 @@ export interface QuestionPlan {
   questions: PlannedQuestion[];
 }
 
-export type DecisionAction = "follow_up" | "advance" | "complete";
+export type DecisionAction = "follow_up" | "clarify" | "advance" | "complete";
+
+// Which stage of a real interview a turn belongs to.
+export type InterviewPhase = "warmup" | "background" | "question" | "closing";
 
 export interface InterviewDecision {
   action: DecisionAction;
   followUpPrompt: string | null;
   currentQuestionId: string;
+  // What the interviewer says out loud this turn. Older payloads omit it.
+  say?: string;
 }
 
 export interface AnswerEvaluation {

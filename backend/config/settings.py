@@ -1,3 +1,5 @@
+import os
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -48,6 +50,19 @@ class Settings(BaseSettings):
     tavus_replica_id: str = ""
     tavus_persona_id: str = ""
     tavus_base_url: str = "https://tavusapi.com"
+
+    # ElevenLabs voice for the interviewer (optional). The SDK reads the key
+    # from ELEVENLABS_API_KEY itself (stored in the repo-root .env.local by the
+    # ElevenLabs CLI; never in code). Unset → the browser's built-in voice.
+    # Default voice "Chris" (charming, down-to-earth American male) matches the
+    # on-screen avatar. Flash v2.5 because a conversation can't wait: measured
+    # ~0.5s per line vs ~2.8s on eleven_v4 (Lambda can't stream the response).
+    elevenlabs_voice_id: str = "iP95p4xoKVk53GoZ742B"
+    elevenlabs_model_id: str = "eleven_flash_v2_5"
+
+    @property
+    def elevenlabs_enabled(self) -> bool:
+        return bool(os.environ.get("ELEVENLABS_API_KEY"))
 
     @property
     def tavus_enabled(self) -> bool:

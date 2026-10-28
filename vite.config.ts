@@ -10,11 +10,8 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
-  // kokoro-js / @huggingface/transformers use internal dynamic imports that
-  // break when Vite pre-bundles them. Exclude them from optimizeDeps so they
-  // are served as-is and their own lazy-loading logic stays intact.
   optimizeDeps: {
-    exclude: ["@huggingface/transformers", "kokoro-js", "@daily-co/daily-js"],
+    exclude: ["@daily-co/daily-js"],
   },
   test: {
     environment: "jsdom",

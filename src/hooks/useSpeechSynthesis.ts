@@ -9,14 +9,25 @@ export function useSpeechSynthesis() {
   const supported = typeof window !== "undefined" && "speechSynthesis" in window;
   const [speaking, setSpeaking] = useState(false);
   const voiceRef = useRef<SpeechSynthesisVoice | null>(null);
+  // Chrome garbage-collects in-flight utterances (onend then never fires), so
+  // keep references until they finish.
+  const queueRef = useRef<SpeechSynthesisUtterance[]>([]);
 
   useEffect(() => {
     if (!supported) return;
     const pickVoice = () => {
-      const voices = window.speechSynthesis.getVoices();
+      const voices = window.speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith("en"));
+      // Male (the interviewer, Marcus, is a man on screen), and preferably one
+      // of the neural/"natural" voices — the robotic legacy ones are what make
+      // an interviewer sound like a machine.
+      const male = /\b(guy|christopher|eric|davis|andrew|brian|roger|steffan|daniel|aaron|alex|fred|tom|rishi|evan|nathan|male)\b/i;
+      const natural = /natural|neural|premium|enhanced|online/i;
       voiceRef.current =
-        voices.find((v) => /en[-_]US/i.test(v.lang) && /natural|google|samantha|aaron|jenny/i.test(v.name)) ??
-        voices.find((v) => v.lang.toLowerCase().startsWith("en")) ??
+        voices.find((v) => male.test(v.name) && natural.test(v.name)) ??
+        voices.find((v) => male.test(v.name) && /en[-_]US/i.test(v.lang)) ??
+        voices.find((v) => male.test(v.name)) ??
+        voices.find((v) => natural.test(v.name)) ??
+        voices.find((v) => /en[-_]US/i.test(v.lang)) ??
         voices[0] ??
         null;
     };
@@ -28,21 +39,41 @@ export function useSpeechSynthesis() {
   const speak = useCallback(
     (text: string) => {
       if (!supported || !text.trim()) return;
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      if (voiceRef.current) utterance.voice = voiceRef.current;
-      utterance.rate = 1.02;
-      utterance.pitch = 1;
-      utterance.onstart = () => setSpeaking(true);
-      utterance.onend = () => setSpeaking(false);
-      utterance.onerror = () => setSpeaking(false);
-      window.speechSynthesis.speak(utterance);
+      const synth = window.speechSynthesis;
+      // Chrome stops a single long utterance after ~15s, so speak sentence by sentence.
+      const sentences = text.match(/[^.!?]+[.!?]+["')\]]*|[^.!?]+$/g)?.map((t) => t.trim()).filter(Boolean) ?? [text];
+      const utterances = sentences.map((sentence, i) => {
+        const u = new SpeechSynthesisUtterance(sentence);
+        if (voiceRef.current) u.voice = voiceRef.current;
+        u.rate = 1;
+        u.pitch = 1;
+        if (i === 0) u.onstart = () => setSpeaking(true);
+        if (i === sentences.length - 1) u.onend = () => setSpeaking(false);
+        u.onerror = (e) => {
+          // "interrupted"/"canceled" come from our own cancel() — not a failure.
+          if (e.error !== "interrupted" && e.error !== "canceled") setSpeaking(false);
+        };
+        return u;
+      });
+      queueRef.current = utterances;
+      const enqueue = () => {
+        synth.resume(); // Safari/Chrome can be left paused after a tab switch
+        utterances.forEach((u) => synth.speak(u));
+      };
+      // speak() right after cancel() is sometimes silently dropped in Chrome.
+      if (synth.speaking || synth.pending) {
+        synth.cancel();
+        setTimeout(enqueue, 60);
+      } else {
+        enqueue();
+      }
     },
     [supported]
   );
 
   const cancel = useCallback(() => {
     if (!supported) return;
+    queueRef.current = [];
     window.speechSynthesis.cancel();
     setSpeaking(false);
   }, [supported]);

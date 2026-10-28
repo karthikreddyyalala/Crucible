@@ -231,7 +231,8 @@
     "candidate_answer": "First I'd clarify scope: expected writes/sec, whether custom aliases are needed, and redirect latency SLA — let's assume 1000 writes/sec, 100k reads/sec, and sub-100ms redirects. I'd generate short codes with a base62 counter sharded by worker ID to avoid coordination, store the mapping in a key-value store like DynamoDB for O(1) lookups, and put a CDN/edge cache in front since reads dominate writes 100:1. The main tradeoff is counter-based IDs are guessable and sequential, which leaks volume information, versus hash-based IDs which need a collision-retry loop; I'd pick counter-based here since this isn't a security-sensitive domain. At scale the redirect service is the bottleneck, not the write path, so I'd scale that horizontally behind the CDN and keep write throughput as the cheap side of the system.",
     "follow_up_count": 0,
     "is_last_question": false,
-    "expect_action": "advance",
+    "expect_action": "follow_up",
+    "note": "A real system-design round is deep-dives: even a strong first answer gets one probe into a component, failure mode, or tradeoff before moving on (CLAUDE.md: probe at least once).",
     "expect_would_survive": true
   },
   {
@@ -257,7 +258,8 @@
     "candidate_answer": "Scope: assume 10M users, notifications triggered by app events, delivery within 30s for push and a few minutes for email/SMS is acceptable. I'd put a queue (Kafka or SQS) in front so producers don't block on delivery, with a dispatcher per channel consuming from its own topic so a slow SMS provider doesn't back up push. Each channel-specific worker calls the relevant third-party provider (APNs/FCM, SES, Twilio) with retry-with-backoff and a dead-letter queue for permanent failures. The key tradeoff is at-least-once delivery: providers can dedupe on our side with an idempotency key, but we accept occasional duplicate notifications rather than risk dropping one, since a missed notification is worse for this product than a duplicate. Bottleneck at scale is the SMS provider's own rate limit, which we'd have to shard across multiple provider accounts or providers entirely.",
     "follow_up_count": 0,
     "is_last_question": true,
-    "expect_action": "complete",
+    "expect_action": "follow_up",
+    "note": "A real system-design round is deep-dives: even a strong first answer gets one probe into a component, failure mode, or tradeoff before moving on (CLAUDE.md: probe at least once).",
     "expect_would_survive": true
   },
   {
@@ -270,7 +272,8 @@
     "candidate_answer": "Assuming single-region and read-heavy traffic, I'd shard keys across nodes by consistent hashing so we can add nodes without a full rehash. Each shard is a single leader with async replicas for read scaling. Tradeoff is async replication means replicas can serve slightly stale reads after a write, which I'd accept here since this isn't a financial system. At higher scale the leader for a hot key becomes the bottleneck, and I'd handle that with request coalescing.",
     "follow_up_count": 0,
     "is_last_question": false,
-    "expect_action": "advance",
+    "expect_action": "follow_up",
+    "note": "A real system-design round is deep-dives: even a strong first answer gets one probe into a component, failure mode, or tradeoff before moving on (CLAUDE.md: probe at least once).",
     "expect_would_survive": false,
     "note": "Corrected 2026-09-03 after real-run inspection: Evaluator scored depth 2.5/5 with specific reasoning (never addresses persistence, eviction policy, or failure/recovery) and correctly refused survive under the all-scores->=3 rule. Original label was too generous, not a rubric bug. KNOWN BOUNDARY CASE: a 5-rep spot-check on this case alone showed depth scored 2.5 in 4/5 runs and 3.0 in 1/5, flipping the verdict ~20% of the time — this label matches the 4/5 majority. A single-run eval pass may show this case as a mismatch; that's expected LLM-judge variance on a genuinely borderline answer, not a regression. Would need multi-rep majority-vote grading to fully stabilize."
   },

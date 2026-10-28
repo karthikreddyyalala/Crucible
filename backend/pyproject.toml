@@ -12,6 +12,7 @@ dependencies = [
   "uvicorn[standard]>=0.32",
   "mangum>=0.18",
   "pyjwt[crypto]>=2.9",
+  "elevenlabs>=2.74",
 ]
 
 [project.optional-dependencies]

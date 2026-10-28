@@ -75,8 +75,9 @@ npx tsc -b --noEmit                # typecheck
 
 **Deliberate, not gaps** (don't "fix" these without a reason):
 
-- Voice is browser-native Speech APIs + Kokoro-JS, not Deepgram/ElevenLabs as
-  originally planned. CLAUDE.md's stack line now reflects what actually shipped.
+- Interviewer voice is ElevenLabs Flash v2.5 through the backend (`/api/tts`;
+  measured ~0.9s per line, vs ~2.8s on eleven_v4 — Lambda can't stream, so the
+  fast model wins). Candidate speech is browser-native recognition, not Deepgram.
 - Deploy is plain shell scripts, no Terraform/CDK — fine for a single-Lambda app.
 - Tavus avatar is optional and feature-flagged; the app must never block on it.
 
@@ -89,7 +90,7 @@ Short version, in the order we're tackling them:
 
 1. ~~Observability~~ — done (see above), except the real measurement run (needs
    live credentials).
-2. **Adversarial input eval cases**: written (2026-09-24), not yet run. 8 cases in
+2. ~~Adversarial input eval cases~~ — run 2026-10-25 against live Bedrock: 8/8. 8 cases in
    `backend/evals/golden/interview_turn_adversarial_input_cases.json` cover
    injection, the fence-escape case, gibberish, off-topic, near-empty, and another
    language, plus one case that forces the Evaluator to run so we can test that it
@@ -111,8 +112,8 @@ Crucible AI -- AI Interview Platform | LangGraph, Amazon Bedrock, FastAPI, React
   planning, live interview execution, evaluation, cross-session memory, and coaching; rewrote each
   session's question plan around persisted candidate weak spots and verified adaptation through
   end-to-end tests on generated prompt text.
-- Designed a golden-dataset evaluation harness with 23 regression and 12 adversarial cases
-  (buzzword-padded inputs, subtle logic traps); achieved 97%+ routing and action accuracy across
+- Designed a golden-dataset evaluation harness with 43 cases — 23 regression, 12 adversarial
+  (buzzword-padded inputs, subtle logic traps), 8 prompt-injection/junk inputs; achieved 97%+ routing and action accuracy across
   live Bedrock test runs by tiering Claude Haiku for extraction and Sonnet for multi-step reasoning.
 - Shipped to AWS Lambda, API Gateway, DynamoDB, Cognito, and CloudFront with 100+ backend tests and CI;
   eliminated concurrent-write memory loss using optimistic locking and enforced schema-validated
@@ -120,9 +121,9 @@ Crucible AI -- AI Interview Platform | LangGraph, Amazon Bedrock, FastAPI, React
 ```
 
 Why "97%+" and not "100%": the eval measures two things — the Interviewer's
-action decision (100%, 35/35) and the Evaluator's `wouldSurviveRealInterview`
-verdict (93.3%, 14/15, one documented flaky boundary case). Blended, 49/50 =
-98%. "97%+" is the honest, conservative, fully defensible number — if pressed
+action decision (100%, 43/43 on the 2026-10-25 run) and the Evaluator's
+`wouldSurviveRealInterview` verdict (17/17 on that run, but one documented
+boundary case flips ~1 in 5 runs, so a single perfect run isn't the claim). "97%+" is the honest, conservative, fully defensible number — if pressed
 in an interview, walking through that breakdown makes you look more rigorous,
 not less.
 

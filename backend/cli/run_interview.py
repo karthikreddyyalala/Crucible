@@ -96,8 +96,8 @@ def main() -> None:
 
         decision = result["decision"]
 
-        if decision.action == "follow_up":
-            print(f"\nInterviewer: {decision.follow_up_prompt}\n")
+        if decision.action in ("follow_up", "clarify"):
+            print(f"\nInterviewer: {decision.say or decision.follow_up_prompt}\n")
 
         elif decision.action in ("advance", "complete"):
             ev = result.get("evaluation")

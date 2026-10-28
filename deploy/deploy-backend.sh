@@ -48,6 +48,20 @@ if [ -n "${CRUCIBLE_TAVUS_API_KEY:-}" ]; then
   echo "==> Tavus avatar: ENABLED (key provided)"
 fi
 
+# ElevenLabs voice: the key lives in the repo-root .env.local (written by
+# `npx @elevenlabs/cli onboard`, gitignored). Read it without echoing; an
+# exported ELEVENLABS_API_KEY in your shell wins. Unset → browser voice.
+ELEVENLABS_KEY="${ELEVENLABS_API_KEY:-}"
+if [ -z "$ELEVENLABS_KEY" ] && [ -f "$(dirname "$0")/../.env.local" ]; then
+  ELEVENLABS_KEY=$(grep -E '^ELEVENLABS_API_KEY=' "$(dirname "$0")/../.env.local" | head -1 | cut -d= -f2- | tr -d '"'"'"'')
+fi
+if [ -n "$ELEVENLABS_KEY" ]; then
+  ENV_JSON="${ENV_JSON},\"ELEVENLABS_API_KEY\":\"${ELEVENLABS_KEY}\""
+  echo "==> ElevenLabs voice: ENABLED"
+else
+  echo "==> ElevenLabs voice: disabled (no ELEVENLABS_API_KEY) — browser voice fallback"
+fi
+
 # Cognito auth is UNLIKE Tavus: it's a live access-control boundary, not a
 # cosmetic feature, and update-function-configuration REPLACES the whole
 # Lambda environment on every run. Silently omitting these vars would
