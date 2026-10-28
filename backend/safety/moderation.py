@@ -1,6 +1,8 @@
 """Screen a candidate's text before it reaches the model.
 
-block: a slur or sexual term.  abuse: an insult or threat aimed at the interviewer.
+block: a slur, graphic sexual slang, or sexual harassment aimed at the interviewer ("send me
+nudes"). Topic words ("porn", "rape", "nudity") are fine: candidates meet them in
+trust-and-safety questions.  abuse: an insult or threat aimed at the interviewer.
 ok: everything else, including swearing aimed at nobody ("damn, I forgot the base case").
 A pure function: no I/O, patterns compiled once at import.
 """
@@ -74,7 +76,26 @@ _NOUN = (
     r"prick|dumbass|dipshit|shithead|bastard|piece of shit|piece of crap|waste of space)"
 )
 _INSULT = rf"(?:{_ADJECTIVE}|{_NOUN})"
-_LISTENER = r"(?:bot|ai|machine|marcus|robot|interviewer)"
+_LISTENER = r"(?:bot|ai|machine(?!\s+learning)|marcus|robot|interviewer)"
+_ABOUT_LISTENER = (
+    rf"(?:stupid|dumb|useless|shitty|worthless|pathetic)\s+(?:(?:fucking|f\*+ing)\s+)?{_LISTENER}"
+)
+
+_HARASSMENT = [
+    _tolerant(p)
+    for p in (
+        r"\b(?:suck|lick|eat)\s+my\s+(?:dick|cock|balls|ass|pussy)\b",
+        r"\b(?:sit|get)\s+on\s+my\s+(?:dick|face)\b",
+        r"\bsend\s+me\s+(?:your\s+)?(?:nudes|nude\s+pic(?:s)?)\b",
+        # a bare "send nudes" is a command only at the start of a clause; "users send nudes" is a topic
+        r"(?:^|[.!?,;:]\s*|\b(?:pls|please)\s+)send\s+(?:your\s+)?nudes\b",
+        r"\bshow\s+me\s+your\s+(?:tits|boobs|ass|pussy|body(?!\s+of\b))\b",
+        rf"\bi(?:\s+(?:want to|wanna|would like to|would love to)|'d\s+(?:like|love) to)\s+"
+        rf"(?:fuck|bang|screw|f\*+)\s+{_YOU}\b",
+        # "you're hot-reloading" is not a compliment: only a clause-final "hot" / "sexy"
+        rf"\b{_ARE}\s+(?:(?:so|really|very|super|too)\s+)?(?:hot|sexy)(?=\s*[.!?,;]|\s*$|\s+af\b)",
+    )
+]
 
 _INSULTS = [
     _tolerant(p)
@@ -92,7 +113,9 @@ _INSULTS = [
         rf"\bhey,?\s+{_NOUN}\b",
         # "shut up the linter" is about a tool; "shut up" / "shut up, bot" is aimed at Marcus
         r"\bshut\s+(?:the\s+(?:fuck|hell|f\*+)\s+)?up\b(?!\s+(?:the|those|these|that|this|my|our|your|all)\b)",
-        rf"\b(?:stupid|dumb|useless|shitty|worthless|pathetic)\s+(?:(?:fucking|f\*+ing)\s+)?{_LISTENER}\b",
+        rf"\b(?:you|you'?re|ur)\s+(?:(?:so|really|such (?:an|a)|fucking|f\*+ing)\s+)*{_ABOUT_LISTENER}\b",
+        # "the dumb AI baseline" is about some other model: aimed at Marcus only when the clause ends
+        rf"(?:^|[.!?,;:]\s*|\b(?:this|what (?:an|a)|such (?:an|a))\s+){_ABOUT_LISTENER}(?=\s*[.!?,;:]|\s*$)",
         rf"\bmarcus\s+(?:is\s+)?{_INTENSIFIER}{_INSULT}\b",
         r"\bmarcus\s+sucks\b",
     )
@@ -102,7 +125,7 @@ _THREATS = [
     _tolerant(p)
     for p in (
         r"\b(?:i'?ll|i will|i am going to|i'?m going to|i'?m gonna|i am gonna|im gonna|imma)\s+"
-        rf"(?:kill|hurt|destroy|murder|stab|shoot|beat|punch)\s+{_YOU}\b",
+        rf"(?:kill|hurt|destroy|murder|stab|shoot|beat|punch|rape)\s+{_YOU}\b",
         # "I'll find you a bug" is fine; "I will find you." and "find you and kill you" are not
         r"\b(?:i'?ll|i will|i am going to|i'?m going to|i'?m gonna|im gonna|imma)\s+"
         rf"find\s+{_YOU}(?:\s*[.!?,;]|\s*$|\s+and\b)",
@@ -125,7 +148,7 @@ def moderate(text: str) -> Verdict:
     t = normalize(text)
     if _blocked(_SLUR, t):
         return Verdict(kind="block", reason="slur")
-    if _blocked(_SEXUAL, t):
+    if _blocked(_SEXUAL, t) or _hit(_HARASSMENT, t):
         return Verdict(kind="block", reason="sexual")
     if _hit(_THREATS, t):
         return Verdict(kind="abuse", reason="threat")

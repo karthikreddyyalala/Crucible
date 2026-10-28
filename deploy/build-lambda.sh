@@ -25,7 +25,7 @@ python3 -m pip install \
 
 echo "==> Copying backend source into the package"
 cd "$ROOT/backend"
-for item in app.py lambda_handler.py auth.py config models agents graph llm routes store prompts data; do
+for item in app.py lambda_handler.py auth.py config models agents graph llm routes safety store prompts data; do
   cp -R "$item" "$PKG/"
 done
 

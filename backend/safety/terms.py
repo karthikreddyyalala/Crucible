@@ -2,9 +2,14 @@
 
 Plain lowercase words (a space means "any whitespace"). moderation.py matches each on
 word boundaries, tolerates elongated letters and the suffixes s/es/ed/ing, so list the
-bare word only. Words that are also ordinary vocabulary are left out on purpose:
-"sex" (a dataset column), "gay", "chink" ("a chink in the armour"), "coon", "cum"
-(summa cum laude), "cripple", "anal", "vagina".
+bare word only.
+
+Only slurs and graphic sexual slang belong here. Topic and clinical words stay out so
+candidates can answer trust-and-safety questions ("flag porn and CSAM", "rape-threat
+reports", "nudity detection", "sexual content"): porn, rape, sex, penis, vagina, nudes,
+orgasm, masturbation, hentai. So do words with everyday senses: gay, chink ("a chink in
+the armour"), coon, cum (summa cum laude), cripple, anal. Sexual harassment aimed at the
+interviewer ("suck my dick", "send me nudes") is matched as phrases in moderation.py.
 """
 
 SLURS: list[str] = [
@@ -16,11 +21,9 @@ SLURS: list[str] = [
 ]
 
 SEXUAL: list[str] = [
-    "porn", "porno", "blowjob", "handjob", "rimjob", "cumshot", "gangbang", "hentai",
-    "jizz", "dildo", "pussy", "cock", "tits", "titties", "penis", "boner", "orgasm",
-    "masturbate", "masturbation", "slut", "whore", "wank", "wanker", "horny", "milf",
-    "nudes", "rape", "rapist",
-    "jerk off", "jack off", "suck my dick", "suck my balls", "eat my ass",
+    "blowjob", "handjob", "rimjob", "cumshot", "gangbang", "jizz", "pussy", "cock",
+    "tits", "titties", "boner", "slut", "whore", "wank", "wanker", "horny", "milf",
+    "jerk off", "jack off",
 ]
 
 # A listed term plus a suffix that is really a different, innocent word.

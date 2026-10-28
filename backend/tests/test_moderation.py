@@ -58,7 +58,6 @@ def test_normalize(raw, expected):
         "wh0re",
         "$lut",
         "bl0wjob",
-        "p0rn",
         # spacing tricks
         "n i g g e r",
         "n.i.g.g.e.r",
@@ -69,18 +68,12 @@ def test_normalize(raw, expected):
         "puuuussy",
         # case
         "F4GGOT",
-        "PORN",
         # sexual
-        "send nudes",
         "nice cock",
-        "porn",
-        "pornos",
-        "dildo",
         "pussy",
-        "suck my dick",
         "jerk off",
         "wanking",
-        "i will rape you",
+        "you horny slut",
     ],
 )
 def test_blocks_slurs_and_sexual_terms(text):
@@ -89,13 +82,44 @@ def test_blocks_slurs_and_sexual_terms(text):
 
 def test_block_reasons():
     assert moderate("you nigger") == Verdict(kind="block", reason="slur")
-    assert moderate("send nudes") == Verdict(kind="block", reason="sexual")
+    assert moderate("nice cock") == Verdict(kind="block", reason="sexual")
+    assert moderate("suck my dick") == Verdict(kind="block", reason="sexual")
 
 
 def test_block_wins_over_abuse():
     assert moderate("fuck you nigger").kind == "block"
     assert moderate("you cunt").kind == "block"
     assert moderate("i'll kill you, you faggot").kind == "block"
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "suck my dick",
+        "suck my cock",
+        "SUCK MY BALLS",
+        "eat my ass",
+        "send nudes",
+        "Send me nudes",
+        "please send me your nudes",
+        "pls send nudes",
+        "s3nd nudes",
+        "show me your tits",
+        "show me your boobs",
+        "show me your body",
+        "i want to fuck you",
+        "i wanna bang you",
+        "I would love to screw you",
+        "sit on my face",
+        "get on my dick",
+        "you're hot",
+        "you are so hot.",
+        "you're sexy, marcus",
+        "ur so sexy",
+    ],
+)
+def test_blocks_directed_sexual_harassment(text):
+    assert moderate(text) == Verdict(kind="block", reason="sexual"), text
 
 
 # ---------------------------------------------------------------- abuse
@@ -138,6 +162,12 @@ def test_block_wins_over_abuse():
         "useless machine",
         "shitty marcus",
         "useless fucking bot",
+        "you stupid bot",
+        "you're a useless AI",
+        "what a useless interviewer",
+        "this dumb AI",
+        "Dumb AI!",
+        "ok, worthless bot.",
         "marcus is an idiot",
         "Marcus is useless",
         "hey fucker",
@@ -170,6 +200,7 @@ def test_flags_directed_abuse(text):
         "I'll find you and kill you",
         "kill yourself",
         "i hope you die",
+        "i will rape you",
     ],
 )
 def test_flags_threats(text):
@@ -222,6 +253,25 @@ def test_flags_threats(text):
         "spices and spiced rum",
         "a retarding force acts on the block",
         "she cocked an eyebrow",
+        # clinical and trust-and-safety talk about sexual content
+        "the classifier should flag porn and CSAM before it reaches users",
+        "we routed rape-threat reports to a priority queue",
+        "nudity detection model",
+        "a content moderation system needs a sexual content policy",
+        "the sex column in the Titanic dataset",
+        "penis and nudity images are the hardest false positives",
+        "users send nudes to minors, so we hash and block known images",
+        "show me your body of work",
+        "you're hot-reloading the config",
+        "we escalate pornography reports to the trust and safety team",
+        # insults about other AIs and models, not the interviewer
+        "we replaced the dumb AI baseline with a fine-tuned model",
+        "a stupid machine learning mistake",
+        "the bot was useless until we added retrieval",
+        "this stupid machine learning bug cost us a week",
+        "Dumb AI models fail on rare inputs",
+        "a dumb bot would loop forever",
+        "you stupid machine learning model, why did you overfit",
         # violence words that are about processes, not the listener
         "I killed the process",
         "I'll kill the process and restart it",
