@@ -259,15 +259,20 @@ export const api = {
     question: PlannedQuestion;
     transcript: string;
     weaknessTags: string[];
+    // Coding questions: the session (the backend checks it was finalized) and the final code.
+    sessionId?: string;
+    code?: string;
   }): Promise<CoachResponse> {
     if (USE_MOCK) {
       await latency(1200);
       return mockEngine.coach(input.question, input.weaknessTags);
     }
+    const { question, transcript, weaknessTags, sessionId, code } = input;
+    const coding = question.type === "coding" ? { sessionId, code: (code ?? "").slice(0, 20_000) } : {};
     const res = await safeFetch(apiUrl("/api/coach"), {
       method: "POST",
       headers: await authHeaders(),
-      body: JSON.stringify(input),
+      body: JSON.stringify({ question, transcript, weaknessTags, ...coding }),
     });
     return res.json();
   },

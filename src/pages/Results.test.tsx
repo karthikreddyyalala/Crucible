@@ -13,6 +13,15 @@ vi.stubGlobal("IntersectionObserver", class {
   takeRecords() { return []; }
 });
 
+// Captures what each card is given (the card itself has its own tests).
+const cardProps = vi.hoisted(() => [] as Record<string, unknown>[]);
+vi.mock("@/components/VerdictCard", () => ({
+  VerdictCard: (props: Record<string, unknown>) => {
+    cardProps.push(props);
+    return null;
+  },
+}));
+
 const PLAN: QuestionPlan = {
   sessionId: "s",
   questions: [{ id: "q1", type: "behavioral", prompt: "Tell me about a hard bug.", targetDifficulty: 3, weightedFromWeakness: false }],
@@ -49,5 +58,21 @@ describe("Results after a conduct end", () => {
   it("a normal session has no note", () => {
     show([EVAL], false);
     expect(screen.queryByText(CONDUCT_NOTE)).not.toBeInTheDocument();
+  });
+});
+
+describe("Results coach context", () => {
+  it("gives a coding answer's card the session id and the final code", () => {
+    const codingPlan: QuestionPlan = {
+      sessionId: "s9",
+      questions: [{ id: "c1", type: "coding", prompt: "Two sum.", targetDifficulty: 2, weightedFromWeakness: false, exemplarId: "code-two-sum" }],
+    };
+    useSessionStore.setState({
+      plan: codingPlan, evaluations: [{ ...EVAL, questionId: "c1" }], endedForConduct: false, updatedMemory: MEMORY,
+      codeByQuestion: { c1: "def two_sum(): pass" },
+    });
+    cardProps.length = 0;
+    render(<MemoryRouter><Results /></MemoryRouter>);
+    expect(cardProps.at(-1)).toMatchObject({ sessionId: "s9", code: "def two_sum(): pass" });
   });
 });

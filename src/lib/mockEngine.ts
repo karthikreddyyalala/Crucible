@@ -566,6 +566,21 @@ export const mockEngine = {
   },
 
   coach(question: PlannedQuestion, weaknessTags: string[]): CoachResponse {
+    // No code in demo mode: like the backend, a clean solution only comes after finalize.
+    if (question.type === "coding") {
+      return {
+        modelAnswer:
+          "A 5/5 coding answer names the approach and its time and space complexity before any code, " +
+          "talks through the one key decision while coding, then walks an example and the edge cases " +
+          "(empty input, duplicates, the largest size) before calling it done. " +
+          "(This is a local preview; connect the backend for a clean reference solution.)",
+        improvements: [
+          `Targets: ${weaknessTags.length ? weaknessTags.join(", ") : "clarity and correctness"}.`,
+          "States the complexity out loud and compares it with the brute force.",
+          "Tests the edge cases before saying it works.",
+        ],
+      };
+    }
     const frame =
       question.type === "behavioral"
         ? "Open with the Situation and your specific Task, walk through the Actions you personally took, and close with a quantified Result."

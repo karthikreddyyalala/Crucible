@@ -13,6 +13,7 @@ export function Results() {
   const evaluations = useSessionStore((s) => s.evaluations);
   const updatedMemory = useSessionStore((s) => s.updatedMemory);
   const endedForConduct = useSessionStore((s) => s.endedForConduct);
+  const codeByQuestion = useSessionStore((s) => s.codeByQuestion);
   const reset = useSessionStore((s) => s.reset);
 
   // A session ended for conduct may have no scored answers yet; it still gets its page.
@@ -176,7 +177,16 @@ export function Results() {
             <div className="space-y-5">
               {evaluations.map((ev, i) => {
                 const q = plan.questions.find((q) => q.id === ev.questionId) ?? plan.questions[i];
-                return <VerdictCard key={ev.questionId} evaluation={ev} question={q} index={i} />;
+                return (
+                  <VerdictCard
+                    key={ev.questionId}
+                    evaluation={ev}
+                    question={q}
+                    index={i}
+                    sessionId={plan.sessionId}
+                    code={codeByQuestion[q.id]}
+                  />
+                );
               })}
             </div>
           </>

@@ -1,0 +1,54 @@
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { VerdictCard } from "./VerdictCard";
+import type { AnswerEvaluation, CoachResponse, PlannedQuestion } from "@/types/contracts";
+
+vi.mock("@/lib/api", () => ({ api: { coachAnswer: vi.fn() } }));
+// jsdom has no IntersectionObserver; motion's in-view animations need one.
+vi.stubGlobal("IntersectionObserver", class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() { return []; }
+});
+
+const question: PlannedQuestion = {
+  id: "q1", type: "coding", prompt: "Two sum.", targetDifficulty: 2, weightedFromWeakness: false, exemplarId: "code-two-sum",
+};
+const evaluation: AnswerEvaluation = {
+  questionId: "q1", transcript: "Q: Two sum.\nA: Hash map.", rubricScores: { correctness: 2 }, weaknessTags: ["failing-tests"],
+  followUpCount: 1, wouldSurviveRealInterview: false, survivalReasoning: "Fails example 2.",
+};
+const SOLUTION = "def two_sum(nums, target):\n    seen = {}\n    return []";
+
+async function openCoach(response: CoachResponse) {
+  const { api } = await import("@/lib/api");
+  vi.mocked(api.coachAnswer).mockResolvedValueOnce(response);
+  render(<VerdictCard evaluation={evaluation} question={question} index={0} sessionId="s1" code="def two_sum(): pass" />);
+  fireEvent.click(screen.getByRole("button", { name: /REVIEW YOUR ANSWER/ }));
+  fireEvent.click(screen.getByRole("button", { name: /What a 5\/5 sounds like/ }));
+  await screen.findByText("A clean approach.");
+  return api;
+}
+
+beforeEach(() => vi.clearAllMocks());
+
+describe("VerdictCard coach panel for a coding answer", () => {
+  it("asks with the session id and final code, then shows the clean code with a copy button", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    const api = await openCoach({ modelAnswer: "A clean approach.", improvements: [], code: SOLUTION });
+
+    expect(api.coachAnswer).toHaveBeenCalledWith(expect.objectContaining({ sessionId: "s1", code: "def two_sum(): pass" }));
+    const block = screen.getByText(/seen = \{\}/);
+    expect(block.closest("pre")).not.toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Copy code" }));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith(SOLUTION));
+  });
+
+  it("shows no code block when the coach returns none", async () => {
+    await openCoach({ modelAnswer: "A clean approach.", improvements: [] });
+    expect(screen.queryByRole("button", { name: "Copy code" })).toBeNull();
+    expect(document.querySelector("pre")).toBeNull();
+  });
+});

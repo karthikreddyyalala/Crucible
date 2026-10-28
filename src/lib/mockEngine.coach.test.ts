@@ -27,4 +27,12 @@ describe("mockEngine.coach", () => {
     const r = mockEngine.coach(q("system_design"), []);
     expect(r.modelAnswer.toLowerCase()).toMatch(/requirement|tradeoff|scale/);
   });
+
+  it("keeps code out of a coding coach note (a clean solution comes from the backend after finalize)", () => {
+    const r = mockEngine.coach(q("coding"), ["failing-tests"]);
+    expect(r.code ?? "").toBe("");
+    expect(r.modelAnswer).toMatch(/complexity/i);
+    expect(r.modelAnswer).not.toMatch(/def |return /);
+    expect(r.improvements.join(" ")).toContain("failing-tests");
+  });
 });

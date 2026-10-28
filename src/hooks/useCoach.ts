@@ -17,6 +17,9 @@ export function useCoach(input: {
   question: PlannedQuestion;
   transcript: string;
   weaknessTags: string[];
+  // Coding questions: lets the coach return a clean solution for the candidate's approach.
+  sessionId?: string;
+  code?: string;
 }) {
   const [state, setState] = useState<CoachState>({ phase: "loading" });
 
@@ -45,7 +48,7 @@ export function useCoach(input: {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [input.question, input.transcript, input.weaknessTags]);
+  }, [input.question, input.transcript, input.weaknessTags, input.sessionId, input.code]);
 
   return { state, load };
 }
