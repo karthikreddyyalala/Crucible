@@ -43,16 +43,13 @@ export function ProblemPanel({ status, problem, onRetry }: Props) {
       <h1 id="problem-title" className="font-display text-[22px] font-semibold leading-tight tracking-tight text-white-pure">
         {problem.title}
       </h1>
-      <ul className="mt-3 flex flex-wrap items-center gap-1.5" aria-label="Difficulty and topics">
-        <li className={`rounded-full border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.16em] ${DIFFICULTY[problem.difficulty]}`}>
+      {/* Difficulty only: topic tags would name the technique, which Marcus never does. */}
+      <p className="mt-3">
+        <span className="sr-only">Difficulty: </span>
+        <span className={`inline-block rounded-full border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.16em] ${DIFFICULTY[problem.difficulty]}`}>
           {problem.difficulty}
-        </li>
-        {problem.topics.map((topic) => (
-          <li key={topic} className="rounded-full border border-line px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-mist">
-            {topic}
-          </li>
-        ))}
-      </ul>
+        </span>
+      </p>
 
       <div className="mt-5 max-w-[70ch] space-y-4 font-sans text-[16px] leading-[1.6] text-chalk/90">
         <Statement text={problem.statement} />
