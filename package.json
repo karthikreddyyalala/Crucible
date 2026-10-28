@@ -13,11 +13,11 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@codemirror/lang-python": "^6.2.1",
+    "@codemirror/lang-python": "6.2.1",
     "@daily-co/daily-js": "^0.91.0",
     "@phosphor-icons/react": "^2.1.7",
     "@sentry/react": "^10.63.0",
-    "@uiw/react-codemirror": "^4.25.12",
+    "@uiw/react-codemirror": "4.25.12",
     "aws-amplify": "^6.18.0",
     "motion": "^11.15.0",
     "pdfjs-dist": "^6.1.200",
