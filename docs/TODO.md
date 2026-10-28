@@ -75,7 +75,10 @@ Roadmap for all phases: docs/ROADMAP.md
       question count in the warmup
 - [x] Final live evals (v4): 76/76 decisions, 34/34 survival verdicts (docs/evals-phase-1.md)
 - [x] Live end-to-end coding interview saved (docs/sample-coding-interview-2026-10-28.md)
-- [x] README updated · PR opened from `feat/phase-1` (not merged, nothing pushed to main)
+- [x] README updated · PR #5 merged 2026-10-28
+- [ ] Redeploy backend + frontend so the live site has Phase 1
+- [ ] Karthik: create a Deepgram account + API key for Phase 2
+- [x] Full history in docs/PROJECT-HISTORY.md; new-chat prompt in docs/NEW-CHAT-PROMPT.md
 - [ ] Wording left: small-talk praise on off-topic answers, praise in advance/closing lines
       the regex misses (needs an LLM judge), Spanish two-part questions
 
