@@ -291,6 +291,8 @@ def test_follow_up_keeps_only_the_first_ask():
                  "followUpPrompt": "If the list were sorted, how would you change it, and could you drop the memory?"})
     assert d.say == "Okay. What was the project?"
     assert d.follow_up_prompt == "If the list were sorted, how would you change it?"
+    dashed = _decide({"action": "follow_up", "say": "If it were sorted, how would you change it — and could you drop the memory?"})
+    assert dashed.say == "If it were sorted, how would you change it?"
 
 
 def test_second_ask_trim_never_crosses_a_sentence():

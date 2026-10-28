@@ -14,7 +14,7 @@ FOLLOW_UP_BUDGET = {"behavioral": 3, "technical": 3, "system_design": 6, "coding
 # project, and what made it tight?") and many problem follow-ups are written that way. Cut it
 # here so the spoken line is deterministic. Never crosses a sentence end, so on doubt it keeps the text.
 _SECOND_ASK = re.compile(
-    r",\s*and\s+(?:what|how|why|who|when|where|which|could|can|would|does|did|is|are)\b[^?.!]*\?",
+    r"(?:,|\s[—–])\s*and\s+(?:what|how|why|who|when|where|which|could|can|would|does|did|is|are)\b[^?.!]*\?",
     re.IGNORECASE,
 )
 
