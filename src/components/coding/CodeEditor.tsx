@@ -1,5 +1,14 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import CodeMirror, { Decoration, EditorView, Prec, keymap, type ReactCodeMirrorRef } from "@uiw/react-codemirror";
+import CodeMirror, {
+  Decoration,
+  EditorView,
+  Prec,
+  RangeSetBuilder,
+  ViewPlugin,
+  keymap,
+  type DecorationSet,
+  type ReactCodeMirrorRef,
+} from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
@@ -26,7 +35,8 @@ const theme = EditorView.theme(
     "&.cm-focused": { outline: "none" },
     ".cm-scroller": { fontFamily: "var(--font-mono)", lineHeight: "1.6", fontVariantLigatures: "none" },
     ".cm-content": { padding: "14px 0", caretColor: "var(--color-accent)" },
-    ".cm-line": { padding: "0 20px 0 14px" },
+    // --hang (set per line below): wrapped rows start under the code, not at column 0.
+    ".cm-line": { padding: "0 20px 0 calc(14px + var(--hang, 0ch))", textIndent: "calc(-1 * var(--hang, 0ch))" },
     ".cm-cursor, .cm-dropCursor": { borderLeft: "2px solid var(--color-accent)" },
     ".cm-selectionBackground, &.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-content ::selection":
       { backgroundColor: "rgba(74, 124, 255, 0.26)" },
@@ -67,6 +77,37 @@ const highlight = HighlightStyle.define([
   { tag: t.meta, color: "#a9bcf5" },
 ]);
 
+// Soft wrap with a hanging indent: each line's continuation rows sit one indent deeper than it.
+const hangMarks = new Map<number, Decoration>();
+function hangFor(width: number): Decoration {
+  let mark = hangMarks.get(width);
+  if (!mark) hangMarks.set(width, (mark = Decoration.line({ attributes: { style: `--hang: ${width}ch` } })));
+  return mark;
+}
+function hangingIndents(view: EditorView): DecorationSet {
+  const builder = new RangeSetBuilder<Decoration>();
+  for (const { from, to } of view.visibleRanges) {
+    for (let pos = from; pos <= to; ) {
+      const line = view.state.doc.lineAt(pos);
+      builder.add(line.from, line.from, hangFor((/^[ \t]*/.exec(line.text)?.[0].length ?? 0) + 4));
+      pos = line.to + 1;
+    }
+  }
+  return builder.finish();
+}
+const hangingIndent = ViewPlugin.fromClass(
+  class {
+    decorations: DecorationSet;
+    constructor(view: EditorView) {
+      this.decorations = hangingIndents(view);
+    }
+    update(u: { docChanged: boolean; viewportChanged: boolean; view: EditorView }) {
+      if (u.docChanged || u.viewportChanged) this.decorations = hangingIndents(u.view);
+    }
+  },
+  { decorations: (plugin) => plugin.decorations },
+);
+
 const BASIC_SETUP = { foldGutter: false, autocompletion: false, highlightActiveLineGutter: true, tabSize: 4 } as const;
 const errorMark = Decoration.line({ class: "cm-errorLine" });
 
@@ -93,6 +134,8 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEdito
     () => [
       python(),
       syntaxHighlighting(highlight),
+      EditorView.lineWrapping,
+      hangingIndent,
       Prec.highest(
         keymap.of([
           { key: "Mod-Shift-Enter", run: () => (actions.current.onSubmit(), true) },

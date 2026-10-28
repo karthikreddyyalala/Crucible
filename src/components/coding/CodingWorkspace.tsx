@@ -60,7 +60,8 @@ export function CodingWorkspace({ question, runner, conversation }: Props) {
             label="Resize problem and conversation"
             className="flex-1"
             first={
-              <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-8 pt-6">
+              // A short fade at the cut edge says "more below" instead of a hard clip.
+              <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-8 pt-6 [mask-image:linear-gradient(to_bottom,black_calc(100%-24px),transparent)]">
                 <ProblemPanel status={status} problem={problem} onRetry={retry} />
               </div>
             }

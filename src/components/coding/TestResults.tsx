@@ -120,7 +120,7 @@ export function TestResults({ status, progress, loadedBefore, run, problem, onRe
         aria-busy={running}
         className={`min-h-0 flex-1 overflow-y-auto px-4 py-4 transition-opacity duration-200 ${running ? "opacity-45" : ""}`}
       >
-        {body}
+        <div className="max-w-[720px]">{body}</div>
       </div>
     </section>
   );
@@ -148,28 +148,29 @@ function ResultList({ rows, problem }: { rows: TestResult[]; problem: CodingProb
 
   return (
     <div>
-      <p className="mb-3 flex items-center gap-2.5 font-mono text-[13px] text-chalk" aria-hidden>
-        <PassIcon passed={allPass} />
-        <span>
-          <Count value={passCount(visible)} /> of {visible.length} examples passed
-        </span>
-      </p>
-      <ul className="space-y-1">
+      {/* Both totals up top, so a Submit's hidden result is visible without scrolling. */}
+      <div className="mb-3 flex flex-wrap items-center gap-x-6 gap-y-2 px-3 font-mono text-[13px] text-chalk">
+        <p className="flex items-center gap-2.5" aria-hidden>
+          <PassIcon passed={allPass} />
+          <span>
+            <Count value={passCount(visible)} /> of {visible.length} examples passed
+          </span>
+        </p>
+        {hidden.length > 0 && (
+          <motion.p {...enter(0)} className="flex items-center gap-2.5" aria-hidden>
+            <PassIcon passed={hiddenPassed === hidden.length} />
+            <span>
+              Hidden tests: <Count value={hiddenPassed} /> of {hidden.length} passed
+            </span>
+          </motion.p>
+        )}
+      </div>
+      <ul className="space-y-1 border-t border-line pt-2">
         {visible.map((r, i) => (
-          <motion.li key={r.index} {...enter(i)}>
+          <motion.li key={r.index} {...enter(i + 1)}>
             <TestRow result={r} problem={problem} open={open.has(r.index)} onToggle={() => toggle(r.index)} />
           </motion.li>
         ))}
-        {hidden.length > 0 && (
-          <motion.li {...enter(visible.length)} className="mt-2 border-t border-line pt-2">
-            <div className="flex min-h-11 items-center gap-3 px-3 font-mono text-[13px] text-chalk">
-              <PassIcon passed={hiddenPassed === hidden.length} />
-              <span>
-                Hidden tests: <Count value={hiddenPassed} /> of {hidden.length} passed
-              </span>
-            </div>
-          </motion.li>
-        )}
       </ul>
     </div>
   );
