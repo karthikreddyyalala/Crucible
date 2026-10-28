@@ -40,6 +40,8 @@ class QuestionExemplar(_Base):
     signal: str = ""
     levels: tuple[Level, ...] = Field(default=("junior", "mid", "senior"), min_length=1)
     weak_answer_signs: tuple[str, ...] = ()
+    # "original", or "adapted from <name>" where <name> is listed in data/question_bank/ATTRIBUTION.md.
+    source: str = "original"
 
 
 class QuestionBank(_Base):

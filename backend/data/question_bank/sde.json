@@ -11,34 +11,38 @@
         "mid",
         "senior"
       ],
-      "signal": "Owns an outcome end to end under real constraints",
+      "signal": "Owns a delivery end to end: cuts scope and raises risk early instead of quietly absorbing it",
       "prompt": "Tell me about a project you owned where the deadline felt unrealistic.",
       "idealAnswerPoints": [
-        "a specific project with a real deadline and stakes",
-        "the trade-offs and scope cuts they personally decided",
-        "how they communicated risk to stakeholders early",
-        "a measured result, delivered or honestly missed",
-        "a concrete lesson they applied afterward"
+        "a specific project with a real date and a concrete reason the date mattered (customer commitment, launch, contract)",
+        "the scope cuts or sequencing changes they personally proposed, and what they deliberately left out",
+        "when and how they told stakeholders the date was at risk, before it slipped rather than after",
+        "the actual outcome against the original date and scope, stated plainly even if it was missed",
+        "one concrete change to how they plan or estimate that they still use"
       ],
       "weakAnswerSigns": [
-        "says 'we' throughout and never names a personal decision",
-        "no outcome or metric given",
-        "blames the deadline or other teams without describing their own response"
+        "says 'we' throughout and never names a decision they made",
+        "the plan was 'everyone worked weekends' with no change to scope or priority",
+        "no outcome, or 'it went well' with no date or scope stated",
+        "blames the deadline or another team without describing their own response"
       ],
       "followUpHooks": [
-        "What did you personally decide?",
-        "What did you cut or delay, and who agreed to that?",
-        "How did you know it worked?",
-        "What would you do differently if the same deadline came again?"
+        "What was your role on that project, specifically?",
+        "What did you decide to cut or delay?",
+        "Who had to agree to that cut?",
+        "When did you first tell anyone the date was at risk?",
+        "How close to the original date and scope did you actually land?",
+        "What would you do differently if you got the same deadline tomorrow?"
       ],
       "rubric": {
         "criteria": {
-          "structure": "Situation, task, action and result are each clear and in order",
-          "specificity": "Concrete details: names, numbers, dates rather than generalities",
-          "impact": "States a measurable or observable outcome",
-          "ownership": "names decisions they personally made"
+          "structure": "Sets up the project and why the date mattered, walks through their response, and lands on what shipped and when",
+          "specificity": "Names the actual date, the features cut and the people who signed off, not 'some features' or 'stakeholders'",
+          "impact": "States what shipped versus what was promised and when, including any miss",
+          "ownership": "Names the scope or sequencing calls they personally made and the risk they personally raised"
         }
-      }
+      },
+      "source": "original"
     },
     {
       "id": "sde-beh-conflict-1",
@@ -50,31 +54,407 @@
         "junior",
         "mid"
       ],
-      "signal": "Handles technical disagreement without damaging the relationship or the outcome",
-      "prompt": "Describe a time you disagreed with a teammate about a technical approach and how it played out.",
+      "signal": "Disagrees with evidence rather than volume, and keeps the working relationship intact",
+      "prompt": "Tell me about a time you disagreed with a teammate about a technical approach.",
       "idealAnswerPoints": [
-        "states both positions fairly",
-        "what they did to resolve it, such as a prototype or data",
-        "the outcome and the working relationship afterward"
+        "states both positions fairly, including the real merit of the teammate's approach",
+        "settled it with evidence: a prototype, a benchmark, a written comparison or a design review",
+        "how the decision was finally made and who made it",
+        "the outcome for the code and for the working relationship afterward"
       ],
       "weakAnswerSigns": [
-        "blames the other person",
-        "resolved by 'agreeing to disagree' with no result",
-        "no personal action"
+        "the teammate is painted as simply wrong or difficult",
+        "settled by escalation or seniority with no evidence brought",
+        "'we agreed to disagree' with no decision or result"
       ],
       "followUpHooks": [
-        "What was the strongest argument for the other side?",
-        "What evidence did you bring, and did it change anyone's mind?",
-        "What would you do if they still disagreed after that?"
+        "What exactly was their approach?",
+        "What was the strongest argument for their side?",
+        "What evidence did you bring?",
+        "Who made the final call?",
+        "Looking back, was the right approach chosen?",
+        "How did you work with that person afterward?"
       ],
       "rubric": {
         "criteria": {
-          "structure": "Situation, task, action and result are each clear and in order",
-          "specificity": "Concrete details: names, numbers, dates rather than generalities",
-          "impact": "States a measurable or observable outcome",
-          "ownership": "describes their own actions in resolving the disagreement"
+          "structure": "Explains the disagreement, the steps taken to settle it and the result, in that order",
+          "specificity": "Names the actual technical choice in dispute (library, schema, algorithm) and the evidence used",
+          "impact": "States what was built and how it turned out, and where the relationship ended up",
+          "ownership": "Describes what they personally did to resolve it, not just what a lead decided"
         }
-      }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-beh-pushback-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Influences without authority, and commits fully once a decision is made even if they lost",
+      "prompt": "Tell me about a time you pushed back on a decision from your manager or product lead that you thought was wrong.",
+      "idealAnswerPoints": [
+        "the decision, why they believed it was wrong, and what getting it wrong would cost",
+        "how they made the case: data, a written proposal or a small experiment, not just objecting in a meeting",
+        "how they engaged with the other side's real constraints (deadline, customer, strategy)",
+        "the outcome, including committing to execute well if the decision stood",
+        "whether they were proved right or wrong, and what they took from it"
+      ],
+      "weakAnswerSigns": [
+        "the pushback was one comment in a meeting, then silent compliance",
+        "frames the manager as incompetent rather than working from different information",
+        "describes winning the argument with no consequence for the product"
+      ],
+      "followUpHooks": [
+        "What did you actually say to them?",
+        "What data did you have that they didn't?",
+        "What was their best reason for the original decision?",
+        "What happened after that conversation?",
+        "How did you behave once the decision was final?",
+        "Were you right, in the end?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Lays out the decision, their objection, how they raised it and the final result in order",
+          "specificity": "Quotes or paraphrases what was actually said and names the evidence they brought",
+          "impact": "States what was decided and the observable consequence for the product or team",
+          "ownership": "Shows they personally made the case and personally owned execution afterward, whichever way it went"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-beh-wrong-call-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 3,
+      "levels": [
+        "junior",
+        "mid",
+        "senior"
+      ],
+      "signal": "Owns a mistake without deflecting and can name a specific lesson it changed",
+      "prompt": "Tell me about a technical decision you made that turned out to be wrong.",
+      "idealAnswerPoints": [
+        "a real decision they made, with the reasoning that seemed sound at the time",
+        "the first signal that it was wrong and how long it took them to act on it",
+        "what they did to recover or reverse it, and what that cost",
+        "a later decision they made differently because of it"
+      ],
+      "weakAnswerSigns": [
+        "a disguised strength ('I was too thorough')",
+        "the mistake turns out to be someone else's, or 'the requirements changed'",
+        "the lesson is generic, like 'communicate more'"
+      ],
+      "followUpHooks": [
+        "Why did it seem like the right call at the time?",
+        "What was the first sign it was wrong?",
+        "How long did it take you to admit it?",
+        "What did it cost to undo?",
+        "What decision since then did you make differently because of this?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Explains the decision, the moment it went wrong, the recovery and the lesson in order",
+          "specificity": "Names the actual technology or design choice and the concrete symptom that exposed it",
+          "impact": "States the cost of the mistake and of the fix in time, incidents or rework",
+          "ownership": "Says plainly the call was theirs and describes their own recovery without shifting blame"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-beh-ambiguity-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 3,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Creates structure in an unstructured situation: finds the real need and narrows scope on purpose",
+      "prompt": "Tell me about a time you were handed a problem with no clear spec and had to decide what to build.",
+      "idealAnswerPoints": [
+        "what was ambiguous and why nobody had already resolved it",
+        "how they found the real requirement: talking to users, reading usage data, finding who owns the decision",
+        "the scope they chose and what they deliberately left out",
+        "how they validated early (prototype, short written proposal, small release) before building it all",
+        "whether the scope bet turned out right, with evidence"
+      ],
+      "weakAnswerSigns": [
+        "waited for someone else to write the spec",
+        "built everything they could think of",
+        "never checked with a real user or stakeholder before building"
+      ],
+      "followUpHooks": [
+        "Who did you talk to first?",
+        "What did you decide not to build?",
+        "How did you check you were building the right thing before it was finished?",
+        "What did you get wrong about what people needed?",
+        "How would you run it if three teams depended on the answer?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from the ambiguous starting point through how they defined it to what shipped",
+          "specificity": "Names the people consulted, the data looked at and the concrete scope chosen",
+          "impact": "States how the result was used or measured after it shipped, not just that it shipped",
+          "ownership": "Shows they personally drove the scoping rather than waiting for a decision"
+        }
+      },
+      "source": "adapted from Tech Interview Handbook"
+    },
+    {
+      "id": "sde-beh-ramp-up-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Learns deliberately: has a method for building a mental model fast and knows when to ask",
+      "prompt": "Tell me about a time you had to become productive fast in a codebase or technology you'd never used.",
+      "idealAnswerPoints": [
+        "the specific codebase or technology and why speed mattered",
+        "a method: finding entry points, tracing one request end to end, running the tests, making a small first change",
+        "when and whom they asked, and how they made those asks efficient",
+        "the first real contribution and how long it took"
+      ],
+      "weakAnswerSigns": [
+        "'I read the docs' with no method",
+        "never asked anyone, or asked before trying anything",
+        "no concrete deliverable at the end"
+      ],
+      "followUpHooks": [
+        "What was the very first thing you did?",
+        "How did you figure out where the important code lived?",
+        "When did you ask for help?",
+        "What was the first change you shipped?",
+        "What would you do to ramp up faster next time?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Sets up what was new, walks through how they learned it and ends with the first real contribution",
+          "specificity": "Names the technology, the files or tools they used to learn it and the timeline",
+          "impact": "States what they delivered and how quickly",
+          "ownership": "Describes their own learning steps, not just that a mentor walked them through it"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-beh-feedback-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Is coachable: hears hard feedback without defensiveness and changes behavior",
+      "prompt": "Tell me about the most useful critical feedback you've received on your work.",
+      "idealAnswerPoints": [
+        "the exact feedback and who gave it",
+        "their honest first reaction",
+        "what they changed afterward, concretely",
+        "evidence the change stuck: a later review, an outcome, someone noticing"
+      ],
+      "weakAnswerSigns": [
+        "the feedback is trivial or a disguised compliment",
+        "they explain why the feedback was wrong and nothing changed",
+        "no evidence of a lasting change"
+      ],
+      "followUpHooks": [
+        "What exactly did they say?",
+        "How did you react in the moment?",
+        "What did you change the following week?",
+        "How do you know the change stuck?",
+        "Have you given someone similar feedback since?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Gives the feedback, their reaction, what they changed and the result in order",
+          "specificity": "Quotes the feedback closely and names the work it was about",
+          "impact": "Shows an observable change in their work afterward",
+          "ownership": "Owns the gap the feedback exposed rather than explaining it away"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-beh-tech-debt-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Translates engineering pain into business cost and earns time to fix it",
+      "prompt": "Tell me about a time you convinced your team to spend time paying down technical debt instead of building features.",
+      "idealAnswerPoints": [
+        "the specific debt and the concrete pain it caused: incidents, slow delivery, painful onboarding",
+        "how they put a cost on it in terms product or leadership cared about",
+        "an incremental plan rather than a big rewrite",
+        "what was traded away to make room and how they protected that time",
+        "a before-and-after measure: fewer incidents, faster deploys, shorter lead time"
+      ],
+      "weakAnswerSigns": [
+        "the argument was 'the code is ugly'",
+        "proposed a full rewrite with no incremental path",
+        "no before-and-after measure"
+      ],
+      "followUpHooks": [
+        "What was the debt actually costing you?",
+        "How did you put a number on it?",
+        "Who was hardest to convince?",
+        "What did you give up to make room for it?",
+        "What did the numbers look like afterward?",
+        "How do you stop that debt building up again?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Explains the pain, the case they made, the plan and the measured result in order",
+          "specificity": "Names the system, the specific debt and the numbers used to argue for it",
+          "impact": "Gives a before-and-after measure tied to the original pain",
+          "ownership": "Shows they personally built the case and drove the plan"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-beh-mentoring-1",
+      "role": "SDE",
+      "competency": "Behavioral & Ownership",
+      "type": "behavioral",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Multiplies others: diagnoses why someone is stuck and grows them instead of doing the work",
+      "prompt": "Tell me about a time you helped a less experienced engineer who was struggling.",
+      "idealAnswerPoints": [
+        "who, what they were struggling with, and how the candidate noticed",
+        "a diagnosis of the actual gap: skill, missing context or confidence",
+        "what they did: pairing, asking questions instead of handing answers, scoped stretch work",
+        "resisting the urge to just do it themselves",
+        "observable growth in the other engineer afterward"
+      ],
+      "weakAnswerSigns": [
+        "fixed the problem for them",
+        "the help was one code review comment",
+        "no observable change in the other engineer"
+      ],
+      "followUpHooks": [
+        "How did you notice they were struggling?",
+        "What did you think the real problem was?",
+        "What did you deliberately not do for them?",
+        "How did you know it was working?",
+        "What could they do on their own afterward that they couldn't before?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves from noticing the struggle through the diagnosis and the help to the result",
+          "specificity": "Names the concrete task or skill involved and what the sessions actually looked like",
+          "impact": "Describes a specific thing the engineer did independently afterward",
+          "ownership": "Shows the candidate's own judgment in how to help, not just that they were available"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-beh-hardest-bug-1",
+      "role": "SDE",
+      "competency": "Debugging & Testing Reasoning",
+      "type": "behavioral",
+      "difficulty": 3,
+      "levels": [
+        "junior",
+        "mid",
+        "senior"
+      ],
+      "signal": "Debugs systematically: forms hypotheses, narrows the search and proves the root cause",
+      "prompt": "Walk me through the hardest bug you've personally tracked down.",
+      "idealAnswerPoints": [
+        "the symptom and why it was hard: intermittent, production-only or misleading",
+        "the hypotheses they formed and how each was tested or ruled out",
+        "the tools used: logs, bisecting, reproducing in isolation, a debugger, metrics",
+        "the root cause, proved rather than guessed",
+        "the fix plus a regression test or guard so it can't recur"
+      ],
+      "weakAnswerSigns": [
+        "found it by changing things until it worked",
+        "root cause never confirmed",
+        "no test or prevention afterward"
+      ],
+      "followUpHooks": [
+        "What made it hard to reproduce?",
+        "What was your first hypothesis?",
+        "How did you rule that out?",
+        "How did you prove that was the root cause?",
+        "What stops it from happening again?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Walks from symptom through each hypothesis to the proven cause and the fix",
+          "specificity": "Names the actual system, the tools used and the specific root cause",
+          "impact": "States the user or system impact of the bug and of the fix",
+          "ownership": "Shows they personally drove the investigation, not that someone else spotted it"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-beh-incident-1",
+      "role": "SDE",
+      "competency": "Debugging & Testing Reasoning",
+      "type": "behavioral",
+      "difficulty": 3,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Mitigates before diagnosing, communicates under pressure and follows through after",
+      "prompt": "Tell me about a production incident where you were the one leading the response.",
+      "idealAnswerPoints": [
+        "how it was detected and what users were experiencing",
+        "a first mitigation (rollback, feature flag, failover) chosen before the root cause was known",
+        "how they kept stakeholders updated and how often",
+        "the root cause found afterward",
+        "follow-up actions they owned, and whether they were actually completed"
+      ],
+      "weakAnswerSigns": [
+        "spent the incident debugging while users stayed broken",
+        "no communication described",
+        "postmortem actions listed but never done"
+      ],
+      "followUpHooks": [
+        "How did you find out something was wrong?",
+        "What did you do in the first ten minutes?",
+        "Why that mitigation rather than finding the root cause first?",
+        "Who were you keeping updated?",
+        "What did the postmortem change?",
+        "Has anything like it happened since?"
+      ],
+      "rubric": {
+        "criteria": {
+          "structure": "Moves through detection, mitigation, communication, root cause and follow-up in order",
+          "specificity": "Gives the timeline, the systems involved and the actual mitigation used",
+          "impact": "States user impact and duration, and what the follow-ups changed",
+          "ownership": "Shows the candidate made the mitigation call and owned the follow-ups"
+        }
+      },
+      "source": "original"
     },
     {
       "id": "sde-tech-dedupe-1",
@@ -87,32 +467,527 @@
         "mid"
       ],
       "signal": "Picks the right data structure and reasons about its cost",
-      "prompt": "Given a stream of user IDs, how would you return the first ID that appears exactly once?",
+      "prompt": "Given a stream of user IDs, how would you find the first ID that appears exactly once?",
       "idealAnswerPoints": [
-        "hash map of counts with ordered scan, or ordered dict",
-        "O(n) time and O(n) space with justification",
-        "handles the no-unique-ID case"
+        "counts with a hash map and keeps arrival order (a second pass or an ordered map) to find the earliest unique",
+        "states O(n) time and O(k) space for k distinct IDs, and why",
+        "handles an empty stream and no unique ID explicitly",
+        "for answers mid-stream, keeps a linked list or ordered set of current uniques so each query is O(1)",
+        "for too many distinct IDs, partitions by hash of ID and combines per-partition results by arrival index"
       ],
       "weakAnswerSigns": [
-        "brute-force nested loop with no cost discussion",
-        "never mentions the empty or all-duplicates case"
+        "nested loop with no complexity discussion",
+        "ignores the case where nothing is unique",
+        "can't say what memory grows with"
       ],
       "followUpHooks": [
-        "What is the time and space complexity?",
-        "What changes if the stream is too large for memory?",
-        "What if you can only see each ID once and can't store them all?"
+        "What's the time and space complexity?",
+        "What does it return if every ID repeats?",
+        "What if I can ask for the answer at any point while the stream is still running?",
+        "What if the distinct IDs don't fit in memory?",
+        "How would you test it?"
       ],
       "rubric": {
         "criteria": {
-          "correctness": "Approach produces correct results on the stated problem",
-          "depth": "Explains why it works and its time/space cost",
-          "edge_cases": "Identifies and handles empty, duplicate and boundary inputs",
-          "communication": "Narrates reasoning clearly before and while coding"
+          "correctness": "Returns the earliest-arriving ID with a count of one, not just any unique ID",
+          "depth": "Explains why counting plus order gives linear time and what the space depends on",
+          "edge_cases": "Handles empty input, no unique ID and an ID that stops being unique later in the stream",
+          "communication": "States the approach before the details and walks a small example"
         }
-      }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-tech-top-k-1",
+      "role": "SDE",
+      "competency": "Data Structures & Algorithms",
+      "type": "technical",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Moves from a correct baseline to the right structure, then adapts when data outgrows one machine",
+      "prompt": "How would you find the ten most frequent search queries from a day of query logs?",
+      "idealAnswerPoints": [
+        "counts with a hash map, then keeps a size-k min-heap for O(n log k) instead of sorting all counts",
+        "explains why the heap beats a full sort when k is small",
+        "notes that normalising queries (case, whitespace) changes the answer",
+        "if counts don't fit in memory, shards by hash of the query so each query is counted in one place, then merges per-shard top-k",
+        "for a rolling window, names an approximate structure such as count-min sketch plus a heap and its error trade-off"
+      ],
+      "weakAnswerSigns": [
+        "sorts everything with no complexity comparison",
+        "merges top-k from randomly split shards, which gives wrong answers",
+        "never considers whether two queries count as the same"
+      ],
+      "followUpHooks": [
+        "What's the complexity of that?",
+        "Why a heap instead of sorting?",
+        "What if the counts don't fit on one machine?",
+        "Why does it matter how you split the data across machines?",
+        "What if I want the top ten over the last hour, updated every minute?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Produces the true top-k, including a merge that stays correct across shards",
+          "depth": "Justifies heap versus sort with complexity and explains why hash partitioning makes the merge exact",
+          "edge_cases": "Considers ties, query normalisation and fewer than k distinct queries",
+          "communication": "States the baseline first, then each improvement and what it buys"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-tech-build-order-1",
+      "role": "SDE",
+      "competency": "Data Structures & Algorithms",
+      "type": "technical",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Recognises a graph problem under a practical framing and handles cycles",
+      "prompt": "How would you work out the order to build a set of packages that depend on each other?",
+      "idealAnswerPoints": [
+        "models packages as a directed graph with edges from dependency to dependent",
+        "topological sort with Kahn's algorithm or DFS post-order in O(V + E)",
+        "detects a cycle and reports which packages are in it",
+        "identifies which packages can build in parallel (each wave of zero in-degree nodes)"
+      ],
+      "weakAnswerSigns": [
+        "sorts packages by number of dependencies",
+        "never mentions cycles",
+        "can't state the complexity"
+      ],
+      "followUpHooks": [
+        "How would you represent the dependencies?",
+        "What's the complexity?",
+        "What happens if two packages depend on each other?",
+        "How would you tell the user which packages form the cycle?",
+        "Which packages could you build at the same time?",
+        "If one package changes, which ones need rebuilding?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Produces an order where every package builds after its dependencies",
+          "depth": "Explains why the algorithm works and its O(V + E) cost",
+          "edge_cases": "Detects cycles, handles packages with no dependencies and disconnected groups",
+          "communication": "Explains the graph model before the algorithm and walks a small example"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-tech-lru-cache-1",
+      "role": "SDE",
+      "competency": "Data Structures & Algorithms",
+      "type": "technical",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Combines data structures to hit constant-time operations, then thinks about real use",
+      "prompt": "Our service calls a slow pricing API — how would you build an in-process cache that evicts the least recently used entry when it's full?",
+      "idealAnswerPoints": [
+        "a hash map from key to a node in a doubly linked list ordered by recency",
+        "O(1) get and put, moving the node to the front on every access",
+        "evicts from the tail when inserting at capacity",
+        "adds a TTL because prices go stale, separate from LRU eviction",
+        "thread safety: one lock around both structures, or sharded caches to cut contention"
+      ],
+      "weakAnswerSigns": [
+        "scans a list to find the oldest entry, making eviction O(n)",
+        "ignores that prices go stale",
+        "no thought about concurrent access"
+      ],
+      "followUpHooks": [
+        "Why do you need both structures?",
+        "What happens on a get for a key that's already cached?",
+        "How do you stop it serving a stale price?",
+        "What happens when many threads hit it at once?",
+        "A popular key expires and a hundred requests miss at the same moment — what happens?",
+        "How would you test the eviction order?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Gets O(1) get and put with correct recency updates and eviction",
+          "depth": "Explains why the map and the list are both needed and what each operation costs",
+          "edge_cases": "Covers staleness, concurrent access and many simultaneous misses on one key",
+          "communication": "Describes the structure clearly before the code"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-tech-retry-client-1",
+      "role": "SDE",
+      "competency": "Coding & Implementation Quality",
+      "type": "technical",
+      "difficulty": 3,
+      "levels": [
+        "mid"
+      ],
+      "signal": "Writes defensive production code: knows when retrying helps and when it makes things worse",
+      "prompt": "How would you write a client that retries failed calls to a flaky downstream service?",
+      "idealAnswerPoints": [
+        "retries only retryable failures (timeouts, 503s, connection resets), never 4xx client errors",
+        "exponential backoff with jitter, capped by attempt count and total time",
+        "requires idempotency, such as an idempotency key, before retrying calls that create or charge something",
+        "a per-attempt timeout so one attempt can't hang forever",
+        "a retry budget or circuit breaker so retries don't amplify an outage"
+      ],
+      "weakAnswerSigns": [
+        "fixed-interval retry loop on every error",
+        "retries a POST with no thought about duplicates",
+        "unaware that retries can cause a retry storm"
+      ],
+      "followUpHooks": [
+        "Which errors would you retry?",
+        "Why add jitter to the backoff?",
+        "What if the call creates an order?",
+        "What happens to the downstream service if every client retries during its outage?",
+        "How would you test this without a real flaky service?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Retries only safe-to-retry failures, with bounded attempts and timeouts",
+          "depth": "Explains why backoff and jitter prevent synchronised retries and why idempotency matters",
+          "edge_cases": "Covers non-idempotent calls, a downstream that's fully down and the caller's own deadline",
+          "communication": "Walks through the client's structure and the reasoning for each guard"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-tech-legacy-refactor-1",
+      "role": "SDE",
+      "competency": "Coding & Implementation Quality",
+      "type": "technical",
+      "difficulty": 3,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Changes legacy code safely: tests first, small steps, shipped continuously",
+      "prompt": "You've inherited a two-thousand-line function that everyone is afraid to touch — how would you make it safe to change?",
+      "idealAnswerPoints": [
+        "pins current behaviour with characterisation tests before changing anything, odd behaviour included",
+        "uses production logs or coverage to find which paths actually run",
+        "refactors in small behaviour-preserving steps (extract function, introduce seams), each shipped separately",
+        "uses a feature flag or shadow comparison for risky changes",
+        "can explain why a big-bang rewrite is the riskier option"
+      ],
+      "weakAnswerSigns": [
+        "proposes rewriting it from scratch",
+        "starts refactoring with no tests",
+        "silently 'fixes' odd behaviour without checking whether callers rely on it"
+      ],
+      "followUpHooks": [
+        "What's the first thing you'd do before changing a line?",
+        "How do you write tests for code you don't understand yet?",
+        "What if the tests pin behaviour that looks like a bug?",
+        "How would you split the work into pieces you can ship?",
+        "Why not just rewrite it?",
+        "How would you know in production that nothing changed?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Proposes a sequence that keeps behaviour unchanged at every step",
+          "depth": "Explains why characterisation tests and small steps reduce risk compared with a rewrite",
+          "edge_cases": "Handles behaviour that looks like a bug, unused paths and callers relying on quirks",
+          "communication": "Lays the plan out as clear, ordered steps"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-tech-pagination-1",
+      "role": "SDE",
+      "competency": "Coding & Implementation Quality",
+      "type": "technical",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Designs an API contract that stays correct as the data changes underneath it",
+      "prompt": "How would you design pagination for an API endpoint that lists a user's orders?",
+      "idealAnswerPoints": [
+        "compares offset-and-limit with cursor-based pagination",
+        "explains offset problems: skipped or repeated rows when new orders arrive, slow deep pages",
+        "a cursor over a stable, unique sort key (created time plus id), returned as an opaque token",
+        "an index that matches the sort, and a maximum page size"
+      ],
+      "weakAnswerSigns": [
+        "offset-and-limit with no awareness of its problems",
+        "sorts by a non-unique column",
+        "no limit on page size"
+      ],
+      "followUpHooks": [
+        "What happens if a new order arrives while someone is paging?",
+        "Why does a deep page get slow with offsets?",
+        "What does your cursor actually contain?",
+        "What if two orders have the same timestamp?",
+        "What index does the query need?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Returns every order exactly once across pages even while new orders arrive",
+          "depth": "Explains why offsets degrade and why a unique sort key makes cursors stable",
+          "edge_cases": "Covers equal timestamps, deleted orders and the last page",
+          "communication": "Describes the request and response shape clearly"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-tech-shared-counter-1",
+      "role": "SDE",
+      "competency": "Concurrency & CS Fundamentals",
+      "type": "technical",
+      "difficulty": 1,
+      "levels": [
+        "junior"
+      ],
+      "signal": "Understands the read-modify-write race at the level of the mechanism",
+      "prompt": "What can go wrong when several threads increment the same counter without any locking?",
+      "idealAnswerPoints": [
+        "increment is read, add, write, so two threads can read the same value and one update is lost",
+        "the final count comes out lower than expected, and only some of the time",
+        "fixes: an atomic increment, a mutex, or per-thread counters summed at the end",
+        "the cost of each: locks serialise and contend, atomics are cheaper, per-thread counters scale best"
+      ],
+      "weakAnswerSigns": [
+        "says it 'might crash' without describing the lost update",
+        "fix is 'add a sleep'",
+        "can't explain why it only fails sometimes"
+      ],
+      "followUpHooks": [
+        "Walk me through two threads interleaving on one increment.",
+        "Why does it only fail sometimes?",
+        "How would you fix it?",
+        "What does that fix cost with sixty-four threads?",
+        "How would you write a test that catches this?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Identifies lost updates from interleaved read-modify-write",
+          "depth": "Explains why the interleaving happens and what each fix costs",
+          "edge_cases": "Explains why the bug is intermittent and hard to reproduce",
+          "communication": "Walks through a concrete interleaving step by step"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-tech-double-spend-1",
+      "role": "SDE",
+      "competency": "Concurrency & CS Fundamentals",
+      "type": "technical",
+      "difficulty": 3,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Reasons about concurrency at the database level, not just in-process locks",
+      "prompt": "Two withdrawal requests for the same account arrive at the same moment — how would you make sure the balance never goes negative?",
+      "idealAnswerPoints": [
+        "names the check-then-act race: both read the balance before either writes",
+        "an atomic conditional update (decrement only where balance is sufficient) and checking rows affected",
+        "or a row lock or optimistic version check with retry, and when each fits",
+        "explains why a mutex in application code fails across multiple servers",
+        "an idempotency key so a client retry doesn't withdraw twice"
+      ],
+      "weakAnswerSigns": [
+        "application-level lock on one server",
+        "relies on the default isolation level without knowing what it guarantees",
+        "ignores duplicate requests from client retries"
+      ],
+      "followUpHooks": [
+        "Where exactly is the race?",
+        "Why doesn't a lock in your service code fix it?",
+        "Does your database's default isolation level prevent this?",
+        "What if the client times out and retries the same withdrawal?",
+        "How would you test this for real?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Guarantees the balance can't go negative with the database enforcing it",
+          "depth": "Explains the race and why the chosen mechanism closes it, including isolation-level behaviour",
+          "edge_cases": "Covers duplicate retried requests and many concurrent withdrawals",
+          "communication": "Describes the interleaving that breaks the naive version before the fix"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-tech-run-once-1",
+      "role": "SDE",
+      "competency": "Concurrency & CS Fundamentals",
+      "type": "technical",
+      "difficulty": 4,
+      "levels": [
+        "senior"
+      ],
+      "signal": "Understands distributed coordination and why 'exactly once' is really at-least-once plus idempotency",
+      "prompt": "A cleanup job is deployed on every server in a fleet — how would you make sure it runs exactly once per hour?",
+      "idealAnswerPoints": [
+        "a lease-based lock in a shared store (database row, Redis, etcd or ZooKeeper) with an expiry",
+        "what happens if the holder pauses past its lease and a second runner starts, and fencing tokens as the fix",
+        "makes the job idempotent so a duplicate run is harmless, since exactly-once can't be guaranteed",
+        "the alternative of a single scheduler or a queue with one consumer, and its availability trade-off",
+        "monitoring for missed and duplicate runs"
+      ],
+      "weakAnswerSigns": [
+        "a lock with no expiry, so a crashed holder blocks the job forever",
+        "assumes server clocks agree",
+        "claims an exactly-once guarantee with no idempotency"
+      ],
+      "followUpHooks": [
+        "Where does the lock live?",
+        "What if the server holding the lock crashes?",
+        "What if it pauses for a minute and wakes up still thinking it holds the lock?",
+        "Can you ever truly guarantee exactly once here?",
+        "How would you know if a run was skipped?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Uses a lease-based mechanism that survives a crashed holder",
+          "depth": "Explains leases, fencing and why idempotency is needed on top of the lock",
+          "edge_cases": "Covers paused holders, clock skew and the coordination store being down",
+          "communication": "Explains the failure scenarios clearly before the fixes"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-tech-p99-bursts-1",
+      "role": "SDE",
+      "competency": "Debugging & Testing Reasoning",
+      "type": "technical",
+      "difficulty": 3,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Debugs performance from evidence: separates queueing from slow work and uses the right tools",
+      "prompt": "A service's p99 latency spikes only during traffic bursts — how would you find the cause?",
+      "idealAnswerPoints": [
+        "checks whether the time is spent in the service or a dependency, using traces or per-call timings",
+        "looks for saturation of a bounded resource: thread pool, connection pool, CPU, GC pauses, locks",
+        "recognises queueing: requests waiting rather than the work itself getting slower",
+        "correlates the spikes with pool utilisation, GC logs and dependency latency",
+        "reproduces with a load test shaped like the burst, then verifies the fix the same way"
+      ],
+      "weakAnswerSigns": [
+        "jumps to 'add more servers'",
+        "looks only at average latency",
+        "no plan to reproduce"
+      ],
+      "followUpHooks": [
+        "What would you look at first?",
+        "How would you tell queueing from slow work?",
+        "The database looks fine — what next?",
+        "What if the spikes line up with garbage collection?",
+        "How would you reproduce it outside production?",
+        "How would you confirm your fix actually worked?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Lands on a method that can actually locate the saturated resource",
+          "depth": "Explains why bursts cause tail latency through queueing on bounded pools",
+          "edge_cases": "Considers dependencies, GC and pool limits rather than one assumed cause",
+          "communication": "Describes the investigation as a clear sequence of checks"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-tech-flaky-test-1",
+      "role": "SDE",
+      "competency": "Debugging & Testing Reasoning",
+      "type": "technical",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Treats flakiness as a real bug and hunts down the source of nondeterminism",
+      "prompt": "A test passes on your machine but fails about one run in twenty in CI — how would you track it down?",
+      "idealAnswerPoints": [
+        "reproduces by running it many times in a loop, ideally under CI-like conditions",
+        "lists likely sources: shared state or test order, timing and sleeps, the real clock or timezone, randomness, network, parallelism",
+        "compares logs and artifacts from failing and passing CI runs",
+        "fixes the cause (wait on a condition, inject the clock, isolate state) rather than adding retries"
+      ],
+      "weakAnswerSigns": [
+        "marks it skipped or adds an automatic retry",
+        "increases a sleep",
+        "assumes CI is broken"
+      ],
+      "followUpHooks": [
+        "How would you make it fail on your machine?",
+        "What's different between your machine and CI?",
+        "What if it only fails when run with the rest of the suite?",
+        "Why not just retry it automatically?",
+        "How would you fix a test that depends on the current time?"
+      ],
+      "rubric": {
+        "criteria": {
+          "correctness": "Finds and removes the source of nondeterminism rather than masking it",
+          "depth": "Explains why each candidate source causes intermittent failure",
+          "edge_cases": "Considers ordering, timing, environment and parallelism differences",
+          "communication": "Lays out the hunt as clear, ordered steps"
+        }
+      },
+      "source": "original"
     },
     {
       "id": "sde-sd-shortener-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Turns a vague product ask into a sized, defensible architecture",
+      "prompt": "Design a URL shortener.",
+      "idealAnswerPoints": [
+        "asks about read/write ratio, link lifetime, custom aliases and analytics before designing",
+        "rough estimates of redirects per second, new links per second and storage over a few years",
+        "an ID scheme with reasons: counter plus base62, or random codes with a collision check, and the trade-offs",
+        "a key-value store keyed by code with a cache in front of the redirect path",
+        "permanent versus temporary redirects and the effect on caching and analytics"
+      ],
+      "weakAnswerSigns": [
+        "draws boxes before asking what the product needs",
+        "hashes the URL and truncates it with no plan for collisions",
+        "one database with no caching for a read-heavy path"
+      ],
+      "followUpHooks": [
+        "Before we draw anything, what does this need to support?",
+        "Roughly how many redirects per second at peak?",
+        "How do you generate short codes without collisions?",
+        "What does a redirect cost when the code isn't in the cache?",
+        "What happens when the primary database goes down?",
+        "Would you use a permanent or a temporary redirect?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Asks about read/write ratio, link lifetime and aliases before choosing components",
+          "scalability": "Estimates read and write rates and storage, and identifies the redirect as the hot path",
+          "tradeoffs": "Compares at least two ID-generation schemes and justifies one",
+          "depth": "Goes deep on code generation or the cached redirect path, including what happens on failure"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-sd-rate-limiter-1",
       "role": "SDE",
       "competency": "System Design",
       "type": "system_design",
@@ -121,33 +996,337 @@
         "mid",
         "senior"
       ],
-      "signal": "Turns a vague product ask into a sized, defensible architecture",
-      "prompt": "Design a URL shortening service that serves redirects for a few hundred million links.",
+      "signal": "Picks a limiting algorithm for the right reasons and keeps counts correct across many nodes",
+      "prompt": "Design a rate limiter for a public API.",
       "idealAnswerPoints": [
-        "asks about read/write ratio, link lifetime and custom aliases",
-        "estimates storage and QPS",
-        "chooses an ID generation scheme and a store with reasons",
-        "caching on the redirect path"
+        "pins down what is limited (API key, user or IP), the limits per endpoint, and reject versus throttle",
+        "compares token bucket, fixed window and sliding window on burst behaviour and memory, then picks one",
+        "enforced at the gateway or middleware, with counts in a shared store such as Redis",
+        "atomic counter updates so gateway nodes don't race",
+        "fail-open versus fail-closed when the counter store is unavailable, chosen deliberately",
+        "returns 429 with Retry-After and limit headers"
       ],
       "weakAnswerSigns": [
-        "jumps straight to boxes without requirements",
-        "no numbers",
-        "single database with no scaling story"
+        "per-server in-memory counters with no awareness that limits drift across servers",
+        "fixed window with no awareness of the double burst at the window boundary",
+        "no plan for the counter store going down"
       ],
       "followUpHooks": [
-        "How do you generate unique short codes without collisions?",
-        "How does the redirect path stay fast at peak load?",
-        "What happens when a cache node or the primary database fails?",
-        "How would you add per-link click analytics without slowing redirects?"
+        "What exactly are we limiting on?",
+        "Which algorithm would you pick?",
+        "Where does the counter live when you have fifty gateway nodes?",
+        "How do you stop two nodes racing on the same counter?",
+        "What happens if the counter store goes down?",
+        "What did you give up by choosing that algorithm?"
       ],
       "rubric": {
         "criteria": {
-          "requirements": "Clarifies functional and non-functional requirements and scale up front",
-          "scalability": "Sizes the load and shows where the design bottlenecks",
-          "tradeoffs": "Names alternatives and justifies the choices made",
-          "depth": "Goes deep on at least one component, including failure modes"
+          "requirements": "Pins down the limiting key, the limits and the client-facing response before choosing an algorithm",
+          "scalability": "Explains how counts stay correct across many gateway nodes and what load the counter store takes",
+          "tradeoffs": "Compares at least two algorithms on bursts and memory, and chooses fail-open or fail-closed on purpose",
+          "depth": "Goes deep on atomic counter updates or on behaviour when the store fails"
         }
-      }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-sd-news-feed-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Reasons about fan-out cost and the celebrity problem rather than drawing a generic feed",
+      "prompt": "Design the home feed for a social app where people follow each other.",
+      "idealAnswerPoints": [
+        "clarifies chronological versus ranked, read/write ratio and how fresh the feed must be",
+        "compares fan-out on write (precomputed timelines) with fan-out on read and the cost of each",
+        "a hybrid for accounts with huge follower counts: merge their posts at read time",
+        "a timeline cache of post IDs, hydrated from the post store",
+        "cursor pagination that stays stable while new posts arrive",
+        "handles unfollows, deleted posts and a brand-new user with an empty feed"
+      ],
+      "weakAnswerSigns": [
+        "one query joining follows and posts at read time with no scaling story",
+        "fan-out on write with no answer for very large accounts",
+        "no pagination"
+      ],
+      "followUpHooks": [
+        "Is the feed chronological or ranked?",
+        "Do you build the feed when someone posts or when someone reads?",
+        "What happens when an account with fifty million followers posts?",
+        "What do you store in the timeline cache?",
+        "How do you paginate while new posts keep arriving?",
+        "What did you give up by choosing that approach?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Establishes ordering, freshness and read/write ratio before picking a fan-out model",
+          "scalability": "Quantifies fan-out cost and identifies very large accounts as the bottleneck",
+          "tradeoffs": "Compares fan-out on write and on read and justifies a hybrid or a choice",
+          "depth": "Goes deep on the timeline cache, pagination or the celebrity path"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-sd-chat-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Handles persistent connections, ordering and delivery guarantees in a real-time system",
+      "prompt": "Design a chat service that supports direct messages and group conversations.",
+      "idealAnswerPoints": [
+        "clarifies group size, delivery and read receipts, offline delivery, history and multiple devices",
+        "persistent connections (WebSockets) on connection servers, with a registry of which server holds which user",
+        "per-conversation sequence numbers for ordering instead of client timestamps",
+        "at-least-once delivery with acknowledgements and message IDs for deduplication",
+        "store-and-forward for offline users, plus push notifications",
+        "fan-out for groups, and limits or a different path for very large groups"
+      ],
+      "weakAnswerSigns": [
+        "clients poll for new messages with no discussion of cost",
+        "orders messages by timestamp",
+        "messages are lost when the recipient is offline"
+      ],
+      "followUpHooks": [
+        "How does a message get from my phone to yours?",
+        "How do you know which server my connection is on?",
+        "How do you keep messages in order within a conversation?",
+        "What happens if I'm offline when you send it?",
+        "A connection server dies — what happens to the users on it?",
+        "How does this change for a group of five thousand people?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Establishes group size, delivery guarantees and offline behaviour before designing",
+          "scalability": "Explains how connection servers scale and how messages are routed across them",
+          "tradeoffs": "Weighs push versus poll and ordering or delivery guarantees against cost",
+          "depth": "Goes deep on ordering, delivery acknowledgement or connection-server failure"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-sd-notifications-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Builds a reliable asynchronous pipeline with retries, deduplication and user preferences",
+      "prompt": "Design a system that sends users push, email and SMS notifications.",
+      "idealAnswerPoints": [
+        "clarifies who triggers notifications, how urgent they are, user preferences and opt-outs, and volume",
+        "an API that writes to a queue, with channel-specific workers calling providers",
+        "preferences and quiet hours checked before sending",
+        "retries with backoff and idempotency keys so nothing is sent twice",
+        "per-user rate limits so a bug can't spam someone",
+        "provider abstraction with failover between providers"
+      ],
+      "weakAnswerSigns": [
+        "calls providers synchronously from the request path",
+        "no retry or duplicate handling",
+        "ignores user preferences"
+      ],
+      "followUpHooks": [
+        "What kinds of notifications are we sending?",
+        "What happens between a service asking to notify someone and the message going out?",
+        "The email provider times out — what happens?",
+        "How do you make sure a user doesn't get the same SMS twice?",
+        "A bug triggers a million notifications to one user — what stops it?",
+        "How do you know notifications are actually being delivered?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Clarifies notification types, urgency, preferences and volume before designing",
+          "scalability": "Decouples senders with a queue and explains how workers scale per channel",
+          "tradeoffs": "Weighs at-least-once delivery against duplicates, and synchronous against queued sending",
+          "depth": "Goes deep on retries and deduplication or on provider failure"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-sd-autocomplete-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 2,
+      "levels": [
+        "junior",
+        "mid"
+      ],
+      "signal": "Moves work offline to meet a tight latency budget",
+      "prompt": "Design search autocomplete for an online store.",
+      "idealAnswerPoints": [
+        "clarifies the latency target, what ranks suggestions, personalisation and freshness",
+        "precomputed top suggestions per prefix (trie or prefix table) instead of computing at query time",
+        "an offline pipeline over search logs that aggregates popularity and rebuilds the index",
+        "serving from memory or cache, with client-side debouncing to cut request volume",
+        "filters for offensive or out-of-stock suggestions"
+      ],
+      "weakAnswerSigns": [
+        "runs a prefix query against the products database on every keystroke",
+        "no update pipeline",
+        "no latency target"
+      ],
+      "followUpHooks": [
+        "How fast does a suggestion need to appear?",
+        "What decides which suggestions come first?",
+        "What data structure would you serve from?",
+        "How does a newly trending search get into the suggestions?",
+        "How many requests does one user typing a word generate?",
+        "How would you stop a bad suggestion from appearing?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Establishes the latency target and ranking signal before choosing a structure",
+          "scalability": "Estimates request volume per keystroke and keeps the serving path in memory",
+          "tradeoffs": "Weighs freshness of suggestions against the cost of rebuilding the index",
+          "depth": "Goes deep on the prefix structure or the offline update pipeline"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-sd-web-crawler-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Designs a distributed work queue with politeness, deduplication and adversarial inputs",
+      "prompt": "Design a web crawler that keeps a search index fresh.",
+      "idealAnswerPoints": [
+        "clarifies the scope of the web, how fresh pages must be and which content types matter",
+        "a URL frontier with priorities and per-host queues",
+        "politeness: respects robots.txt and per-host rate limits",
+        "deduplicates URLs (normalisation, a seen-set or Bloom filter) and content (hashing or near-duplicate detection)",
+        "workers partitioned by host so politeness is enforced in one place",
+        "handles crawler traps and schedules recrawls by how often each page changes"
+      ],
+      "weakAnswerSigns": [
+        "one BFS queue with no politeness",
+        "no deduplication",
+        "no plan for infinite URL spaces"
+      ],
+      "followUpHooks": [
+        "How do you decide which URL to fetch next?",
+        "How do you avoid hammering one website?",
+        "How do you know you've already seen a page?",
+        "How do you split the work across many machines?",
+        "What happens when a site generates infinite URLs?",
+        "How do you decide how often to recrawl a page?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Clarifies scope, freshness and content types before designing",
+          "scalability": "Explains how the frontier and workers partition across machines and what limits throughput",
+          "tradeoffs": "Weighs freshness against politeness, and exact against probabilistic deduplication",
+          "depth": "Goes deep on the frontier, deduplication or trap handling"
+        }
+      },
+      "source": "adapted from system-design-primer"
+    },
+    {
+      "id": "sde-sd-kv-store-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 5,
+      "levels": [
+        "senior"
+      ],
+      "signal": "Knows the core distributed-systems trade-offs: partitioning, replication, consistency and repair",
+      "prompt": "Design a distributed key-value store.",
+      "idealAnswerPoints": [
+        "clarifies consistency needs, value sizes, read/write mix and availability target",
+        "partitioning with consistent hashing and virtual nodes",
+        "replication with quorum reads and writes, and what R + W > N buys",
+        "conflict handling: last-write-wins versus version vectors, and the data-loss trade-off",
+        "failure detection, hinted handoff and anti-entropy repair",
+        "a per-node storage engine (log-structured) and why"
+      ],
+      "weakAnswerSigns": [
+        "hash mod N with no plan for adding nodes",
+        "replication with no consistency discussion",
+        "no failure detection or repair"
+      ],
+      "followUpHooks": [
+        "What consistency does a client get?",
+        "How do keys map to nodes?",
+        "What happens when you add a node?",
+        "How do replicas stay in sync?",
+        "Two clients write the same key on opposite sides of a network partition — what happens?",
+        "How does a replica that was down catch up?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Establishes consistency and availability needs before choosing a replication scheme",
+          "scalability": "Explains how partitioning spreads load and how the cluster grows without mass reshuffling",
+          "tradeoffs": "Names the consistency versus availability trade-off and how quorum settings move it",
+          "depth": "Goes deep on conflict resolution, failure detection or repair"
+        }
+      },
+      "source": "original"
+    },
+    {
+      "id": "sde-sd-ticketing-1",
+      "role": "SDE",
+      "competency": "System Design",
+      "type": "system_design",
+      "difficulty": 4,
+      "levels": [
+        "mid",
+        "senior"
+      ],
+      "signal": "Protects scarce inventory under extreme contention while keeping payment correct",
+      "prompt": "Design the seat-booking system for a concert ticketing site.",
+      "idealAnswerPoints": [
+        "clarifies seated versus general admission, hold duration, on-sale traffic and the payment flow",
+        "temporary seat holds that expire, so a seat isn't sold twice while someone pays",
+        "strong consistency on seat inventory through conditional updates or per-seat locks",
+        "a waiting room that admits buyers at a controlled rate during on-sale spikes",
+        "idempotent payments and reconciliation of holds against payments",
+        "cached seat maps for browsing while writes go to the source of truth"
+      ],
+      "weakAnswerSigns": [
+        "checks availability then writes, with nothing guarding the race",
+        "no hold mechanism during payment",
+        "no plan for the on-sale traffic spike"
+      ],
+      "followUpHooks": [
+        "What happens between clicking a seat and getting a ticket?",
+        "How do you stop two people buying the same seat?",
+        "What releases a seat if the buyer abandons checkout?",
+        "A million people show up the minute sales open — what happens?",
+        "Payment succeeds but your service crashes before recording it — now what?",
+        "Where are you choosing consistency over availability?"
+      ],
+      "rubric": {
+        "criteria": {
+          "requirements": "Clarifies inventory type, hold rules and the on-sale peak before designing",
+          "scalability": "Explains how the system absorbs the on-sale spike without overselling",
+          "tradeoffs": "Chooses consistency for inventory and explains what that costs in availability",
+          "depth": "Goes deep on holds, contention on a seat or the payment failure path"
+        }
+      },
+      "source": "original"
     }
   ]
 }

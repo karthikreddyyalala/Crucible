@@ -77,3 +77,37 @@ def test_question_content_rules(role, q):
     assert q.role == load_question_bank(role).role
     assert len(re.findall(r"[.?!](\s|$)", q.prompt)) <= 1
     assert len(q.weak_answer_signs) >= 2 and len(q.ideal_answer_points) >= 3
+
+
+_ATTRIBUTION = Path(loader.__file__).resolve().parent.parent / "data" / "question_bank" / "ATTRIBUTION.md"
+
+
+@pytest.mark.parametrize("role,q", _ALL, ids=_IDS)
+def test_question_source_is_original_or_attributed(role, q):
+    if q.source == "original":
+        return
+    assert q.source.startswith("adapted from "), f"{q.id}: bad source {q.source!r}"
+    name = q.source.removeprefix("adapted from ")
+    assert name in _ATTRIBUTION.read_text(), f"{q.id}: {name!r} missing from ATTRIBUTION.md"
+
+
+@pytest.mark.parametrize("role", _ROLE_KEYS)
+def test_bank_covers_every_type_and_level(role):
+    qs = load_question_bank(role).questions
+    for t in ("behavioral", "technical", "system_design"):
+        for lvl in ("junior", "mid", "senior"):
+            assert sum(q.type == t and lvl in q.levels for q in qs) >= 2, (t, lvl)
+
+
+@pytest.mark.parametrize("role", _ROLE_KEYS)
+def test_every_competency_has_three_questions(role):
+    qs = load_question_bank(role).questions
+    for c in load_competency_map(role).competencies:
+        assert sum(q.competency == c.area for q in qs) >= 3, c.area
+
+
+@pytest.mark.parametrize("role,q", [(r, q) for r, q in _ALL if q.type == "system_design"],
+                         ids=[q.id for _, q in _ALL if q.type == "system_design"])
+def test_system_design_prompt_states_the_problem_only(role, q):
+    assert not re.search(r"\d", q.prompt), q.prompt
+    assert "clarif" not in q.prompt.lower(), q.prompt
