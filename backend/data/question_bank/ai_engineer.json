@@ -2,7 +2,7 @@
   "role": "AI Engineer",
   "questions": [
     {
-      "id": "aie-sd-drift-1",
+      "id": "aie-beh-drift-1",
       "role": "AI Engineer",
       "competency": "ML System Design & Behavioral",
       "type": "behavioral",
@@ -12,7 +12,7 @@
         "senior"
       ],
       "signal": "Has operated a model in production and learned from it going wrong",
-      "prompt": "Tell me about a time a model you shipped behaved worse in production than in evaluation. What did you do?",
+      "prompt": "Tell me about a time a model you shipped behaved worse in production than in evaluation.",
       "idealAnswerPoints": [
         "how the problem was detected",
         "root cause such as drift or train/serve skew",
@@ -49,7 +49,7 @@
         "senior"
       ],
       "signal": "Understands why retrieval-augmented systems fail and how to measure them",
-      "prompt": "A RAG chatbot over internal docs gives confident but wrong answers. How would you diagnose and improve it?",
+      "prompt": "How would you diagnose and improve a RAG chatbot over internal docs that gives confident but wrong answers?",
       "idealAnswerPoints": [
         "separates retrieval failures from generation failures",
         "inspects retrieved chunks and measures recall on a labelled set",
@@ -70,8 +70,8 @@
         "criteria": {
           "correctness": "Approach produces correct results on the stated problem",
           "depth": "Explains why it works and its time/space cost",
-          "edge_cases": "Identifies and handles empty, duplicate and boundary inputs",
-          "communication": "Narrates reasoning clearly before and while coding"
+          "edge_cases": "Considers empty retrieval, stale or conflicting chunks, and questions whose answer lies outside the retrieved context",
+          "communication": "Explains clearly how they would isolate retrieval failures from generation failures"
         }
       }
     }

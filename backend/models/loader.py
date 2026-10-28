@@ -1,7 +1,8 @@
 import json
 from functools import lru_cache
+from typing import Literal
 from pathlib import Path
-from models.question_data import CompetencyMap, QuestionBank, QuestionExemplar
+from models.question_data import CompetencyMap, Level, QuestionBank, QuestionExemplar
 
 _DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "competencies"
 
@@ -14,7 +15,6 @@ def load_competency_map(role_key: str) -> CompetencyMap:
 
 
 _BANK_DIR = Path(__file__).resolve().parent.parent / "data" / "question_bank"
-_ROLES = ("sde", "ai_engineer")
 
 
 @lru_cache(maxsize=None)
@@ -25,18 +25,18 @@ def load_question_bank(role_key: str) -> QuestionBank:
     return QuestionBank.model_validate(json.loads(path.read_text()))
 
 
-def bank_for(role_key: str, *, mode: str, level: str) -> list[QuestionExemplar]:
+def bank_for(role_key: str, *, mode: Literal["full", "behavioral", "technical", "system_design"], level: Level) -> list[QuestionExemplar]:
     return [
         q for q in load_question_bank(role_key).questions
         if level in q.levels and (mode == "full" or q.type == mode)
     ]
 
 
+@lru_cache(maxsize=None)
+def _exemplars_by_id() -> dict[str, QuestionExemplar]:
+    roles = sorted(p.stem for p in _BANK_DIR.glob("*.json"))
+    return {q.id: q for role in roles for q in load_question_bank(role).questions}
+
+
 def find_exemplar(exemplar_id: str | None) -> QuestionExemplar | None:
-    if not exemplar_id:
-        return None
-    for role in _ROLES:
-        for q in load_question_bank(role).questions:
-            if q.id == exemplar_id:
-                return q
-    return None
+    return _exemplars_by_id().get(exemplar_id) if exemplar_id else None

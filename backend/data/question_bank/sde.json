@@ -14,18 +14,22 @@
       "signal": "Owns an outcome end to end under real constraints",
       "prompt": "Tell me about a project you owned where the deadline felt unrealistic.",
       "idealAnswerPoints": [
-        "specific situation",
-        "own decisions",
-        "measured result"
+        "a specific project with a real deadline and stakes",
+        "the trade-offs and scope cuts they personally decided",
+        "how they communicated risk to stakeholders early",
+        "a measured result, delivered or honestly missed",
+        "a concrete lesson they applied afterward"
       ],
       "weakAnswerSigns": [
-        "only 'we'",
-        "no outcome"
+        "says 'we' throughout and never names a personal decision",
+        "no outcome or metric given",
+        "blames the deadline or other teams without describing their own response"
       ],
       "followUpHooks": [
         "What did you personally decide?",
+        "What did you cut or delay, and who agreed to that?",
         "How did you know it worked?",
-        "What would you do differently?"
+        "What would you do differently if the same deadline came again?"
       ],
       "rubric": {
         "criteria": {
@@ -47,7 +51,7 @@
         "mid"
       ],
       "signal": "Handles technical disagreement without damaging the relationship or the outcome",
-      "prompt": "Describe a time you disagreed with a teammate about a technical approach. How did it play out?",
+      "prompt": "Describe a time you disagreed with a teammate about a technical approach and how it played out.",
       "idealAnswerPoints": [
         "states both positions fairly",
         "what they did to resolve it, such as a prototype or data",
@@ -83,7 +87,7 @@
         "mid"
       ],
       "signal": "Picks the right data structure and reasons about its cost",
-      "prompt": "Given a stream of user IDs, return the first ID that appears exactly once. Walk me through your approach and write it.",
+      "prompt": "Given a stream of user IDs, how would you return the first ID that appears exactly once?",
       "idealAnswerPoints": [
         "hash map of counts with ordered scan, or ordered dict",
         "O(n) time and O(n) space with justification",
@@ -96,7 +100,7 @@
       "followUpHooks": [
         "What is the time and space complexity?",
         "What changes if the stream is too large for memory?",
-        "How would you do it in a single pass over an unbounded stream?"
+        "What if you can only see each ID once and can't store them all?"
       ],
       "rubric": {
         "criteria": {

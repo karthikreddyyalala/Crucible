@@ -25,28 +25,35 @@ Level = Literal["junior", "mid", "senior"]
 
 
 class QuestionExemplar(_Base):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, frozen=True)
+
     id: str
     role: str
     competency: str
     type: Literal["behavioral", "technical", "system_design"]
     difficulty: Literal[1, 2, 3, 4, 5]
     prompt: str
-    ideal_answer_points: list[str]
-    follow_up_hooks: list[str] = Field(min_length=3)  # the follow-up ladder, shallow -> deep
+    ideal_answer_points: tuple[str, ...]
+    follow_up_hooks: tuple[str, ...] = Field(min_length=3)  # the follow-up ladder, shallow -> deep
     rubric: Rubric
     # What this question is really testing, in one line.
     signal: str = ""
-    levels: list[Level] = ["junior", "mid", "senior"]
-    weak_answer_signs: list[str] = []
+    levels: tuple[Level, ...] = Field(default=("junior", "mid", "senior"), min_length=1)
+    weak_answer_signs: tuple[str, ...] = ()
 
 
 class QuestionBank(_Base):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, frozen=True)
+
     role: str
-    questions: list[QuestionExemplar]
+    questions: tuple[QuestionExemplar, ...]
 
     @model_validator(mode="after")
     def _unique_ids(self) -> "QuestionBank":
         ids = [q.id for q in self.questions]
         if len(ids) != len(set(ids)):
             raise ValueError("duplicate question ids in bank")
+        wrong = [q.id for q in self.questions if q.role != self.role]
+        if wrong:
+            raise ValueError(f"questions with a role other than '{self.role}': {wrong}")
         return self
