@@ -25,7 +25,7 @@ smooth and calm to use.
 
 ## 1. Coding round
 
-### 1.1 Problems (`backend/data/coding/problems.json`)
+### 1.1 Problems (`backend/data/coding/problems/<id>.json`, one file per problem)
 
 All 75 Blind 75 problems. LeetCode problem text is copyrighted; problem ideas are not. Every
 statement, example and test is written for Crucible. Each problem:
@@ -43,7 +43,11 @@ starterCode      signature + docstring + "pass"
 examples         2–3 {input, output, explanation} shown to the candidate
 tests            10–15 {args, expected} — first 2–3 mirror the examples (visible),
                  the rest are hidden (candidate sees pass counts only)
-compare          "exact" | "unordered" | "unordered_nested" | "float" | "any_valid" (with a validator name)
+compare          "exact" | "unordered" | "unordered_nested" | "float" | "custom" (validator in harness.VALIDATORS)
+kind             "function" (default) | "design" (class; tests replay ops, e.g. Implement Trie) |
+                 "roundtrip" (Codec; deserialize(serialize(x)) == x, e.g. Encode/Decode Strings)
+checkArg         index of an argument to compare after the call instead of the return value
+                 (in-place problems: Rotate Image, Set Matrix Zeroes, Reorder List)
 referenceSolution  correct Python solution (server-side only, never sent to the browser)
 targetComplexity {time: "O(n)", space: "O(n)"}
 hints            3–5 graduated hints (narrow scope → direction → gap → specific input → name it)
@@ -63,6 +67,10 @@ The browser receives problems from `GET /api/coding/problems/{id}` **without**
 `referenceSolution`, hints, follow-ups or rubric (those stay server-side for Marcus and the
 Evaluator). Hidden tests are sent (the browser must run them) but their inputs are not shown
 in the UI.
+
+Implementation notes (2026-10-28): the loader globs one JSON file per problem and the id must
+equal the filename stem; candidate code may use a top-level function or a LeetCode-style
+`class Solution`; adapters are keyed by parameter name read from `signature`.
 
 Demo mode (no backend) needs problems too. A script writes
 `src/lib/coding/problems.public.json` (the same public fields the endpoint returns, no
