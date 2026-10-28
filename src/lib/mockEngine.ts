@@ -523,6 +523,10 @@ export const mockEngine = {
     sessionDate: string,
     prior: MemoryProfile | null
   ): MemoryProfile {
+    // Nothing scored (a session ended early): memory stays as it was, like the backend.
+    if (evaluations.length === 0) {
+      return prior ?? { candidateId: "local-dev", recurringWeaknesses: [], improvementTrend: [], strongAreas: [] };
+    }
     const weaknessMap = new Map<string, RecurringWeakness>();
     prior?.recurringWeaknesses.forEach((w) => weaknessMap.set(w.tag, { ...w }));
     evaluations.forEach((e) =>

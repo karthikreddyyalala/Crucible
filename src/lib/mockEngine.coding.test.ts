@@ -194,3 +194,13 @@ describe("mockEngine — names and coding evaluation", () => {
     expect(passing.rubricScores.correctness).toBeGreaterThan(failing.rubricScores.correctness);
   });
 });
+
+describe("mockEngine.aggregate", () => {
+  it("leaves memory unchanged when nothing was scored (a session ended early)", () => {
+    const prior = {
+      candidateId: "c", recurringWeaknesses: [{ tag: "rambling", frequency: 2, lastSeen: "2026-10-01" }],
+      improvementTrend: [{ sessionDate: "2026-10-01", avgScore: 2.5 }], strongAreas: ["depth"],
+    };
+    expect(mockEngine.aggregate([], "2026-10-28", prior)).toEqual(prior);
+  });
+});
