@@ -233,6 +233,7 @@ def build_session_router(
             transcript=req.transcript,
             follow_up_count=req.follow_up_count,
             usage_sink=usage,
+            exemplar=find_exemplar(req.question.exemplar_id),
         )
         return EvaluateResponse(evaluation=evaluation, cost_usd=sum(u.cost_usd for u in usage))
 

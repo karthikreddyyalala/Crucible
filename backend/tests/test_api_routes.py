@@ -738,6 +738,8 @@ def test_turn_and_evaluate_look_up_exemplar_server_side():
     client.post("/api/session/turn", json={
         "question": q, "answer": "a", "followUpCount": 0, "isLast": False, "phase": "question"})
     assert ex.follow_up_hooks[0] in seen["user"]
+    client.post("/api/session/evaluate", json={"question": q, "transcript": "a", "followUpCount": 0})
+    assert ex.ideal_answer_points[0] in seen["user"]
 
 
 def test_unknown_exemplar_id_yields_no_notes_and_no_error():
@@ -746,3 +748,5 @@ def test_unknown_exemplar_id_yields_no_notes_and_no_error():
     r = client.post("/api/session/turn", json={
         "question": q, "answer": "a", "followUpCount": 0, "isLast": False, "phase": "question"})
     assert r.status_code == 200 and "Interviewer notes" not in seen["user"]
+    r = client.post("/api/session/evaluate", json={"question": q, "transcript": "a", "followUpCount": 0})
+    assert r.status_code == 200 and "Rubric anchors" not in seen["user"]
