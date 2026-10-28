@@ -8,7 +8,7 @@ Status: `[ ]` open · `[~]` in progress · `[x]` done · `[-]` dropped (with rea
 Goal: every question Marcus asks is one a strong real interviewer would ask, with
 planned follow-up depth and fair, calibrated scoring.
 
-- [~] Research: how open-source AI interviewers and real interviewers run each round
+- [x] Research: how open-source AI interviewers and real interviewers run each round
       → `docs/research/interviewer-prompts-and-flow.md`
 - [x] Research: question sources, datasets, licenses, canonical system-design problems
       → `docs/research/question-sources-and-datasets.md`
@@ -20,7 +20,9 @@ planned follow-up depth and fair, calibrated scoring.
 - [~] Planner picks from the bank and personalizes (keeps memory weighting) — TDD
 - [ ] Interviewer gets the question's follow-up ladder as private notes — TDD
 - [ ] Evaluator gets the question's rubric anchors for calibration — TDD
-- [ ] Prompt changes from the research gap analysis
+- [ ] Interview structure + prompt changes from research (plan Task 8: round shape,
+      no give-away requirements, per-type follow-up budgets, ≥1 probe, 5-rung hints,
+      wrong-answer branch, behavioral probes, stricter survival)
 - [ ] Golden eval cases for bank-backed questions; live eval run, results recorded
 - [ ] Live end-to-end interview run; transcript reviewed for naturalness
 - [ ] Docs: README / OVERVIEW updated with what changed and measured results
@@ -38,6 +40,11 @@ ATTRIBUTION.md. See docs/research/question-sources-and-datasets.md.
 - [ ] Tavus persona uses ElevenLabs "Chris" so video and voice-only sound the same
 
 ## Later
+
+- [ ] Private interviewer `notes` passed to the Evaluator (Ilia's hidden-notes pattern)
+- [ ] New rubric criteria + weakness tags (reflection, complexity/testing, API/failure handling)
+- [ ] Planner gives each question its target signals + the weakness tag it aims at
+- [ ] Level-driven session: Marcus leads at junior, candidate leads at senior
 
 - [ ] LiveKit Agents real-time voice server (CLAUDE.md build-order step 4)
 - [-] Fine-tuning a model — dropped: current Claude isn't fine-tunable on Bedrock, the

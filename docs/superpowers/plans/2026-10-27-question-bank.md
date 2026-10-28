@@ -382,12 +382,44 @@ def test_bank_prompts_are_single_ask(role):
 
 ---
 
-### Task 8: Prompt changes from the research gap analysis
+### Task 8: Interview structure + prompt changes from the research gap analysis
 
-Apply the actionable items in the "Gap analysis" section of
-`docs/research/interviewer-prompts-and-flow.md` that fit our rules (neutral tone, one ask,
-graduated hints). Each change is checked by the live eval (Task 9) — no change ships if it
-lowers decision accuracy or raises the judgment-leak rate.
+Source: "Gap analysis" in `docs/research/interviewer-prompts-and-flow.md`. Decisions
+(2026-10-27) — adopted now:
+
+1. **Round shape (planner.md):** `full` mode = 4 questions: 1 behavioral, 2 technical,
+   1 system design (was 5 mixed). Single-type modes stay at their current counts except
+   `system_design` = 2 problems (one problem needs room for a deep dive).
+2. **Don't give away the requirements signal (planner.md + bank):** system-design prompts
+   state the problem only — no "what would you clarify first?", no scale numbers. Marcus
+   supplies constraints only when the candidate asks (clarify action already exists).
+3. **Follow-up budget per type (interviewer.py + interviewer.md + frontend label):**
+   behavioral 3, technical 3, system design 6, passed to the model as `followUpBudget`;
+   rule becomes `followUpCount >= followUpBudget → advance/complete`. Also advance early
+   when the last two replies added nothing new. Frontend shows "FOLLOW-UP n" (no "/2").
+   Test: the user message contains `followUpBudget: 6` for a system_design question.
+4. **At least one probe per question (interviewer.md):** before moving on, ask at least one
+   follow-up — CLAUDE.md's hard rule, and what real interviewers do. Exceptions: the
+   "still stuck after a hint" path. Golden cases expecting advance at followUpCount 0 are
+   relabeled with a `note` (expected: decision accuracy stays ≥ 95%).
+5. **Five-rung hint ladder (interviewer.md):** narrow scope → point a direction → "there's a
+   case this misses" → a specific input → name the problem; never the answer.
+6. **Wrong-answer branch (interviewer.md):** never correct; ask about the input/case that
+   breaks their claim.
+7. **Behavioral probes that crack rehearsed stories (interviewer.md):** "you said 'we' —
+   what did you do?", "what else did you consider?", hard-to-fake details (how a number was
+   measured, who disagreed).
+8. **Survival means survival (evaluator.md):** `wouldSurviveRealInterview` is false if the
+   answer contradicted itself, collapsed under a probe, or only came after the most explicit
+   hint — even when rubric scores are ≥ 3.
+
+Deferred (recorded in docs/TODO.md, not in this branch): private `notes` field on
+InterviewDecision passed to the Evaluator; new rubric criteria + weakness tags (ripples into
+Memory and frontend); per-question target signals from memory; level-driven
+who-leads-the-session.
+
+Each change is checked by the live eval (Task 9) — no change ships if it lowers decision
+accuracy or raises the judgment-leak rate.
 
 - [ ] Commit `refactor: tighten interviewer prompts from interview-practice research`
 
