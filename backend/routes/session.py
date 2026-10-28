@@ -124,7 +124,8 @@ class TurnRequest(_Base):
     # untrusted before they reach the model), plus the client-tracked stage.
     code: str = Field("", max_length=20000)
     test_results: str = Field("", max_length=4000)
-    coding_stage: Literal["", "approach", "coding", "review"] = ""
+    # talk: the problem is on screen without the editor, so the candidate talks the code through.
+    coding_stage: Literal["", "approach", "coding", "review", "talk"] = ""
     # checkin: no edits or messages for a while; submit: just pressed Submit. Answer may be empty.
     event: Literal["", "checkin", "submit"] = ""
     # Conduct strikes so far this session; the response carries the new count.
@@ -204,6 +205,7 @@ class CoachRequest(_Base):
     question: ClientQuestion
     transcript: str = Field(max_length=40000)
     code: str = Field("", max_length=20000)  # coding questions: the candidate's final code
+    session_id: str = Field("", max_length=64)  # the finalized session this question belongs to
     weakness_tags: list[str] = []
 
 

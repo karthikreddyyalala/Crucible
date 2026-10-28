@@ -23,7 +23,8 @@ export type InterviewMode = "full" | "behavioral" | "technical" | "system_design
 export type InterviewLevel = "junior" | "mid" | "senior";
 export type CompanyStyleId = "general" | "amazon" | "google" | "meta" | "microsoft" | "startup";
 // Coding round stage, tracked client-side and sent with each turn ("" outside coding).
-export type CodingStage = "" | "approach" | "coding" | "review";
+// "talk": the problem is on screen without the editor, so the candidate talks the code through.
+export type CodingStage = "" | "approach" | "coding" | "review" | "talk";
 
 export interface PlannedQuestion {
   id: string;
@@ -80,6 +81,16 @@ export interface MemoryProfile {
   recurringWeaknesses: RecurringWeakness[];
   improvementTrend: TrendPoint[];
   strongAreas: string[];
+}
+
+// POST /api/coach. For a coding question the reference solution is used only once the
+// session is finalized (sessionId names it); code is the candidate's final editor text.
+export interface CoachRequest {
+  question: PlannedQuestion;
+  transcript: string;
+  weaknessTags: string[];
+  sessionId?: string;
+  code?: string;
 }
 
 export interface CoachResponse {

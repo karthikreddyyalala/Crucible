@@ -1055,6 +1055,14 @@ def test_checkin_event_with_empty_answer_calls_the_interviewer():
     assert "Event: checkin" in seen["user"] and "Coding stage: coding" in seen["user"]
 
 
+def test_talk_stage_and_coach_session_id_are_accepted():
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP, "CoachResponse": _COACH_PAYLOAD})
+    res = _turn(client, question=_CODING_Q, codingStage="talk", phase="question")
+    assert res.status_code == 200 and "Coding stage: talk" in seen["user"]
+    res = client.post("/api/coach", json={"question": _QUESTION_BODY, "transcript": "t", "sessionId": "sess-1"})
+    assert res.status_code == 200
+
+
 def test_submit_event_with_empty_answer_calls_the_interviewer():
     client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP})
     res = _turn(client, question=_CODING_Q, answer="", event="submit", codingStage="review",
