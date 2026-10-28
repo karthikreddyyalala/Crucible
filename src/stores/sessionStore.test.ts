@@ -959,6 +959,39 @@ describe("sessionStore — turnError", () => {
       expect(useSessionStore.getState()).toMatchObject({ currentIdx: 1, codingStage: "approach", status: "live" });
     });
 
+    it("keeps a turn within the server's limits even with a 10,000-character error and huge code", async () => {
+      seedCoding({ codingStage: "coding", codeByQuestion: { c1: "x".repeat(30_000) } });
+      useSessionStore.getState().recordRun(
+        "c1", { kind: "results", results: [{ ...passed(0, false), error: `ValueError: ${"E".repeat(10_000)}` }] }, "run", 1);
+      expect(useSessionStore.getState().lastRun.c1.summary.length).toBeLessThanOrEqual(1000);
+      const { api } = await import("@/lib/api");
+      vi.mocked(api.submitAnswer).mockResolvedValueOnce(reply("clarify", "Keep going."));
+
+      await useSessionStore.getState().submitAnswer("Still on it.");
+
+      const sent = vi.mocked(api.submitAnswer).mock.calls[0][0];
+      expect(sent.code!.length).toBeLessThanOrEqual(20_000);
+      expect(sent.testResults!.length).toBeLessThanOrEqual(4_000);
+      expect(sent.answer.length).toBeLessThanOrEqual(40_000);
+    });
+
+    it("never leaves a pending evaluation too big to send", async () => {
+      seedCoding({
+        phase: "closing",
+        pendingEvals: [{ question: CODING_PLAN.questions[0], transcript: "t".repeat(50_000), followUpCount: 0, code: "c".repeat(25_000), testResults: "r".repeat(5_000) }],
+      });
+      const { api } = await import("@/lib/api");
+      vi.mocked(api.finalizeSession).mockResolvedValueOnce(MOCK_MEMORY);
+
+      await useSessionStore.getState().endInterview();
+
+      const sent = vi.mocked(api.evaluateAnswer).mock.calls[0][0];
+      expect(sent.transcript.length).toBeLessThanOrEqual(40_000);
+      expect(sent.code!.length).toBeLessThanOrEqual(20_000);
+      expect(sent.testResults!.length).toBeLessThanOrEqual(4_000);
+      expect(useSessionStore.getState().status).toBe("complete");
+    });
+
     it("reports a timeout in the run summary", () => {
       seedCoding({ codingStage: "coding" });
       useSessionStore.getState().recordRun("c1", { kind: "timeout" }, "run", 2);

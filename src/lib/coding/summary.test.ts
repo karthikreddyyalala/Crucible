@@ -42,6 +42,21 @@ describe("summarizeResults", () => {
   });
 });
 
+describe("summarizeResults — size limits", () => {
+  const huge = "E".repeat(10_000);
+
+  it("cuts a huge example error to 300 characters", () => {
+    const s = summarizeResults([row(0, false, { error: `ValueError: ${huge}` })], 1);
+    expect(s.summary.length).toBeLessThan(400);
+    expect(s.summary).toContain("…");
+  });
+
+  it("cuts a huge load error and keeps the whole summary under 1,000 characters", () => {
+    expect(summarizeResults([row(-1, false, { error: huge })], 1).summary.length).toBeLessThanOrEqual(1000);
+    expect(summarizeOutcome({ kind: "error", message: huge }, 1).summary.length).toBeLessThanOrEqual(1000);
+  });
+});
+
 describe("summarizeOutcome", () => {
   it("describes a timeout", () => {
     expect(summarizeOutcome({ kind: "timeout" }, 3).summary).toBe("Timed out after 5 seconds (possible infinite loop)");

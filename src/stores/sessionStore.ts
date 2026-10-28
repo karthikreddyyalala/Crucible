@@ -154,6 +154,20 @@ function currentCoding(s: SessionState): PlannedQuestion | null {
   return q?.type === "coding" ? q : null;
 }
 
+// The server's request limits (TurnRequest / EvaluateRequest in backend/routes/session.py).
+// Bigger values are cut, never sent as-is: a rejected request would get re-sent forever.
+// Threads keep their latest part; code and summaries their start.
+const LIMIT = { code: 20_000, testResults: 4_000, thread: 40_000 };
+
+function fitEval(p: PendingEval): PendingEval {
+  return {
+    ...p,
+    transcript: p.transcript.slice(-LIMIT.thread),
+    ...(p.code !== undefined && { code: p.code.slice(0, LIMIT.code) }),
+    ...(p.testResults !== undefined && { testResults: p.testResults.slice(0, LIMIT.testResults) }),
+  };
+}
+
 // Cleared at the start of every session.
 const FRESH_ROUND = {
   strikes: 0,
@@ -176,7 +190,8 @@ export const useSessionStore = create<SessionState>()(
       // Scores one answer in the background so the interviewer's reply never
       // waits on the Evaluator. A failure leaves it in pendingEvals; finalize
       // retries it before writing memory.
-      const scoreInBackground = (pending: PendingEval) => {
+      const scoreInBackground = (unfit: PendingEval) => {
+        const pending = fitEval(unfit);
         const id = pending.question.id;
         set((s) => ({ pendingEvals: [...s.pendingEvals.filter((p) => p.question.id !== id), pending] }));
         const run = api
@@ -251,8 +266,8 @@ export const useSessionStore = create<SessionState>()(
         // Code and test results go with coding questions only (the backend fences them).
         const coding = currentCoding(state)
           ? {
-              code: state.codeByQuestion[question.id] ?? "",
-              testResults: state.lastRun[question.id]?.summary ?? "",
+              code: (state.codeByQuestion[question.id] ?? "").slice(0, LIMIT.code),
+              testResults: (state.lastRun[question.id]?.summary ?? "").slice(0, LIMIT.testResults),
             }
           : null;
 
@@ -262,7 +277,7 @@ export const useSessionStore = create<SessionState>()(
         try {
           const result = await api.submitAnswer({
             question,
-            answer: event ? "" : thread,
+            answer: (event ? "" : thread).slice(-LIMIT.thread),
             followUpCount: state.followUpCount,
             isLast,
             phase,
