@@ -1,15 +1,20 @@
 from typing import TypedDict
 from langgraph.graph import StateGraph, START, END
 from models.contracts import IntakeProfile, MemoryProfile, QuestionPlan
-from models.loader import bank_for, find_exemplar, load_competency_map
+from models.question_data import QuestionExemplar
+from models.loader import bank_for, load_competency_map
 from agents.intake import IntakeAgent
 from agents.planner import PlannerAgent
 
 
-def keep_known_exemplars(plan: QuestionPlan) -> QuestionPlan:
-    """The model may invent or misspell bank ids; only real ones survive."""
-    qs = [q.model_copy(update={"exemplar_id": q.exemplar_id if find_exemplar(q.exemplar_id) else None})
-          for q in plan.questions]
+def keep_known_exemplars(plan: QuestionPlan, bank: list[QuestionExemplar]) -> QuestionPlan:
+    """The model may invent, misspell or repeat bank ids; only the session bank's, once each, survive."""
+    allowed, qs = {q.id for q in bank}, []
+    for q in plan.questions:
+        ok = q.exemplar_id in allowed
+        if ok:
+            allowed.discard(q.exemplar_id)
+        qs.append(q.model_copy(update={"exemplar_id": q.exemplar_id if ok else None}))
     return plan.model_copy(update={"questions": qs})
 
 
@@ -39,6 +44,7 @@ def build_session_start_graph(*, llm, intake_model: str, planner_model: str):
 
     def planner_node(state: SessionStartState) -> SessionStartState:
         mode, level = state.get("mode", "full"), state.get("level", "mid")
+        bank = bank_for(state["role_key"], mode=mode, level=level)
         plan = planner.run(
             session_id=state["session_id"],
             profile=state["profile"],
@@ -47,9 +53,9 @@ def build_session_start_graph(*, llm, intake_model: str, planner_model: str):
             mode=mode,
             level=level,
             usage_sink=state.get("usage"),
-            bank=bank_for(state["role_key"], mode=mode, level=level),
+            bank=bank,
         )
-        return {"plan": keep_known_exemplars(plan)}
+        return {"plan": keep_known_exemplars(plan, bank)}
 
     g = StateGraph(SessionStartState)
     g.add_node("intake", intake_node)

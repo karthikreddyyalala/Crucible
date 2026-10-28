@@ -1,4 +1,5 @@
 from graph.session_start import build_session_start_graph, keep_known_exemplars
+from models.loader import bank_for
 from models.contracts import IntakeProfile, MemoryProfile, QuestionPlan
 
 
@@ -43,9 +44,28 @@ def test_graph_runs_intake_then_planner():
     assert "QuestionBank" in llm.users[1]
 
 
-def test_keep_known_exemplars_drops_invented_ids():
+def _plan(*ids):
     q = {"type": "behavioral", "prompt": "p", "targetDifficulty": 1, "weightedFromWeakness": False}
-    plan = QuestionPlan.model_validate({"sessionId": "s", "questions": [
-        {**q, "id": "a", "exemplarId": "sde-beh-ownership-1"},
-        {**q, "id": "b", "exemplarId": "made-up-id"}]})
-    assert [x.exemplar_id for x in keep_known_exemplars(plan).questions] == ["sde-beh-ownership-1", None]
+    return QuestionPlan.model_validate({"sessionId": "s", "questions": [
+        {**q, "id": f"q{i}", "exemplarId": e} for i, e in enumerate(ids)]})
+
+
+def _kept(plan, bank):
+    return [x.exemplar_id for x in keep_known_exemplars(plan, bank).questions]
+
+
+def test_keep_known_exemplars_drops_invented_ids():
+    bank = bank_for("sde", mode="behavioral", level="mid")
+    assert "sde-beh-ownership-1" in {q.id for q in bank}
+    assert _kept(_plan("sde-beh-ownership-1", "made-up-id"), bank) == ["sde-beh-ownership-1", None]
+
+
+def test_keep_known_exemplars_drops_ids_outside_the_session_bank():
+    bank = bank_for("sde", mode="behavioral", level="mid")
+    other = bank_for("ai_engineer", mode="behavioral", level="mid")[0].id
+    assert _kept(_plan(other), bank) == [None]
+
+
+def test_keep_known_exemplars_nulls_repeated_ids():
+    bank = bank_for("sde", mode="behavioral", level="mid")
+    assert _kept(_plan("sde-beh-ownership-1", "sde-beh-ownership-1"), bank) == ["sde-beh-ownership-1", None]

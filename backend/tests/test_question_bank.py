@@ -72,7 +72,7 @@ _CRITERIA = {
 
 @pytest.mark.parametrize("role,q", _ALL, ids=_IDS)
 def test_question_content_rules(role, q):
-    assert q.id.startswith(f"{_PREFIX.get(role, role)}-{_TAG[q.type]}-")
+    assert q.id.startswith(f"{_PREFIX[role]}-{_TAG[q.type]}-")
     assert set(q.rubric.criteria) == _CRITERIA[q.type]
     assert q.role == load_question_bank(role).role
     assert len(re.findall(r"[.?!](\s|$)", q.prompt)) <= 1
