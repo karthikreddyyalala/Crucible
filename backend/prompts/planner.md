@@ -39,6 +39,9 @@ follow-ups are the Interviewer agent's job, NOT yours.
 - Pick bank questions first and set `exemplarId` to the exact bank id.
 - You may rephrase a bank prompt to fit THIS candidate (name their real project,
   stack or domain from the IntakeProfile) but never change what it tests or add asks.
+- Keep the bank question's `difficulty` as `targetDifficulty`; only raise it (within the
+  level's range) for a question weighted from a MemoryProfile weakness.
+- Keep the bank question's `type`.
 - At most ONE custom question (`exemplarId: null`), and only for a résumé-specific
   deep-dive the bank can't cover.
 - If the QuestionBank is missing or empty, write all questions yourself with
