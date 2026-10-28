@@ -20,6 +20,10 @@ export function useSpeechRecognition() {
   // user didn't ask for that, and auto-restarts otherwise so a pause mid-
   // answer doesn't silently kill dictation.
   const shouldListenRef = useRef(false);
+  // Each engine session reports only its own words, so a restart would wipe
+  // what came before it. Words from finished sessions are kept here.
+  const committedRef = useRef("");
+  const sessionTextRef = useRef("");
 
   useEffect(() => {
     if (!supported) return;
@@ -36,9 +40,12 @@ export function useSpeechRecognition() {
       for (let i = 0; i < event.results.length; i += 1) {
         text += event.results[i][0].transcript;
       }
-      setTranscript(text.trim());
+      sessionTextRef.current = text.trim();
+      setTranscript(`${committedRef.current} ${sessionTextRef.current}`.trim());
     };
     recognition.onend = () => {
+      committedRef.current = `${committedRef.current} ${sessionTextRef.current}`.trim();
+      sessionTextRef.current = "";
       if (shouldListenRef.current) {
         try {
           recognition.start();
@@ -73,6 +80,8 @@ export function useSpeechRecognition() {
     const recognition = recognitionRef.current;
     if (!recognition) return;
     setTranscript("");
+    committedRef.current = "";
+    sessionTextRef.current = "";
     shouldListenRef.current = true;
     try {
       recognition.start();
