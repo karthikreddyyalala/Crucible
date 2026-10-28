@@ -64,6 +64,8 @@ class StartSessionRequest(_Base):
     jd_text: str
     role: str
     candidate_id: str = "local-dev"
+    # Only screened (see name_usable); never put into a start-time prompt.
+    candidate_name: str = Field("", max_length=80)
     mode: Literal["full", "behavioral", "technical", "system_design", "coding"] = "full"
     level: Literal["junior", "mid", "senior"] = "mid"
     company_style: CompanyStyleId = "general"
@@ -77,6 +79,8 @@ class StartSessionResponse(_Base):
     # since /start, /turn, and /finalize are separate stateless requests with
     # no shared process memory to accumulate a session total server-side.
     cost_usd: float = 0.0
+    # False when the name is empty or flagged: the client's greeting shouldn't say it.
+    name_usable: bool = False
 
 
 class TurnRequest(_Base):
@@ -274,6 +278,7 @@ def build_session_router(
         return StartSessionResponse(
             profile=result["profile"], plan=result["plan"],
             cost_usd=sum(u.cost_usd for u in usage),
+            name_usable=bool(req.candidate_name.strip()) and moderate(req.candidate_name).kind == "ok",
         )
 
     @router.post("/session/turn")

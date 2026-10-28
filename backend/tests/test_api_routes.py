@@ -993,7 +993,7 @@ def test_evaluate_scores_coding_with_problem_anchors_and_fenced_code():
     assert "<test_results>\nvisible 3/3, hidden 10/10\n</test_results>" in seen["user"]
 
 
-def test_start_succeeds_with_a_flagged_name_and_never_puts_it_in_a_prompt():
+def test_start_reports_whether_the_name_can_be_spoken_and_never_prompts_with_it():
     users: list[str] = []
 
     class _Spy(_FakeLLM):
@@ -1002,10 +1002,14 @@ def test_start_succeeds_with_a_flagged_name_and_never_puts_it_in_a_prompt():
             return super().structured(**kw)
 
     client = TestClient(create_app(llm=_Spy({"IntakeProfile": _INTAKE, "QuestionPlan": _PLAN}), store=InMemoryStore()))
-    res = client.post("/api/session/start", json={
-        "resumeText": "r", "jdText": "j", "role": "sde", "candidateName": "Greg Dyke"})
-    assert res.status_code == 200
-    assert len(users) == 2 and not any("Dyke" in u for u in users)
+    body = {"resumeText": "r", "jdText": "j", "role": "sde"}
+    for name, usable in (("Karthik", True), ("wh0re", False), ("", False), ("   ", False)):
+        res = client.post("/api/session/start", json={**body, "candidateName": name})
+        assert res.status_code == 200  # a flagged name is never an error
+        assert res.json()["nameUsable"] is usable, name
+    assert client.post("/api/session/start", json=body).json()["nameUsable"] is False
+    assert len(users) == 10 and not any("Karthik" in u or "wh0re" in u for u in users)
+    assert client.post("/api/session/start", json={**body, "candidateName": "x" * 81}).status_code == 422
 
 
 def test_start_accepts_coding_mode_and_passes_company_style_to_the_planner():

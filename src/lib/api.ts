@@ -122,6 +122,8 @@ export interface StartSessionResult {
   profile: IntakeProfile;
   plan: QuestionPlan;
   costUsd: number;
+  // False when the candidate name is empty or flagged: don't say it. Older servers omit it.
+  nameUsable?: boolean;
 }
 
 export interface TurnInput {
