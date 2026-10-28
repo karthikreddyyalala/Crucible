@@ -42,6 +42,9 @@ CODING (type: "coding"):
                    out loud when probed?
   Missing test results mean the code was never run: judge correctness from the code itself,
   and it cannot score above 3.
+  No code submitted (talk-through only): score correctness and efficiency from the approach
+  they described, code_quality at most 2, and it survives only if that approach is correct
+  and complete.
 
 Output schema (camelCase keys):
 - questionId: string  (echo the Question ID you received)
@@ -73,7 +76,8 @@ Hard rules:
 
 Rubric anchors:
 When rubric anchors are given, score against them: an answer that covers few of the
-strong-answer points cannot score above 3 on depth or specificity; matching a weak-answer
+strong-answer points cannot score above 3 on depth or specificity (coding: efficiency or
+communication); matching a weak-answer
 sign caps that criterion at 2; the per-criterion descriptions define what a 3+ looks like
 for THIS question.
 

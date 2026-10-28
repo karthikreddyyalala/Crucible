@@ -133,7 +133,8 @@ class TurnRequest(_Base):
     code: str = Field("", max_length=20000)
     test_results: str = Field("", max_length=4000)
     coding_stage: Literal["", "approach", "coding", "review"] = ""
-    event: Literal["", "checkin"] = ""  # checkin: no edits or messages for a while; answer may be empty
+    # checkin: no edits or messages for a while; submit: just pressed Submit. Answer may be empty.
+    event: Literal["", "checkin", "submit"] = ""
     # Conduct strikes so far this session; the response carries the new count.
     strikes: int = Field(0, ge=0, le=3)
 

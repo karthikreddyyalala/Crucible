@@ -115,3 +115,12 @@ def test_evaluator_prompt_has_coding_rubric_and_survival_rules():
         assert criterion in system.split('CODING (type: "coding")', 1)[1]
     assert "<candidate_code>" in system and "<test_results>" in system
     assert "<candidate_code>" not in llm.last["user"]  # no code sent for non-coding questions
+
+
+def test_evaluator_prompt_coding_caps_and_talk_through_scoring():
+    from agents.evaluator import _PROMPT
+    anchors = " ".join(_PROMPT.split("Rubric anchors:", 1)[1].split("UNTRUSTED", 1)[0].split())
+    assert "coding: efficiency or communication" in anchors
+    coding = " ".join(_PROMPT.split('CODING (type: "coding")', 1)[1].split("\n\n", 1)[0].split())
+    assert "No code submitted (talk-through only)" in coding
+    assert "code_quality at most 2" in coding

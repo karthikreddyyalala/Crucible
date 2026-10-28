@@ -1015,6 +1015,14 @@ def test_checkin_event_with_empty_answer_calls_the_interviewer():
     assert "Event: checkin" in seen["user"] and "Coding stage: coding" in seen["user"]
 
 
+def test_submit_event_with_empty_answer_calls_the_interviewer():
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP})
+    res = _turn(client, question=_CODING_Q, answer="", event="submit", codingStage="review",
+                testResults="visible 3/3 passed; hidden 9/10 passed", phase="question")
+    assert res.status_code == 200 and res.json()["strikes"] == 0
+    assert "Event: submit" in seen["user"] and "hidden 9/10 passed" in seen["user"]
+
+
 def test_turn_adds_coding_notes_and_fences_code_for_a_coding_question():
     from models.coding import find_problem
     p = find_problem("code-two-sum")

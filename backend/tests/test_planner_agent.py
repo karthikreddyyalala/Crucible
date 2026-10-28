@@ -139,3 +139,9 @@ def test_planner_prompt_describes_coding_shapes_and_company_style():
     coding = _PROMPT.split('- "coding":', 1)[1].split("\n## ", 1)[0]
     for shape in ("2 easy", "1 easy + 1 medium", "1 medium + 1 hard", "2 medium"):
         assert shape in coding
+
+
+def test_planner_prompt_only_writes_non_coding_questions_itself():
+    from agents.planner import _PROMPT
+    assert "write all non-coding questions yourself" in _PROMPT
+    assert "write all questions yourself" not in _PROMPT

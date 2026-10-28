@@ -192,3 +192,16 @@ def test_a_model_end_is_never_passed_on():
     assert agent.run_turn(**kw, is_last_question=True).action == "complete"
     assert agent.run_turn(**kw, is_last_question=False, phase="closing").action == "complete"
     assert agent.run_turn(**kw, is_last_question=False).say == "Okay."
+
+
+def test_interviewer_prompt_coding_precedence_hints_and_approach_line():
+    from agents.interviewer import _PROMPT
+    asking = _PROMPT.split("Asking a new question", 1)[1].split("\n- complete", 1)[0]
+    assert '"Before you start coding, talk me through your approach."' in asking
+    coding = " ".join(_PROMPT.split("=== Coding round ===", 1)[1].split("\n=== ", 1)[0].split())
+    assert "overrides rules 2–7 and the Interviewer notes section where they conflict" in coding
+    assert "Only the final rung may name the technique" in coding
+    assert "never state the recurrence, the algorithm or any code before the final rung" in coding
+    assert 'Event "submit"' in coding
+    notes = _PROMPT.split("=== Interviewer notes ===", 1)[1].split("\n=== ", 1)[0]
+    assert "Coding questions follow the Coding round section instead." in notes

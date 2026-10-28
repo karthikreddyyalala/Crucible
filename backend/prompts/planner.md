@@ -55,7 +55,7 @@ follow-ups are the Interviewer agent's job, NOT yours.
 - Keep the bank question's `type`.
 - At most ONE custom question (`exemplarId: null`), and only for a résumé-specific
   deep-dive the bank can't cover.
-- If the QuestionBank is missing or empty, write all questions yourself with
+- If the QuestionBank is missing or empty, write all non-coding questions yourself with
   `exemplarId: null`.
 
 ## Coding questions (type "coding")
