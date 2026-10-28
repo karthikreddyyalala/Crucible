@@ -118,7 +118,15 @@ function Loaded({ record }: { record: SessionRecord }) {
           const q =
             record.questions.find((question) => question.id === ev.questionId) ??
             record.questions[i];
-          return <VerdictCard key={ev.questionId} evaluation={ev} question={q} index={i} />;
+          return (
+            <VerdictCard
+              key={ev.questionId}
+              evaluation={ev}
+              question={q}
+              index={i}
+              sessionId={record.sessionId}
+            />
+          );
         })}
       </div>
     </div>
