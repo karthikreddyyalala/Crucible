@@ -4,7 +4,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 EXPORTED = ROOT / "src" / "lib" / "coding" / "problems.public.json"
-PRIVATE = {"referenceSolution", "hints", "followUps", "idealAnswerPoints", "weakAnswerSigns", "rubric"}
+PRIVATE = {"targetComplexity", "referenceSolution", "hints", "followUps", "idealAnswerPoints", "weakAnswerSigns", "rubric"}
 
 _spec = importlib.util.spec_from_file_location("export_public_problems", ROOT / "scripts" / "export_public_problems.py")
 exporter = importlib.util.module_from_spec(_spec)
@@ -13,7 +13,15 @@ _spec.loader.exec_module(exporter)
 
 def test_committed_export_matches_the_problem_files():
     # Re-run `python scripts/export_public_problems.py` after changing any problem.
-    assert EXPORTED.read_text(encoding="utf-8") == exporter.export()
+    # Compare parsed problems one by one so a mismatch names the problem instead of
+    # making pytest diff a 2 MB string (which takes minutes).
+    committed = {p["id"]: p for p in json.loads(EXPORTED.read_text(encoding="utf-8"))}
+    fresh = {p["id"]: p for p in json.loads(exporter.export())}
+    assert committed.keys() == fresh.keys(), "problem set changed — re-run the export"
+    stale = sorted(i for i in fresh if committed[i] != fresh[i])
+    assert not stale, f"stale export for {stale} — re-run scripts/export_public_problems.py"
+    same_bytes = EXPORTED.read_text(encoding="utf-8") == exporter.export()  # bool, so no 2 MB diff
+    assert same_bytes, "formatting differs — re-run the export"
 
 
 def test_export_holds_every_problem_without_server_side_fields():
