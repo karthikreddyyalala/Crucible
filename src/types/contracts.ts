@@ -91,6 +91,8 @@ export interface CoachRequest {
   weaknessTags: string[];
   sessionId?: string;
   code?: string;
+  // Without auth, the id the session was finalized under (same as finalize's candidateId).
+  candidateId?: string;
 }
 
 export interface CoachResponse {

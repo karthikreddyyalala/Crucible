@@ -1,6 +1,6 @@
 import re
 from datetime import date
-from typing import Literal
+from typing import Annotated, Literal
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -206,7 +206,9 @@ class CoachRequest(_Base):
     transcript: str = Field(max_length=40000)
     code: str = Field("", max_length=20000)  # coding questions: the candidate's final code
     session_id: str = Field("", max_length=64)  # the finalized session this question belongs to
-    weakness_tags: list[str] = []
+    candidate_id: str = "local-dev"  # without auth, the id the session was finalized under
+    # Tags go into the prompt, so only the evaluator's slug shape gets through.
+    weakness_tags: list[Annotated[str, Field(pattern=r"^[a-z0-9-]{1,40}$")]] = Field([], max_length=10)
 
 
 class TtsRequest(_Base):
@@ -362,16 +364,22 @@ def build_session_router(
         return EvaluateResponse(evaluation=evaluation, cost_usd=sum(u.cost_usd for u in usage))
 
     @router.post("/coach")
-    def coach_answer(req: CoachRequest, _sub: str | None = Depends(current_sub)) -> CoachResponse:
+    def coach_answer(req: CoachRequest, sub: str | None = Depends(current_sub)) -> CoachResponse:
         # On-demand: reworks the candidate's own attempt into a model 5/5 answer.
         # Generated only when the user asks to see it, never during the interview.
-        if moderate(req.transcript).kind != "ok":
+        transcript, flagged = _screen_thread(req.transcript)
+        if flagged:
             raise HTTPException(status_code=422, detail="Let's keep it professional.")
+        problem = _problem_for(req.question)
+        # The reference solution only once the interview is over: the finalized session must hold this problem.
+        record = store.get_session(sub or req.candidate_id, req.session_id) if problem and req.session_id else None
+        if not (record and any(q.exemplar_id == problem.id for q in record.questions)):
+            problem = None
         return coach.run(
             question=req.question,
-            transcript=req.transcript,
+            transcript=transcript,
             weakness_tags=req.weakness_tags,
-            coding_problem=_problem_for(req.question),
+            coding_problem=problem,
             code=req.code,
         )
 

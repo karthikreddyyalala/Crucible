@@ -34,6 +34,10 @@ How to write the model answer:
     space complexity (meeting the target). Build on what the candidate tried. No code in
     modelAnswer: put clean, correct Python with the problem's exact signature in `code`
     (clear names, no comments needed, no dead code). Check it against the reference solution.
+  - coding with no Coding problem block: the interview may still be running, so coach how
+    to approach it in general (restate and clarify, a brute force first, its cost, edge
+    cases to test, talking while coding), building on what they did — never the solution,
+    its key idea or any code. `code` is "".
 - Write it as a natural spoken answer — first person, how a strong candidate
   would actually say it out loud. 4-8 sentences. Not a bulleted essay.
 - Do NOT be generic. A recruiter should feel this is tailored to this exact

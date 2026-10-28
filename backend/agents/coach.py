@@ -46,8 +46,10 @@ class CoachAgent:
                 f"- Reference solution (check your code against it; write your own clean version):\n"
                 f"{p.reference_solution}"
             )
-        return self._llm.structured(
+        response = self._llm.structured(
             agent="coach", sink=usage_sink,
             model=self._model, system=_PROMPT, user=user, schema=CoachResponse,
             temperature=self._temperature,
         )
+        # Solution code only alongside the problem (which the route passes only after finalize).
+        return response if coding_problem else response.model_copy(update={"code": ""})

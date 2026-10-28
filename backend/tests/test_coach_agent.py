@@ -93,3 +93,13 @@ def test_coach_prompt_covers_coding_answers():
     text = " ".join(_PROMPT.split())
     assert "coding:" in text and "spoken walkthrough of an optimal approach" in text
     assert "code: string" in text and "<candidate_code>" in text and "<question>" in text
+
+
+def test_coding_coach_without_the_problem_never_returns_code():
+    q = PlannedQuestion(id="q-code", type="coding", prompt="Let's do a coding problem — Two Sum.",
+                        targetDifficulty=2, weightedFromWeakness=False, exemplarId="code-two-sum")
+    llm = _FakeLLM({**_COACH_PAYLOAD, "code": "def two_sum(nums, target): return []"})
+    assert CoachAgent(llm=llm, model="m").run(question=q, transcript="t", weakness_tags=[]).code == ""
+    from agents.coach import _PROMPT
+    text = " ".join(_PROMPT.split())
+    assert "no Coding problem block" in text and "never the solution" in text
