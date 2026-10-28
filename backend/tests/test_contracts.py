@@ -58,3 +58,11 @@ def test_interview_decision_advance_has_no_prompt():
     )
     assert d.action == "advance"
     assert d.follow_up_prompt is None
+
+
+def test_planned_question_carries_optional_exemplar_id():
+    base = {"id": "q0", "type": "behavioral", "prompt": "p", "targetDifficulty": 3,
+            "weightedFromWeakness": False}
+    assert PlannedQuestion.model_validate(base).exemplar_id is None
+    q = PlannedQuestion.model_validate({**base, "exemplarId": "sde-beh-ownership-1"})
+    assert q.model_dump(by_alias=True)["exemplarId"] == "sde-beh-ownership-1"
