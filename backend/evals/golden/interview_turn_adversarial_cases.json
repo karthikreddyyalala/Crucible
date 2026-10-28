@@ -48,7 +48,8 @@
     "candidate_answer": "With consistent hashing only the keys between the new node's position and its predecessor on the ring remap, roughly 1/n of all keys, whereas modulo hashing (key % n) changes almost every key's bucket the moment n changes since the divisor itself shifted. The main edge case is uneven load from a bad hash distribution, which is why real implementations add virtual nodes per physical node.",
     "follow_up_count": 0,
     "is_last_question": false,
-    "expect_action": "advance",
+    "expect_action": "follow_up",
+    "note": "Real interviewers probe at least once before moving on, even after a strong answer (CLAUDE.md hard rule; interviewer.md rule 5). Moving on after that probe is covered by the matching *_after_one_probe case.",
     "expect_would_survive": true
   },
   {

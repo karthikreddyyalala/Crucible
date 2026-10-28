@@ -31,10 +31,19 @@ CASES_FILE = Path(__file__).parent / "golden" / "interview_turn_cases.json"
 # Real interviewers keep a neutral face; the verdict belongs to the Evaluator.
 # Any of these in a spoken line is a judgment leaking out loud.
 JUDGMENT = re.compile(
-    r"\b(great|good|nice|solid|strong|perfect|excellent|awesome|impressive|exactly"
+    r"\b(great|good|nice|solid|strong|perfect|excellent|awesome|impressive|exactly right|that's exactly"
     r"|reasonable|fair point|that's right|that's wrong|pretty thin|what i was looking for)\b",
     re.IGNORECASE,
 )
+
+
+# Two asks in one turn ("What went wrong, and what would you do differently?").
+STACKED = re.compile(r"\?.*\?|,\s*and\s+(what|how|why|who|when|where|which)\b", re.IGNORECASE)
+
+
+def stacked_ask(say: str) -> bool:
+    # "...? Like, what's actually happening?" restates one question the way people talk.
+    return bool(STACKED.search(say.replace("? Like,", ", like").replace("? Like ", ", like ")))
 
 
 def judgment_leak(say: str) -> str | None:
@@ -94,7 +103,8 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
             is_last_question=case["is_last_question"],
         )
         interviewer_latency = time.monotonic() - t0
-        action_match = decision.action == case["expect_action"]
+        expected = case["expect_action"]  # a string, or a list of acceptable actions
+        action_match = decision.action in (expected if isinstance(expected, list) else [expected])
 
         would_survive_actual = None
         would_survive_match = None
@@ -121,6 +131,7 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
             "would_survive_match": would_survive_match,
             "say": decision.say,
             "judgment_leak": judgment_leak(decision.say),
+            "stacked_ask": decision.action == "follow_up" and stacked_ask(decision.say),
             "interviewer_latency_s": round(interviewer_latency, 2),
             "evaluator_latency_s": round(evaluator_latency, 2) if evaluator_latency is not None else None,
         }
@@ -130,6 +141,8 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
         detail = f"action={decision.action} (expected {case['expect_action']})"
         if would_survive_match is not None:
             detail += f", survive={would_survive_actual} (expected {case['expect_would_survive']})"
+        if row["stacked_ask"]:
+            detail += f", STACKED ASK in: {decision.say}"
         if row["judgment_leak"]:
             detail += f", JUDGMENT '{row['judgment_leak']}' in: {decision.say}"
         print(f"  {'PASS' if ok else 'FAIL'}  {case['case']}: {detail}")
@@ -155,6 +168,7 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
         "survive_accuracy": round(survive_accuracy, 4) if survive_accuracy is not None else None,
         "survive_correct": sum(1 for r in survive_cases if r["would_survive_match"]),
         "survive_case_count": len(survive_cases),
+        "stacked_ask_rate": round(mean(1.0 if r["stacked_ask"] else 0.0 for r in results), 4),
         "judgment_leak_rate": round(mean(1.0 if r["judgment_leak"] else 0.0 for r in results), 4),
         "total_input_tokens": total_input,
         "total_output_tokens": total_output,
@@ -172,6 +186,7 @@ def main(variant_label: str = "baseline", cases_file: Path = CASES_FILE) -> dict
     if survive_accuracy is not None:
         print(f"Evaluator wouldSurviveRealInterview accuracy: {survive_accuracy:.1%} "
               f"({summary['survive_correct']}/{summary['survive_case_count']})")
+    print(f"Stacked two-question follow-ups: {summary['stacked_ask_rate']:.1%} of lines")
     print(f"Spoken judgment leaks: {summary['judgment_leak_rate']:.1%} of lines")
     print(f"Tokens: {total_input} in / {total_output} out — est. cost ${estimated_cost:.4f}")
     print(f"Results written to {out_file}")
