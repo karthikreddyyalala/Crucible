@@ -152,11 +152,20 @@ def _key(value):
     return json.dumps(value, sort_keys=True)
 
 
+def _close(expected, got):
+    """Numbers within 1e-5, element-wise through lists; None only matches None."""
+    if expected is None or got is None:
+        return expected is None and got is None
+    if isinstance(expected, list):
+        return isinstance(got, list) and len(got) == len(expected) and all(map(_close, expected, got))
+    return isinstance(got, (int, float)) and not isinstance(got, bool) and abs(got - expected) <= 1e-5
+
+
 def matches(mode, expected, got, args=(), validator=""):
     if mode == "custom":
         return bool(VALIDATORS[validator](args, expected, got))
     if mode == "float":
-        return isinstance(got, (int, float)) and not isinstance(got, bool) and abs(got - expected) <= 1e-5
+        return _close(expected, got)
     if mode in ("unordered", "unordered_nested"):
         if not isinstance(got, list):
             return False
@@ -169,8 +178,25 @@ def matches(mode, expected, got, args=(), validator=""):
     return got == expected
 
 
+class _StepError(Exception):
+    """Wraps an error from one call of a design / roundtrip test so the row says which call."""
+
+    def __init__(self, label, error):
+        super().__init__(label)
+        self.label, self.error = label, error
+
+
+def _step(label, call):
+    try:
+        return call()
+    except (Exception, SystemExit) as error:
+        raise _StepError(label, error)
+
+
 def _describe(error):
     """'<Type>: <message> (line N)' with N in the candidate's code, when it has a frame there."""
+    if isinstance(error, _StepError):
+        return f"{error.label}: {_describe(error.error)}"
     if isinstance(error, SyntaxError):
         message, line = error.msg, error.lineno
     else:
@@ -202,30 +228,77 @@ def _param_names(signature):
         return []
 
 
-def _run_test(index, fn, test, kinds, problem):
+def _function(fn, test, problem, kinds, row):
     adapters = problem.get("adapters") or {}
+    args = copy.deepcopy(test["args"])
+    for i, kind in enumerate(kinds[: len(args)]):
+        if kind:
+            args[i] = ADAPTERS[kind][0](args[i])
+    raw = fn(*args)
+    out_kind = adapters.get("return")
+    check = problem.get("checkArg")
+    if check is not None:  # in-place: judge the argument after the call, ignore the return value
+        raw, out_kind = args[check], (kinds[check] if check < len(kinds) else None)
+    row["got"] = _plain(raw)  # shown as-is if the conversion below rejects it
+    if out_kind:
+        row["got"] = _plain(ADAPTERS[out_kind][1](raw))
+    return matches(
+        problem.get("compare", "exact"), test["expected"], row["got"],
+        copy.deepcopy(test["args"]), problem.get("validator", ""),
+    )
+
+
+def _design(cls, test, problem, kinds, row):
+    calls = copy.deepcopy(test["args"])
+    got = row["got"] = []  # filled as calls succeed, so a failing row shows what came before
+    instance = None
+    for n, (op, args) in enumerate(zip(calls["ops"], calls["args"]), 1):
+        label = f"Error in call {n} ({op})"
+        if n == 1:
+            instance = _step(label, lambda: cls(*args))
+            got.append(None)
+        else:
+            got.append(_plain(_step(label, lambda: getattr(instance, op)(*args))))
+    expected, compare = test["expected"], problem.get("compare", "exact")
+    return len(got) == len(expected) and all(matches(compare, e, g) for e, g in zip(expected, got))
+
+
+_CODEC_PAIRS = (("serialize", "deserialize"), ("encode", "decode"))
+
+
+def _roundtrip(cls, test, problem, kinds, row):
+    signature = problem.get("signature", "")
+    forward, backward = next((p for p in _CODEC_PAIRS if f"def {p[0]}(" in signature), _CODEC_PAIRS[0])
+    kind = (problem.get("adapters") or {}).get("input")
+    value = copy.deepcopy(test["args"][0])
+    if kind:
+        value = ADAPTERS[kind][0](value)
+    # A fresh instance per direction, like the classic judge: the string must carry everything.
+    text = _step(f"Error in {forward}", lambda: getattr(cls(), forward)(value))
+    if not isinstance(text, str):
+        row["got"] = _plain(text)
+        raise TypeError(f"{forward} must return a str, got {type(text).__name__}")
+    result = _step(f"Error in {backward}", lambda: getattr(cls(), backward)(text))
+    row["got"] = _plain(result)
+    if kind:
+        row["got"] = _plain(ADAPTERS[kind][1](result))
+    return matches(problem.get("compare", "exact"), test["expected"], row["got"])
+
+
+_BODIES = {"function": _function, "design": _design, "roundtrip": _roundtrip}
+
+
+def _judge(index, fn, test, problem, kinds, body):
     row = _row(index)
     row["expected"] = test["expected"]
     out = io.StringIO()
     start = time.perf_counter()
     try:
         with contextlib.redirect_stdout(out):
-            args = copy.deepcopy(test["args"])
-            for i, kind in enumerate(kinds[: len(args)]):
-                if kind:
-                    args[i] = ADAPTERS[kind][0](args[i])
-            raw = fn(*args)
-            row["ms"] = round((time.perf_counter() - start) * 1000, 3)
-            row["got"] = _plain(raw)  # shown as-is if the conversion below rejects it
-            if "return" in adapters:
-                row["got"] = _plain(ADAPTERS[adapters["return"]][1](raw))
-            row["passed"] = matches(
-                problem.get("compare", "exact"), test["expected"], row["got"],
-                copy.deepcopy(test["args"]), problem.get("validator", ""),
-            )
+            row["passed"] = bool(body(fn, test, problem, kinds, row))
     except (Exception, SystemExit) as error:  # KeyboardInterrupt is left alone for the worker
-        row["ms"] = row["ms"] or round((time.perf_counter() - start) * 1000, 3)
         row["error"] = _describe(error)
+    row["ms"] = round((time.perf_counter() - start) * 1000, 3)
     row["stdout"] = out.getvalue()[:STDOUT_CAP]
     return row
 
@@ -233,7 +306,12 @@ def _run_test(index, fn, test, kinds, problem):
 def run(code, problem, only_visible=False):
     """Run `code` against `problem` (the camelCase public dict) and return one row per test:
     {"index", "passed", "got", "expected", "error", "stdout", "ms"}. Code that can't load
-    (syntax error, error at import time, missing function) returns a single row with index -1."""
+    (syntax error, error at import time, missing function or class) returns a single row
+    with index -1.
+
+    kind "function" calls functionName(*args) (checkArg: judge that argument after the call);
+    "design" replays {ops, args} on the class functionName; "roundtrip" checks that
+    deserialize(serialize(x)) (or decode(encode(x))) gives x back."""
     name = problem["functionName"]
     tests = problem["tests"]
     if only_visible:
@@ -250,9 +328,11 @@ def run(code, problem, only_visible=False):
             exec(compiled, namespace)
     except (Exception, SystemExit) as error:
         return [_row(-1, _describe(error), out.getvalue()[:STDOUT_CAP])]
+    kind = problem.get("kind", "function")
     fn = _find(namespace, name)
     if fn is None:
-        return [_row(-1, f"Couldn't find a function named {name}")]
+        return [_row(-1, f"Couldn't find a {'function' if kind == 'function' else 'class'} named {name}")]
     adapters = problem.get("adapters") or {}
     kinds = [adapters.get(p) for p in _param_names(problem.get("signature", ""))]
-    return [_run_test(i, fn, test, kinds, problem) for i, test in enumerate(tests)]
+    body = _BODIES.get(kind, _function)
+    return [_judge(i, fn, test, problem, kinds, body) for i, test in enumerate(tests)]

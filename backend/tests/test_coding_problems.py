@@ -68,28 +68,47 @@ def test_starter_code_fails_at_least_one_test(problem_id):
 
 # --- schema -------------------------------------------------------------------------------
 
-def _two_sum_raw() -> dict:
-    return json.loads((_CODING / "problems" / "code-two-sum.json").read_text(encoding="utf-8"))
+def _raw(problem_id: str) -> dict:
+    return json.loads((_CODING / "problems" / f"{problem_id}.json").read_text(encoding="utf-8"))
+
+
+def _set(**fields):
+    return lambda raw: raw.update(fields)
+
+
+def _set_test(index, **fields):
+    return lambda raw: raw["tests"][index].update(fields)
 
 
 @pytest.mark.parametrize(
-    "field, value",
+    "problem_id, mutate",
     [
-        ("examples", [{"input": "x", "output": "y"}]),
-        ("tests", [{"args": [[1, 2], 3], "expected": [0, 1]}] * 9),
-        ("visibleTestCount", 1),
-        ("visibleTestCount", 4),
-        ("hints", ["one", "two"]),
-        ("followUps", ["Why?", "How?", "No question mark"]),
-        ("rubric", {"correctness": "a", "efficiency": "b", "code_quality": "c"}),
-        ("validator", ""),  # two-sum uses compare "custom", which needs a validator
-        ("signature", "def other(nums: list[int], target: int) -> list[int]:"),
-        ("id", "two-sum"),
+        ("code-two-sum", _set(examples=[{"input": "x", "output": "y"}])),
+        ("code-two-sum", _set(tests=[{"args": [[1, 2], 3], "expected": [0, 1]}] * 9)),
+        ("code-two-sum", _set(visibleTestCount=1)),
+        ("code-two-sum", _set(visibleTestCount=4)),
+        ("code-two-sum", _set(hints=["one", "two"])),
+        ("code-two-sum", _set(followUps=["Why?", "How?", "No question mark"])),
+        ("code-two-sum", _set(rubric={"correctness": "a", "efficiency": "b", "code_quality": "c"})),
+        ("code-two-sum", _set(validator="")),  # compare "custom" needs a validator
+        ("code-two-sum", _set(signature="def other(nums, target):", starterCode="def other(nums, target):\n    pass\n")),
+        ("code-two-sum", _set(starterCode="def two_sum(nums, target):\n    pass\n")),  # must contain the signature
+        ("code-two-sum", _set(id="two-sum")),
+        ("code-two-sum", _set_test(0, args=[[1, 2]])),  # two_sum takes two args
+        ("code-rotate-image", _set(checkArg=1)),  # rotate has one parameter
+        ("code-implement-trie", _set(checkArg=0)),  # checkArg is for functions only
+        ("code-implement-trie", _set(signature="def Trie():", starterCode="def Trie():\n    pass\n")),
+        ("code-implement-trie", _set_test(0, args=[[], ["apple"]])),  # design tests take {ops, args}
+        ("code-implement-trie", _set_test(0, expected=[None, None])),  # one expected value per op
+        ("code-implement-trie", lambda raw: raw["tests"][0]["args"]["ops"].__setitem__(0, "Tree")),
+        ("code-implement-trie", lambda raw: raw["tests"][0]["args"]["args"].pop()),
+        ("code-serialize-deserialize-binary-tree", _set_test(0, expected=[1])),  # must expect the input back
     ],
 )
-def test_schema_rejects_bad_data(field, value):
-    raw = _two_sum_raw()
-    raw[field] = value
+def test_schema_rejects_bad_data(problem_id, mutate):
+    raw = _raw(problem_id)
+    CodingProblem.model_validate(raw)  # the untouched file is valid
+    mutate(raw)
     with pytest.raises(ValidationError):
         CodingProblem.model_validate(raw)
 
@@ -98,7 +117,11 @@ def test_public_excludes_private_fields_and_is_json():
     public = _public("code-two-sum")
     assert _PRIVATE.isdisjoint(public)
     assert public["functionName"] == "two_sum"
+    assert public["kind"] == "function" and public["checkArg"] is None
     assert len(public["tests"]) == len(find_problem("code-two-sum").tests)
+    assert _public("code-rotate-image")["checkArg"] == 0
+    trie = _public("code-implement-trie")
+    assert trie["kind"] == "design" and set(trie["tests"][0]["args"]) == {"ops", "args"}
     json.dumps(public)
 
 
@@ -238,3 +261,145 @@ def test_compare_modes():
     assert not harness.matches("float", 1 / 3, 0.3334)
     assert harness.matches("custom", [0, 1], [1, 0], [[2, 7, 11], 9], "two_sum_pair")
     assert not harness.matches("custom", [0, 1], [0, 0], [[2, 7, 11], 4], "two_sum_pair")
+    assert harness.matches("float", [1.5, None, 2.0], [1.5000001, None, 2])
+    assert not harness.matches("float", [1.5, None], [1.5, 0.0])
+    assert not harness.matches("float", [1.5, 2.0], [1.5])
+    assert not harness.matches("float", None, 0.0)
+
+
+# --- in-place mode (checkArg) -------------------------------------------------------------
+
+def test_in_place_mode_judges_the_argument_not_the_return():
+    public = _public("code-rotate-image")
+    returns_a_copy = "def rotate(matrix):\n    return [list(row) for row in zip(*matrix[::-1])]\n"
+    row = harness.run(returns_a_copy, public)[0]
+    assert row["passed"] is False and row["got"] == public["tests"][0]["args"][0]
+    slice_assign = "def rotate(matrix):\n    matrix[:] = [list(row) for row in zip(*matrix[::-1])]\n"
+    assert all(r["passed"] for r in harness.run(slice_assign, public))
+
+
+def test_in_place_mode_converts_a_linked_list_argument_back():
+    problem = {
+        "functionName": "reorder_list",
+        "signature": "def reorder_list(head: Optional[ListNode]) -> None:",
+        "adapters": {"head": "linked_list"},
+        "checkArg": 0,
+        "tests": [{"args": [[1, 2, 3, 4, 5]], "expected": [1, 5, 2, 4, 3]}, {"args": [[1, 2, 3, 4]], "expected": [1, 4, 2, 3]}],
+    }
+    code = (
+        "def reorder_list(head):\n"
+        "    nodes = []\n"
+        "    while head:\n"
+        "        nodes.append(head)\n"
+        "        head = head.next\n"
+        "    i, j = 0, len(nodes) - 1\n"
+        "    while i < j:\n"
+        "        nodes[i].next = nodes[j]\n"
+        "        i += 1\n"
+        "        if i == j:\n"
+        "            break\n"
+        "        nodes[j].next = nodes[i]\n"
+        "        j -= 1\n"
+        "    nodes[i].next = None\n"
+        "    return 'ignored'\n"
+    )
+    results = harness.run(code, problem)
+    assert [r["got"] for r in results] == [[1, 5, 2, 4, 3], [1, 4, 2, 3]]
+    assert all(r["passed"] for r in results)
+
+
+# --- design mode --------------------------------------------------------------------------
+
+def test_design_mode_names_the_failing_call_and_keeps_earlier_results():
+    code = (
+        "class Trie:\n"
+        "    def __init__(self):\n"
+        "        self.words = set()\n"
+        "    def insert(self, word):\n"
+        "        self.words.add(word)\n"
+        "    def search(self, word):\n"
+        "        return 1 // 0\n"
+        "    def startsWith(self, prefix):\n"
+        "        return True\n"
+    )
+    row = harness.run(code, _public("code-implement-trie"))[0]
+    assert row["passed"] is False and row["got"] == [None, None]
+    assert row["error"] == "Error in call 3 (search): ZeroDivisionError: integer division or modulo by zero (line 7)"
+
+
+def test_design_mode_missing_class():
+    [row] = harness.run("class Tree:\n    pass\n", _public("code-implement-trie"))
+    assert row["error"] == "Couldn't find a class named Trie"
+
+
+def test_design_mode_float_compare_allows_none_and_tolerance():
+    problem = {
+        "kind": "design",
+        "functionName": "MedianFinder",
+        "compare": "float",
+        "tests": [{
+            "args": {"ops": ["MedianFinder", "addNum", "addNum", "findMedian", "addNum", "findMedian"],
+                     "args": [[], [1], [2], [], [3], []]},
+            "expected": [None, None, None, 1.5, None, 2.0],
+        }],
+    }
+    code = (
+        "class MedianFinder:\n"
+        "    def __init__(self):\n"
+        "        self.nums = []\n"
+        "    def addNum(self, num):\n"
+        "        self.nums.append(num)\n"
+        "    def findMedian(self):\n"
+        "        s, n = sorted(self.nums), len(self.nums)\n"
+        "        return (s[(n - 1) // 2] + s[n // 2]) / 2 + 1e-9\n"
+    )
+    assert harness.run(code, problem)[0]["passed"] is True
+    assert harness.run(code.replace("/ 2 +", "// 2 +"), problem)[0]["passed"] is False
+
+
+# --- roundtrip mode -----------------------------------------------------------------------
+
+def test_roundtrip_mode_requires_a_string():
+    code = "class Codec:\n    def serialize(self, root):\n        return [1]\n    def deserialize(self, data):\n        return None\n"
+    row = harness.run(code, _public("code-serialize-deserialize-binary-tree"))[0]
+    assert row["passed"] is False and row["error"] == "TypeError: serialize must return a str, got list"
+
+
+def test_roundtrip_mode_uses_separate_instances_so_state_cannot_leak():
+    code = (
+        "class Codec:\n"
+        "    def serialize(self, root):\n"
+        "        self.root = root\n"
+        "        return ''\n"
+        "    def deserialize(self, data):\n"
+        "        return self.root\n"
+    )
+    results = harness.run(code, _public("code-serialize-deserialize-binary-tree"))
+    assert not any(r["passed"] for r in results)
+    assert results[0]["error"] == "Error in deserialize: AttributeError: 'Codec' object has no attribute 'root' (line 6)"
+
+
+def test_roundtrip_mode_uses_encode_decode_when_the_signature_does():
+    strs = ["", "a,b", "#4#", "naïve", "日本語", "line\nbreak", "\\", "3#x"]
+    problem = {
+        "kind": "roundtrip",
+        "functionName": "Codec",
+        "signature": "class Codec:\n    def encode(self, strs: List[str]) -> str:\n    def decode(self, s: str) -> List[str]:",
+        "tests": [{"args": [strs], "expected": strs}, {"args": [[]], "expected": []}, {"args": [[""]], "expected": [""]}],
+    }
+    length_prefixed = (
+        "class Codec:\n"
+        "    def encode(self, strs):\n"
+        "        return ''.join(f'{len(s)}#{s}' for s in strs)\n"
+        "    def decode(self, s):\n"
+        "        out, i = [], 0\n"
+        "        while i < len(s):\n"
+        "            j = s.index('#', i)\n"
+        "            n = int(s[i:j])\n"
+        "            out.append(s[j + 1:j + 1 + n])\n"
+        "            i = j + 1 + n\n"
+        "        return out\n"
+    )
+    assert all(r["passed"] for r in harness.run(length_prefixed, problem))
+    comma_joined = "class Codec:\n    def encode(self, strs):\n        return ','.join(strs)\n    def decode(self, s):\n        return s.split(',')\n"
+    assert [r["passed"] for r in harness.run(comma_joined, problem)] == [False, False, True]
