@@ -15,8 +15,9 @@ planned follow-up depth and fair, calibrated scoring.
 - [x] Implementation plan → `docs/superpowers/plans/2026-10-27-question-bank.md`
 - [x] Question bank data model (extend the unused `QuestionExemplar`) + loader — TDD
       (Tasks 1–3, reviewed twice; review caught 2-part prompts + missing content tests)
-- [~] Question bank content: SDE (behavioral / technical / system design, all levels)
-- [~] Question bank content: AI Engineer
+- [x] Question bank content: SDE — 32 questions (behavioral / technical / system design, all levels)
+- [x] Question bank content: AI Engineer — 31 questions
+      (reviewed: 18 level/difficulty fixes, neutral first rungs, no spoilers, 2 duplicates replaced)
 - [x] Planner picks from the bank and personalizes (keeps memory weighting) — TDD
       (only ids from the session's own bank survive; round shape 1 beh / 2 tech / 1 SD)
 - [x] Interviewer gets the question's follow-up ladder as private notes — TDD
@@ -24,9 +25,10 @@ planned follow-up depth and fair, calibrated scoring.
 - [x] Interview structure + prompt changes from research (plan Task 8: round shape,
       no give-away requirements, per-type follow-up budgets, ≥1 probe, 5-rung hints,
       wrong-answer branch, behavioral probes, stricter survival)
-- [ ] Golden eval cases for bank-backed questions; live eval run, results recorded
-- [ ] Live end-to-end interview run; transcript reviewed for naturalness
-- [ ] Docs: README / OVERVIEW updated with what changed and measured results
+- [x] Live eval run, results recorded: 48/48 decisions, 20/20 verdicts, 0% leaks
+- [x] Live end-to-end interview run; transcript in docs/sample-interview-2026-10-27.md
+      (fixed: interviewer was adding asks/hints to new questions and verdicts to transitions)
+- [x] Docs: README updated with what changed and measured results
 
 Measured (2026-10-27, live): 48/48 interviewer decisions, 20/20 survival verdicts, 0%
 judgment leaks, 12.5% two-part follow-ups (watch metric — mostly natural pairs).
@@ -45,6 +47,11 @@ ATTRIBUTION.md. See docs/research/question-sources-and-datasets.md.
 
 ## Later
 
+- [ ] Golden eval cases that use bank questions (with interviewer notes) — check the
+      follow-up targets the top uncovered strong-answer point
+- [ ] Mark ideal-answer points core vs stretch so junior answers aren't scored against senior points
+- [ ] One verdict still slips through in ~20 live lines; keep watching the leak metric
+
 - [ ] Private interviewer `notes` passed to the Evaluator (Ilia's hidden-notes pattern)
 - [ ] New rubric criteria + weakness tags (reflection, complexity/testing, API/failure handling)
 - [ ] Planner gives each question its target signals + the weakness tag it aims at
@@ -56,6 +63,8 @@ ATTRIBUTION.md. See docs/research/question-sources-and-datasets.md.
       adequate licensed training data exists. Revisit only for cost-driven distillation.
 
 ## Waiting on Karthik
+
+- [ ] Review + merge PR for `feat/question-bank` (after PR #1)
 
 - [ ] Merge PR #1 (`feat/human-interviewer`)
 - [ ] Redeploy frontend with Cognito vars (command in chat, 2026-10-26)
