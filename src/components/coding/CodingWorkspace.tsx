@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { Suspense, lazy, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Desktop } from "@phosphor-icons/react";
 import type { PlannedQuestion } from "@/types/contracts";
@@ -10,12 +10,15 @@ import { useSessionStore } from "@/stores/sessionStore";
 import { SplitPane } from "./SplitPane";
 import { ProblemPanel } from "./ProblemPanel";
 import { Toolbar, type Shortcuts } from "./Toolbar";
-import { CodeEditor, type CodeEditorHandle } from "./CodeEditor";
+import type { CodeEditorHandle } from "./CodeEditor";
 import { TestResults, type ShownRun } from "./TestResults";
 import { useIdleCheckin } from "./useIdleCheckin";
 import { describeError, isMac } from "./format";
 
 type Runner = ReturnType<typeof usePythonRunner>;
+
+// CodeMirror stays out of the main bundle: it loads when a coding problem is on screen.
+const CodeEditor = lazy(() => import("./CodeEditor").then((m) => ({ default: m.CodeEditor })));
 
 const MAC = typeof navigator !== "undefined" && isMac(navigator.platform || navigator.userAgent);
 const SHORTCUTS: Shortcuts = MAC
@@ -194,15 +197,17 @@ function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; q
         label="Resize editor and test results"
         className="flex-1"
         first={
-          <CodeEditor
-            ref={editor}
-            initialValue={initial}
-            onChange={onChange}
-            onRun={() => void execute("run")}
-            onSubmit={() => void execute("submit")}
-            errorLine={errorLine}
-            hintId={hintId}
-          />
+          <Suspense fallback={<EditorSkeleton />}>
+            <CodeEditor
+              ref={editor}
+              initialValue={initial}
+              onChange={onChange}
+              onRun={() => void execute("run")}
+              onSubmit={() => void execute("submit")}
+              errorLine={errorLine}
+              hintId={hintId}
+            />
+          </Suspense>
         }
         second={
           <TestResults
@@ -216,6 +221,18 @@ function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; q
           />
         }
       />
+    </div>
+  );
+}
+
+/** Holds the editor's place (gutter and first line where CodeMirror draws them) while it loads. */
+function EditorSkeleton() {
+  return (
+    <div role="status" className="flex min-h-0 flex-1 bg-ink pt-[14px] font-mono text-[14px] leading-[1.6]">
+      <span aria-hidden className="w-[44px] shrink-0 pr-1 text-right text-[#80808f]">
+        1
+      </span>
+      <span className="pl-[14px] text-mist">Opening the editor…</span>
     </div>
   );
 }
