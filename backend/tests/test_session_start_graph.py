@@ -230,3 +230,47 @@ def test_assign_coding_problems_prefers_very_common_then_new_topics():
 
 def test_bank_for_coding_mode_is_empty():
     assert bank_for("sde", mode="coding", level="mid") == []
+
+
+def test_planned_ids_are_renamed_and_round_trip_into_a_turn_request():
+    from routes.session import ClientQuestion
+    plan = [_coding_q(0, None, "behavioral") | {"id": "Q 1!"}, _coding_q(1, None, "technical") | {"id": "dup"},
+            _coding_q(2, None, "technical") | {"id": "dup"}]
+    result, _ = _invoke(plan, mode="technical", level="mid", session_id="s")
+    qs = result["plan"].questions
+    assert [q.id for q in qs] == ["q1", "q2", "q3"]
+    assert [q.type for q in qs] == ["behavioral", "technical", "technical"]  # order kept
+    for q in qs:
+        ClientQuestion.model_validate(q.model_dump(by_alias=True))
+
+
+def test_seeded_order_is_stable_per_session_and_varies_across_sessions():
+    from graph.session_start import seeded_order
+    items = list(range(8))
+    assert seeded_order(items, "sess-a") == seeded_order(items, "sess-a")
+    assert seeded_order(items, "sess-a") != seeded_order(items, "sess-b")
+    assert sorted(seeded_order(items, "sess-a")) == items and items == list(range(8))  # a copy, nothing lost
+
+
+def test_planner_sees_bank_and_coding_problems_in_the_session_order():
+    import json
+    from graph.session_start import seeded_order
+    from models.coding import problems_for
+
+    def listed(user, header):
+        return [x["id"] for x in json.loads(user.split(header, 1)[1].split("\n\n")[0])]
+
+    _, user = _invoke([_coding_q(0, "code-two-sum")], mode="full", level="junior", session_id="sess-x")
+    assert listed(user, "QuestionBank (choose from these):\n") == [
+        q.id for q in seeded_order(bank_for("sde", mode="full", level="junior"), "sess-x")]
+    assert listed(user, "CodingProblems (choose from these for coding questions):\n") == [
+        p.id for p in seeded_order(problems_for({"easy"}), "sess-x")]
+    _, other = _invoke([_coding_q(0, "code-two-sum")], mode="full", level="junior", session_id="sess-y")
+    assert listed(other, "QuestionBank (choose from these):\n") != listed(user, "QuestionBank (choose from these):\n")
+
+
+def test_assign_coding_problems_breaks_ties_in_the_offered_order():
+    from graph.session_start import assign_coding_problems
+    plan = QuestionPlan.model_validate({"sessionId": "s", "questions": [_coding_q(0, None)]})
+    for offered in ([_EASY_A, _EASY_B], [_EASY_B, _EASY_A]):
+        assert assign_coding_problems(plan, offered).questions[0].exemplar_id == offered[0].id

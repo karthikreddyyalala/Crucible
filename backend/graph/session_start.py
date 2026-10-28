@@ -1,4 +1,5 @@
-from typing import TypedDict
+import random
+from typing import TypedDict, TypeVar
 from langgraph.graph import StateGraph, START, END
 from models.coding import CodingProblem, problems_for
 from models.company_style import find_style
@@ -7,6 +8,15 @@ from models.question_data import QuestionExemplar
 from models.loader import bank_for, load_competency_map
 from agents.intake import IntakeAgent
 from agents.planner import PlannerAgent
+
+
+T = TypeVar("T")
+
+
+def seeded_order(items: list[T], seed: str) -> list[T]:
+    """A shuffled copy, the same for the same session and different across sessions, so a returning
+    candidate doesn't get the same picks every time while one session stays reproducible."""
+    return random.Random(seed).sample(items, len(items))
 
 
 # Coding problem difficulties offered to the Planner per (mode, level); other modes get none.
@@ -37,7 +47,7 @@ def keep_known_exemplars(plan: QuestionPlan, bank: list[QuestionExemplar],
 def assign_coding_problems(plan: QuestionPlan, coding: list[CodingProblem]) -> QuestionPlan:
     """The editor needs a real problem for every coding question. One left without an id gets an unused
     offered problem — its slot's difficulty first, then very_common, then a topic the plan doesn't
-    have yet, then by id — and with none left it becomes technical."""
+    have yet, then the offered order (seeded per session) — and with none left it becomes technical."""
     used = {q.exemplar_id for q in plan.questions}
     topics = {t for p in coding if p.id in used for t in p.topics}
     qs = []
@@ -45,7 +55,7 @@ def assign_coding_problems(plan: QuestionPlan, coding: list[CodingProblem]) -> Q
         if q.type == "coding" and q.exemplar_id is None:
             want = "easy" if q.target_difficulty <= 2 else "hard" if q.target_difficulty == 5 else "medium"
             pick = min((p for p in coding if p.id not in used), default=None, key=lambda p: (
-                p.difficulty != want, p.asked != "very_common", bool(topics.intersection(p.topics)), p.id))
+                p.difficulty != want, p.asked != "very_common", bool(topics.intersection(p.topics))))
             if pick:
                 used.add(pick.id)
                 topics.update(pick.topics)
@@ -84,8 +94,8 @@ def build_session_start_graph(*, llm, intake_model: str, planner_model: str,
 
     def planner_node(state: SessionStartState) -> SessionStartState:
         mode, level = state.get("mode", "full"), state.get("level", "mid")
-        bank = bank_for(state["role_key"], mode=mode, level=level)
-        coding = problems_for(CODING_DIFFICULTIES.get((mode, level), set()))
+        bank = seeded_order(bank_for(state["role_key"], mode=mode, level=level), state["session_id"])
+        coding = seeded_order(problems_for(CODING_DIFFICULTIES.get((mode, level), set())), state["session_id"])
         plan = planner.run(
             session_id=state["session_id"],
             profile=state["profile"],
@@ -98,7 +108,10 @@ def build_session_start_graph(*, llm, intake_model: str, planner_model: str,
             coding_problems=coding,
             company_style=find_style(state.get("company_style", "general")),
         )
-        return {"plan": assign_coding_problems(keep_known_exemplars(plan, bank, coding), coding)}
+        plan = assign_coding_problems(keep_known_exemplars(plan, bank, coding), coding)
+        # Ids go to the client and come back on every turn (validated there): short, unique, in order.
+        renamed = [q.model_copy(update={"id": f"q{i}"}) for i, q in enumerate(plan.questions, 1)]
+        return {"plan": plan.model_copy(update={"questions": renamed})}
 
     g = StateGraph(SessionStartState)
     g.add_node("intake", intake_node)

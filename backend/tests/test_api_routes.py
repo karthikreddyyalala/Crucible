@@ -116,7 +116,7 @@ def test_start_session_returns_profile_and_plan():
     body = res.json()
     assert body["profile"]["targetRole"] == "Software Engineer"
     assert body["profile"]["resumeToJdGaps"]  # camelCase preserved
-    assert body["plan"]["questions"][0]["id"] == "q0"
+    assert body["plan"]["questions"][0]["id"] == "q1"  # renamed server-side, whatever the planner wrote
 
 
 def test_start_session_sums_cost_across_intake_and_planner_calls():
