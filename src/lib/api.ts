@@ -24,6 +24,7 @@ import type {
 import type { PublicProblem } from "./coding/types";
 import { mockEngine } from "./mockEngine";
 import { authApi } from "./auth";
+import { getCandidateId } from "./identity";
 
 export const USE_MOCK = import.meta.env.VITE_USE_MOCK !== "false";
 const MOCK_MEMORY_KEY = "crucible.memory.v1";
@@ -270,7 +271,11 @@ export const api = {
       return mockEngine.coach(input.question, input.weaknessTags);
     }
     const { question, transcript, weaknessTags, sessionId, code } = input;
-    const coding = question.type === "coding" ? { sessionId, code: (code ?? "").slice(0, 20_000) } : {};
+    // candidateId finds the finalized session when signed out; with sign-in the server uses the token instead.
+    const coding =
+      question.type === "coding"
+        ? { sessionId, code: (code ?? "").slice(0, 20_000), candidateId: getCandidateId() }
+        : {};
     const res = await safeFetch(apiUrl("/api/coach"), {
       method: "POST",
       headers: await authHeaders(),

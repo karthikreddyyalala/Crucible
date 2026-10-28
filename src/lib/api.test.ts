@@ -38,6 +38,7 @@ describe("api.coachAnswer", () => {
     const body = sentBody();
     expect(body.sessionId).toBe("s1");
     expect(body.code).toHaveLength(20_000);
+    expect(body.candidateId).toEqual(expect.any(String));
   });
 
   it("sends neither for other questions", async () => {
