@@ -85,7 +85,7 @@ export function Interview() {
   useEffect(() => setEditorShown(wide), [wide, setEditorShown]);
   // Lives here so Python stays loaded from one coding problem to the next.
   const pythonRunner = usePythonRunner();
-  const jsRunner = usePythonRunner({ createWorker: createJsWorker });
+  const jsRunner = usePythonRunner({ createWorker: createJsWorker, language: "javascript" });
   const codingLanguage = useSessionStore((s) => s.codingLanguage);
   const runner = codingLanguage === "javascript" ? jsRunner : pythonRunner;
 

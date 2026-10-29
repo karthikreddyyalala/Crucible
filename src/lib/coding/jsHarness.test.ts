@@ -204,6 +204,11 @@ describe("result rows", () => {
     const [row] = run("function twoSum() { return new Map(); }", real("code-two-sum"), false);
     expect(row.got).toBe("<Map>");
   });
+
+  it("typed arrays become plain arrays", () => {
+    const [row] = run("function twoSum() { return Int32Array.of(0, 1); }", real("code-two-sum"), false);
+    expect(row.got).toEqual([0, 1]);
+  });
 });
 
 describe("errors", () => {
@@ -212,6 +217,21 @@ describe("errors", () => {
     expect(rest).toEqual([]);
     expect(row.index).toBe(-1);
     expect(row.error).toMatch(/^SyntaxError: .*\(line 3\)$/);
+  });
+
+  it("syntax error under a JSDoc block (every starter has one) gets its own line", () => {
+    const starter = real("code-two-sum").starterCodeJs;
+    const [row] = run(starter.replace("{\n\n}", "{\n  return [0, 1] +;\n}"), real("code-two-sum"), false);
+    expect(row.error).toMatch(/^SyntaxError: .*\(line 8\)$/);
+  });
+
+  it("code that stops early (unclosed template) gets no line rather than line 1", () => {
+    expect(run("function twoSum() {\n  return `abc\n}\n", real("code-two-sum"), false)[0].error).toMatch(/^SyntaxError: [^(]*$/);
+  });
+
+  it("syntax error in a design starter's method gets its own line", () => {
+    const code = real("code-implement-trie").starterCodeJs.replace("insert(word) {\n\n", "insert(word) {\n        this.x = ;\n");
+    expect(run(code, real("code-implement-trie"), false)[0].error).toMatch(/^SyntaxError: .*\(line 12\)$/);
   });
 
   it("runtime error reports the candidate line for every test", () => {
@@ -229,6 +249,11 @@ describe("errors", () => {
     const error = run("function twoSum() {\n  throw new Error('x'.repeat(10000));\n}", real("code-two-sum"), false)[0].error ?? "";
     expect(error.length).toBeLessThan(340);
     expect(error.startsWith("Error: xxx") && error.includes("…") && error.endsWith("(line 2)")).toBe(true);
+  });
+
+  it("console.dir / console.table / any other console method writes to stdout", () => {
+    const [row] = run("console.dir({ a: 1 });\nconsole.table([1]);\nconsole.trace('t');\nthrow new Error('x');", real("code-two-sum"), false);
+    expect(row.stdout).toBe('{"a":1}\n[1]\nt\n');
   });
 
   it("a throw while loading is one row with the line", () => {

@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { PublicProblem, RunnerRequest, RunnerResponse, RunOutcome } from "@/lib/coding/types";
+import type { CodingLanguage, PublicProblem, RunnerRequest, RunnerResponse, RunOutcome } from "@/lib/coding/types";
 
 export type RunnerStatus = "idle" | "loading" | "ready" | "running" | "error";
 
 interface Options {
   timeoutMs?: number;
   createWorker?: () => Worker;
+  /** Names the runner in its messages. JavaScript also gets a fresh worker after every run. */
+  language?: CodingLanguage;
 }
 
 interface PendingRun {
@@ -18,7 +20,7 @@ const createPyodideWorker = () =>
   new Worker(new URL("../lib/coding/pyodide.worker.ts", import.meta.url), { type: "module" });
 
 /** Owns the Pyodide worker. One run at a time; a run past `timeoutMs` kills and replaces the worker. */
-export function usePythonRunner({ timeoutMs = 5000, createWorker = createPyodideWorker }: Options = {}) {
+export function usePythonRunner({ timeoutMs = 5000, createWorker = createPyodideWorker, language = "python" }: Options = {}) {
   const [status, setStatus] = useState<RunnerStatus>("idle");
   const [progress, setProgress] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -28,8 +30,9 @@ export function usePythonRunner({ timeoutMs = 5000, createWorker = createPyodide
   const pendingRef = useRef<PendingRun | null>(null);
   const dispatchRef = useRef<(() => void) | null>(null); // a run waiting for the worker to become ready
   const nextId = useRef(0);
-  const cfg = useRef({ timeoutMs, createWorker });
-  cfg.current = { timeoutMs, createWorker };
+  const label = language === "javascript" ? "JavaScript" : "Python";
+  const cfg = useRef({ timeoutMs, createWorker, language, label });
+  cfg.current = { timeoutMs, createWorker, language, label };
 
   const set = useCallback((next: RunnerStatus) => {
     statusRef.current = next;
@@ -45,7 +48,8 @@ export function usePythonRunner({ timeoutMs = 5000, createWorker = createPyodide
     pending.resolve(outcome);
   }, []);
 
-  const start = useCallback(() => {
+  // quiet: swap in a new worker without a load (JavaScript has nothing to load).
+  const start = useCallback((quiet = false) => {
     workerRef.current?.terminate();
     const worker = cfg.current.createWorker();
     workerRef.current = worker;
@@ -59,6 +63,8 @@ export function usePythonRunner({ timeoutMs = 5000, createWorker = createPyodide
         dispatchRef.current = null;
       } else if (msg.type === "result") {
         if (pendingRef.current?.id !== msg.id) return;
+        // A clean worker per JavaScript run: globals and prototype patches can't leak into the next.
+        if (cfg.current.language === "javascript") start(true);
         set("ready");
         finishPending({ kind: "results", results: msg.results });
       } else {
@@ -68,8 +74,9 @@ export function usePythonRunner({ timeoutMs = 5000, createWorker = createPyodide
       }
     };
     worker.onmessage = (e: MessageEvent<RunnerResponse>) => handle(e.data);
-    worker.onerror = (e) => handle({ type: "fatal", message: e.message || "The Python worker crashed" });
+    worker.onerror = (e) => handle({ type: "fatal", message: e.message || `The ${cfg.current.label} worker crashed` });
 
+    if (quiet) return;
     setError(null);
     setProgress("");
     set("loading");
@@ -113,12 +120,12 @@ export function usePythonRunner({ timeoutMs = 5000, createWorker = createPyodide
 
   useEffect(
     () => () => {
-      finishPending({ kind: "error", message: "The Python runner was closed" });
+      finishPending({ kind: "error", message: `The ${label} runner was closed` });
       workerRef.current?.terminate();
       workerRef.current = null;
       set("idle"); // StrictMode re-runs effects on a live component
     },
-    [finishPending, set],
+    [finishPending, set, label],
   );
 
   return { status, progress, error, load, run, retry };

@@ -219,7 +219,9 @@ const VALIDATORS: Record<string, (args: unknown[], expected: unknown, got: unkno
 function plain(value: unknown): unknown {
   if (value == null) return null;
   if (typeof value === "boolean" || typeof value === "number" || typeof value === "string") return value;
-  if (Array.isArray(value)) return Array.from(value, plain);
+  if (Array.isArray(value) || (ArrayBuffer.isView(value) && !(value instanceof DataView))) {
+    return Array.from(value as ArrayLike<unknown>, plain);
+  }
   if (typeof value === "object" && [Object.prototype, null].includes(Object.getPrototypeOf(value))) {
     return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, plain(v)]));
   }
@@ -313,17 +315,20 @@ function stackLine(error: unknown): number | null {
 }
 
 // ponytail: engines don't put a syntax error's line on the error, so parse growing prefixes
-// until one fails for a reason other than "the code stops here". An engine that words that
-// reason differently just loses the line number.
+// until one fails with the same message as the whole code (a prefix cut inside a comment or
+// string fails for its own reason). Two different mistakes with the same wording can pick the
+// earlier one; an engine that words things differently just loses the line number. "The code
+// stops here" (unclosed brace or template) fits every prefix, so it gets no line.
 const INCOMPLETE = /end of (input|script)|unterminated template|missing \} after function body/i;
-function syntaxLine(code: string): number | null {
+function syntaxLine(code: string, message: string): number | null {
+  if (INCOMPLETE.test(message)) return null;
   const lines = code.split("\n");
   for (let n = 1; n <= lines.length; n++) {
     try {
       // `throw 0` first: when a prefix does parse, nothing in it runs.
       globalThis.eval(`throw 0; (function () {\n${lines.slice(0, n).join("\n")}`);
     } catch (error) {
-      if (error instanceof SyntaxError && !INCOMPLETE.test(error.message)) return n;
+      if (error instanceof SyntaxError && error.message === message) return n;
     }
   }
   return null;
@@ -485,13 +490,14 @@ export function run(code: string, problem: PublicProblem, onlyVisible: boolean):
     if (stdout.length >= STDOUT_CAP) return;
     stdout += args.map((a) => (typeof a === "string" ? a : show(a))).join(" ") + "\n";
   };
-  const console = { log: write, info: write, warn: write, error: write, debug: write };
+  // every method (log, dir, table, ...) prints, so no console call is a TypeError
+  const console = new Proxy({}, { get: () => write });
 
   let loader: Fn;
   try {
     loader = compile(`${code}\n;return { ${exports} };`);
   } catch (error) {
-    return [blank(-1, describe(error, error instanceof SyntaxError ? syntaxLine(code) : stackLine(error)))];
+    return [blank(-1, describe(error, error instanceof SyntaxError ? syntaxLine(code, error.message) : stackLine(error)))];
   }
   let namespace: Record<string, unknown>;
   try {

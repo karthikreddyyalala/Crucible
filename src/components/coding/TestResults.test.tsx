@@ -83,6 +83,19 @@ describe("TestResults", () => {
     ).toBeInTheDocument();
   });
 
+  it("never says Python when JavaScript is selected", () => {
+    const { container } = render(
+      <TestResults status="error" progress="" loadedBefore run={null} problem={problem} onRetry={vi.fn()} shortcut="⌘⏎" language="javascript" />,
+    );
+    expect(container.textContent).not.toMatch(/Python|connection/);
+    expect(screen.getByRole("button", { name: /Restart JavaScript/ })).toBeInTheDocument();
+  });
+
+  it("shows JavaScript values in a JavaScript run", () => {
+    show({ language: "javascript", run: results([row(0, false, { got: null })]) });
+    expect(screen.getByText("null")).toBeInTheDocument();
+  });
+
   it("names the line of a syntax error", () => {
     show({ run: results([row(-1, false, { got: null, expected: null, error: "SyntaxError: invalid syntax (line 4)" })]) });
     expect(shown("SyntaxError on line 4: invalid syntax")).toBeInTheDocument();

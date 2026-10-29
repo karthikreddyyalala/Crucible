@@ -35,6 +35,12 @@ describe("summarizeResults", () => {
     expect(summarizeResults([row(0, false, { got: null })], 1).summary).toContain("got None");
   });
 
+  it("shows JavaScript values as JavaScript writes them", () => {
+    const s = summarizeResults([row(0, false, { expected: true, got: null })], 1, "javascript");
+    expect(s.summary).toContain("expected true, got null");
+    expect(summarizeResults([row(0, false, { expected: true, got: null })], 1).summary).toContain("expected True, got None");
+  });
+
   it("shows strings as JSON and caps very long values", () => {
     const s = summarizeResults([row(0, false, { expected: "abc", got: "x".repeat(500) })], 1);
     expect(s.summary).toContain('expected "abc", got "xxx');
