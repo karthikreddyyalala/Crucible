@@ -77,7 +77,12 @@ Roadmap for all phases: docs/ROADMAP.md
 - [x] Live end-to-end coding interview saved (docs/sample-coding-interview-2026-10-28.md)
 - [x] README updated · PR #5 merged 2026-10-28
 - [ ] Redeploy backend + frontend so the live site has Phase 1
-- [ ] Karthik: create a Deepgram account + API key for Phase 2
+- [x] Video interview fixed and verified live (avatar in ~4 s, falls back to voice after 25 s,
+      no leaked calls; Tavus plan allows very few concurrent conversations)
+- [x] Long spoken answers keep their start; Marcus's lines have no dashes
+- [x] Deepgram transcription built (30-second tokens, browser fallback), PR #7
+- [ ] Karthik: Deepgram key with the **Member** role in .env.local (current key can stream
+      but can't mint browser tokens: 403), then verify live and redeploy
 - [x] Full history in docs/PROJECT-HISTORY.md; new-chat prompt in docs/NEW-CHAT-PROMPT.md
 - [ ] Wording left: small-talk praise on off-topic answers, praise in advance/closing lines
       the regex misses (needs an LLM judge), Spanish two-part questions
