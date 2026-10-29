@@ -190,17 +190,17 @@ function codingQuestions(difficulties: CodingDifficulty[], level: InterviewLevel
 // Follow-up probes keyed loosely to question type — one ask each.
 const PROBES: Record<string, string[]> = {
   behavioral: [
-    "What did you personally do there — not the team, you?",
+    "What did you personally do there? Not the team, you.",
     "What was the measurable outcome? Give me a number if you have one.",
     "Looking back, what would you do differently?",
   ],
   technical: [
-    "Walk me through the mechanism — how does that actually work under the hood?",
+    "Walk me through the mechanism. How does that actually work under the hood?",
     "What breaks it? Give me one edge case and how you'd catch it.",
     "What's the complexity, and where does it fall over at scale?",
   ],
   system_design: [
-    "Before the components — what would you clarify about the requirements?",
+    "Before the components, what would you clarify about the requirements?",
     "Where's the bottleneck in that design, and what tradeoff would you make for it?",
     "What happens when that component fails?",
     "How does the data model change once a single database can't hold it?",
@@ -212,7 +212,7 @@ const PROBES: Record<string, string[]> = {
 // Graduated hints for "I don't know": a direction first, then a concrete case.
 const HINTS: Record<string, string[]> = {
   behavioral: [
-    "Think of any situation that comes close — a class project, a side project, an internship. What happened?",
+    "Think of any situation that comes close: a class project, a side project, an internship. What happened?",
     "Even a small example works. What's one time something went wrong and you had to fix it?",
   ],
   technical: [
@@ -220,7 +220,7 @@ const HINTS: Record<string, string[]> = {
     "Here's a concrete case: two requests hit the same piece of state at the same moment. What could go wrong?",
   ],
   system_design: [
-    "Start smaller — how would you build it for a thousand users on a single server?",
+    "Start smaller. How would you build it for a thousand users on a single server?",
     "Okay, say one server can't keep up. What's the first piece you'd split out, and why?",
   ],
 };
@@ -250,9 +250,9 @@ const PHASE_ASK: Record<string, string> = {
   closing: "what questions do you have for me?",
 };
 
-const CHECKIN = "How's it going — want to talk me through where you are?";
-const PLAN_COMPLEXITY = "Before you code it — what's the time and space complexity of that plan?";
-const BRUTE_FORCE = "That's okay — start with the brute force. What's the simplest thing that would work, even if it's slow?";
+const CHECKIN = "How's it going? Want to talk me through where you are?";
+const PLAN_COMPLEXITY = "Before you code it, what's the time and space complexity of that plan?";
+const BRUTE_FORCE = "That's okay, start with the brute force. What's the simplest thing that would work, even if it's slow?";
 const COMPLEXITY = "What's the time and space complexity?";
 const EDGE_CASES = "What edge cases would you test?";
 
@@ -260,9 +260,9 @@ const EDGE_CASES = "What edge cases would you test?";
 function failureAsk(summary: string): string | null {
   const broken = summary.match(/^(?:Load error|Runner error): (.*)$/);
   if (broken) return `It didn't run: ${broken[1]}. What's going on there?`;
-  if (summary.startsWith("Timed out")) return "It timed out — that usually means a loop that never ends. Where could that happen in your code?";
+  if (summary.startsWith("Timed out")) return "It timed out. That usually means a loop that never ends. Where could that happen in your code?";
   const example = summary.match(/example (\d+) failed/);
-  if (example) return `Example ${example[1]} fails. Walk me through what your code does on that input — where does it go wrong?`;
+  if (example) return `Example ${example[1]} fails. Walk me through what your code does on that input. Where does it go wrong?`;
   const hidden = summary.match(/Hidden tests: (\d+)\/(\d+)/);
   if (hidden && Number(hidden[1]) < Number(hidden[2])) return "The examples pass, but some hidden tests fail. What inputs might you not be handling?";
   return null;
@@ -338,7 +338,7 @@ function scoreAnswer(
 
   const survives = Object.values(rubricScores).every((v) => v >= 3);
   const reasoning = survives
-    ? `Concrete and specific — ${
+    ? `Concrete and specific: ${
         hasNumbers ? "quantified outcome and" : ""
       } a clear mechanism a real interviewer could follow without re-asking.`
     : testsFail
@@ -402,7 +402,7 @@ export const mockEngine = {
     const warning = strikes === 1
       ? "Let's keep this professional. "
       : "I'll be straightforward: if that happens again, I'll have to end the interview. ";
-    const restate = PHASE_ASK[input.phase] ? `So — ${PHASE_ASK[input.phase]}` : `So, back to the question: ${input.question.prompt}`;
+    const restate = PHASE_ASK[input.phase] ? `So, ${PHASE_ASK[input.phase]}` : `So, back to the question: ${input.question.prompt}`;
     const say = warning + restate;
     return { strikes, decision: { action: "clarify", followUpPrompt: null, currentQuestionId, say } };
   },
@@ -420,20 +420,20 @@ export const mockEngine = {
       const reaction = ASKED_BACK.test(reply)
         ? "I'm doing well, thanks for asking."
         : /\b(nervous|anxious|stressed)\b/i.test(reply)
-        ? "That's completely normal — we'll take it one step at a time, and it's fine to think out loud."
+        ? "That's completely normal. We'll take it one step at a time, and it's fine to think out loud."
         : /\b(tired|bad|not great|rough|exhausted)\b/i.test(reply)
         ? "Sorry to hear that. We'll keep this focused."
         : /\b(good|great|well|fine|fantastic)\b/i.test(reply)
         ? "Glad to hear it."
         : "Thanks.";
       return out("advance",
-        `${reaction} So here's the plan: I'll ask you a few questions, pitched at the ${input.level} level, and I'll dig in where I'm curious. Feel free to ask me to clarify anything. To start, walk me through your background in a couple of minutes — what have you been working on most recently?`);
+        `${reaction} So here's the plan: I'll ask you a few questions, pitched at the ${input.level} level, and I'll dig in where I'm curious. Feel free to ask me to clarify anything. To start, walk me through your background in a couple of minutes, what have you been working on most recently?`);
     }
 
     if (phase === "background") {
       const hook = reply.match(/\b([A-Z][a-zA-Z0-9+#.]{2,})\b/g)?.find((w) => !/^(I|I'm|The|And|But|So|My|We|At|In|Then|After|Before|Currently|Right|Most|Recently)$/.test(w));
       const reaction = hook
-        ? `Thanks — the ${hook} part is something I might come back to.`
+        ? `Thanks. The ${hook} part is something I might come back to.`
         : "Thanks, that's useful context.";
       return out("advance", `${reaction} Let's get into it. ${opening(nextQuestion ?? question)}`);
     }
@@ -442,11 +442,11 @@ export const mockEngine = {
       const done = !reply.includes("?") && /\b(no|nope|nothing|that'?s (all|it)|i'?m good|all good|bye|thank)/i.test(reply);
       if (done) {
         const who = firstName(candidateName);
-        return out("complete", `Thanks${who ? `, ${who}` : ""} — I enjoyed this. I'll write up my feedback now; you'll see it on the next screen. Take care.`);
+        return out("complete", `Thanks${who ? `, ${who}` : ""}. I enjoyed this. I'll write up my feedback now; you'll see it on the next screen. Take care.`);
       }
       return out("clarify", /on-?call|day to day|typical|week|work like/i.test(reply)
-        ? "Day to day it's a mix of building and owning what you build in production, on-call included — a week every couple of months, with a real runbook behind it. It's a lot of responsibility early, which most people end up liking. Anything else?"
-        : "Honestly, what separates people on this team is how clearly they reason about tradeoffs out loud — more than knowing every tool. Anything else you'd like to ask?");
+        ? "Day to day it's a mix of building and owning what you build in production, on-call included (a week every couple of months, with a real runbook behind it). It's a lot of responsibility early, which most people end up liking. Anything else?"
+        : "Honestly, what separates people on this team is how clearly they reason about tradeoffs out loud, more than knowing every tool. Anything else you'd like to ask?");
     }
 
     const budget = FOLLOW_UP_BUDGET[question.type];
@@ -464,15 +464,15 @@ export const mockEngine = {
       if (stage === "approach") {
         if (DONT_KNOW.test(reply) && !asked(BRUTE_FORCE)) return out("follow_up", BRUTE_FORCE, BRUTE_FORCE);
         if (!asked(PLAN_COMPLEXITY)) return out("follow_up", `Okay. ${PLAN_COMPLEXITY}`, PLAN_COMPLEXITY);
-        return out("clarify", "Sounds good — go ahead and code it.");
+        return out("clarify", "Sounds good, go ahead and code it.");
       }
       if (stage === "coding") {
         return out("clarify", /\b(done|finished|ready|submit)\b/i.test(reply)
           ? "When you're happy with it, hit Submit and we'll go through the results together."
-          : "Okay — keep going. Think out loud whenever it helps.");
+          : "Okay, keep going. Think out loud whenever it helps.");
       }
       const failing = failureAsk(input.testResults ?? "");
-      if (followUpCount >= budget) return resolve("Okay, let's leave it there — worth revisiting afterwards.");
+      if (followUpCount >= budget) return resolve("Okay, let's leave it there. Worth revisiting afterwards.");
       if (failing) {
         return asked(failing)
           ? out("clarify", "Take another look, fix it, and submit again when you're ready.")
@@ -486,16 +486,16 @@ export const mockEngine = {
     if (CLARIFY.test(reply) || (reply.endsWith("?") && reply.length < 160 && !DONT_KNOW.test(reply))) {
       return /\b(repeat|again|rephrase)\b/i.test(reply)
         ? out("clarify", `Sure. ${question.prompt}`)
-        : out("clarify", "Fair question — make whatever reasonable assumption you think is right and say it out loud. I'll tell you if it's off. Go ahead whenever you're ready.");
+        : out("clarify", "Fair question. Make whatever reasonable assumption you think is right and say it out loud. I'll tell you if it's off. Go ahead whenever you're ready.");
     }
 
     if (DONT_KNOW.test(reply) && reply.length < 220) {
       if (followUpCount < HINTS[question.type].length) {
         const hint = HINTS[question.type][followUpCount];
-        const opener = followUpCount === 0 ? "That's okay, let's work through it together." : "No problem — let me make it smaller.";
+        const opener = followUpCount === 0 ? "That's okay, let's work through it together." : "No problem. Let me make it smaller.";
         return out("follow_up", `${opener} ${hint}`, hint);
       }
-      return resolve("Okay, let's leave that one — it's worth reviewing afterwards.");
+      return resolve("Okay, let's leave that one. It's worth reviewing afterwards.");
     }
 
     if (followUpCount < Math.min(budget, PROBES[question.type].length) && looksVague(reply)) {
@@ -509,7 +509,7 @@ export const mockEngine = {
     const strong = /\d/.test(reply) && reply.length > 260;
     return resolve(strong
       ? pick([
-          "That's concrete — you gave real numbers and were clear about your own part.",
+          "That's concrete. You gave real numbers and were clear about your own part.",
           "Okay, the numbers make that easy to believe.",
           "Right, I can follow exactly what you did there.",
         ])
@@ -585,7 +585,7 @@ export const mockEngine = {
       question.type === "behavioral"
         ? "Open with the Situation and your specific Task, walk through the Actions you personally took, and close with a quantified Result."
         : question.type === "system_design"
-        ? "Clarify the requirements and scale first, sketch the high-level components, then go deep on one — naming the tradeoffs and failure modes explicitly."
+        ? "Clarify the requirements and scale first, sketch the high-level components, then go deep on one, naming the tradeoffs and failure modes explicitly."
         : "State the core approach and why it's correct, explain the key decision, then name the edge cases and how you'd handle them.";
 
     const improvements = [
@@ -599,7 +599,7 @@ export const mockEngine = {
     return {
       modelAnswer:
         `A 5/5 version of your answer would keep your real example but tell it tighter. ${frame} ` +
-        `Ground every claim in a specific number or decision you made, and end on the measurable impact — ` +
+        `Ground every claim in a specific number or decision you made, and end on the measurable impact, ` +
         `that's the difference between "it got better" and an answer an interviewer trusts. ` +
         `(This is a local preview; connect the backend to generate a fully personalized model answer.)`,
       improvements,

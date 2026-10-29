@@ -330,8 +330,8 @@ export const useSessionStore = create<SessionState>()(
             // A failed check-in stays quiet; a failed Submit asks for another press.
             turnError:
               event === "checkin" ? s.turnError
-              : event === "submit" ? "Couldn't reach the interviewer — press Submit again."
-              : e instanceof Error ? e.message : "Request failed — please try again.",
+              : event === "submit" ? "Couldn't reach the interviewer. Press Submit again."
+              : e instanceof Error ? e.message : "Request failed. Please try again.",
             messages: s.messages.filter((m) => m !== candidateMsg),
           }));
           return true;
@@ -456,7 +456,7 @@ export const useSessionStore = create<SessionState>()(
             get().pendingEvals.map((p) => inflightEvals.get(p.question.id) ?? scoreInBackground(p))
           );
           if (get().pendingEvals.length > 0) {
-            throw new Error("Couldn't score every answer — tap retry.");
+            throw new Error("Couldn't score every answer. Tap retry.");
           }
           const state = get();
           const updated = await api.finalizeSession({
@@ -473,7 +473,7 @@ export const useSessionStore = create<SessionState>()(
           set({ status: "complete", updatedMemory: updated, turnError: null, finalizing: false });
         } catch (e) {
           set({
-            turnError: e instanceof Error ? e.message : "Request failed — please try again.",
+            turnError: e instanceof Error ? e.message : "Request failed. Please try again.",
             finalizing: false,
           });
         }
@@ -691,7 +691,7 @@ export const useSessionStore = create<SessionState>()(
         updatedMemory: s.updatedMemory,
         turnError:
           s.status === "wrapping" && s.endedForConduct && !s.turnError
-            ? "Your results weren't saved yet — tap retry."
+            ? "Your results weren't saved yet. Tap retry."
             : s.turnError,
         companyStyle: s.companyStyle,
         nameUsable: s.nameUsable,

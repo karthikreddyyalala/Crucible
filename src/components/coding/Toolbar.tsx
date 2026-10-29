@@ -30,7 +30,7 @@ export function Toolbar({ status, pending, canReset, shortcuts, hintId, onRun, o
   const loading = status === "loading";
   const busy = loading || status === "running" || pending !== null;
   const failed = status === "error";
-  const why = loading ? "Python is still loading" : busy ? "Your code is running" : failed ? "Python didn't load — retry first" : "";
+  const why = loading ? "Python is still loading" : busy ? "Your code is running" : failed ? "Python didn't load. Retry first" : "";
 
   const spinner = <CircleNotch size={16} weight="bold" className="animate-spin" aria-hidden />;
   const runLabel = loading && pending !== "submit" ? "Loading Python…" : pending === "run" ? "Running…" : null;

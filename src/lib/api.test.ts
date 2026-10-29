@@ -51,6 +51,18 @@ describe("api.coachAnswer", () => {
 });
 
 describe("request errors", () => {
+  it("says the server couldn't be reached instead of the browser's \"Failed to fetch\"", async () => {
+    const api = await realApi();
+    fetchMock.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    await expect(api.getProblem("code-two-sum")).rejects.toThrow("Couldn't reach the server");
+  });
+
+  it("hides a server crash's raw text behind a plain retry message", async () => {
+    const api = await realApi();
+    fetchMock.mockResolvedValueOnce(new Response("Internal Server Error", { status: 500 }));
+    await expect(api.getProblem("code-two-sum")).rejects.toThrow("Something went wrong on our side");
+  });
+
   it("shows a validation error's message instead of [object Object]", async () => {
     const api = await realApi();
     fetchMock.mockResolvedValueOnce(json({

@@ -54,13 +54,13 @@ describe("mockEngine.decide — coding stages", () => {
 
     const second = mockEngine.decide(turn({ answer: `Q: ${first.say}\nA: O(n) time and O(n) space.`, followUpCount: 1 }));
     expect(second.action).toBe("clarify");
-    expect(second.say).toBe("Sounds good — go ahead and code it.");
+    expect(second.say).toBe("Sounds good, go ahead and code it.");
   });
 
   it("checks in with one short line", () => {
     const d = mockEngine.decide(turn({ codingStage: "coding", event: "checkin" }));
     expect(d.action).toBe("clarify");
-    expect(d.say).toBe("How's it going — want to talk me through where you are?");
+    expect(d.say).toBe("How's it going? Want to talk me through where you are?");
   });
 
   it("starts the review when the candidate submits", () => {
@@ -85,7 +85,7 @@ describe("mockEngine.decide — coding stages", () => {
 
   it("treats a thread that ends with Marcus's line as no new reply", () => {
     const d = mockEngine.decide(turn({ event: "checkin", codingStage: "coding", answer: "Q: Go ahead.\nA: ok\nQ: Go ahead and code it." }));
-    expect(d.say).toBe("How's it going — want to talk me through where you are?");
+    expect(d.say).toBe("How's it going? Want to talk me through where you are?");
   });
 
   it("opens a coding question by asking for the approach", () => {
@@ -149,7 +149,7 @@ describe("mockEngine.turn — conduct", () => {
     const one = mockEngine.turn(turn({ phase: "warmup", answer: "shut up, bot" }));
     expect(one.strikes).toBe(1);
     expect(one.decision.action).toBe("clarify");
-    expect(one.decision.say).toBe("Let's keep this professional. So — how are you doing today?");
+    expect(one.decision.say).toBe("Let's keep this professional. So, how are you doing today?");
 
     const two = mockEngine.turn(turn({ answer: "Q: x\nA: you're an idiot", strikes: 1 }));
     expect(two.strikes).toBe(2);

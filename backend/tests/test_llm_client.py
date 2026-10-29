@@ -161,3 +161,49 @@ def test_every_argument_we_send_is_accepted_by_the_real_sdk():
         agent="test", model="m", system="s", user="u", schema=_Shape, temperature=0.3)
     accepted = set(inspect.signature(Messages.create).parameters)
     assert set(fake.calls[0]) <= accepted, set(fake.calls[0]) - accepted
+
+
+class _RejectingClient:
+    def __init__(self, status_code):
+        self.status_code = status_code
+        self.calls = 0
+
+    @property
+    def messages(self):
+        outer = self
+
+        class _Rejected(Exception):
+            status_code = outer.status_code
+
+        class _M:
+            def create(self, **kwargs):
+                outer.calls += 1
+                raise _Rejected("rejected")
+        return _M()
+
+
+def test_a_rejected_request_is_not_retried():
+    fake = _RejectingClient(400)
+    with pytest.raises(Exception):
+        LLMClient(client=fake).structured(agent="test", model="m", system="s", user="u", schema=_Shape)
+    assert fake.calls == 1
+
+
+def test_throttling_is_still_retried():
+    fake = _RejectingClient(429)
+    with pytest.raises(Exception):
+        LLMClient(client=fake).structured(agent="test", model="m", system="s", user="u", schema=_Shape)
+    assert fake.calls == 3
+
+
+def test_lambda_ships_the_sdk_version_the_tests_ran_on():
+    # The Lambda once got anthropic 2.3 while everything was tested on 1.4, and Bedrock
+    # rejected every call. Keep the deploy pin and the tested version identical.
+    import re
+    from importlib.metadata import version
+    from pathlib import Path
+
+    req = (Path(__file__).resolve().parents[2] / "deploy" / "requirements-lambda.txt").read_text()
+    pin = re.search(r"^anthropic==(\S+)", req, re.M)
+    assert pin, "pin anthropic to an exact version in deploy/requirements-lambda.txt"
+    assert pin.group(1) == version("anthropic")
