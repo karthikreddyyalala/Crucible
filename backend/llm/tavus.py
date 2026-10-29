@@ -23,13 +23,18 @@ HttpPost = Callable[[str, dict, dict], dict[str, Any]]
 
 
 def _default_http_post(url: str, headers: dict, json_body: dict) -> dict[str, Any]:
+    import urllib.error
     import urllib.request
     import json
 
     data = json.dumps(json_body).encode()
     req = urllib.request.Request(url, data=data, headers={**headers, "Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=20) as resp:  # noqa: S310 — fixed tavus host
-        return json.loads(resp.read().decode())
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:  # noqa: S310 — fixed tavus host
+            return json.loads(resp.read().decode())
+    except urllib.error.HTTPError as error:
+        # Tavus explains a 400 in the body (e.g. too many open conversations); keep it in the logs.
+        raise RuntimeError(f"Tavus {error.code}: {error.read().decode(errors='replace')[:300]}") from error
 
 
 class TavusClient:

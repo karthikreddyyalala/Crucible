@@ -23,6 +23,14 @@ def one_ask(text: str) -> str:
     return _SECOND_ASK.sub("?", text, count=1)
 
 
+# Marcus is heard (and shown) as plain speech: a dash reads as written prose, so it becomes a comma.
+_DASH = re.compile(r",?\s*[—–]\s*")
+
+
+def plain_dashes(text: str) -> str:
+    return _DASH.sub(", ", text)
+
+
 class InterviewerAgent:
     def __init__(self, llm, model: str, temperature: float = 0.0):
         self._llm = llm
@@ -112,6 +120,10 @@ class InterviewerAgent:
                 "say": one_ask(decision.say),
                 "follow_up_prompt": decision.follow_up_prompt and one_ask(decision.follow_up_prompt),
             })
+        decision = decision.model_copy(update={
+            "say": plain_dashes(decision.say),
+            "follow_up_prompt": decision.follow_up_prompt and plain_dashes(decision.follow_up_prompt),
+        })
         if decision.action == "end":  # only the server ends a session (conduct); for the model it resolves
             done = is_last_question or phase == "closing"
             decision = decision.model_copy(update={"action": "complete" if done else "advance"})

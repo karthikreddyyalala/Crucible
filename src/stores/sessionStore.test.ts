@@ -808,7 +808,7 @@ describe("sessionStore — turnError", () => {
       expect(s.status).toBe("live");
       expect(s.strikes).toBe(1);
       expect(s.messages.map((m) => m.text)).toEqual([
-        "Hi, how are you?", "Let's keep this professional. So — how are you doing today?",
+        "Hi, how are you?", "Let's keep this professional. So, how are you doing today?",
       ]);
 
       // The struck line is never sent again as part of the thread.
@@ -1152,7 +1152,7 @@ describe("sessionStore — turnError", () => {
       expect(vi.mocked(api.submitAnswer).mock.calls[0][0]).toMatchObject({ event: "checkin", answer: "" });
       const s = useSessionStore.getState();
       expect(s.checkinSent.c1).toBe(true);
-      expect(s.messages.map((m) => m.text)).toEqual(["How's it going — want to talk me through where you are?"]);
+      expect(s.messages.map((m) => m.text)).toEqual(["How's it going, want to talk me through where you are?"]);
       expect(s.followUpCount).toBe(0);
     });
 

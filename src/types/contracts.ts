@@ -102,6 +102,12 @@ export interface CoachResponse {
   code?: string;
 }
 
+// A 30-second Deepgram token for live transcription (the API key never leaves the server).
+export interface SttTokenResponse {
+  accessToken: string;
+  expiresIn: number;
+}
+
 export interface AvatarSessionResponse {
   enabled: boolean;
   conversationUrl: string | null;

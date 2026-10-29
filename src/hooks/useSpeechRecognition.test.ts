@@ -77,4 +77,31 @@ describe("useSpeechRecognition", () => {
 
     expect(result.current.listening).toBe(false);
   });
+
+  it("keeps everything said before the engine restarts mid-answer", () => {
+    const { result } = renderHook(() => useSpeechRecognition());
+    const said = (...parts: string[]) => ({ results: parts.map((t) => [{ transcript: t }]) });
+
+    act(() => result.current.start());
+    act(() => instance.onresult?.(said("First I sorted the list", " then I used two pointers")));
+    // Chrome ends the session after a pause and we restart it: the new session's results start empty.
+    act(() => instance.onend?.());
+    act(() => instance.onresult?.(said("and that keeps it linear")));
+
+    expect(result.current.transcript).toBe("First I sorted the list then I used two pointers and that keeps it linear");
+  });
+
+  it("starts a fresh answer empty", () => {
+    const { result } = renderHook(() => useSpeechRecognition());
+    const said = (t: string) => ({ results: [[{ transcript: t }]] });
+
+    act(() => result.current.start());
+    act(() => instance.onresult?.(said("old answer")));
+    act(() => instance.onend?.());
+    act(() => result.current.stop());
+    act(() => result.current.start());
+    act(() => instance.onresult?.(said("new answer")));
+
+    expect(result.current.transcript).toBe("new answer");
+  });
 });

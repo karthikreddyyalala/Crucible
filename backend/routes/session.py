@@ -15,6 +15,7 @@ from llm.usage import CallUsage
 from models.contracts import (
     AnswerEvaluation,
     AvatarSessionResponse,
+    SttTokenResponse,
     CoachResponse,
     IntakeProfile,
     InterviewDecision,
@@ -162,7 +163,7 @@ def _conduct_decision(req: TurnRequest, strikes: int) -> InterviewDecision:
                                  say="I'm going to end the interview here. Take care.")
     warning = ("Let's keep this professional. " if strikes == 1 else
                "I'll be straightforward: if that happens again, I'll have to end the interview. ")
-    restate = (f"So — {_PHASE_ASK[req.phase]}" if req.phase in _PHASE_ASK
+    restate = (f"So, {_PHASE_ASK[req.phase]}" if req.phase in _PHASE_ASK
                else f"So, back to the question: {req.question.prompt}")
     return InterviewDecision(action="clarify", current_question_id=req.question.id, say=warning + restate)
 
@@ -249,6 +250,7 @@ def _empty_memory(candidate_id: str) -> MemoryProfile:
 
 def build_session_router(
     *, llm, settings: Settings, store: MemoryStore, tavus_client=None, tts_client=None,
+    stt_client=None,
 ) -> APIRouter:
     router = APIRouter(prefix="/api")
 
@@ -390,6 +392,15 @@ def build_session_router(
         if tts_client is None:
             raise HTTPException(status_code=404, detail="Voice not configured.")
         return Response(content=tts_client.synthesize(req.text), media_type="audio/mpeg")
+
+    @router.post("/stt/token")
+    def stt_token(_sub: str | None = Depends(current_sub)) -> SttTokenResponse:
+        # The candidate's live transcription (Deepgram). The browser gets a 30-second
+        # token, never the key. 404 when not configured tells it to use its own recognizer.
+        if stt_client is None:
+            raise HTTPException(status_code=404, detail="Transcription not configured.")
+        token, expires_in = stt_client.grant()
+        return SttTokenResponse(access_token=token, expires_in=expires_in)
 
     @router.post("/avatar/session")
     def avatar_session(_sub: str | None = Depends(current_sub)) -> AvatarSessionResponse:

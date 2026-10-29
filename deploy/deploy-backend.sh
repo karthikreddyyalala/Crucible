@@ -62,6 +62,19 @@ else
   echo "==> ElevenLabs voice: disabled (no ELEVENLABS_API_KEY) — browser voice fallback"
 fi
 
+# Deepgram transcription: same pattern. The key must have the Member role (it
+# mints 30-second browser tokens). Unset → the browser's speech recognition.
+DEEPGRAM_KEY="${DEEPGRAM_API_KEY:-}"
+if [ -z "$DEEPGRAM_KEY" ] && [ -f "$(dirname "$0")/../.env.local" ]; then
+  DEEPGRAM_KEY=$(grep -E '^DEEPGRAM_API_KEY=' "$(dirname "$0")/../.env.local" | head -1 | cut -d= -f2- | tr -d '"'"'"'')
+fi
+if [ -n "$DEEPGRAM_KEY" ]; then
+  ENV_JSON="${ENV_JSON},\"DEEPGRAM_API_KEY\":\"${DEEPGRAM_KEY}\""
+  echo "==> Deepgram transcription: ENABLED"
+else
+  echo "==> Deepgram transcription: disabled (no DEEPGRAM_API_KEY) — browser recognition fallback"
+fi
+
 # Cognito auth is UNLIKE Tavus: it's a live access-control boundary, not a
 # cosmetic feature, and update-function-configuration REPLACES the whole
 # Lambda environment on every run. Silently omitting these vars would

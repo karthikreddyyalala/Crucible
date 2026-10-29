@@ -7,6 +7,7 @@ from models.contracts import IntakeProfile, MemoryProfile, QuestionPlan
 from models.question_data import QuestionExemplar
 from models.loader import bank_for, load_competency_map
 from agents.intake import IntakeAgent
+from agents.interviewer import plain_dashes
 from agents.planner import PlannerAgent
 
 
@@ -59,7 +60,7 @@ def assign_coding_problems(plan: QuestionPlan, coding: list[CodingProblem]) -> Q
             if pick:
                 used.add(pick.id)
                 topics.update(pick.topics)
-                q = q.model_copy(update={"exemplar_id": pick.id, "prompt": f"Let's do a coding problem — {pick.title}."})
+                q = q.model_copy(update={"exemplar_id": pick.id, "prompt": f"Let's do a coding problem: {pick.title}."})
             else:
                 q = q.model_copy(update={"type": "technical"})
         qs.append(q)
@@ -110,7 +111,9 @@ def build_session_start_graph(*, llm, intake_model: str, planner_model: str,
         )
         plan = assign_coding_problems(keep_known_exemplars(plan, bank, coding), coding)
         # Ids go to the client and come back on every turn (validated there): short, unique, in order.
-        renamed = [q.model_copy(update={"id": f"q{i}"}) for i, q in enumerate(plan.questions, 1)]
+        # Marcus says each prompt aloud, so it gets the same dash-free wording as his other lines.
+        renamed = [q.model_copy(update={"id": f"q{i}", "prompt": plain_dashes(q.prompt)})
+                   for i, q in enumerate(plan.questions, 1)]
         return {"plan": plan.model_copy(update={"questions": renamed})}
 
     g = StateGraph(SessionStartState)

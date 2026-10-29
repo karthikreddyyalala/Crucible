@@ -62,6 +62,12 @@ class AvatarSessionResponse(_Base):
     conversation_id: str | None = None
 
 
+class SttTokenResponse(_Base):
+    """A short-lived Deepgram token for the browser's live transcription (never the API key)."""
+    access_token: str
+    expires_in: int
+
+
 class RecurringWeakness(_Base):
     tag: str
     frequency: int

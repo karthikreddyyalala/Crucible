@@ -7,6 +7,7 @@
 import type {
   AnswerEvaluation,
   AvatarSessionResponse,
+  SttTokenResponse,
   CoachResponse,
   CodingStage,
   CompanyStyleId,
@@ -296,6 +297,20 @@ export const api = {
     if (res.status === 404) return null;
     if (!res.ok) throw new Error(`Voice failed (${res.status})`);
     return res.blob();
+  },
+
+  // A short-lived token for Deepgram live transcription. null = not configured or
+  // unreachable: the caller uses the browser's own speech recognition instead.
+  async sttToken(): Promise<string | null> {
+    if (USE_MOCK) return null;
+    try {
+      const res = await fetch(apiUrl("/api/stt/token"), { method: "POST", headers: await authHeaders() });
+      if (!res.ok) return null;
+      const body: SttTokenResponse = await res.json();
+      return body.accessToken;
+    } catch {
+      return null;
+    }
   },
 
   // Asks the backend to spin up a Tavus video conversation. Returns enabled:false

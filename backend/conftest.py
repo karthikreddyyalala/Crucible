@@ -7,3 +7,4 @@ def _isolate_env(monkeypatch):
     monkeypatch.setenv("AWS_REGION", "us-east-1")
     # ...nor a developer's real ElevenLabs key (app.py loads .env.local).
     monkeypatch.delenv("ELEVENLABS_API_KEY", raising=False)
+    monkeypatch.delenv("DEEPGRAM_API_KEY", raising=False)

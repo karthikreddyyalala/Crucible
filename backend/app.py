@@ -8,6 +8,7 @@ never touches AWS. The real app builds an LLMClient that lazily connects to
 Bedrock only on the first agent call.
 """
 import logging
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -58,15 +59,24 @@ def _build_tts(settings: Settings):
     )
 
 
+def _build_stt(settings: Settings):
+    if not settings.deepgram_enabled:
+        return None
+    from llm.deepgram import DeepgramTokens
+
+    return DeepgramTokens(api_key=os.environ["DEEPGRAM_API_KEY"])
+
+
 def create_app(
     *, llm=None, settings: Settings | None = None, store: MemoryStore | None = None,
-    tavus_client=None, tts_client=None,
+    tavus_client=None, tts_client=None, stt_client=None,
 ) -> FastAPI:
     settings = settings or Settings()
     llm = llm if llm is not None else LLMClient(region=settings.aws_region)
     store = store if store is not None else _build_store(settings)
     tavus_client = tavus_client if tavus_client is not None else _build_tavus(settings)
     tts_client = tts_client if tts_client is not None else _build_tts(settings)
+    stt_client = stt_client if stt_client is not None else _build_stt(settings)
 
     app = FastAPI(title="Crucible API", version="0.1.0")
 
@@ -100,7 +110,7 @@ def create_app(
 
     app.include_router(
         build_session_router(
-            llm=llm, settings=settings, store=store, tavus_client=tavus_client, tts_client=tts_client,
+            llm=llm, settings=settings, store=store, tavus_client=tavus_client, tts_client=tts_client, stt_client=stt_client,
         )
     )
     return app
