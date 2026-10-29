@@ -1,3 +1,4 @@
+import { humanizeTag } from "@/lib/humanize";
 import { useEffect, useId, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
@@ -476,5 +477,3 @@ export function whatsMissing(resume: string, jd: string): string {
   ].filter(Boolean).join(" ");
 }
 
-// ponytail: local copy until the shared @/lib/humanize lands from the dashboard work.
-const humanizeTag = (tag: string) => tag.charAt(0).toUpperCase() + tag.slice(1).replace(/[-_]/g, " ");
