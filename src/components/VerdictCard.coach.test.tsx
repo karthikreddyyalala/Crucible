@@ -52,3 +52,19 @@ describe("VerdictCard coach panel for a coding answer", () => {
     expect(document.querySelector("pre")).toBeNull();
   });
 });
+
+describe("VerdictCard key points", () => {
+  it("lists what you said under a heading when keyPoints are present", () => {
+    render(<VerdictCard evaluation={{ ...evaluation, keyPoints: ["Moved billing to Kafka", "Cut p99 from 900ms to 120ms"] }} question={question} index={0} />);
+    expect(screen.getByText("What you said")).toBeTruthy();
+    expect(screen.getByText("Moved billing to Kafka")).toBeTruthy();
+    expect(screen.getByText("Cut p99 from 900ms to 120ms")).toBeTruthy();
+  });
+
+  it("shows no heading for empty or missing keyPoints", () => {
+    const { rerender } = render(<VerdictCard evaluation={{ ...evaluation, keyPoints: [] }} question={question} index={0} />);
+    expect(screen.queryByText("What you said")).toBeNull();
+    rerender(<VerdictCard evaluation={evaluation} question={question} index={0} />);
+    expect(screen.queryByText("What you said")).toBeNull();
+  });
+});
