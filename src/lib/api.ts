@@ -133,6 +133,7 @@ function summarize(r: SessionRecord): SessionSummary {
     level: r.level,
     survived: r.evaluations.filter((e) => e.wouldSurviveRealInterview).length,
     total: r.evaluations.length,
+    weaknessTags: [...new Set(r.evaluations.flatMap((e) => e.weaknessTags))].sort(),
   };
 }
 

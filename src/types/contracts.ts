@@ -122,6 +122,8 @@ export interface SessionSummary {
   level: string;
   survived: number;
   total: number;
+  /** Sorted union of the session's weakness tags; missing on rows written before it existed. */
+  weaknessTags?: string[];
 }
 
 export interface SessionRecord {

@@ -1,5 +1,5 @@
-// "vague-impact" -> "Vague impact", "edge_cases" -> "Edge cases".
+// Raw tags like "vague-impact" or "no_edge_cases" read as code; show them as words.
 export function humanizeTag(tag: string): string {
-  const words = tag.split(/[-_]+/).filter(Boolean).join(" ").toLowerCase();
-  return words.charAt(0).toUpperCase() + words.slice(1);
+  const text = tag.split(/[-_]+/).filter(Boolean).join(" ");
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }

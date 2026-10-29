@@ -111,3 +111,22 @@ def test_answer_evaluation_key_points_default_and_alias():
 def test_evaluator_prompt_asks_for_key_points():
     from pathlib import Path
     assert "keyPoints" in (Path(__file__).parent.parent / "prompts" / "evaluator.md").read_text()
+
+
+def test_session_summary_weakness_tags_union_and_old_default():
+    from models.contracts import SessionRecord, SessionSummary
+
+    def ev(qid: str, tags: list[str]) -> dict:
+        return {"questionId": qid, "transcript": "...", "rubricScores": {"depth": 2},
+                "weaknessTags": tags, "followUpCount": 0,
+                "wouldSurviveRealInterview": False, "survivalReasoning": "r"}
+    rec = SessionRecord.model_validate({
+        "sessionId": "s", "candidateId": "c", "date": "2026-10-28", "mode": "full", "level": "mid",
+        "questions": [], "evaluations": [ev("q1", ["vague-impact", "rambling"]), ev("q2", ["vague-impact"])],
+    })
+    summary = rec.summary()
+    assert summary.weakness_tags == ["rambling", "vague-impact"]
+    assert summary.model_dump(by_alias=True)["weaknessTags"] == ["rambling", "vague-impact"]
+    old = SessionSummary.model_validate({"sessionId": "s", "date": "2026-10-01", "mode": "full",
+                                         "level": "mid", "survived": 1, "total": 2})
+    assert old.weakness_tags == []
