@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts import make_backchannel_clips as mod
+from cli import make_backchannel_clips as mod
 
 
 class _FakeTTS:

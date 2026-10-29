@@ -1,7 +1,7 @@
 """One-time: render the interviewer's short "Mm-hm" clips in his ElevenLabs voice.
 
 Costs ElevenLabs credits (about 20 characters in total), so run it only when the
-clips need remaking. From backend/:  python -m scripts.make_backchannel_clips
+clips need remaking. From backend/:  python -m cli.make_backchannel_clips
 Writes public/backchannel/*.mp3, which the browser plays while Marcus thinks.
 """
 from pathlib import Path

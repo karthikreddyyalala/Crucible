@@ -55,7 +55,7 @@ seconds. And the mic is off while he talks, so you can't interrupt him.
 - Not in warmup/background/closing (a "Mm-hm" to "I'm good, how are you?" is odd), not
   for coding events (check-in, Submit), not in video mode (Tavus has its own voice; 2d).
 - Clips are static files in `public/backchannel/` loaded by a new `useBackchannel` hook.
-  They're made once by `backend/scripts/make_backchannel_clips.py` through the existing
+  They're made once by `backend/cli/make_backchannel_clips.py` through the existing
   ElevenLabs client (about 20 characters, well under a cent; run only with Karthik's OK).
   If a clip is missing or can't play, nothing happens: no error, no browser-voice substitute.
 

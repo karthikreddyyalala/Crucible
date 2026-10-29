@@ -183,7 +183,9 @@ export function Interview() {
   // A turn that began while he was talking may be him, even if it ends after he stops.
   const heardWhileSpeaking = useRef(false);
   useEffect(() => {
-    if (interviewerSpeaking && stt.transcript.trim()) heardWhileSpeaking.current = true;
+    // A fresh mic (or a used-up turn) empties the transcript: start the overlap check over.
+    if (!stt.transcript.trim()) heardWhileSpeaking.current = false;
+    else if (interviewerSpeaking) heardWhileSpeaking.current = true;
     if (stt.semantic && !useVideo && eleven.speaking && isRealInterruption(stt.transcript, lastInterviewerLine)) tts.cancel();
     // tts is recreated every render; the transcript is what matters here
     // eslint-disable-next-line react-hooks/exhaustive-deps

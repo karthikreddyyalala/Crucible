@@ -2,7 +2,7 @@ import { useCallback, useRef } from "react";
 
 // A quick "Mm-hm" the moment a spoken answer is sent, so the few seconds while
 // Marcus thinks aren't dead air. Pre-recorded in his voice (public/backchannel/,
-// made once by backend/scripts/make_backchannel_clips.py). A missing clip just
+// made once by backend/cli/make_backchannel_clips.py). A missing clip just
 // stays silent: never an error, never a different voice.
 export const BACKCHANNEL_CLIPS = ["mm-hm", "mm", "right"].map(
   (name) => `${import.meta.env.BASE_URL}backchannel/${name}.mp3`,

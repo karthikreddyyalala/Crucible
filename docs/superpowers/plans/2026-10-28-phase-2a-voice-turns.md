@@ -285,7 +285,7 @@ git commit -m "feat: transcribe with Deepgram Flux to know when the candidate ha
 **Files:**
 - Create: `src/hooks/useBackchannel.ts`
 - Test: `src/hooks/useBackchannel.test.ts`
-- Create: `backend/scripts/__init__.py` (empty), `backend/scripts/make_backchannel_clips.py`
+- Create: `backend/scripts/__init__.py` (empty), `backend/cli/make_backchannel_clips.py`
 - Create: `public/backchannel/.gitkeep`
 
 - [ ] **Step 1: Write the failing tests**
@@ -362,7 +362,7 @@ import { useCallback, useRef } from "react";
 
 // A quick "Mm-hm" the moment a spoken answer is sent, so the few seconds while
 // Marcus thinks aren't dead air. Pre-recorded in his voice (public/backchannel/,
-// made once by backend/scripts/make_backchannel_clips.py). A missing clip just
+// made once by backend/cli/make_backchannel_clips.py). A missing clip just
 // stays silent: never an error, never a different voice.
 export const BACKCHANNEL_CLIPS = ["mm-hm", "mm", "right"].map(
   (name) => `${import.meta.env.BASE_URL}backchannel/${name}.mp3`,
@@ -405,13 +405,13 @@ Run: `npx vitest run src/hooks/useBackchannel.test.ts && npx tsc --noEmit`
 
 - [ ] **Step 5: Create the clip script (do NOT run it: it costs ElevenLabs credits)**
 
-`backend/scripts/make_backchannel_clips.py`:
+`backend/cli/make_backchannel_clips.py`:
 
 ```python
 """One-time: render the interviewer's short "Mm-hm" clips in his ElevenLabs voice.
 
 Costs ElevenLabs credits (about 20 characters in total), so run it only when the
-clips need remaking. From backend/:  python -m scripts.make_backchannel_clips
+clips need remaking. From backend/:  python -m cli.make_backchannel_clips
 Writes public/backchannel/*.mp3, which the browser plays while Marcus thinks.
 """
 from pathlib import Path
@@ -439,7 +439,7 @@ if __name__ == "__main__":
 
 Check `Settings()` builds without arguments the way `app.py` does it (read `create_app` in `backend/app.py`); if `app.py` builds settings differently, do the same. Add an empty `backend/scripts/__init__.py` and `public/backchannel/.gitkeep`.
 
-Add a mocked test `backend/tests/test_backchannel_clips.py` that monkeypatches `scripts.make_backchannel_clips._build_tts` to return a fake with `synthesize = lambda text: text.encode()`, points `OUT` at `tmp_path`, runs `main()`, and asserts the three files exist with the right bytes. Run `cd backend && python -m pytest tests/test_backchannel_clips.py -q`.
+Add a mocked test `backend/tests/test_backchannel_clips.py` that monkeypatches `cli.make_backchannel_clips._build_tts` to return a fake with `synthesize = lambda text: text.encode()`, points `OUT` at `tmp_path`, runs `main()`, and asserts the three files exist with the right bytes. Run `cd backend && python -m pytest tests/test_backchannel_clips.py -q`.
 
 - [ ] **Step 6: Commit**
 
@@ -535,5 +535,5 @@ git commit -m "feat: send on end of turn, backchannel while thinking, let the ca
 
 ## Live check (only with Karthik's OK, after merge-ready)
 
-1. Clips: `cd backend && python -m scripts.make_backchannel_clips` (ElevenLabs, about 20 characters).
+1. Clips: `cd backend && python -m cli.make_backchannel_clips` (ElevenLabs, about 20 characters).
 2. About 10 minutes of talking on the local site with Flux, about $0.10 Deepgram, plus Claude for Marcus's replies if run against the real backend (ask with that estimate). Verify: Flux connects with our token, keyterms accepted, interruption works without echo false-stops.
