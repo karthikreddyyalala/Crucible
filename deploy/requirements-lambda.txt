@@ -3,7 +3,7 @@
 # needed (Mangum drives the app), keeping the package small.
 fastapi>=0.115
 mangum>=0.18
-anthropic>=1.4,<3  # tested with 1.4 and 2.3; temperature goes in extra_body
+anthropic==1.4.0  # 2.x on Lambda: Bedrock rejects temperature with 400 "Extra inputs are not permitted"
 langgraph>=0.2
 pydantic>=2.7
 pydantic-settings>=2.3
