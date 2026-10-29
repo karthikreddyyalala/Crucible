@@ -4,13 +4,14 @@ import { renderHook, act } from "@testing-library/react";
 const { sttToken } = vi.hoisted(() => ({ sttToken: vi.fn() }));
 vi.mock("@/lib/api", () => ({ api: { sttToken } }));
 
-import { listenUrl, useDeepgramSTT } from "./useDeepgramSTT";
+import { fluxUrl, listenUrl, useDeepgramSTT } from "./useDeepgramSTT";
 import { useSpeechInput } from "./useSpeechInput";
 
 class FakeSocket {
   static CONNECTING = 0;
   static OPEN = 1;
   static last: FakeSocket;
+  static failUrl: RegExp | null = null;
   readyState = FakeSocket.CONNECTING;
   sent: unknown[] = [];
   onopen: (() => void) | null = null;
@@ -19,6 +20,10 @@ class FakeSocket {
   onmessage: ((e: { data: string }) => void) | null = null;
   constructor(public url: string, public protocols: string[]) {
     FakeSocket.last = this;
+    if (FakeSocket.failUrl?.test(url)) {
+      queueMicrotask(() => this.onerror?.());
+      return;
+    }
     queueMicrotask(() => {
       this.readyState = FakeSocket.OPEN;
       this.onopen?.();
@@ -29,6 +34,9 @@ class FakeSocket {
   }
   close() {
     this.readyState = 3;
+  }
+  turn(event: string, transcript: string) {
+    this.onmessage?.({ data: JSON.stringify({ type: "TurnInfo", event, transcript, turn_index: 0 }) });
   }
   hear(text: string, isFinal: boolean) {
     this.onmessage?.({ data: JSON.stringify({ type: "Results", is_final: isFinal, channel: { alternatives: [{ transcript: text }] } }) });
@@ -50,6 +58,7 @@ class FakeRecorder {
 const stopTrack = vi.fn();
 
 beforeEach(() => {
+  FakeSocket.failUrl = null;
   sttToken.mockReset().mockResolvedValue("jwt");
   vi.stubGlobal("WebSocket", FakeSocket);
   vi.stubGlobal("MediaRecorder", FakeRecorder);
@@ -69,12 +78,13 @@ describe("useDeepgramSTT", () => {
     await act(async () => {
       expect(await result.current.start()).toBe(true);
     });
-    expect(FakeSocket.last.url).toContain("model=nova-3");
+    expect(FakeSocket.last.url).toContain("model=flux-general-en");
     expect(FakeSocket.last.protocols).toEqual(["bearer", "jwt"]);
     expect(result.current.listening).toBe(true);
   });
 
   it("keeps finished phrases and shows the phrase in progress", async () => {
+    FakeSocket.failUrl = /\/v2\//;
     const { result } = renderHook(() => useDeepgramSTT());
     await act(async () => {
       await result.current.start();
@@ -106,6 +116,95 @@ describe("useDeepgramSTT", () => {
       expect(await result.current.start()).toBe(false);
     });
     expect(result.current.listening).toBe(false);
+  });
+});
+
+describe("useDeepgramSTT on Flux", () => {
+  it("connects to Flux first and reports semantic turns", async () => {
+    const { result } = renderHook(() => useDeepgramSTT());
+    await act(async () => {
+      expect(await result.current.start()).toBe(true);
+    });
+    expect(FakeSocket.last.url).toMatch(/^wss:\/\/api\.deepgram\.com\/v2\/listen\?model=flux-general-en/);
+    expect(FakeSocket.last.protocols).toEqual(["bearer", "jwt"]);
+    expect(result.current.semantic).toBe(true);
+  });
+
+  it("shows the turn live and hands over the finished turn once", async () => {
+    const onTurnEnd = vi.fn();
+    const { result } = renderHook(() => useDeepgramSTT([], onTurnEnd));
+    await act(async () => {
+      await result.current.start();
+    });
+    act(() => FakeSocket.last.turn("StartOfTurn", "I'd"));
+    act(() => FakeSocket.last.turn("Update", "I'd use a queue"));
+    expect(result.current.transcript).toBe("I'd use a queue");
+    expect(onTurnEnd).not.toHaveBeenCalled();
+    act(() => FakeSocket.last.turn("EndOfTurn", "I'd use a queue."));
+    expect(onTurnEnd).toHaveBeenCalledTimes(1);
+    expect(onTurnEnd).toHaveBeenCalledWith("I'd use a queue.");
+  });
+
+  it("ignores an empty end of turn", async () => {
+    const onTurnEnd = vi.fn();
+    const { result } = renderHook(() => useDeepgramSTT([], onTurnEnd));
+    await act(async () => {
+      await result.current.start();
+    });
+    act(() => FakeSocket.last.turn("EndOfTurn", "  "));
+    expect(onTurnEnd).not.toHaveBeenCalled();
+  });
+
+  it("falls back to Nova-3 when Flux won't open, and stays there", async () => {
+    FakeSocket.failUrl = /\/v2\//;
+    const { result } = renderHook(() => useDeepgramSTT());
+    await act(async () => {
+      expect(await result.current.start()).toBe(true);
+    });
+    expect(FakeSocket.last.url).toContain("model=nova-3");
+    expect(result.current.semantic).toBe(false);
+    act(() => result.current.stop());
+    FakeSocket.failUrl = null;
+    await act(async () => {
+      await result.current.start();
+    });
+    expect(FakeSocket.last.url).toContain("model=nova-3");
+  });
+
+  it("drops Flux for the session if it closes before hearing anything", async () => {
+    const { result } = renderHook(() => useDeepgramSTT());
+    await act(async () => {
+      await result.current.start();
+    });
+    act(() => FakeSocket.last.onclose?.());
+    await act(async () => {
+      await result.current.start();
+    });
+    expect(FakeSocket.last.url).toContain("model=nova-3");
+  });
+
+  it("stop during connecting is not a Flux failure", async () => {
+    const { result } = renderHook(() => useDeepgramSTT());
+    await act(async () => {
+      const started = result.current.start();
+      result.current.stop();
+      expect(await started).toBe(true);
+    });
+    await act(async () => {
+      await result.current.start();
+    });
+    expect(FakeSocket.last.url).toContain("model=flux-general-en");
+  });
+});
+
+describe("fluxUrl", () => {
+  it("asks Flux to listen for interview terms and the candidate's skills", () => {
+    const url = new URL(fluxUrl(["Terraform"]));
+    expect(url.pathname).toBe("/v2/listen");
+    expect(url.searchParams.get("model")).toBe("flux-general-en");
+    expect(url.searchParams.get("eot_timeout_ms")).toBe("5000");
+    expect(url.searchParams.getAll("keyterm")).toContain("Terraform");
+    expect(url.searchParams.getAll("keyterm")).toContain("idempotent");
   });
 });
 

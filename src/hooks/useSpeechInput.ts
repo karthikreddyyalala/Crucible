@@ -6,9 +6,11 @@ import { useSpeechRecognition } from "./useSpeechRecognition";
 // (far more accurate), otherwise the browser's own recognizer. Once Deepgram
 // can't start (not configured, mic or network trouble) the session stays on
 // the browser recognizer so every later answer doesn't wait on a failed try.
-export function useSpeechInput(keyterms: readonly string[] = []) {
+// On Deepgram Flux, onTurnEnd fires when the candidate has finished a thought and
+// semantic is true.
+export function useSpeechInput(keyterms: readonly string[] = [], onTurnEnd?: (text: string) => void) {
   const browser = useSpeechRecognition();
-  const deepgram = useDeepgramSTT(keyterms);
+  const deepgram = useDeepgramSTT(keyterms, onTurnEnd);
   const [useBrowser, setUseBrowser] = useState(!deepgram.supported);
   const active = useBrowser ? browser : deepgram;
 
@@ -30,6 +32,7 @@ export function useSpeechInput(keyterms: readonly string[] = []) {
     supported: browser.supported || deepgram.supported,
     listening: active.listening,
     transcript: active.transcript,
+    semantic: !useBrowser && deepgram.semantic,
     start,
     stop: active.stop,
   };
