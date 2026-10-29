@@ -374,7 +374,7 @@ export const api = {
   }): Promise<MemoryProfile> {
     if (USE_MOCK) {
       await latency(900);
-      const today = new Date().toISOString().slice(0, 10);
+      const today = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD in local time, not UTC
       const prior = readMockMemory(input.candidateId);
       const updated = mockEngine.aggregate(input.evaluations, today, prior);
       updated.candidateId = input.candidateId;
