@@ -25,11 +25,12 @@ import { ElapsedTime } from "@/components/coding/ElapsedTime";
 import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 import { useSpeechInput } from "@/hooks/useSpeechInput";
 import { useElevenLabsTTS } from "@/hooks/useElevenLabsTTS";
+import { useBackchannel } from "@/hooks/useBackchannel";
 import { useTavus } from "@/hooks/useTavus";
 import { usePythonRunner } from "@/hooks/usePythonRunner";
 import { useSessionStore } from "@/stores/sessionStore";
 import { USE_MOCK } from "@/lib/api";
-import { silenceBeforeSendMs } from "@/lib/turnTaking";
+import { isRealInterruption, silenceBeforeSendMs } from "@/lib/turnTaking";
 
 const WIDE = "(min-width: 1024px)";
 // The server's limit on one answer; the counter appears as the draft gets close.
@@ -88,7 +89,9 @@ export function Interview() {
   const webSpeech = useSpeechSynthesis();
   // The candidate's own skills help the transcriber hear them right ("Kafka", "Terraform").
   const skills = useSessionStore((s) => s.profile?.candidateSkills);
-  const stt = useSpeechInput(skills ?? NO_TERMS);
+  // On Flux, the transcriber says when the candidate has finished; handleTurnEnd sends it.
+  const stt = useSpeechInput(skills ?? NO_TERMS, (text) => handleTurnEnd(text));
+  const backchannel = useBackchannel();
 
   // Optional Tavus video avatar. Dormant unless the backend has a key; when it
   // becomes ready it takes over both the face and the voice (it speaks the
@@ -163,15 +166,28 @@ export function Interview() {
   const wasSpeaking = useRef(false);
   useEffect(() => {
     const finished = wasSpeaking.current && !interviewerSpeaking;
+    const started = !wasSpeaking.current && interviewerSpeaking;
     wasSpeaking.current = interviewerSpeaking;
-    if (finished && voiceOn && status === "live" && stt.supported && !stt.listening) stt.start();
-  }, [interviewerSpeaking, voiceOn, status, stt]);
+    // On Flux the mic is open while he talks, so the candidate can interrupt him.
+    const opens = finished || (started && stt.semantic && !useVideo);
+    if (opens && voiceOn && status === "live" && stt.supported && !stt.listening) stt.start();
+  }, [interviewerSpeaking, voiceOn, status, stt, useVideo]);
 
-  const autoSending = voiceOn && stt.listening && !!stt.transcript.trim();
+  // Interrupting: a real sentence from the candidate stops his voice at once; their
+  // turn is then sent when Flux hears them finish.
+  const lastInterviewerLine = [...messages].reverse().find((m) => m.speaker === "interviewer")?.text ?? "";
+  useEffect(() => {
+    if (stt.semantic && !useVideo && tts.speaking && isRealInterruption(stt.transcript, lastInterviewerLine)) tts.cancel();
+    // tts is recreated every render; the transcript is what matters here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stt.transcript]);
+
+  // Flux knows when they've finished, so only the fallback transcriber waits out a silence.
+  const autoSending = voiceOn && stt.listening && !stt.semantic && !!stt.transcript.trim();
   const sendDelayMs = silenceBeforeSendMs(stt.transcript);
   useEffect(() => {
     if (!autoSending) return;
-    const t = setTimeout(() => sendText(stt.transcript), sendDelayMs);
+    const t = setTimeout(() => sendText(stt.transcript, true), sendDelayMs);
     return () => clearTimeout(t);
     // sendText is recreated every render; the transcript is what matters here
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -236,6 +252,7 @@ export function Interview() {
     if (next) {
       // Unlock audio inside this click — browsers keep audio silent otherwise.
       eleven.unlock();
+      backchannel.unlock();
       // Video only for a video session: a voice session must never start a billed Tavus call.
       if (useVideo) tavus.activate();
     } else {
@@ -250,6 +267,7 @@ export function Interview() {
       stt.stop();
     } else {
       eleven.unlock();
+      backchannel.unlock();
       tts.cancel();
       stt.start();
     }
@@ -257,8 +275,17 @@ export function Interview() {
 
   const send = () => sendText(draft);
 
-  async function sendText(raw: string) {
+  // An end of turn while he's still talking wasn't an interruption (that would have
+  // stopped him): it's his own voice or a "thank you", so drop it.
+  function handleTurnEnd(text: string) {
+    if (interviewerSpeaking) return;
+    void sendText(text, true);
+  }
+
+  async function sendText(raw: string, spoken = false) {
     if (!raw.trim() || locked || raw.length > ANSWER_LIMIT) return;
+    // A quick "Mm-hm" covers the wait for his reply. Only mid-question, never on video.
+    if (spoken && phase === "question" && !useVideo) backchannel.play();
     if (stt.listening) stt.stop();
     const text = raw.trim();
     setLastDraft(text);
