@@ -73,6 +73,21 @@ describe("Results coach context", () => {
     });
     cardProps.length = 0;
     render(<MemoryRouter><Results /></MemoryRouter>);
-    expect(cardProps.at(-1)).toMatchObject({ sessionId: "s9", code: "def two_sum(): pass" });
+    expect(cardProps.at(-1)).toMatchObject({ sessionId: "s9", code: "def two_sum(): pass", language: "python" });
+  });
+
+  it("gives the JavaScript draft and language when the candidate coded in JavaScript", () => {
+    const codingPlan: QuestionPlan = {
+      sessionId: "s9",
+      questions: [{ id: "c1", type: "coding", prompt: "Two sum.", targetDifficulty: 2, weightedFromWeakness: false, exemplarId: "code-two-sum" }],
+    };
+    useSessionStore.setState({
+      plan: codingPlan, evaluations: [{ ...EVAL, questionId: "c1" }], endedForConduct: false, updatedMemory: MEMORY,
+      codeByQuestion: { c1: "def two_sum(): pass", "c1:javascript": "function twoSum() {}" }, codingLanguage: "javascript",
+    });
+    cardProps.length = 0;
+    render(<MemoryRouter><Results /></MemoryRouter>);
+    expect(cardProps.at(-1)).toMatchObject({ code: "function twoSum() {}", language: "javascript" });
+    useSessionStore.setState({ codingLanguage: "python" });
   });
 });

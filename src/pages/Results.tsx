@@ -5,7 +5,7 @@ import { ArrowRight, ArrowClockwise, Brain } from "@phosphor-icons/react";
 import { TopBar } from "@/components/TopBar";
 import { VerdictCard } from "@/components/VerdictCard";
 import { TrendChart } from "@/components/TrendChart";
-import { useSessionStore } from "@/stores/sessionStore";
+import { codeKey, useSessionStore } from "@/stores/sessionStore";
 
 export function Results() {
   const navigate = useNavigate();
@@ -14,6 +14,7 @@ export function Results() {
   const updatedMemory = useSessionStore((s) => s.updatedMemory);
   const endedForConduct = useSessionStore((s) => s.endedForConduct);
   const codeByQuestion = useSessionStore((s) => s.codeByQuestion);
+  const codingLanguage = useSessionStore((s) => s.codingLanguage);
   const reset = useSessionStore((s) => s.reset);
 
   // A session ended for conduct may have no scored answers yet; it still gets its page.
@@ -184,7 +185,8 @@ export function Results() {
                     question={q}
                     index={i}
                     sessionId={plan.sessionId}
-                    code={codeByQuestion[q.id]}
+                    code={codeByQuestion[codeKey(q.id, codingLanguage)]}
+                    language={codingLanguage}
                   />
                 );
               })}

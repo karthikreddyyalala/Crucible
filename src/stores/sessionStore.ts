@@ -17,7 +17,7 @@ import type { TurnInput } from "@/lib/api";
 import { getCandidateId } from "@/lib/identity";
 import { summarizeOutcome } from "@/lib/coding/summary";
 import type { RunSummary } from "@/lib/coding/summary";
-import type { RunOutcome } from "@/lib/coding/types";
+import type { CodingLanguage, RunOutcome } from "@/lib/coding/types";
 
 export type Speaker = "interviewer" | "candidate";
 export type MessageKind = "question" | "answer" | "follow_up";
@@ -32,6 +32,10 @@ export interface ChatMessage {
   questionId: string;
   weighted?: boolean;
 }
+
+// Python drafts keep the plain question id (older saved sessions still load); others get a suffix.
+export const codeKey = (questionId: string, language: CodingLanguage): string =>
+  language === "python" ? questionId : `${questionId}:${language}`;
 
 export type SessionStatus = "idle" | "starting" | "live" | "thinking" | "wrapping" | "complete";
 // Where the current coding question is: plan → code → review (spec 1.4).
@@ -83,6 +87,8 @@ interface SessionState {
   // stage; it resets to "approach" whenever a new question starts.
   codeByQuestion: Record<string, string>;
   codingStage: CodingStep;
+  // The candidate's coding language: a preference, kept across sessions.
+  codingLanguage: CodingLanguage;
   lastRun: Record<string, RunSummary>;
   checkinSent: Record<string, boolean>;
   // A Submit Marcus hasn't replied to yet (question id): queued while he was busy,
@@ -112,6 +118,7 @@ interface SessionState {
   // Call on the candidate's edits only (not when loading starter code): the first
   // edit of the current problem moves it from "approach" to "coding".
   setCode: (questionId: string, code: string) => void;
+  setCodingLanguage: (language: CodingLanguage) => void;
   // The Interview page reports whether the coding editor is on screen.
   setEditorShown: (shown: boolean) => void;
   // After every Run / Submit. visibleCount = the problem's visibleTestCount. A Submit
@@ -135,6 +142,7 @@ export interface PendingEval {
   // Coding questions: the final code and the last run's summary.
   code?: string;
   testResults?: string;
+  language?: CodingLanguage;
 }
 
 // The only scripted line: there's nothing to react to yet. Everything after
@@ -305,8 +313,9 @@ export const useSessionStore = create<SessionState>()(
         // Code and test results go with coding questions only (the backend fences them).
         const coding = currentCoding(state)
           ? {
-              code: (state.codeByQuestion[question.id] ?? "").slice(0, LIMIT.code),
+              code: (state.codeByQuestion[codeKey(question.id, state.codingLanguage)] ?? "").slice(0, LIMIT.code),
               testResults: (state.lastRun[question.id]?.summary ?? "").slice(0, LIMIT.testResults),
+              language: state.codingLanguage,
             }
           : null;
 
@@ -512,6 +521,7 @@ export const useSessionStore = create<SessionState>()(
       companyStyle: "general",
       nameUsable: false,
       editorShown: true,
+      codingLanguage: "python",
       ...FRESH_ROUND,
 
       loadMemory: async () => {
@@ -587,12 +597,14 @@ export const useSessionStore = create<SessionState>()(
 
       setCode: (questionId, code) =>
         set((s) => ({
-          codeByQuestion: { ...s.codeByQuestion, [questionId]: code },
+          codeByQuestion: { ...s.codeByQuestion, [codeKey(questionId, s.codingLanguage)]: code },
           codingStage:
             s.editorShown && s.codingStage === "approach" && currentCoding(s)?.id === questionId
               ? "coding"
               : s.codingStage,
         })),
+
+      setCodingLanguage: (language) => set({ codingLanguage: language }),
 
       setEditorShown: (shown) => set({ editorShown: shown }),
 
@@ -708,6 +720,7 @@ export const useSessionStore = create<SessionState>()(
         endedForConduct: s.endedForConduct,
         codeByQuestion: s.codeByQuestion,
         codingStage: s.codingStage,
+        codingLanguage: s.codingLanguage,
         lastRun: s.lastRun,
         checkinSent: s.checkinSent,
         pendingSubmit: s.pendingSubmit,

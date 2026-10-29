@@ -332,3 +332,10 @@ def test_interviewer_prompt_builds_on_earlier_answers():
     from pathlib import Path
     prompt = (Path(__file__).parent.parent / "prompts" / "interviewer.md").read_text()
     assert "already covered" in _flat(prompt)
+
+
+def test_code_block_names_javascript_and_python_stays_unlabelled():
+    js = _coding_turn(code="function twoSum(nums, target) {}", language="javascript")
+    assert "Candidate code (current editor, JavaScript):" in js
+    py = _coding_turn(code="def two_sum(nums, target): pass")
+    assert "Candidate code (current editor):" in py

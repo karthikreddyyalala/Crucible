@@ -32,8 +32,10 @@ How to write the model answer:
   - coding: modelAnswer is a spoken walkthrough of an optimal approach — the brute force
     and why it's too slow, the key idea, how it handles the tricky cases, and its time and
     space complexity (meeting the target). Build on what the candidate tried. No code in
-    modelAnswer: put clean, correct Python with the problem's exact signature in `code`
-    (clear names, no comments needed, no dead code). Check it against the reference solution.
+    modelAnswer: put clean, correct code in `code`, written in the candidate's language
+    (named in the message; JavaScript uses the camelCase name of the problem's signature)
+    with the problem's exact signature (clear names, no comments needed, no dead code).
+    Check it against the reference solution.
   - coding with no Coding problem block: the interview may still be running, so coach how
     to approach it in general (restate and clarify, a brute force first, its cost, edge
     cases to test, talking while coding), building on what they did — never the solution,
@@ -45,7 +47,7 @@ How to write the model answer:
 
 Output schema (camelCase keys):
 - modelAnswer: string  (the reworked, spoken-style 5/5 answer)
-- code: string  (coding questions only: the clean Python solution; "" for every other type)
+- code: string  (coding questions only: the clean solution in the candidate's language; "" for every other type)
 - improvements: string[]  (2-3 short notes, each naming what changed and why it
     lands better — e.g. "Led with the Situation so the interviewer has context",
     "Added the 40% latency drop so the impact is measurable, not vague")

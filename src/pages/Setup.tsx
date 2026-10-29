@@ -30,7 +30,7 @@ const MODES: { key: InterviewMode; label: string }[] = [
 
 const MODE_HINT: Partial<Record<InterviewMode, string>> = {
   full: "Mixed and adaptive: behavioral, one coding problem, technical & system design.",
-  coding: "Live coding in Python with problems from the Blind 75.",
+  coding: "Live coding in Python or JavaScript with problems from the Blind 75.",
 };
 
 // Keyboard focus ring for every control on this page.

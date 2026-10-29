@@ -1303,3 +1303,22 @@ def test_stt_enabled_only_when_key_in_environment(monkeypatch):
     assert Settings().deepgram_enabled is False
     monkeypatch.setenv("DEEPGRAM_API_KEY", "x")
     assert Settings().deepgram_enabled is True
+
+
+def test_language_defaults_to_python_rejects_others_and_reaches_the_prompts():
+    client, seen = _spy_client({"InterviewDecision": _DECISION_FOLLOW_UP, "AnswerEvaluation": _EVAL,
+                                "CoachResponse": _COACH_PAYLOAD})
+    js = "function twoSum(nums, target) {}"
+    assert _turn(client, question=_CODING_Q, phase="question", code=js, language="ruby").status_code == 422
+    _turn(client, question=_CODING_Q, phase="question", code="pass")
+    assert "Candidate code (current editor):" in seen["user"]
+    _turn(client, question=_CODING_Q, phase="question", code=js, language="javascript")
+    assert "Candidate code (current editor, JavaScript):" in seen["user"]
+    ev = {"question": _CODING_Q, "transcript": "t", "followUpCount": 0, "code": js}
+    assert client.post("/api/session/evaluate", json={**ev, "language": "ruby"}).status_code == 422
+    client.post("/api/session/evaluate", json={**ev, "language": "javascript"})
+    assert "Final code (JavaScript):" in seen["user"]
+    coach = {"question": _CODING_Q, "transcript": "t", "code": js}
+    assert client.post("/api/coach", json={**coach, "language": "ruby"}).status_code == 422
+    assert client.post("/api/coach", json={**coach, "language": "javascript"}).status_code == 200
+    assert "Candidate's language: JavaScript" in seen["user"]

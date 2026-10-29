@@ -23,6 +23,7 @@ class CoachAgent:
         usage_sink: list | None = None,
         coding_problem: CodingProblem | None = None,
         code: str = "",
+        language: str = "python",
     ) -> CoachResponse:
         tags = ", ".join(weakness_tags) if weakness_tags else "(none flagged)"
         user = (
@@ -32,6 +33,8 @@ class CoachAgent:
             f"Question:\n{wrap_untrusted('question', question.prompt)}\n\n"  # client-supplied
             f"Candidate Answer (their attempt):\n{wrap_untrusted('candidate_answer', transcript)}\n\n"
             f"Weakness tags to fix: {tags}"
+            + (f"\n\nCandidate's language: {'JavaScript' if language == 'javascript' else 'Python'}"
+               if question.type == "coding" else "")
             + (f"\n\nCandidate's final code:\n{wrap_untrusted('candidate_code', code)}" if code else "")
         )
         if coding_problem:

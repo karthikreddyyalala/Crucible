@@ -920,6 +920,47 @@ describe("sessionStore — turnError", () => {
       expect(useSessionStore.getState().codingStage).toBe("coding"); // a Run doesn't end the coding stage
     });
 
+    describe("language", () => {
+      it("defaults to Python, persists, and survives a new session", async () => {
+        localStorage.clear();
+        expect(useSessionStore.getInitialState().codingLanguage).toBe("python");
+        seedCoding();
+        useSessionStore.getState().setCodingLanguage("javascript");
+        expect(JSON.parse(localStorage.getItem("crucible.session.v1")!).state.codingLanguage).toBe("javascript");
+        useSessionStore.getState().reset();
+        expect(useSessionStore.getState().codingLanguage).toBe("javascript");
+        useSessionStore.getState().setCodingLanguage("python");
+      });
+
+      it("keeps a draft per language: Python under the plain id, JavaScript under id:javascript", () => {
+        seedCoding({ codeByQuestion: { c1: "def two_sum(): pass" }, codingLanguage: "javascript" });
+        useSessionStore.getState().setCode("c1", "function twoSum() {}");
+        expect(useSessionStore.getState().codeByQuestion).toEqual({
+          c1: "def two_sum(): pass",
+          "c1:javascript": "function twoSum() {}",
+        });
+        expect(useSessionStore.getState().codingStage).toBe("coding");
+        useSessionStore.setState({ codingLanguage: "python" });
+      });
+
+      it("sends the current language's code and the language with turns and evaluations", async () => {
+        seedCoding({
+          codingStage: "coding", codingLanguage: "javascript",
+          codeByQuestion: { c1: "def two_sum(): pass", "c1:javascript": "function twoSum() {}" },
+        });
+        const { api } = await import("@/lib/api");
+        vi.mocked(api.submitAnswer).mockResolvedValueOnce(reply("advance", "Next one."));
+        await useSessionStore.getState().submitAnswer("Done.");
+        expect(vi.mocked(api.submitAnswer).mock.calls[0][0]).toMatchObject({
+          code: "function twoSum() {}", language: "javascript",
+        });
+        expect(vi.mocked(api.evaluateAnswer).mock.calls[0][0]).toMatchObject({
+          code: "function twoSum() {}", language: "javascript",
+        });
+        useSessionStore.setState({ codingLanguage: "python" });
+      });
+    });
+
     describe("without the editor (small screen): the talk stage", () => {
       it("sends codingStage 'talk' and doesn't move the stage on edits", async () => {
         seedCoding({ editorShown: true });

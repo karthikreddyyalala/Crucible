@@ -22,7 +22,7 @@ import type {
   SessionRecord,
   SessionSummary,
 } from "@/types/contracts";
-import type { PublicProblem } from "./coding/types";
+import type { CodingLanguage, PublicProblem } from "./coding/types";
 import { mockEngine } from "./mockEngine";
 import { authApi } from "./auth";
 import { getCandidateId } from "./identity";
@@ -165,6 +165,7 @@ export interface TurnInput {
   code?: string;
   testResults?: string;
   codingStage?: CodingStage | "talk";
+  language?: CodingLanguage;
   // No new candidate reply: answer is the thread so far, ending with Marcus's last line.
   // "checkin": quiet for a while mid-coding. "submit": just pressed Submit; Marcus starts the review.
   event?: "" | "checkin" | "submit";
@@ -241,6 +242,7 @@ export const api = {
     // Coding questions: the final code and the last run's summary.
     code?: string;
     testResults?: string;
+    language?: CodingLanguage;
   }): Promise<EvaluateResult> {
     if (USE_MOCK) {
       await latency(600);
@@ -279,16 +281,17 @@ export const api = {
     // Coding questions: the session (the backend checks it was finalized) and the final code.
     sessionId?: string;
     code?: string;
+    language?: CodingLanguage;
   }): Promise<CoachResponse> {
     if (USE_MOCK) {
       await latency(1200);
       return mockEngine.coach(input.question, input.weaknessTags);
     }
-    const { question, transcript, weaknessTags, sessionId, code } = input;
+    const { question, transcript, weaknessTags, sessionId, code, language = "python" } = input;
     // candidateId finds the finalized session when signed out; with sign-in the server uses the token instead.
     const coding =
       question.type === "coding"
-        ? { sessionId, code: (code ?? "").slice(0, 20_000), candidateId: getCandidateId() }
+        ? { sessionId, code: (code ?? "").slice(0, 20_000), language, candidateId: getCandidateId() }
         : {};
     const res = await safeFetch(apiUrl("/api/coach"), {
       method: "POST",

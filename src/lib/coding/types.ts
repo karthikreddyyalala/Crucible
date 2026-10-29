@@ -28,6 +28,8 @@ export interface PublicProblem {
   [key: string]: unknown;
 }
 
+export type CodingLanguage = "python" | "javascript";
+
 export type RunnerRequest =
   | { type: "load" }
   | { type: "run"; id: number; code: string; problem: PublicProblem; onlyVisible: boolean };

@@ -132,3 +132,14 @@ def test_transcript_is_restored_server_side_not_echoed_by_the_model():
     ev = EvaluatorAgent(llm=llm, model="m").run(question=_Q_TECHNICAL, transcript=long, follow_up_count=1)
     assert ev.transcript == long
     assert 'transcript: string  (always output ""' in llm.last["system"]
+
+
+def test_evaluator_names_javascript_code():
+    q = PlannedQuestion(id="q-code", type="coding", prompt="Two Sum.", targetDifficulty=2,
+                        weightedFromWeakness=False, exemplarId="code-two-sum")
+    llm = _FakeLLM(_EVAL_PAYLOAD_WEAK)
+    EvaluatorAgent(llm=llm, model="m").run(question=q, transcript="t", follow_up_count=0,
+                                           code="function twoSum() {}", language="javascript")
+    assert "Final code (JavaScript):" in llm.last["user"]
+    EvaluatorAgent(llm=llm, model="m").run(question=q, transcript="t", follow_up_count=0, code="pass")
+    assert "Final code:" in llm.last["user"]

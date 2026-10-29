@@ -10,8 +10,10 @@ import CodeMirror, {
   type ReactCodeMirrorRef,
 } from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
+import { javascript } from "@codemirror/lang-javascript";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
+import type { CodingLanguage } from "@/lib/coding/types";
 
 export interface CodeEditorHandle {
   /** Replace the whole document as one undoable edit (Cmd/Ctrl+Z brings the old code back). */
@@ -19,6 +21,7 @@ export interface CodeEditorHandle {
 }
 
 interface Props {
+  language: CodingLanguage;
   initialValue: string;
   onChange: (code: string) => void;
   onRun: () => void;
@@ -112,7 +115,7 @@ const BASIC_SETUP = { foldGutter: false, autocompletion: false, highlightActiveL
 const errorMark = Decoration.line({ class: "cm-errorLine" });
 
 export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEditor(
-  { initialValue, onChange, onRun, onSubmit, errorLine, hintId },
+  { language, initialValue, onChange, onRun, onSubmit, errorLine, hintId },
   ref,
 ) {
   const cm = useRef<ReactCodeMirrorRef>(null);
@@ -132,7 +135,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEdito
 
   const base = useMemo(
     () => [
-      python(),
+      language === "javascript" ? javascript() : python(),
       syntaxHighlighting(highlight),
       EditorView.lineWrapping,
       hangingIndent,
@@ -142,9 +145,12 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEdito
           { key: "Mod-Enter", run: () => (actions.current.onRun(), true) },
         ]),
       ),
-      EditorView.contentAttributes.of({ "aria-label": "Python code editor", "aria-describedby": hintId }),
+      EditorView.contentAttributes.of({
+        "aria-label": `${language === "javascript" ? "JavaScript" : "Python"} code editor`,
+        "aria-describedby": hintId,
+      }),
     ],
-    [hintId],
+    [hintId, language],
   );
 
   const extensions = useMemo(() => {

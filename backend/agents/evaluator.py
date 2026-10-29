@@ -17,7 +17,7 @@ class EvaluatorAgent:
             usage_sink: list | None = None,
             exemplar: QuestionExemplar | None = None,
             coding_problem: CodingProblem | None = None,
-            code: str = "", test_results: str = "") -> AnswerEvaluation:
+            code: str = "", test_results: str = "", language: str = "python") -> AnswerEvaluation:
         user = (
             f"Question ID: {question.id}\n"
             f"Question Type: {question.type}\n"
@@ -26,7 +26,7 @@ class EvaluatorAgent:
             f"Candidate Answer:\n{wrap_untrusted('candidate_answer', transcript)}\n\n"
             f"Follow-up count: {follow_up_count}\n"
             # Final editor text and test summary come from the browser: fenced.
-            + (f"\nFinal code:\n{wrap_untrusted('candidate_code', code)}\n" if code else "")
+            + (f"\nFinal code{' (JavaScript)' if language == 'javascript' else ''}:\n{wrap_untrusted('candidate_code', code)}\n" if code else "")
             + (f"\nTest results (reported by the browser):\n{wrap_untrusted('test_results', test_results)}\n"
                if test_results else "")
         )

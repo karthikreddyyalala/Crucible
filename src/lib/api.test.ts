@@ -39,6 +39,14 @@ describe("api.coachAnswer", () => {
     expect(body.sessionId).toBe("s1");
     expect(body.code).toHaveLength(20_000);
     expect(body.candidateId).toEqual(expect.any(String));
+    expect(body.language).toBe("python");
+  });
+
+  it("sends the candidate's language for a coding answer", async () => {
+    const api = await realApi();
+    fetchMock.mockResolvedValueOnce(json({ modelAnswer: "m", improvements: [] }));
+    await api.coachAnswer({ question: coding, transcript: "t", weaknessTags: [], sessionId: "s1", code: "x", language: "javascript" });
+    expect(sentBody().language).toBe("javascript");
   });
 
   it("sends neither for other questions", async () => {

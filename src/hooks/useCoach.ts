@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { api } from "@/lib/api";
 import type { CoachResponse, PlannedQuestion } from "@/types/contracts";
+import type { CodingLanguage } from "@/lib/coding/types";
 
 // Wraps the /api/coach call (rewrites the candidate's answer into a 5/5
 // model answer) behind a hook so CoachPanel stays pure UI, per the
@@ -20,6 +21,7 @@ export function useCoach(input: {
   // Coding questions: lets the coach return a clean solution for the candidate's approach.
   sessionId?: string;
   code?: string;
+  language?: CodingLanguage;
 }) {
   const [state, setState] = useState<CoachState>({ phase: "loading" });
 
@@ -48,7 +50,7 @@ export function useCoach(input: {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [input.question, input.transcript, input.weaknessTags, input.sessionId, input.code]);
+  }, [input.question, input.transcript, input.weaknessTags, input.sessionId, input.code, input.language]);
 
   return { state, load };
 }

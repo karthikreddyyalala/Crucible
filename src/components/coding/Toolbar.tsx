@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ArrowClockwise, ArrowCounterClockwise, CircleNotch, Keyboard, PaperPlaneRight, Play } from "@phosphor-icons/react";
 import type { RunnerStatus } from "@/hooks/usePythonRunner";
+import type { CodingLanguage } from "@/lib/coding/types";
 
 export interface Shortcuts {
   run: string; // shown, e.g. "⌘⏎"
@@ -10,7 +11,11 @@ export interface Shortcuts {
   submitAria: string;
 }
 
+const LANGUAGE_NAMES: Record<CodingLanguage, string> = { python: "Python", javascript: "JavaScript" };
+
 interface Props {
+  language: CodingLanguage;
+  onLanguage: (language: CodingLanguage) => void;
   status: RunnerStatus;
   /** What the in-flight run is, if any. */
   pending: "run" | "submit" | null;
@@ -26,21 +31,24 @@ interface Props {
 const FOCUS = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 const BUTTON = `inline-flex h-11 items-center gap-2 rounded-lg px-4 font-sans text-[14px] font-medium tactile transition-colors disabled:cursor-not-allowed ${FOCUS}`;
 
-export function Toolbar({ status, pending, canReset, shortcuts, hintId, onRun, onSubmit, onRetry, onReset }: Props) {
+export function Toolbar({
+  language, onLanguage, status, pending, canReset, shortcuts, hintId, onRun, onSubmit, onRetry, onReset,
+}: Props) {
+  const name = LANGUAGE_NAMES[language];
   const loading = status === "loading";
   const busy = loading || status === "running" || pending !== null;
   const failed = status === "error";
-  const why = loading ? "Python is still loading" : busy ? "Your code is running" : failed ? "Python didn't load. Retry first" : "";
+  const why = loading ? `${name} is still loading` : busy ? "Your code is running" : failed ? `${name} didn't load. Retry first` : "";
 
   const spinner = <CircleNotch size={16} weight="bold" className="animate-spin" aria-hidden />;
-  const runLabel = loading && pending !== "submit" ? "Loading Python…" : pending === "run" ? "Running…" : null;
+  const runLabel = loading && pending !== "submit" ? `Loading ${name}…` : pending === "run" ? "Running…" : null;
 
   let run: ReactNode;
   if (failed) {
     run = (
       <button onClick={onRetry} className={`${BUTTON} border border-line-bright text-chalk hover:border-mist`}>
         <ArrowClockwise size={16} weight="bold" aria-hidden />
-        Retry loading Python
+        Retry loading {name}
       </button>
     );
   } else {
@@ -61,11 +69,23 @@ export function Toolbar({ status, pending, canReset, shortcuts, hintId, onRun, o
 
   return (
     <div className="flex h-14 shrink-0 items-center gap-2 border-b border-line bg-void px-3">
-      <span
-        className="inline-flex items-center gap-2 rounded-md border border-line px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-mist"
-        title="Python 3. Tab indents; press Esc then Tab to move focus out of the editor."
-      >
-        Python
+      <div role="radiogroup" aria-label="Language" className="inline-flex rounded-md border border-line p-0.5">
+        {(Object.keys(LANGUAGE_NAMES) as CodingLanguage[]).map((id) => (
+          <button
+            key={id}
+            role="radio"
+            aria-checked={language === id}
+            disabled={pending !== null}
+            onClick={() => language !== id && onLanguage(id)}
+            className={`rounded px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] transition-colors disabled:cursor-not-allowed ${FOCUS} ${
+              language === id ? "bg-surface-2 text-chalk" : "text-mist hover:text-chalk"
+            }`}
+          >
+            {LANGUAGE_NAMES[id]}
+          </button>
+        ))}
+      </div>
+      <span title="Tab indents; press Esc then Tab to move focus out of the editor." className="text-mist">
         <Keyboard size={13} aria-hidden />
       </span>
       <span id={hintId} className="sr-only">
@@ -92,7 +112,7 @@ export function Toolbar({ status, pending, canReset, shortcuts, hintId, onRun, o
           className={`${BUTTON} bg-accent text-void hover:bg-[#5d8aff] disabled:bg-accent/35 disabled:text-void/70`}
         >
           {pending === "submit" ? spinner : <PaperPlaneRight size={15} weight="fill" aria-hidden />}
-          {pending === "submit" ? (loading ? "Loading Python…" : "Submitting…") : "Submit"}
+          {pending === "submit" ? (loading ? `Loading ${name}…` : "Submitting…") : "Submit"}
         </button>
       </div>
     </div>

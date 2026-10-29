@@ -13,6 +13,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@codemirror/lang-javascript": "6.2.5",
     "@codemirror/lang-python": "6.2.1",
     "@daily-co/daily-js": "^0.91.0",
     "@phosphor-icons/react": "^2.1.7",
