@@ -142,7 +142,20 @@ Phase 2 split into 2a to 2d. 2a, built with parallel workers and reviewed:
   whether each weak spot is shrinking.
 - Mocked tests only ($0).
 
+### 2026-10-29: Phase 3, coding history (branch `feat/phase-3-coding-history`)
+- Each coding question now leaves a small record at finalize: problem, language, tests
+  passed, submitted or not, time from first shown to last Submit. Stored on the session
+  record (old ones default to none), no new tables or calls.
+- Dashboard "Coding" section: one sentence ("You've solved 2 of 4 problems. Fastest: Two
+  Sum in 11 min."), recent attempts, and only positive repeat notes ("Faster than last time").
+- "Hints needed" left out: Marcus doesn't mark hints yet.
+
 ## Bugs worth remembering
+
+- **Tests nearly opened a paid Tavus call.** A local `backend/.env` with the live Tavus key
+  (copied from the Lambda for local use) was read by the backend tests, so "avatar off by
+  default" tried to create a real conversation; only a local certificate error stopped it.
+  `backend/tests/conftest.py` now stops tests reading `.env` and clears Tavus env vars.
 
 - **Every real AI call would have failed.** The installed Anthropic SDK has no
   `temperature` argument; fake clients in tests accepted anything. Fixed by sending it in
