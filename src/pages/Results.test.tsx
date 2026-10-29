@@ -90,4 +90,22 @@ describe("Results coach context", () => {
     expect(cardProps.at(-1)).toMatchObject({ code: "function twoSum() {}", language: "javascript" });
     useSessionStore.setState({ codingLanguage: "python" });
   });
+
+  it("gives each question the language it was solved in", () => {
+    const coding = (id: string) =>
+      ({ id, type: "coding", prompt: "Code.", targetDifficulty: 2, weightedFromWeakness: false, exemplarId: "code-two-sum" }) as const;
+    useSessionStore.setState({
+      plan: { sessionId: "s9", questions: [coding("c1"), coding("c2")] },
+      evaluations: [{ ...EVAL, questionId: "c1" }, { ...EVAL, questionId: "c2" }], endedForConduct: false, updatedMemory: MEMORY,
+      codeByQuestion: { c1: "def a(): pass", "c1:javascript": "function a() {}", c2: "def b(): pass", "c2:javascript": "function b() {}" },
+      languageByQuestion: { c1: "python", c2: "javascript" }, codingLanguage: "javascript",
+    });
+    cardProps.length = 0;
+    render(<MemoryRouter><Results /></MemoryRouter>);
+    expect(cardProps.slice(-2)).toMatchObject([
+      { code: "def a(): pass", language: "python" },
+      { code: "function b() {}", language: "javascript" },
+    ]);
+    useSessionStore.setState({ codingLanguage: "python", languageByQuestion: {} });
+  });
 });

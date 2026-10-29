@@ -762,6 +762,7 @@ describe("sessionStore — turnError", () => {
       currentIdx: 0, followUpCount: 0, pendingEvals: [], messages: [], evaluations: [], turnError: null,
       strikes: 0, endedForConduct: false, companyStyle: "google", nameUsable: true, candidateName: "Karthik",
       codeByQuestion: {}, codingStage: "approach", lastRun: {}, checkinSent: {}, editorShown: true,
+      languageByQuestion: {},
       ...over,
     });
   }
@@ -958,6 +959,47 @@ describe("sessionStore — turnError", () => {
           code: "function twoSum() {}", language: "javascript",
         });
         useSessionStore.setState({ codingLanguage: "python" });
+      });
+    });
+
+    describe("language per question", () => {
+      it("solved in Python, then the JavaScript tab: Marcus and the Evaluator still get the Python work", async () => {
+        seedCoding();
+        const { api } = await import("@/lib/api");
+        vi.mocked(api.submitAnswer)
+          .mockResolvedValueOnce(reply("clarify", "Walk me through it."))
+          .mockResolvedValueOnce(reply("advance", "Next one."));
+        useSessionStore.getState().setCode("c1", "def two_sum(): pass");
+        await useSessionStore.getState().recordRun("c1", { kind: "results", results: [passed(0), passed(1, false)] }, "submit", 2, "python");
+        useSessionStore.getState().setCodingLanguage("javascript"); // just looking: no edit, no run
+        await useSessionStore.getState().submitAnswer("I'm done.");
+        const python = {
+          code: "def two_sum(): pass",
+          language: "python",
+          testResults: "Examples: 1/2 passed (example 2 failed: expected [0, 1], got [1, 0]).",
+        };
+        expect(vi.mocked(api.submitAnswer).mock.calls[1][0]).toMatchObject(python);
+        expect(vi.mocked(api.evaluateAnswer).mock.calls[0][0]).toMatchObject(python);
+        useSessionStore.setState({ codingLanguage: "python" });
+      });
+
+      it("keeps each language's last run apart (Python under the plain id)", () => {
+        seedCoding();
+        const { recordRun } = useSessionStore.getState();
+        void recordRun("c1", { kind: "results", results: [passed(0)] }, "run", 1, "python");
+        void recordRun("c1", { kind: "results", results: [passed(0, false)] }, "run", 1, "javascript");
+        const s = useSessionStore.getState();
+        expect(s.lastRun.c1.visiblePassed).toBe(1);
+        expect(s.lastRun["c1:javascript"].visiblePassed).toBe(0);
+        expect(s.languageByQuestion.c1).toBe("javascript");
+      });
+
+      it("is saved with the session and cleared by a new one", () => {
+        seedCoding();
+        useSessionStore.getState().setCode("c1", "def f(): pass");
+        expect(JSON.parse(localStorage.getItem("crucible.session.v1")!).state.languageByQuestion).toEqual({ c1: "python" });
+        useSessionStore.getState().reset();
+        expect(useSessionStore.getState().languageByQuestion).toEqual({});
       });
     });
 

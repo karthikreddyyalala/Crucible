@@ -177,12 +177,12 @@ describe("Interview", () => {
     await screen.findByRole("textbox", { name: "Python code editor" });
 
     fireEvent.click(screen.getByRole("button", { name: /^Run/ }));
-    await waitFor(() => expect(recordRun).toHaveBeenCalledWith("q1", outcome, "run", 1));
+    await waitFor(() => expect(recordRun).toHaveBeenCalledWith("q1", outcome, "run", 1, "python"));
     expect(runner.run).toHaveBeenLastCalledWith(problem.starterCode, problem, true);
     expect(await screen.findByText("1 of 1 examples passed.")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /^Submit/ }));
-    await waitFor(() => expect(recordRun).toHaveBeenCalledWith("q1", outcome, "submit", 1));
+    await waitFor(() => expect(recordRun).toHaveBeenCalledWith("q1", outcome, "submit", 1, "python"));
     expect(runner.run).toHaveBeenLastCalledWith(problem.starterCode, problem, false);
   });
 
@@ -202,6 +202,7 @@ describe("Interview", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Run/ }));
     await waitFor(() => expect(jsRunner.run).toHaveBeenLastCalledWith(problem.starterCodeJs, problem, true));
     expect(runner.run).not.toHaveBeenCalled();
+    await waitFor(() => expect(recordRun).toHaveBeenLastCalledWith("q1", outcome, "run", 1, "javascript"));
 
     fireEvent.click(screen.getByRole("radio", { name: "Python" }));
     await waitFor(() =>

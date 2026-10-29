@@ -168,7 +168,7 @@ function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; q
       const outcome = await runner.run(code.current, problem, kind === "run");
       setShown((prev) => ({ outcome, kind, seq: (prev?.seq ?? 0) + 1 }));
       setErrorLine(errorLineOf(outcome, problem.visibleTestCount));
-      void recordRun(questionId, outcome, kind, problem.visibleTestCount);
+      void recordRun(questionId, outcome, kind, problem.visibleTestCount, language);
     } catch {
       /* a run was already in flight; its result is the one that shows */
     } finally {
@@ -229,6 +229,7 @@ function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; q
             problem={problem}
             onRetry={runner.retry}
             shortcut={SHORTCUTS.run}
+            language={language}
           />
         }
       />
