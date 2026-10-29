@@ -18,10 +18,12 @@ import {
   WEAK_SPOT_HINT,
 } from "@/lib/humanize";
 import {
+  codingHistory,
   dashboardTakeaway,
   dotsLabel,
   summarizeMemory,
   weakSpotHistory,
+  type CodingHistory,
   type MemorySummary,
   type WeakSpotHistory,
   type WeakSpotStatus,
@@ -35,7 +37,23 @@ const RECENT_SESSIONS_SHOWN = 5;
 type LoadState =
   | { phase: "loading" }
   | { phase: "error" }
-  | { phase: "ready"; profile: MemoryProfile; summary: MemorySummary; sessions: SessionSummary[] };
+  | {
+      phase: "ready";
+      profile: MemoryProfile;
+      summary: MemorySummary;
+      sessions: SessionSummary[];
+      titles: Record<string, string>;
+    };
+
+// The problem set is ~2 MB, so it's only fetched when there's coding history to name.
+async function loadProblemTitles(): Promise<Record<string, string>> {
+  try {
+    const { default: problems } = await import("@/lib/coding/problems.public.json");
+    return Object.fromEntries(problems.map((p) => [p.id, p.title]));
+  } catch {
+    return {};
+  }
+}
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -53,8 +71,9 @@ export function Dashboard() {
           api.getMemory(cid),
           api.listSessions(cid).catch(() => [] as SessionSummary[]),
         ]);
+        const titles = sessions.some((s) => s.coding?.length) ? await loadProblemTitles() : {};
         if (cancelled) return;
-        setState({ phase: "ready", profile, summary: summarizeMemory(profile), sessions });
+        setState({ phase: "ready", profile, summary: summarizeMemory(profile), sessions, titles });
       } catch {
         if (!cancelled) setState({ phase: "error" });
       }
@@ -81,6 +100,7 @@ export function Dashboard() {
               profile={state.profile}
               summary={state.summary}
               sessions={state.sessions}
+              titles={state.titles}
               onStart={start}
               onOpenSession={(sid) => navigate(`/session/${sid}`)}
             />
@@ -95,17 +115,20 @@ function Populated({
   profile,
   summary,
   sessions,
+  titles,
   onStart,
   onOpenSession,
 }: {
   profile: MemoryProfile;
   summary: MemorySummary;
   sessions: SessionSummary[];
+  titles: Record<string, string>;
   onStart: () => void;
   onOpenSession: (sessionId: string) => void;
 }) {
   const spots = weakSpotHistory(summary.topWeaknesses, sessions);
   const takeaway = dashboardTakeaway(summary, sessions[0], spots);
+  const coding = codingHistory(sessions, titles);
   const targets = spots
     .filter((s) => s.status !== "fixed")
     .slice(0, 2)
@@ -152,6 +175,8 @@ function Populated({
         <WeakSpots spots={spots} sessionCount={spots[0]?.dots.length ?? 0} />
         <Strengths areas={summary.strongAreas} />
       </div>
+
+      {coding && <Coding history={coding} />}
 
       {sessions.length > 0 && <PastSessions sessions={sessions} onOpen={onOpenSession} />}
     </div>
@@ -291,6 +316,36 @@ function Strengths({ areas }: { areas: string[] }) {
           ))}
         </ul>
       )}
+    </section>
+  );
+}
+
+function Coding({ history }: { history: CodingHistory }) {
+  return (
+    <section aria-labelledby="coding-heading" className="border-t border-line pt-8">
+      <h2 id="coding-heading" className="font-display text-lg font-semibold tracking-tight text-chalk">
+        Coding
+      </h2>
+      <p className="mt-1 max-w-[52ch] text-sm leading-relaxed text-mist">{history.takeaway}</p>
+      <ul className="mt-4 divide-y divide-line">
+        {history.rows.map((r) => (
+          <li key={r.key} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-3.5">
+            <div className="min-w-0">
+              <p className="text-[15px] text-chalk">{r.title}</p>
+              <p className="mt-0.5 text-xs text-mist">
+                {r.language}
+                {r.time && ` · ${r.time}`}
+              </p>
+            </div>
+            <div className="text-left sm:text-right">
+              <p className={`font-mono text-sm tabular-nums ${r.solved ? "text-survive" : "text-chalk"}`}>
+                {r.tests}
+              </p>
+              {r.note && <p className="mt-0.5 text-xs font-medium text-survive">{r.note}</p>}
+            </div>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

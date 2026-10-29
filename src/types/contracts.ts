@@ -115,6 +115,16 @@ export interface AvatarSessionResponse {
   conversationId: string | null;
 }
 
+export interface CodingAttempt {
+  questionId: string;
+  problemId: string;         // the plan question's exemplarId, e.g. "code-two-sum"
+  language: "python" | "javascript";
+  testsPassed: number;       // from the last run of that language's code
+  testsTotal: number;
+  submitted: boolean;        // true when the last run was a Submit (hidden tests included)
+  seconds: number | null;    // first shown -> last Submit (or end of the question); null if unknown
+}
+
 export interface SessionSummary {
   sessionId: string;
   date: string;
@@ -124,6 +134,7 @@ export interface SessionSummary {
   total: number;
   /** Sorted union of the session's weakness tags; missing on rows written before it existed. */
   weaknessTags?: string[];
+  coding?: CodingAttempt[];
 }
 
 export interface SessionRecord {

@@ -1,4 +1,4 @@
-import type { MemoryProfile, RecurringWeakness, SessionSummary } from "@/types/contracts";
+import type { CodingAttempt, MemoryProfile, RecurringWeakness, SessionSummary } from "@/types/contracts";
 import { humanizeTag } from "@/lib/humanize";
 
 export type TrendDirection = "up" | "down" | "flat";
@@ -131,4 +131,86 @@ export function dashboardTakeaway(
       ? `${humanizeTag(fixed.tag)} looks fixed. Keep it that way.`
       : "No weak spot keeps coming back yet.";
   return `${first} ${second}`;
+}
+
+// ---- Coding history -----------------------------------------------------------
+
+export const CODING_ROWS_SHOWN = 6;
+
+export interface CodingRow {
+  key: string;
+  title: string;
+  language: "Python" | "JavaScript";
+  /** "12 of 14 tests", or "Not submitted". */
+  tests: string;
+  /** "11 min", "under a minute", or null when the time is unknown. */
+  time: string | null;
+  solved: boolean;
+  /** Only positive comparisons with the previous try of the same problem. */
+  note: string | null;
+}
+
+export interface CodingHistory {
+  takeaway: string;
+  rows: CodingRow[];
+}
+
+export function formatSeconds(seconds: number | null): string | null {
+  if (seconds === null) return null;
+  return seconds < 60 ? "under a minute" : `${Math.round(seconds / 60)} min`;
+}
+
+const isSolved = (a: CodingAttempt) => a.submitted && a.testsTotal > 0 && a.testsPassed === a.testsTotal;
+const passRate = (a: CodingAttempt) => (a.testsTotal > 0 ? a.testsPassed / a.testsTotal : 0);
+
+function repeatNote(a: CodingAttempt, prev: CodingAttempt | undefined): string | null {
+  if (!prev) return null;
+  if (passRate(a) > passRate(prev)) return "More tests passing than last time";
+  if (isSolved(a) && a.seconds !== null && prev.seconds !== null && a.seconds < prev.seconds) {
+    return "Faster than last time";
+  }
+  return null;
+}
+
+/**
+ * The dashboard's coding section: one sentence plus the latest attempts, newest first.
+ * `titles` maps problemId to its display title; unknown ids are humanized.
+ * Null when no session has a coding attempt.
+ */
+export function codingHistory(
+  sessions: SessionSummary[],
+  titles: Record<string, string>,
+): CodingHistory | null {
+  // Newest first. Same-day sessions keep the API's newest-first order; later
+  // questions in a session count as newer.
+  const attempts = [...sessions]
+    .sort((a, b) => (a.date > b.date ? -1 : a.date < b.date ? 1 : 0))
+    .flatMap((s) => [...(s.coding ?? [])].reverse().map((a, i) => ({ a, key: `${s.sessionId}-${i}` })));
+  if (attempts.length === 0) return null;
+
+  const title = (id: string) => titles[id] ?? humanizeTag(id.replace(/^code-/, ""));
+  const n = new Set(attempts.map(({ a }) => a.problemId)).size;
+  const solved = attempts.map(({ a }) => a).filter(isSolved);
+  const solvedCount = new Set(solved.map((a) => a.problemId)).size;
+  const fastest = solved
+    .flatMap((a) => (a.seconds === null ? [] : [{ id: a.problemId, seconds: a.seconds }]))
+    .sort((x, y) => x.seconds - y.seconds)[0];
+
+  const noun = n === 1 ? "problem" : "problems";
+  const takeaway =
+    solvedCount === 0
+      ? `You've tried ${n} ${noun}. Submit with every test passing to solve ${n === 1 ? "it" : "one"}.`
+      : `You've solved ${solvedCount} of ${n} ${noun}.` +
+        (fastest ? ` Fastest: ${title(fastest.id)} in ${formatSeconds(fastest.seconds)}.` : "");
+
+  const rows = attempts.slice(0, CODING_ROWS_SHOWN).map(({ a, key }, i): CodingRow => ({
+    key,
+    title: title(a.problemId),
+    language: a.language === "javascript" ? "JavaScript" : "Python",
+    tests: a.submitted ? `${a.testsPassed} of ${a.testsTotal} tests` : "Not submitted",
+    time: formatSeconds(a.seconds),
+    solved: isSolved(a),
+    note: repeatNote(a, attempts.slice(i + 1).find((o) => o.a.problemId === a.problemId)?.a),
+  }));
+  return { takeaway, rows };
 }
