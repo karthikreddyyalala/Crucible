@@ -51,6 +51,8 @@ function useWideScreen(): boolean {
   return wide;
 }
 
+const NO_TERMS: string[] = [];
+
 export function Interview() {
   const navigate = useNavigate();
   const status = useSessionStore((s) => s.status);
@@ -84,7 +86,9 @@ export function Interview() {
   // built-in voice as the fallback when it isn't configured or a call fails.
   const eleven = useElevenLabsTTS();
   const webSpeech = useSpeechSynthesis();
-  const stt = useSpeechInput();
+  // The candidate's own skills help the transcriber hear them right ("Kafka", "Terraform").
+  const skills = useSessionStore((s) => s.profile?.candidateSkills);
+  const stt = useSpeechInput(skills ?? NO_TERMS);
 
   // Optional Tavus video avatar. Dormant unless the backend has a key; when it
   // becomes ready it takes over both the face and the voice (it speaks the

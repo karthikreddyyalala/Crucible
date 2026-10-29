@@ -4,7 +4,7 @@ import { renderHook, act } from "@testing-library/react";
 const { sttToken } = vi.hoisted(() => ({ sttToken: vi.fn() }));
 vi.mock("@/lib/api", () => ({ api: { sttToken } }));
 
-import { useDeepgramSTT } from "./useDeepgramSTT";
+import { listenUrl, useDeepgramSTT } from "./useDeepgramSTT";
 import { useSpeechInput } from "./useSpeechInput";
 
 class FakeSocket {
@@ -106,6 +106,17 @@ describe("useDeepgramSTT", () => {
       expect(await result.current.start()).toBe(false);
     });
     expect(result.current.listening).toBe(false);
+  });
+});
+
+describe("listenUrl", () => {
+  it("asks Nova-3 to listen for interview terms and the candidate's skills, once each", () => {
+    const url = new URL(listenUrl(["Terraform", "kafka", "C++"]));
+    const terms = url.searchParams.getAll("keyterm");
+    expect(url.searchParams.get("model")).toBe("nova-3");
+    expect(terms).toContain("idempotent");
+    expect(terms.slice(0, 3)).toEqual(["Terraform", "kafka", "C++"]);
+    expect(terms.filter((t) => t.toLowerCase() === "kafka")).toHaveLength(1);
   });
 });
 
