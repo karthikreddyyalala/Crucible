@@ -16,6 +16,7 @@ vi.stubGlobal("IntersectionObserver", class {
 // Captures what each card is given (the card itself has its own tests).
 const cardProps = vi.hoisted(() => [] as Record<string, unknown>[]);
 vi.mock("@/components/VerdictCard", () => ({
+  SURVIVE_HINT: "hint",
   VerdictCard: (props: Record<string, unknown>) => {
     cardProps.push(props);
     return null;
@@ -33,24 +34,23 @@ const EVAL: AnswerEvaluation = {
 };
 const CONDUCT_NOTE = "This session ended early because of the conduct of the conversation.";
 
-function show(evaluations: AnswerEvaluation[], endedForConduct: boolean) {
-  useSessionStore.setState({ plan: PLAN, evaluations, endedForConduct, updatedMemory: MEMORY });
+function show(evaluations: AnswerEvaluation[], endedForConduct: boolean, updatedMemory: MemoryProfile = MEMORY) {
+  useSessionStore.setState({ plan: PLAN, evaluations, endedForConduct, updatedMemory });
   render(<MemoryRouter><Results /></MemoryRouter>);
 }
 
 describe("Results after a conduct end", () => {
   it("with no scored answers: says it ended early and shows no score", () => {
-    show([], true);
+    show([], true, { ...MEMORY, improvementTrend: [{ sessionDate: "2026-10-28", avgScore: 3.2 }] });
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Interview ended early.");
     expect(screen.getByText(CONDUCT_NOTE)).toBeInTheDocument();
-    expect(screen.queryByText("SESSION AVG")).not.toBeInTheDocument();
-    expect(screen.queryByText(/Strong run/)).not.toBeInTheDocument();
+    expect(document.body.textContent).not.toMatch(/Average score [\d.]+/);
     expect(screen.queryByText("Answer-by-answer")).not.toBeInTheDocument();
   });
 
   it("with scored answers: keeps the verdict and adds the note", () => {
     show([EVAL], true);
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("This wouldn't survive yet.");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("You held up on 0 of 1 answer.");
     expect(screen.getByText(CONDUCT_NOTE)).toBeInTheDocument();
     expect(screen.getByText("Answer-by-answer")).toBeInTheDocument();
   });
@@ -58,6 +58,28 @@ describe("Results after a conduct end", () => {
   it("a normal session has no note", () => {
     show([EVAL], false);
     expect(screen.queryByText(CONDUCT_NOTE)).not.toBeInTheDocument();
+  });
+});
+
+describe("Results takeaway", () => {
+  it("leads with how many answers held up and the one next thing to work on", () => {
+    show([EVAL, { ...EVAL, questionId: "q1", wouldSurviveRealInterview: true, weaknessTags: ["no-edge-cases"] }], false,
+      { ...MEMORY, improvementTrend: [{ sessionDate: "2026-10-28", avgScore: 3.2 }] });
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("You held up on 1 of 2 answers.");
+    expect(screen.getByText("No edge cases is the next thing to work on.")).toBeInTheDocument();
+    expect(document.body.textContent).toMatch(/Average score 3\.20 \/ 5/);
+  });
+
+  it("lists remembered weak spots in plain words under Next to work on", () => {
+    useSessionStore.setState({
+      plan: PLAN, evaluations: [EVAL], endedForConduct: false,
+      updatedMemory: { ...MEMORY, recurringWeaknesses: [{ tag: "vague-impact", frequency: 3, lastSeen: "2026-10-28" }] },
+    });
+    render(<MemoryRouter><Results /></MemoryRouter>);
+    expect(screen.getByRole("heading", { name: "Next to work on" })).toBeInTheDocument();
+    expect(screen.getByText("Vague impact")).toBeInTheDocument();
+    expect(screen.getByText("Came up 3 times")).toBeInTheDocument();
+    expect(screen.queryByText("vague-impact")).not.toBeInTheDocument();
   });
 });
 
