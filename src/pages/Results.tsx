@@ -133,7 +133,7 @@ export function Results() {
               </h2>
             </div>
             <p className="mt-2 text-sm leading-relaxed text-mist">
-              Your next session's Planner will weight these higher — it gets harder exactly
+              Your next session's Planner will weight these higher. It gets harder exactly
               where you're weak.
             </p>
             <div className="mt-5 space-y-2.5">

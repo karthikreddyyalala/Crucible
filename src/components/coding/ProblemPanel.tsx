@@ -22,7 +22,7 @@ export function ProblemPanel({ status, problem, onRetry }: Props) {
         <div className="flex items-start gap-3 rounded-xl border border-fail/30 bg-fail/[0.06] px-4 py-3">
           <WarningCircle size={18} weight="fill" className="mt-0.5 shrink-0 text-fail" aria-hidden />
           <div className="font-sans text-[14px] leading-relaxed text-chalk">
-            <p>Couldn't load this problem. Check your connection and retry — you can keep talking with Marcus meanwhile.</p>
+            <p>Couldn't load this problem. Check your connection and retry. You can keep talking with Marcus meanwhile.</p>
             <button
               onClick={onRetry}
               className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-lg border border-line-bright px-4 text-[14px] text-chalk tactile transition-colors hover:border-mist focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"

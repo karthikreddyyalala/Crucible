@@ -104,7 +104,7 @@ function Populated({
           Welcome back.
         </h1>
         <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-mist">
-          Every session sharpens the next. Here's how you're tracking — and where the
+          Every session sharpens the next. Here's how you're tracking and where the
           interviewer will push hardest next time.
         </p>
 
@@ -176,7 +176,7 @@ function Populated({
           <div className="mt-5 flex flex-wrap gap-2">
             {strongAreas.length === 0 && (
               <p className="font-mono text-xs text-fog">
-                Nothing locked in yet — keep going.
+                Nothing locked in yet. Keep going.
               </p>
             )}
             {strongAreas.map((s) => (
@@ -314,7 +314,7 @@ function DeltaCard({
   const Icon = trend === "up" ? TrendUp : trend === "down" ? TrendDown : Minus;
   const text =
     delta === null
-      ? "First session — no trend yet"
+      ? "First session: no trend yet"
       : `${delta > 0 ? "+" : ""}${delta.toFixed(2)} vs last session`;
 
   return (
@@ -344,7 +344,7 @@ function EmptyState({ onStart }: { onStart: () => void }) {
         No sessions yet.
       </h1>
       <p className="mx-auto mt-4 max-w-[44ch] text-[15px] leading-relaxed text-mist">
-        Run your first interview and this becomes your training log — your score over time,
+        Run your first interview and this becomes your training log: your score over time,
         the weak spots that keep resurfacing, and a plan that gets harder exactly where you
         struggle.
       </p>

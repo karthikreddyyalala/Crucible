@@ -109,7 +109,7 @@ export function SplitPane({ axis, storageKey, defaultPct, minFirst, minSecond, l
         aria-valuenow={Math.round(pct)}
         aria-valuemin={0}
         aria-valuemax={100}
-        title={`${label} — drag, or use the arrow keys. Double-click to reset.`}
+        title={`${label}: drag, or use the arrow keys. Double-click to reset.`}
         onKeyDown={onKeyDown}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}

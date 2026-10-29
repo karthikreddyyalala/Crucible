@@ -79,7 +79,7 @@ describe("TestResults", () => {
   it("explains a timeout and keeps showing it while Python restarts", () => {
     show({ status: "loading", run: { outcome: { kind: "timeout" }, kind: "run", seq: 1 } });
     expect(
-      shown("Stopped after 5 seconds — this usually means an infinite loop. Your code is safe; try again."),
+      shown("Stopped after 5 seconds. This usually means an infinite loop. Your code is safe; try again."),
     ).toBeInTheDocument();
   });
 

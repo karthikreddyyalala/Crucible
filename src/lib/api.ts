@@ -49,8 +49,19 @@ const apiUrl = (path: string) => `${API_BASE}${path}`;
 
 const latency = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+// The browser's own wording for a dropped request is "Failed to fetch", which tells a
+// visitor nothing.
+const UNREACHABLE = "Couldn't reach the server. Check your connection and try again.";
+const SERVER_DOWN = "Something went wrong on our side. Please try again in a moment.";
+
 async function safeFetch(url: string, options?: RequestInit): Promise<Response> {
-  const res = await fetch(url, options);
+  let res: Response;
+  try {
+    res = await fetch(url, options);
+  } catch {
+    throw new Error(UNREACHABLE);
+  }
+  if (res.status >= 500) throw new Error(SERVER_DOWN);
   if (!res.ok) {
     let detail = "";
     try {

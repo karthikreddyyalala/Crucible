@@ -163,7 +163,7 @@ describe("sessionStore — turnError", () => {
       await useSessionStore.getState().submitAnswer("My answer.");
 
       expect(useSessionStore.getState().turnError).toBe(
-        "Request failed — please try again."
+        "Request failed. Please try again."
       );
     });
 
@@ -314,7 +314,7 @@ describe("sessionStore — turnError", () => {
       await useSessionStore.getState().submitAnswer("My final answer.");
 
       expect(useSessionStore.getState().turnError).toBe(
-        "Request failed — please try again."
+        "Request failed. Please try again."
       );
     });
   });
@@ -799,7 +799,7 @@ describe("sessionStore — turnError", () => {
         messages: [{ id: "g", speaker: "interviewer", kind: "question", text: "Hi, how are you?", questionId: "intro" }],
       });
       const { api } = await import("@/lib/api");
-      vi.mocked(api.submitAnswer).mockResolvedValueOnce(reply("clarify", "Let's keep this professional. So — how are you doing today?", 1));
+      vi.mocked(api.submitAnswer).mockResolvedValueOnce(reply("clarify", "Let's keep this professional. So, how are you doing today?", 1));
 
       await useSessionStore.getState().submitAnswer("shut up, bot");
 
@@ -1120,7 +1120,7 @@ describe("sessionStore — turnError", () => {
       vi.mocked(api.submitAnswer).mockRejectedValueOnce(new Error("Request failed (503)"));
       await useSessionStore.getState().recordRun("c1", { kind: "results", results: [passed(0)] }, "submit", 1);
       expect(useSessionStore.getState()).toMatchObject({
-        status: "live", pendingSubmit: null, turnError: "Couldn't reach the interviewer — press Submit again.",
+        status: "live", pendingSubmit: null, turnError: "Couldn't reach the interviewer. Press Submit again.",
       });
     });
 
@@ -1138,7 +1138,7 @@ describe("sessionStore — turnError", () => {
 
     it("checks in once per problem, only while coding, with an empty answer", async () => {
       const { api } = await import("@/lib/api");
-      vi.mocked(api.submitAnswer).mockResolvedValue(reply("clarify", "How's it going — want to talk me through where you are?"));
+      vi.mocked(api.submitAnswer).mockResolvedValue(reply("clarify", "How's it going? Want to talk me through where you are?"));
 
       seedCoding({ codingStage: "approach" });
       await useSessionStore.getState().sendCheckin("c1");
@@ -1152,7 +1152,7 @@ describe("sessionStore — turnError", () => {
       expect(vi.mocked(api.submitAnswer).mock.calls[0][0]).toMatchObject({ event: "checkin", answer: "" });
       const s = useSessionStore.getState();
       expect(s.checkinSent.c1).toBe(true);
-      expect(s.messages.map((m) => m.text)).toEqual(["How's it going, want to talk me through where you are?"]);
+      expect(s.messages.map((m) => m.text)).toEqual(["How's it going? Want to talk me through where you are?"]);
       expect(s.followUpCount).toBe(0);
     });
 
