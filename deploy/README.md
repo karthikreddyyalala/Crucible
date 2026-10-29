@@ -17,7 +17,7 @@ Browser ── CloudFront (HTTPS) ──> S3  (crucible-frontend-557690618983)  
 
 ## Cost
 - Idle: ~$0–2/month (Lambda/S3/CloudFront/DynamoDB free tiers)
-- Usage: ~$0.12 per interview session (Bedrock)
+- Usage: ~$0.50 to $0.80 per interview session (Bedrock), plus Tavus per minute when video is on
 - Guards: account concurrency limit = 10 (natural cap), `crucible-monthly` budget alert ($10, emails at 80%), CORS locked to the CloudFront domain.
 
 ## Redeploy

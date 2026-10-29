@@ -111,13 +111,15 @@ Planned with a spec and a wave plan, built with parallel agents, reviewed, teste
   against demo mode (`npm run test:e2e`).
 - Live evals (`backend/evals/`): 76 hand-labeled cases, each run 3 times on Sonnet 4.6.
   Final run: 76/76 right decisions, 34/34 survival verdicts, identical across runs.
-  Details: [evals-phase-1.md](evals-phase-1.md).
+  Details: [evals-phase-1.md](evals-phase-1.md). Summary of every run, resume bullets and
+  talking points: [EVAL-RESULTS.md](EVAL-RESULTS.md).
 - Live end-to-end coding interview: [sample-coding-interview-2026-10-28.md](sample-coding-interview-2026-10-28.md),
   reproducible with `backend/evals/live_coding_interview.py` (about $0.35).
 
 ## Costs
 
-- Idle hosting: about $0 to $2 a month. One interview: about $0.12 to $0.30 in Bedrock.
+- Idle hosting: about $0 to $2 a month. One interview: about $0.50 to $0.80 in Bedrock (Sonnet), plus Tavus
+  (about $0.37 a minute after the free 25) when video is on.
 - Phase 1 testing on 2026-10-28: roughly $15 to $20 of Bedrock in total.
 - Budget alert `crucible-monthly` ($10). ASU Sun Devil Hacks credits: couldn't verify
   from here (no billing access on the deploy role). Check Billing > Credits in the console.
