@@ -8,6 +8,7 @@
   "functionName": "max_path_sum",
   "signature": "def max_path_sum(root: Optional[TreeNode]) -> int:",
   "starterCode": "def max_path_sum(root: Optional[TreeNode]) -> int:\n    \"\"\"Return the largest sum over all paths in the tree.\"\"\"\n    pass\n",
+  "starterCodeJs": "// TreeNode is provided: new TreeNode(val, left, right) -> { val, left, right }\n\n/**\n * Return the largest sum over all paths in the tree.\n * @param {TreeNode|null} root\n * @return {number}\n */\nfunction maxPathSum(root) {\n\n}\n",
   "examples": [
     {"input": "root = [2, -1, 3]", "output": "5", "explanation": "The best path is 2 -> 3. Adding -1 would only lower the sum."},
     {"input": "root = [-5, 4, 8, null, null, -2, 6]", "output": "14", "explanation": "The path 8 -> 6 sums to 14 and never touches the negative root; going through the root (4, -5, 8, 6) gives only 13."},

@@ -8,6 +8,7 @@
   "functionName": "clone_graph",
   "signature": "def clone_graph(node: Optional[Node]) -> Optional[Node]:",
   "starterCode": "def clone_graph(node: Optional[Node]) -> Optional[Node]:\n    \"\"\"Return a deep copy of the graph reachable from node.\"\"\"\n    pass\n",
+  "starterCodeJs": "// Node is provided: new Node(val, neighbors) -> { val, neighbors }\n\n/**\n * Return a deep copy of the graph reachable from node.\n * @param {Node|null} node\n * @return {Node|null}\n */\nfunction cloneGraph(node) {\n\n}\n",
   "examples": [
     {"input": "adjList = [[2, 3], [1, 3], [1, 2]]", "output": "[[2, 3], [1, 3], [1, 2]]", "explanation": "A triangle: every node links to the other two, and the copy must too."},
     {"input": "adjList = [[]]", "output": "[[]]", "explanation": "One node with no neighbors."},

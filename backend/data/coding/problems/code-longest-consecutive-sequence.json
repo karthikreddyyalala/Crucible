@@ -9,6 +9,7 @@
   "functionName": "longest_consecutive",
   "signature": "def longest_consecutive(nums: List[int]) -> int:",
   "starterCode": "def longest_consecutive(nums: List[int]) -> int:\n    \"\"\"Return the length of the longest run of consecutive integers found in nums.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the length of the longest run of consecutive integers found in nums.\n * @param {number[]} nums\n * @return {number}\n */\nfunction longestConsecutive(nums) {\n\n}\n",
   "examples": [
     {"input": "nums = [31, 5, 30, 7, 29, 6, 8, 100]", "output": "4", "explanation": "29, 30, 31 is a run of 3, and 5, 6, 7, 8 is a run of 4, so the answer is 4."},
     {"input": "nums = []", "output": "0", "explanation": "An empty list has no run at all."},

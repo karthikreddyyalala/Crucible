@@ -8,6 +8,7 @@
   "functionName": "merge_two_lists",
   "signature": "def merge_two_lists(l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:",
   "starterCode": "def merge_two_lists(l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:\n    \"\"\"Return the head of one sorted list made from the nodes of l1 and l2.\"\"\"\n    pass\n",
+  "starterCodeJs": "// ListNode is provided: new ListNode(val, next) -> { val, next }\n\n/**\n * Return the head of one sorted list made from the nodes of l1 and l2.\n * @param {ListNode|null} l1\n * @param {ListNode|null} l2\n * @return {ListNode|null}\n */\nfunction mergeTwoLists(l1, l2) {\n\n}\n",
   "examples": [
     {"input": "l1 = [1, 4, 6], l2 = [2, 4, 9]", "output": "[1, 2, 4, 4, 6, 9]", "explanation": "The two lists interleave; the equal 4s both appear."},
     {"input": "l1 = [], l2 = [0, 3]", "output": "[0, 3]", "explanation": "When one list is empty, the answer is the other list."},

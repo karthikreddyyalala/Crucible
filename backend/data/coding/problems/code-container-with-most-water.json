@@ -8,6 +8,7 @@
   "functionName": "max_area",
   "signature": "def max_area(height: list[int]) -> int:",
   "starterCode": "def max_area(height: list[int]) -> int:\n    \"\"\"Return the largest amount of water held between any two walls, where area = distance * the shorter wall's height.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the largest amount of water held between any two walls, where area = distance * the shorter wall's height.\n * @param {number[]} height\n * @return {number}\n */\nfunction maxArea(height) {\n\n}\n",
   "examples": [
     {"input": "height = [3, 9, 4, 7, 2, 8]", "output": "32", "explanation": "The walls of height 9 (position 1) and 8 (position 5) are 4 apart and the shorter is 8: 4 * 8 = 32."},
     {"input": "height = [5, 5]", "output": "5", "explanation": "Two walls of height 5 that are 1 apart hold 1 * 5 = 5."},

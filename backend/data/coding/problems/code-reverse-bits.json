@@ -8,6 +8,7 @@
   "functionName": "reverse_bits",
   "signature": "def reverse_bits(n: int) -> int:",
   "starterCode": "def reverse_bits(n: int) -> int:\n    \"\"\"Return n with its 32 bits in reverse order, as an unsigned integer.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return n with its 32 bits in reverse order, as an unsigned integer.\n * @param {number} n\n * @return {number}\n */\nfunction reverseBits(n) {\n\n}\n",
   "examples": [
     {"input": "n = 1", "output": "2147483648", "explanation": "Bit 0 moves to bit 31, and 2^31 is 2147483648."},
     {"input": "n = 12", "output": "805306368", "explanation": "12 has bits 2 and 3 set. They move to bits 29 and 28, giving 2^29 + 2^28."},

@@ -8,6 +8,7 @@
   "functionName": "is_subtree",
   "signature": "def is_subtree(root: Optional[TreeNode], sub_root: Optional[TreeNode]) -> bool:",
   "starterCode": "def is_subtree(root: Optional[TreeNode], sub_root: Optional[TreeNode]) -> bool:\n    \"\"\"Return True if sub_root appears as a complete subtree of root.\"\"\"\n    pass\n",
+  "starterCodeJs": "// TreeNode is provided: new TreeNode(val, left, right) -> { val, left, right }\n\n/**\n * Return true if sub_root appears as a complete subtree of root.\n * @param {TreeNode|null} root\n * @param {TreeNode|null} subRoot\n * @return {boolean}\n */\nfunction isSubtree(root, subRoot) {\n\n}\n",
   "examples": [
     {"input": "root = [5, 3, 8, 1, 4], sub_root = [3, 1, 4]", "output": "true", "explanation": "The node 3 in root has exactly the children 1 and 4, and nothing below them."},
     {"input": "root = [5, 3, 8, 1, 4, null, null, null, null, 2], sub_root = [3, 1, 4]", "output": "false", "explanation": "Node 3 in root also has a 2 under its child 4, so its subtree is bigger than sub_root."},

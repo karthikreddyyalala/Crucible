@@ -8,6 +8,7 @@
   "functionName": "can_jump",
   "signature": "def can_jump(nums: list[int]) -> bool:",
   "starterCode": "def can_jump(nums: list[int]) -> bool:\n    \"\"\"Return True if you can get from index 0 to the last index.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return true if you can get from index 0 to the last index.\n * @param {number[]} nums\n * @return {boolean}\n */\nfunction canJump(nums) {\n\n}\n",
   "examples": [
     {"input": "nums = [2, 2, 0, 1, 4]", "output": "True", "explanation": "Jump 1 step to index 1, then 2 steps to index 3 (skipping the 0), then 1 step to the end."},
     {"input": "nums = [2, 1, 0, 0, 3]", "output": "False", "explanation": "From indexes 0, 1 and 2 you can get no farther than index 2, and the 0 there traps you."},

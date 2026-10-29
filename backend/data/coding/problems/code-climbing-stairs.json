@@ -8,6 +8,7 @@
   "functionName": "climb_stairs",
   "signature": "def climb_stairs(n: int) -> int:",
   "starterCode": "def climb_stairs(n: int) -> int:\n    \"\"\"Return the number of distinct 1-or-2-step sequences that reach step n exactly.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the number of distinct 1-or-2-step sequences that reach step n exactly.\n * @param {number} n\n * @return {number}\n */\nfunction climbStairs(n) {\n\n}\n",
   "examples": [
     {"input": "n = 2", "output": "2", "explanation": "Either two single steps (1+1) or one double step (2)."},
     {"input": "n = 3", "output": "3", "explanation": "1+1+1, 1+2 and 2+1."},

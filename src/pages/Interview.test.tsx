@@ -18,7 +18,19 @@ const runner = vi.hoisted(() => ({
   retry: vi.fn(),
 }));
 
-vi.mock("@/hooks/usePythonRunner", () => ({ usePythonRunner: () => runner }));
+const jsRunner = vi.hoisted(() => ({
+  status: "ready",
+  progress: "",
+  error: null,
+  load: vi.fn(),
+  run: vi.fn(),
+  retry: vi.fn(),
+}));
+
+// The JavaScript runner is the one built with its own worker.
+vi.mock("@/hooks/usePythonRunner", () => ({
+  usePythonRunner: (opts?: { createWorker?: () => Worker }) => (opts?.createWorker ? jsRunner : runner),
+}));
 // Mutable so tests can drive the voice: what the mic hears, whether Marcus is talking.
 const speech = vi.hoisted(() => ({
   supported: false, listening: false, transcript: "", semantic: false,
@@ -59,6 +71,7 @@ const problem = {
   statement: "Find two numbers that add up to `target`.",
   signature: "def two_sum(nums, target):",
   starterCode: "def two_sum(nums, target):\n    pass\n",
+  starterCodeJs: "function twoSum(nums, target) {\n}\n",
   functionName: "two_sum",
   kind: "function",
   compare: "exact",
@@ -101,6 +114,7 @@ function start(question: PlannedQuestion, extra: Partial<ReturnType<typeof useSe
     messages: [{ id: "m1", speaker: "interviewer", kind: "question", text: question.prompt, questionId: question.id }],
     codingStage: "approach",
     codeByQuestion: {},
+    codingLanguage: "python",
     checkinSent: {},
     justRestored: false,
     turnError: null,
@@ -163,13 +177,37 @@ describe("Interview", () => {
     await screen.findByRole("textbox", { name: "Python code editor" });
 
     fireEvent.click(screen.getByRole("button", { name: /^Run/ }));
-    await waitFor(() => expect(recordRun).toHaveBeenCalledWith("q1", outcome, "run", 1));
+    await waitFor(() => expect(recordRun).toHaveBeenCalledWith("q1", outcome, "run", 1, "python"));
     expect(runner.run).toHaveBeenLastCalledWith(problem.starterCode, problem, true);
     expect(await screen.findByText("1 of 1 examples passed.")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /^Submit/ }));
-    await waitFor(() => expect(recordRun).toHaveBeenCalledWith("q1", outcome, "submit", 1));
+    await waitFor(() => expect(recordRun).toHaveBeenCalledWith("q1", outcome, "submit", 1, "python"));
     expect(runner.run).toHaveBeenLastCalledWith(problem.starterCode, problem, false);
+  });
+
+  it("switches to JavaScript: the JS starter, the JS runner, and the Python draft kept", async () => {
+    setScreen(true);
+    const outcome: RunOutcome = { kind: "results", results: [] };
+    jsRunner.run.mockResolvedValue(outcome);
+    start(coding, { codeByQuestion: { q1: "def two_sum(nums, target):\n    return [0, 1]\n" } });
+    await screen.findByRole("textbox", { name: "Python code editor" });
+    expect(screen.getByRole("radio", { name: "Python" })).toBeChecked();
+
+    fireEvent.click(screen.getByRole("radio", { name: "JavaScript" }));
+    expect(useSessionStore.getState().codingLanguage).toBe("javascript");
+    const editor = (await screen.findByRole("textbox", { name: "Python code editor" })) as HTMLTextAreaElement;
+    expect(editor.value).toBe(problem.starterCodeJs);
+
+    fireEvent.click(screen.getByRole("button", { name: /^Run/ }));
+    await waitFor(() => expect(jsRunner.run).toHaveBeenLastCalledWith(problem.starterCodeJs, problem, true));
+    expect(runner.run).not.toHaveBeenCalled();
+    await waitFor(() => expect(recordRun).toHaveBeenLastCalledWith("q1", outcome, "run", 1, "javascript"));
+
+    fireEvent.click(screen.getByRole("radio", { name: "Python" }));
+    await waitFor(() =>
+      expect((screen.getByRole("textbox", { name: "Python code editor" }) as HTMLTextAreaElement).value).toContain("return [0, 1]"),
+    );
   });
 
   it("shows the problem and a calm notice instead of the editor on a small screen", async () => {

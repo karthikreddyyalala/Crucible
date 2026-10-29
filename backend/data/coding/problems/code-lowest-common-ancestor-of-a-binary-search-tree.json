@@ -8,6 +8,7 @@
   "functionName": "lowest_common_ancestor",
   "signature": "def lowest_common_ancestor(root: TreeNode, p: TreeNode, q: TreeNode) -> TreeNode:",
   "starterCode": "def lowest_common_ancestor(root: TreeNode, p: TreeNode, q: TreeNode) -> TreeNode:\n    \"\"\"Return the deepest node that has both p and q in its subtree.\"\"\"\n    pass\n",
+  "starterCodeJs": "// TreeNode is provided: new TreeNode(val, left, right) -> { val, left, right }\n\n/**\n * Return the deepest node that has both p and q in its subtree.\n * @param {TreeNode} root\n * @param {TreeNode} p\n * @param {TreeNode} q\n * @return {TreeNode}\n */\nfunction lowestCommonAncestor(root, p, q) {\n\n}\n",
   "examples": [
     {"input": "root = [8, 4, 12, 2, 6, 10, 14], p = 2, q = 6", "output": "4", "explanation": "2 and 6 are both under 4, one on each side."},
     {"input": "root = [8, 4, 12, 2, 6, 10, 14], p = 4, q = 6", "output": "4", "explanation": "4 is an ancestor of 6, and a node counts as part of its own subtree."},

@@ -8,6 +8,7 @@
   "functionName": "can_finish",
   "signature": "def can_finish(num_courses: int, prerequisites: list[list[int]]) -> bool:",
   "starterCode": "def can_finish(num_courses: int, prerequisites: list[list[int]]) -> bool:\n    \"\"\"Return True if all courses can be completed given the prerequisite pairs [course, requires].\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return true if all courses can be completed given the prerequisite pairs [course, requires].\n * @param {number} numCourses\n * @param {number[][]} prerequisites\n * @return {boolean}\n */\nfunction canFinish(numCourses, prerequisites) {\n\n}\n",
   "examples": [
     {"input": "num_courses = 2, prerequisites = [[1, 0]]", "output": "True", "explanation": "Take course 0, then course 1."},
     {"input": "num_courses = 2, prerequisites = [[1, 0], [0, 1]]", "output": "False", "explanation": "Each course needs the other first, so neither can ever start."},

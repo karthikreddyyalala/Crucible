@@ -8,6 +8,7 @@
   "functionName": "kth_smallest",
   "signature": "def kth_smallest(root: Optional[TreeNode], k: int) -> int:",
   "starterCode": "def kth_smallest(root: Optional[TreeNode], k: int) -> int:\n    \"\"\"Return the k-th smallest value in the BST (1-indexed).\"\"\"\n    pass\n",
+  "starterCodeJs": "// TreeNode is provided: new TreeNode(val, left, right) -> { val, left, right }\n\n/**\n * Return the k-th smallest value in the BST (1-indexed).\n * @param {TreeNode|null} root\n * @param {number} k\n * @return {number}\n */\nfunction kthSmallest(root, k) {\n\n}\n",
   "examples": [
     {"input": "root = [5, 3, 7, 2, 4, 6, 8], k = 3", "output": "4", "explanation": "In sorted order the values are 2, 3, 4, 5, 6, 7, 8, and the third one is 4."},
     {"input": "root = [10, 5, null, 2, 8], k = 2", "output": "5", "explanation": "Sorted, the values are 2, 5, 8, 10."},

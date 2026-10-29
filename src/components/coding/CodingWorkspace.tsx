@@ -6,7 +6,7 @@ import type { RunOutcome } from "@/lib/coding/types";
 import type { usePythonRunner } from "@/hooks/usePythonRunner";
 import { useCodingProblem } from "@/hooks/useCodingProblem";
 import type { PublicProblem } from "@/lib/coding/types";
-import { useSessionStore } from "@/stores/sessionStore";
+import { codeKey, useSessionStore } from "@/stores/sessionStore";
 import { SplitPane } from "./SplitPane";
 import { ProblemPanel } from "./ProblemPanel";
 import { Toolbar, type Shortcuts } from "./Toolbar";
@@ -38,6 +38,7 @@ interface Props {
 export function CodingWorkspace({ question, runner, conversation }: Props) {
   const { status, problem, retry } = useCodingProblem(question.exemplarId);
   const reduced = useReducedMotion();
+  const language = useSessionStore((s) => s.codingLanguage);
 
   return (
     <motion.div
@@ -74,7 +75,8 @@ export function CodingWorkspace({ question, runner, conversation }: Props) {
         }
         second={
           problem ? (
-            <EditorPane problem={problem} questionId={question.id} runner={runner} />
+            // A language switch remounts the pane: the editor seeds from that language's draft.
+            <EditorPane key={language} problem={problem} questionId={question.id} runner={runner} />
           ) : (
             <div className="grid flex-1 place-items-center bg-ink px-8 text-center font-sans text-[14px] text-mist">
               {status === "error" ? "The editor opens once the problem loads." : "Loading the problem…"}
@@ -112,7 +114,9 @@ function errorLineOf(outcome: RunOutcome, visibleCount: number): number | null {
 }
 
 function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; questionId: string; runner: Runner }) {
-  const stored = useSessionStore((s) => s.codeByQuestion[questionId]);
+  const language = useSessionStore((s) => s.codingLanguage);
+  const setLanguage = useSessionStore((s) => s.setCodingLanguage);
+  const stored = useSessionStore((s) => s.codeByQuestion[codeKey(questionId, language)]);
   const saveCode = useSessionStore((s) => s.setCode);
   const recordRun = useSessionStore((s) => s.recordRun);
   const sendCheckin = useSessionStore((s) => s.sendCheckin);
@@ -122,14 +126,18 @@ function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; q
   );
 
   // Seeded once; CodeMirror owns the document from here (and its undo history).
-  const [initial] = useState(() => stored ?? problem.starterCode);
+  const starter = language === "javascript" ? problem.starterCodeJs : problem.starterCode;
+  const [initial] = useState(() => stored ?? starter);
   const code = useRef(initial);
-  const [atStarter, setAtStarter] = useState(initial === problem.starterCode);
+  const [atStarter, setAtStarter] = useState(initial === starter);
   const [edits, setEdits] = useState(0);
   const [shown, setShown] = useState<ShownRun | null>(null);
   const [pending, setPending] = useState<"run" | "submit" | null>(null);
   const [errorLine, setErrorLine] = useState<number | null>(null);
-  const [loadedBefore, setLoadedBefore] = useState(runner.status === "ready" || runner.status === "running");
+  // JavaScript has nothing to download, so no first-load notice.
+  const [loadedBefore, setLoadedBefore] = useState(
+    language === "javascript" || runner.status === "ready" || runner.status === "running",
+  );
   const editor = useRef<CodeEditorHandle>(null);
   const hintId = useId();
 
@@ -142,7 +150,7 @@ function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; q
 
   const onChange = (next: string) => {
     code.current = next;
-    setAtStarter(next === problem.starterCode);
+    setAtStarter(next === starter);
     setEdits((n) => n + 1);
     setErrorLine(null);
     saveCode(questionId, next);
@@ -160,7 +168,7 @@ function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; q
       const outcome = await runner.run(code.current, problem, kind === "run");
       setShown((prev) => ({ outcome, kind, seq: (prev?.seq ?? 0) + 1 }));
       setErrorLine(errorLineOf(outcome, problem.visibleTestCount));
-      void recordRun(questionId, outcome, kind, problem.visibleTestCount);
+      void recordRun(questionId, outcome, kind, problem.visibleTestCount, language);
     } catch {
       /* a run was already in flight; its result is the one that shows */
     } finally {
@@ -178,6 +186,8 @@ function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; q
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-ink" onKeyDown={onKeyDown}>
       <Toolbar
+        language={language}
+        onLanguage={setLanguage}
         status={runner.status}
         pending={pending}
         canReset={!atStarter}
@@ -186,7 +196,7 @@ function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; q
         onRun={() => void execute("run")}
         onSubmit={() => void execute("submit")}
         onRetry={runner.retry}
-        onReset={() => editor.current?.replace(problem.starterCode)}
+        onReset={() => editor.current?.replace(starter)}
       />
       <SplitPane
         axis="y"
@@ -200,6 +210,7 @@ function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; q
           <Suspense fallback={<EditorSkeleton />}>
             <CodeEditor
               ref={editor}
+              language={language}
               initialValue={initial}
               onChange={onChange}
               onRun={() => void execute("run")}
@@ -218,6 +229,7 @@ function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; q
             problem={problem}
             onRetry={runner.retry}
             shortcut={SHORTCUTS.run}
+            language={language}
           />
         }
       />

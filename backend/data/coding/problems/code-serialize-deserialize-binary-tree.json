@@ -9,6 +9,7 @@
   "functionName": "Codec",
   "signature": "class Codec:\n    def serialize(self, root: Optional[TreeNode]) -> str:\n    def deserialize(self, data: str) -> Optional[TreeNode]:",
   "starterCode": "class Codec:\n    def serialize(self, root: Optional[TreeNode]) -> str:\n        \"\"\"Encode a tree to a single string.\"\"\"\n        pass\n\n    def deserialize(self, data: str) -> Optional[TreeNode]:\n        \"\"\"Decode your string back into the same tree.\"\"\"\n        pass\n",
+  "starterCodeJs": "// TreeNode is provided: new TreeNode(val, left, right) -> { val, left, right }\n\nclass Codec {\n    /**\n     * Encode a tree to a single string.\n     * @param {TreeNode|null} root\n     * @return {string}\n     */\n    serialize(root) {\n\n    }\n\n    /**\n     * Decode your string back into the same tree.\n     * @param {string} data\n     * @return {TreeNode|null}\n     */\n    deserialize(data) {\n\n    }\n}\n",
   "examples": [
     {"input": "root = [1, 2, 3, null, null, 4, 5]", "output": "[1, 2, 3, null, null, 4, 5]", "explanation": "deserialize(serialize(root)) must rebuild the same tree: node 2 has no children and node 3 has children 4 and 5."},
     {"input": "root = []", "output": "[]", "explanation": "An empty tree has to survive the round trip too."},

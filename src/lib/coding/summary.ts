@@ -1,4 +1,4 @@
-import type { RunOutcome, TestResult } from "./types";
+import type { CodingLanguage, RunOutcome, TestResult } from "./types";
 
 // The compact run report the store keeps per question and sends to Marcus and the
 // Evaluator as testResults (the backend fences it as untrusted text, max 4,000 chars).
@@ -16,20 +16,25 @@ const MAX_SUMMARY = 1000; // well under the server's 4,000, so a turn is never r
 
 const cut = (text: string, max: number) => (text.length > max ? `${text.slice(0, max)}…` : text);
 
-// Python-ish display: "[0, 1]" and "None" rather than JSON's "[0,1]" and "null"; long values cut short.
-function show(value: unknown): string {
-  const text =
-    value === null || value === undefined ? "None"
-    : Array.isArray(value) ? `[${value.map(show).join(", ")}]`
-    : JSON.stringify(value);
-  return cut(text, MAX_VALUE);
+/** A value as the candidate's language prints it: "[0, 1]", None / True / False in Python,
+ * null / true / false in JavaScript. Also used by the results panel. */
+export function literal(value: unknown, language: CodingLanguage = "python"): string {
+  const js = language === "javascript";
+  if (value === null || value === undefined) return js ? "null" : "None";
+  if (typeof value === "boolean") return js ? String(value) : value ? "True" : "False";
+  if (Array.isArray(value)) return `[${value.map((v) => literal(v, language)).join(", ")}]`;
+  if (typeof value === "object") {
+    return `{${Object.entries(value).map(([k, v]) => `${JSON.stringify(k)}: ${literal(v, language)}`).join(", ")}}`;
+  }
+  return JSON.stringify(value);
 }
 
 const empty = (summary: string): RunSummary =>
   ({ visiblePassed: 0, visibleTotal: 0, hiddenPassed: 0, hiddenTotal: 0, summary: summary.slice(0, MAX_SUMMARY) });
 
 /** Rows with index < visibleCount are the examples; index -1 means the code didn't load. */
-export function summarizeResults(results: TestResult[], visibleCount: number): RunSummary {
+export function summarizeResults(results: TestResult[], visibleCount: number, language: CodingLanguage = "python"): RunSummary {
+  const show = (value: unknown) => cut(literal(value, language), MAX_VALUE);
   const loadError = results.find((r) => r.index < 0);
   if (loadError) return empty(`Load error: ${cut(loadError.error ?? "the code didn't load", MAX_ERROR)}`);
 
@@ -50,8 +55,8 @@ export function summarizeResults(results: TestResult[], visibleCount: number): R
   return { visiblePassed, visibleTotal: visible.length, hiddenPassed, hiddenTotal: hidden.length, summary: summary.slice(0, MAX_SUMMARY) };
 }
 
-export function summarizeOutcome(outcome: RunOutcome, visibleCount: number): RunSummary {
+export function summarizeOutcome(outcome: RunOutcome, visibleCount: number, language: CodingLanguage = "python"): RunSummary {
   if (outcome.kind === "timeout") return empty("Timed out after 5 seconds (possible infinite loop)");
   if (outcome.kind === "error") return empty(`Runner error: ${cut(outcome.message, MAX_ERROR)}`);
-  return summarizeResults(outcome.results, visibleCount);
+  return summarizeResults(outcome.results, visibleCount, language);
 }

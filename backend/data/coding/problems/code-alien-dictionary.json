@@ -8,6 +8,7 @@
   "functionName": "alien_order",
   "signature": "def alien_order(words: List[str]) -> str:",
   "starterCode": "def alien_order(words: List[str]) -> str:\n    \"\"\"Return one alien alphabet order consistent with words, or \"\" if none exists.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return one alien alphabet order consistent with words, or \"\" if none exists.\n * @param {string[]} words\n * @return {string}\n */\nfunction alienOrder(words) {\n\n}\n",
   "examples": [
     {"input": "words = [\"kp\", \"kb\", \"pb\", \"pq\", \"bq\"]", "output": "\"kpbq\"", "explanation": "Neighboring words give p before b, k before p and b before q, so the only order is k, p, b, q."},
     {"input": "words = [\"apple\", \"app\"]", "output": "\"\"", "explanation": "\"app\" is a prefix of \"apple\", so it would have to come first; no alphabet can fix that."},

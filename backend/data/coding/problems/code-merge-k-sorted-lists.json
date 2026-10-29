@@ -9,6 +9,7 @@
   "functionName": "merge_k_lists",
   "signature": "def merge_k_lists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:",
   "starterCode": "def merge_k_lists(lists: List[Optional[ListNode]]) -> Optional[ListNode]:\n    \"\"\"Return the head of one sorted list made from the nodes of every list in lists.\"\"\"\n    pass\n",
+  "starterCodeJs": "// ListNode is provided: new ListNode(val, next) -> { val, next }\n\n/**\n * Return the head of one sorted list made from the nodes of every list in lists.\n * @param {(ListNode|null)[]} lists\n * @return {ListNode|null}\n */\nfunction mergeKLists(lists) {\n\n}\n",
   "examples": [
     {"input": "lists = [[2, 9, 13], [1, 4, 10], [5, 6, 20]]", "output": "[1, 2, 4, 5, 6, 9, 10, 13, 20]", "explanation": "The three lists interleave into one sorted list of nine nodes."},
     {"input": "lists = []", "output": "[]", "explanation": "With no lists at all, the answer is an empty list."},

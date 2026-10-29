@@ -8,6 +8,7 @@
   "functionName": "search",
   "signature": "def search(nums: list[int], target: int) -> int:",
   "starterCode": "def search(nums: list[int], target: int) -> int:\n    \"\"\"Return the index of target in a rotated sorted list, or -1 if it is missing, in O(log n) time.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the index of target in a rotated sorted list, or -1 if it is missing, in O(log n) time.\n * @param {number[]} nums\n * @param {number} target\n * @return {number}\n */\nfunction search(nums, target) {\n\n}\n",
   "examples": [
     {"input": "nums = [6, 7, 9, 2, 3, 4], target = 3", "output": "4", "explanation": "3 sits at index 4, among the small values that were rotated to the back of the list."},
     {"input": "nums = [6, 7, 9, 2, 3, 4], target = 5", "output": "-1", "explanation": "5 is not in the list, so the answer is -1."},

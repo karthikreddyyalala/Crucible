@@ -10,6 +10,15 @@ describe("formatValue", () => {
     expect(formatValue({ a: 1 })).toBe('{"a": 1}');
   });
 
+  it("writes JavaScript values the way JavaScript does", () => {
+    expect(formatValue(null, "javascript")).toBe("null");
+    expect(formatValue([true, false, null], "javascript")).toBe("[true, false, null]");
+    expect(designCalls({ ops: ["T", "has"], args: [[], [true]] }, [null, false], [null, true], "javascript")).toEqual([
+      { call: "T()", expected: "null", got: "null", ok: true },
+      { call: "has(true)", expected: "false", got: "true", ok: false },
+    ]);
+  });
+
   it("cuts very long values short", () => {
     expect(formatValue("x".repeat(5000)).length).toBeLessThan(1100);
   });

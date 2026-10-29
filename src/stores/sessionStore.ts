@@ -17,7 +17,7 @@ import type { TurnInput } from "@/lib/api";
 import { getCandidateId } from "@/lib/identity";
 import { summarizeOutcome } from "@/lib/coding/summary";
 import type { RunSummary } from "@/lib/coding/summary";
-import type { RunOutcome } from "@/lib/coding/types";
+import type { CodingLanguage, RunOutcome } from "@/lib/coding/types";
 
 export type Speaker = "interviewer" | "candidate";
 export type MessageKind = "question" | "answer" | "follow_up";
@@ -32,6 +32,10 @@ export interface ChatMessage {
   questionId: string;
   weighted?: boolean;
 }
+
+// Python drafts keep the plain question id (older saved sessions still load); others get a suffix.
+export const codeKey = (questionId: string, language: CodingLanguage): string =>
+  language === "python" ? questionId : `${questionId}:${language}`;
 
 export type SessionStatus = "idle" | "starting" | "live" | "thinking" | "wrapping" | "complete";
 // Where the current coding question is: plan → code → review (spec 1.4).
@@ -83,6 +87,12 @@ interface SessionState {
   // stage; it resets to "approach" whenever a new question starts.
   codeByQuestion: Record<string, string>;
   codingStage: CodingStep;
+  // The candidate's coding language: a preference, kept across sessions.
+  codingLanguage: CodingLanguage;
+  // The language each question was actually worked in (last edit or run). Its code, run
+  // and language are what Marcus, the Evaluator and the coach get; the tab is only a view.
+  languageByQuestion: Record<string, CodingLanguage>;
+  // Keyed like codeByQuestion (codeKey).
   lastRun: Record<string, RunSummary>;
   checkinSent: Record<string, boolean>;
   // A Submit Marcus hasn't replied to yet (question id): queued while he was busy,
@@ -112,11 +122,19 @@ interface SessionState {
   // Call on the candidate's edits only (not when loading starter code): the first
   // edit of the current problem moves it from "approach" to "coding".
   setCode: (questionId: string, code: string) => void;
+  setCodingLanguage: (language: CodingLanguage) => void;
   // The Interview page reports whether the coding editor is on screen.
   setEditorShown: (shown: boolean) => void;
   // After every Run / Submit. visibleCount = the problem's visibleTestCount. A Submit
   // moves to "review" and sends Marcus a "submit" turn so he starts the review.
-  recordRun: (questionId: string, outcome: RunOutcome, kind: "run" | "submit", visibleCount: number) => Promise<void>;
+  // language: the code that ran (defaults to the editor's).
+  recordRun: (
+    questionId: string,
+    outcome: RunOutcome,
+    kind: "run" | "submit",
+    visibleCount: number,
+    language?: CodingLanguage,
+  ) => Promise<void>;
   // The quiet-for-a-while nudge: at most once per problem, only in the "coding" stage.
   sendCheckin: (questionId: string) => Promise<void>;
   // Sends a Submit that never got Marcus's reply (runs by itself after a refresh).
@@ -135,6 +153,7 @@ export interface PendingEval {
   // Coding questions: the final code and the last run's summary.
   code?: string;
   testResults?: string;
+  language?: CodingLanguage;
 }
 
 // The only scripted line: there's nothing to react to yet. Everything after
@@ -163,6 +182,10 @@ function hasMemory(m: MemoryProfile | null): boolean {
   return !!m && m.recurringWeaknesses.length > 0;
 }
 
+// The language a question was worked in; before any edit or run, the editor's.
+export const languageOf = (s: Pick<SessionState, "languageByQuestion" | "codingLanguage">, questionId: string): CodingLanguage =>
+  s.languageByQuestion[questionId] ?? s.codingLanguage;
+
 // The coding question the candidate is on right now, if any.
 function currentCoding(s: SessionState): PlannedQuestion | null {
   const q = s.phase === "question" ? s.plan?.questions[s.currentIdx] : undefined;
@@ -189,6 +212,7 @@ const FRESH_ROUND = {
   endedForConduct: false,
   codeByQuestion: {},
   codingStage: "approach" as CodingStep,
+  languageByQuestion: {},
   lastRun: {},
   checkinSent: {},
   pendingSubmit: null,
@@ -303,10 +327,13 @@ export const useSessionStore = create<SessionState>()(
         const thread = event ? priorThread : priorThread ? `${priorThread}\nA: ${text}` : text;
 
         // Code and test results go with coding questions only (the backend fences them).
+        const language = languageOf(state, question.id);
+        const key = codeKey(question.id, language);
         const coding = currentCoding(state)
           ? {
-              code: (state.codeByQuestion[question.id] ?? "").slice(0, LIMIT.code),
-              testResults: (state.lastRun[question.id]?.summary ?? "").slice(0, LIMIT.testResults),
+              code: (state.codeByQuestion[key] ?? "").slice(0, LIMIT.code),
+              testResults: (state.lastRun[key]?.summary ?? "").slice(0, LIMIT.testResults),
+              language,
             }
           : null;
 
@@ -512,6 +539,7 @@ export const useSessionStore = create<SessionState>()(
       companyStyle: "general",
       nameUsable: false,
       editorShown: true,
+      codingLanguage: "python",
       ...FRESH_ROUND,
 
       loadMemory: async () => {
@@ -587,19 +615,23 @@ export const useSessionStore = create<SessionState>()(
 
       setCode: (questionId, code) =>
         set((s) => ({
-          codeByQuestion: { ...s.codeByQuestion, [questionId]: code },
+          codeByQuestion: { ...s.codeByQuestion, [codeKey(questionId, s.codingLanguage)]: code },
+          languageByQuestion: { ...s.languageByQuestion, [questionId]: s.codingLanguage },
           codingStage:
             s.editorShown && s.codingStage === "approach" && currentCoding(s)?.id === questionId
               ? "coding"
               : s.codingStage,
         })),
 
+      setCodingLanguage: (language) => set({ codingLanguage: language }),
+
       setEditorShown: (shown) => set({ editorShown: shown }),
 
-      recordRun: async (questionId, outcome, kind, visibleCount) => {
+      recordRun: async (questionId, outcome, kind, visibleCount, language = get().codingLanguage) => {
         const submitted = kind === "submit" && currentCoding(get())?.id === questionId;
         set((s) => ({
-          lastRun: { ...s.lastRun, [questionId]: summarizeOutcome(outcome, visibleCount) },
+          lastRun: { ...s.lastRun, [codeKey(questionId, language)]: summarizeOutcome(outcome, visibleCount, language) },
+          languageByQuestion: { ...s.languageByQuestion, [questionId]: language },
           codingStage: submitted ? "review" : s.codingStage,
           pendingSubmit: submitted ? questionId : s.pendingSubmit,
         }));
@@ -708,6 +740,8 @@ export const useSessionStore = create<SessionState>()(
         endedForConduct: s.endedForConduct,
         codeByQuestion: s.codeByQuestion,
         codingStage: s.codingStage,
+        codingLanguage: s.codingLanguage,
+        languageByQuestion: s.languageByQuestion,
         lastRun: s.lastRun,
         checkinSent: s.checkinSent,
         pendingSubmit: s.pendingSubmit,

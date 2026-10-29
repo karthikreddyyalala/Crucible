@@ -8,6 +8,7 @@
   "functionName": "word_break",
   "signature": "def word_break(s: str, word_dict: list[str]) -> bool:",
   "starterCode": "def word_break(s: str, word_dict: list[str]) -> bool:\n    \"\"\"Return True if s can be split into a sequence of words from word_dict.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return true if s can be split into a sequence of words from word_dict.\n * @param {string} s\n * @param {string[]} wordDict\n * @return {boolean}\n */\nfunction wordBreak(s, wordDict) {\n\n}\n",
   "examples": [
     {"input": "s = \"bookshelf\", word_dict = [\"book\", \"shelf\"]", "output": "True", "explanation": "\"book\" followed by \"shelf\"."},
     {"input": "s = \"sundaymorning\", word_dict = [\"sun\", \"day\", \"morn\"]", "output": "False", "explanation": "\"sun\" + \"day\" + \"morn\" leaves \"ing\" over, and nothing else fits."},

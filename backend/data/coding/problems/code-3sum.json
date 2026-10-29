@@ -8,6 +8,7 @@
   "functionName": "three_sum",
   "signature": "def three_sum(nums: list[int]) -> list[list[int]]:",
   "starterCode": "def three_sum(nums: list[int]) -> list[list[int]]:\n    \"\"\"Return all distinct triplets of values from nums that add up to 0.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return all distinct triplets of values from nums that add up to 0.\n * @param {number[]} nums\n * @return {number[][]}\n */\nfunction threeSum(nums) {\n\n}\n",
   "examples": [
     {"input": "nums = [-3, 1, 1, 2, -3, 0, -1]", "output": "[[-3, 1, 2], [-1, 0, 1]]", "explanation": "Two distinct triplets work: -3 + 1 + 2 and -1 + 0 + 1. The repeated -3s and 1s do not create extra copies."},
     {"input": "nums = [0, 0, 0, 0]", "output": "[[0, 0, 0]]", "explanation": "All four zeros are interchangeable, so the single triplet [0, 0, 0] is reported once."},

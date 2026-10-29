@@ -9,6 +9,7 @@
   "functionName": "min_meeting_rooms",
   "signature": "def min_meeting_rooms(intervals: List[List[int]]) -> int:",
   "starterCode": "def min_meeting_rooms(intervals: List[List[int]]) -> int:\n    \"\"\"Return the minimum number of rooms needed to hold every meeting.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the minimum number of rooms needed to hold every meeting.\n * @param {number[][]} intervals\n * @return {number}\n */\nfunction minMeetingRooms(intervals) {\n\n}\n",
   "examples": [
     {"input": "intervals = [[0, 10], [5, 15], [10, 20]]", "output": "2", "explanation": "[0, 10] and [5, 15] overlap, so two rooms are needed; [10, 20] reuses the room freed at 10."},
     {"input": "intervals = [[1, 4], [2, 5], [3, 6]]", "output": "3", "explanation": "All three meetings are running at time 3, so three rooms are needed."},

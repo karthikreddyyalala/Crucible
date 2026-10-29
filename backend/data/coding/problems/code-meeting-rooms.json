@@ -9,6 +9,7 @@
   "functionName": "can_attend_meetings",
   "signature": "def can_attend_meetings(intervals: List[List[int]]) -> bool:",
   "starterCode": "def can_attend_meetings(intervals: List[List[int]]) -> bool:\n    \"\"\"Return True if no two meetings overlap.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return true if no two meetings overlap.\n * @param {number[][]} intervals\n * @return {boolean}\n */\nfunction canAttendMeetings(intervals) {\n\n}\n",
   "examples": [
     {"input": "intervals = [[9, 12], [1, 4], [5, 8]]", "output": "True", "explanation": "Sorted by start the meetings are [1, 4], [5, 8], [9, 12], and none overlap."},
     {"input": "intervals = [[2, 6], [5, 9]]", "output": "False", "explanation": "The second meeting starts at 5, before the first one ends at 6."},

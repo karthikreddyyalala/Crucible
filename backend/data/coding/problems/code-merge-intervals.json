@@ -9,6 +9,7 @@
   "functionName": "merge",
   "signature": "def merge(intervals: List[List[int]]) -> List[List[int]]:",
   "starterCode": "def merge(intervals: List[List[int]]) -> List[List[int]]:\n    \"\"\"Return the merged, non-overlapping intervals sorted by start.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the merged, non-overlapping intervals sorted by start.\n * @param {number[][]} intervals\n * @return {number[][]}\n */\nfunction merge(intervals) {\n\n}\n",
   "examples": [
     {"input": "intervals = [[5, 8], [1, 4], [3, 6], [10, 12]]", "output": "[[1, 8], [10, 12]]", "explanation": "[1, 4], [3, 6] and [5, 8] chain together into [1, 8]; [10, 12] stands alone."},
     {"input": "intervals = [[1, 4], [4, 5]]", "output": "[[1, 5]]", "explanation": "[1, 4] and [4, 5] touch at 4, so they merge."},

@@ -103,3 +103,20 @@ def test_coding_coach_without_the_problem_never_returns_code():
     from agents.coach import _PROMPT
     text = " ".join(_PROMPT.split())
     assert "no Coding problem block" in text and "never the solution" in text
+
+
+def test_coach_writes_code_in_the_candidates_language():
+    from agents.coach import _PROMPT
+    from models.coding import find_problem
+    assert "in the candidate's language" in " ".join(_PROMPT.split())
+    p = find_problem("code-two-sum")
+    q = PlannedQuestion(id="q-code", type="coding", prompt="Two Sum.", targetDifficulty=2,
+                        weightedFromWeakness=False, exemplarId=p.id)
+    llm = _FakeLLM(_COACH_PAYLOAD)
+    CoachAgent(llm=llm, model="m").run(question=q, transcript="t", weakness_tags=[], coding_problem=p,
+                                       code="function twoSum() {}", language="javascript")
+    assert "Candidate's language: JavaScript" in llm.last["user"]
+    CoachAgent(llm=llm, model="m").run(question=q, transcript="t", weakness_tags=[], coding_problem=p)
+    assert "Candidate's language: Python" in llm.last["user"]
+    CoachAgent(llm=llm, model="m").run(question=_Q_BEHAVIORAL, transcript="t", weakness_tags=[])
+    assert "Candidate's language" not in llm.last["user"]

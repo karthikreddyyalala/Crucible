@@ -8,6 +8,7 @@
   "functionName": "max_sub_array",
   "signature": "def max_sub_array(nums: list[int]) -> int:",
   "starterCode": "def max_sub_array(nums: list[int]) -> int:\n    \"\"\"Return the largest sum of any contiguous, non-empty slice of nums.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the largest sum of any contiguous, non-empty slice of nums.\n * @param {number[]} nums\n * @return {number}\n */\nfunction maxSubArray(nums) {\n\n}\n",
   "examples": [
     {"input": "nums = [3, -4, 5, -1, 6, -8]", "output": "10", "explanation": "The best slice is [5, -1, 6], which sums to 10; extending it to include -8 or -4 only lowers it."},
     {"input": "nums = [-7, -2, -9]", "output": "-2", "explanation": "Every number is negative, so the best slice is the single largest element, -2."},

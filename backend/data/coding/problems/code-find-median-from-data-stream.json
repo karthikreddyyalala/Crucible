@@ -9,6 +9,7 @@
   "functionName": "MedianFinder",
   "signature": "class MedianFinder:\n    def __init__(self):\n    def addNum(self, num: int) -> None:\n    def findMedian(self) -> float:",
   "starterCode": "class MedianFinder:\n    def __init__(self):\n        pass\n\n    def addNum(self, num: int) -> None:\n        \"\"\"Add num to the stream.\"\"\"\n        pass\n\n    def findMedian(self) -> float:\n        \"\"\"Return the median of all numbers added so far.\"\"\"\n        pass\n",
+  "starterCodeJs": "class MedianFinder {\n    constructor() {\n\n    }\n\n    /**\n     * Add num to the stream.\n     * @param {number} num\n     * @return {void}\n     */\n    addNum(num) {\n\n    }\n\n    /**\n     * Return the median of all numbers added so far.\n     * @return {number}\n     */\n    findMedian() {\n\n    }\n}\n",
   "examples": [
     {"input": "[\"MedianFinder\", \"addNum\", \"addNum\", \"findMedian\", \"addNum\", \"findMedian\", \"addNum\", \"findMedian\"]\n[[], [5], [15], [], [1], [], [20], []]", "output": "[null, null, null, 10.0, null, 5.0, null, 10.0]", "explanation": "After 5 and 15 the median is (5 + 15) / 2 = 10.0; after 1 it is the middle of [1, 5, 15], 5.0; after 20 it is (5 + 15) / 2 = 10.0 again."},
     {"input": "[\"MedianFinder\", \"addNum\", \"findMedian\"]\n[[], [-4], []]", "output": "[null, null, -4.0]", "explanation": "A single number is its own median."},

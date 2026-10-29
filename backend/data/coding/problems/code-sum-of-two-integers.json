@@ -8,6 +8,7 @@
   "functionName": "get_sum",
   "signature": "def get_sum(a: int, b: int) -> int:",
   "starterCode": "def get_sum(a: int, b: int) -> int:\n    \"\"\"Return a + b using bit operations only (no + or - operators).\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return a + b using bit operations only (no + or - operators).\n * @param {number} a\n * @param {number} b\n * @return {number}\n */\nfunction getSum(a, b) {\n\n}\n",
   "examples": [
     {"input": "a = 13, b = 29", "output": "42", "explanation": "In binary 01101 + 11101. XOR adds without carries, AND shifted left gives the carries."},
     {"input": "a = -6, b = 4", "output": "-2", "explanation": "Negative numbers work too once the values are treated as 32-bit two's complement."},

@@ -8,6 +8,7 @@
   "functionName": "has_cycle",
   "signature": "def has_cycle(head: Optional[ListNode]) -> bool:",
   "starterCode": "def has_cycle(head: Optional[ListNode]) -> bool:\n    \"\"\"Return True if the list loops back on itself.\"\"\"\n    pass\n",
+  "starterCodeJs": "// ListNode is provided: new ListNode(val, next) -> { val, next }\n\n/**\n * Return true if the list loops back on itself.\n * @param {ListNode|null} head\n * @return {boolean}\n */\nfunction hasCycle(head) {\n\n}\n",
   "examples": [
     {"input": "head = [5, 8, 1, 9], pos = 2", "output": "true", "explanation": "The last node, 9, points back to the node holding 1, so the walk goes around forever."},
     {"input": "head = [4, 4], pos = -1", "output": "false", "explanation": "Two nodes with the same value, but the second one ends the list."},

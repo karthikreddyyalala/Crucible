@@ -8,6 +8,7 @@
   "functionName": "num_decodings",
   "signature": "def num_decodings(s: str) -> int:",
   "starterCode": "def num_decodings(s: str) -> int:\n    \"\"\"Return the number of ways to read the digit string s as letters (A=1 ... Z=26).\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the number of ways to read the digit string s as letters (A=1 ... Z=26).\n * @param {string} s\n * @return {number}\n */\nfunction numDecodings(s) {\n\n}\n",
   "examples": [
     {"input": "s = \"123\"", "output": "3", "explanation": "Read it as 1-2-3, 12-3 or 1-23, which spell \"ABC\", \"LC\" and \"AW\"."},
     {"input": "s = \"2610\"", "output": "2", "explanation": "2-6-10 and 26-10 are valid. 2-61 and any split that ends in a lone 0 are not."},

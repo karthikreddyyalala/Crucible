@@ -130,6 +130,7 @@ class TurnRequest(_Base):
     coding_stage: Literal["", "approach", "coding", "review", "talk"] = ""
     # checkin: no edits or messages for a while; submit: just pressed Submit. Answer may be empty.
     event: Literal["", "checkin", "submit"] = ""
+    language: Literal["python", "javascript"] = "python"
     # Conduct strikes so far this session; the response carries the new count.
     strikes: int = Field(0, ge=0, le=3)
 
@@ -140,6 +141,7 @@ class EvaluateRequest(_Base):
     follow_up_count: int = Field(ge=0)
     code: str = Field("", max_length=20000)
     test_results: str = Field("", max_length=4000)
+    language: Literal["python", "javascript"] = "python"
 
 
 class TurnResponse(_Base):
@@ -207,6 +209,7 @@ class CoachRequest(_Base):
     question: ClientQuestion
     transcript: str = Field(max_length=40000)
     code: str = Field("", max_length=20000)  # coding questions: the candidate's final code
+    language: Literal["python", "javascript"] = "python"
     session_id: str = Field("", max_length=64)  # the finalized session this question belongs to
     candidate_id: str = "local-dev"  # without auth, the id the session was finalized under
     # Tags go into the prompt, so only the evaluator's slug shape gets through.
@@ -347,6 +350,7 @@ def build_session_router(
             test_results=req.test_results,
             coding_stage=req.coding_stage,
             event=req.event,
+            language=req.language,
             company_note=f"{style.name}. {style.interviewer_note}",
         )
         return TurnResponse(decision=decision, cost_usd=sum(u.cost_usd for u in usage), strikes=req.strikes)
@@ -364,6 +368,7 @@ def build_session_router(
             coding_problem=_problem_for(req.question),
             code=req.code,
             test_results=req.test_results,
+            language=req.language,
         )
         return EvaluateResponse(evaluation=evaluation, cost_usd=sum(u.cost_usd for u in usage))
 
@@ -385,6 +390,7 @@ def build_session_router(
             weakness_tags=req.weakness_tags,
             coding_problem=problem,
             code=req.code,
+            language=req.language,
         )
 
     @router.post("/tts")

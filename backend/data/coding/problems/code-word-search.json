@@ -9,6 +9,7 @@
   "functionName": "exist",
   "signature": "def exist(board: List[List[str]], word: str) -> bool:",
   "starterCode": "def exist(board: List[List[str]], word: str) -> bool:\n    \"\"\"Return True if word can be traced through adjacent cells without reusing a cell.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return true if word can be traced through adjacent cells without reusing a cell.\n * @param {string[][]} board\n * @param {string} word\n * @return {boolean}\n */\nfunction exist(board, word) {\n\n}\n",
   "examples": [
     {"input": "board = [[\"t\", \"r\", \"a\"], [\"o\", \"e\", \"n\"], [\"p\", \"s\", \"i\"]], word = \"rani\"", "output": "True", "explanation": "r, a, n, i is a path: right along the top, then down the last column."},
     {"input": "board = [[\"t\", \"r\", \"a\"], [\"o\", \"e\", \"n\"], [\"p\", \"s\", \"i\"]], word = \"pose\"", "output": "False", "explanation": "p and o are adjacent, but s is not adjacent to o, so the path breaks."},

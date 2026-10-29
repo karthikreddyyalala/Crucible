@@ -8,6 +8,7 @@
   "functionName": "is_palindrome",
   "signature": "def is_palindrome(s: str) -> bool:",
   "starterCode": "def is_palindrome(s: str) -> bool:\n    \"\"\"Return True if s reads the same both ways when only letters and digits are kept and case is ignored.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return true if s reads the same both ways when only letters and digits are kept and case is ignored.\n * @param {string} s\n * @return {boolean}\n */\nfunction isPalindrome(s) {\n\n}\n",
   "examples": [
     {"input": "s = \"Step on no pets!\"", "output": "True", "explanation": "Keeping only the letters and ignoring case leaves \"steponnopets\", which reads the same in both directions."},
     {"input": "s = \"Hello, World\"", "output": "False", "explanation": "\"helloworld\" reversed is \"dlrowolleh\"."},

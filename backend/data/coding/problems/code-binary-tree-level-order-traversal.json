@@ -8,6 +8,7 @@
   "functionName": "level_order",
   "signature": "def level_order(root: Optional[TreeNode]) -> List[List[int]]:",
   "starterCode": "def level_order(root: Optional[TreeNode]) -> List[List[int]]:\n    \"\"\"Return the node values grouped by level, left to right.\"\"\"\n    pass\n",
+  "starterCodeJs": "// TreeNode is provided: new TreeNode(val, left, right) -> { val, left, right }\n\n/**\n * Return the node values grouped by level, left to right.\n * @param {TreeNode|null} root\n * @return {number[][]}\n */\nfunction levelOrder(root) {\n\n}\n",
   "examples": [
     {"input": "root = [1, 2, 3, 4, null, null, 5]", "output": "[[1], [2, 3], [4, 5]]", "explanation": "4 is the left child of 2 and 5 the right child of 3; they share the third level."},
     {"input": "root = [7]", "output": "[[7]]", "explanation": "A single node makes a single level."},

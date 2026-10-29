@@ -19,6 +19,7 @@ export interface PublicProblem {
   functionName: string;
   signature: string;
   starterCode: string;
+  starterCodeJs: string;
   examples: { input: string; output: string; explanation: string }[];
   visibleTestCount: number;
   tests: { args: unknown; expected: unknown }[];
@@ -26,6 +27,8 @@ export interface PublicProblem {
   checkArg: number | null;
   [key: string]: unknown;
 }
+
+export type CodingLanguage = "python" | "javascript";
 
 export type RunnerRequest =
   | { type: "load" }

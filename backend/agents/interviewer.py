@@ -59,6 +59,7 @@ class InterviewerAgent:
         event: str = "",
         company_note: str = "",
         earlier: str = "",
+        language: str = "python",
     ) -> InterviewDecision:
         user = (
             f"Phase: {phase}\n"
@@ -85,7 +86,7 @@ class InterviewerAgent:
             + (f"Coding stage: {coding_stage}\n" if coding_stage else "")
             + (f"Event: {event}\n" if event else "")
             # Editor text and test summary come from the browser: fenced like the answer.
-            + (f"\nCandidate code (current editor):\n{wrap_untrusted('candidate_code', code)}\n" if code else "")
+            + (f"\nCandidate code (current editor{', JavaScript' if language == 'javascript' else ''}):\n{wrap_untrusted('candidate_code', code)}\n" if code else "")
             + (f"\nTest results (reported by the browser):\n{wrap_untrusted('test_results', test_results)}\n"
                if test_results else "")
             # Trusted: looked up server-side from the style id.

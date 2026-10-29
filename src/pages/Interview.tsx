@@ -38,6 +38,9 @@ const ANSWER_LIMIT = 6000;
 const COUNT_FROM = 5000;
 const thousands = (n: number) => n.toLocaleString("en-US");
 
+const createJsWorker = () =>
+  new Worker(new URL("../lib/coding/js.worker.ts", import.meta.url), { type: "module" });
+
 // The coding editor needs ≥ 1024 px; below that the round is talk-only.
 function useWideScreen(): boolean {
   const [wide, setWide] = useState(() => typeof window !== "undefined" && !!window.matchMedia?.(WIDE).matches);
@@ -81,7 +84,10 @@ export function Interview() {
   const setEditorShown = useSessionStore((s) => s.setEditorShown);
   useEffect(() => setEditorShown(wide), [wide, setEditorShown]);
   // Lives here so Python stays loaded from one coding problem to the next.
-  const runner = usePythonRunner();
+  const pythonRunner = usePythonRunner();
+  const jsRunner = usePythonRunner({ createWorker: createJsWorker, language: "javascript" });
+  const codingLanguage = useSessionStore((s) => s.codingLanguage);
+  const runner = codingLanguage === "javascript" ? jsRunner : pythonRunner;
 
   // Voice: ElevenLabs (human-sounding, via the backend) with the browser's
   // built-in voice as the fallback when it isn't configured or a call fails.

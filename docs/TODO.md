@@ -115,8 +115,12 @@ Spec: docs/superpowers/specs/2026-10-28-phase-2a-voice-turns-design.md · Plan: 
       question is still scored); key points of each answer under the verdict (PR, $0 mocked)
 - [ ] 2b live check of the new prompt wording (a few cents of Claude; Karthik: not for now)
 - [ ] 2c: re-check each answer with Deepgram pre-recorded mode to fix misheard words
-- [ ] 2d: Tavus persona uses ElevenLabs "Chris"; video mode gets backchannel and barge-in
-- [ ] 2d: JavaScript in the coding round
+- [ ] 2d: Tavus persona uses ElevenLabs "Chris": no code, a Tavus dashboard setting (Karthik).
+      PAL/persona in echo mode, TTS engine `elevenlabs`, external voice id
+      `iP95p4xoKVk53GoZ742B`, model `eleven_flash_v2_5` (or `eleven_turbo_v2_5`), no api key;
+      new persona id goes in CRUCIBLE_TAVUS_PERSONA_ID. Backchannel and barge-in in video
+      mode dropped: Tavus plays its own audio.
+- [x] 2d: JavaScript in the coding round (Python | JavaScript switch on the editor; $0 to run)
 
 ## Later
 

@@ -8,6 +8,7 @@
   "functionName": "rob",
   "signature": "def rob(nums: list[int]) -> int:",
   "starterCode": "def rob(nums: list[int]) -> int:\n    \"\"\"Return the most money you can take without robbing two adjacent houses.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the most money you can take without robbing two adjacent houses.\n * @param {number[]} nums\n * @return {number}\n */\nfunction rob(nums) {\n\n}\n",
   "examples": [
     {"input": "nums = [2, 9, 3, 8]", "output": "17", "explanation": "Rob the houses holding 9 and 8. Houses 1 and 3 aren't neighbours."},
     {"input": "nums = [4, 1, 1, 9, 1, 1, 4]", "output": "17", "explanation": "Rob the first, fourth and last houses: 4 + 9 + 4. Taking every other house reaches at most 11."},

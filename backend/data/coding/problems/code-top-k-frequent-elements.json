@@ -9,6 +9,7 @@
   "functionName": "top_k_frequent",
   "signature": "def top_k_frequent(nums: List[int], k: int) -> List[int]:",
   "starterCode": "def top_k_frequent(nums: List[int], k: int) -> List[int]:\n    \"\"\"Return the k most frequent values in nums, in any order.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the k most frequent values in nums, in any order.\n * @param {number[]} nums\n * @param {number} k\n * @return {number[]}\n */\nfunction topKFrequent(nums, k) {\n\n}\n",
   "examples": [
     {"input": "nums = [4, 4, 4, 7, 7, 9, 9, 9, 9, 2], k = 2", "output": "[9, 4]", "explanation": "9 appears 4 times and 4 appears 3 times; 7 and 2 appear less often. The order of the answer does not matter."},
     {"input": "nums = [3], k = 1", "output": "[3]", "explanation": "A single value is the most frequent."},

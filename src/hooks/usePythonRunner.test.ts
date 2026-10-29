@@ -28,6 +28,7 @@ const problem: PublicProblem = {
   functionName: "two_sum",
   signature: "def two_sum(nums, target):",
   starterCode: "def two_sum(nums, target):\n    pass\n",
+  starterCodeJs: "function twoSum(nums, target) {}\n",
   examples: [],
   checkArg: null,
   visibleTestCount: 1,
@@ -195,6 +196,39 @@ describe("usePythonRunner", () => {
       void result.current.run("code", problem, false);
     });
     await expect(result.current.run("code", problem, false)).rejects.toThrow("A run is already in progress");
+  });
+
+  it("javascript: a fresh worker after every run, so one run's globals can't leak into the next", async () => {
+    const { result } = renderHook(() => usePythonRunner({ createWorker, language: "javascript" }));
+    act(() => result.current.load());
+    act(() => last().emit({ type: "ready" }));
+    const first = last();
+    let outcome: Promise<unknown> = Promise.resolve();
+    act(() => {
+      outcome = result.current.run("code", problem, true);
+    });
+    const req = first.sent[1];
+    if (req.type !== "run") throw new Error("expected a run request");
+    act(() => first.emit({ type: "result", id: req.id, results: [row] }));
+    await expect(outcome).resolves.toEqual({ kind: "results", results: [row] });
+    expect(first.terminated).toBe(true);
+    expect(workers).toHaveLength(2);
+    expect(result.current.status).toBe("ready");
+
+    // the next run goes straight to the new worker, and the old one's late crash is ignored
+    act(() => {
+      void result.current.run("code", problem, true);
+    });
+    expect(last().sent.at(-1)).toMatchObject({ type: "run", code: "code" });
+    act(() => (first as unknown as Worker).onerror?.({ message: "Uncaught Error: late" } as ErrorEvent));
+    expect(result.current.status).toBe("running");
+  });
+
+  it("names the language in its messages", () => {
+    const { result } = renderHook(() => usePythonRunner({ createWorker, language: "javascript" }));
+    act(() => result.current.load());
+    act(() => (last() as unknown as Worker).onerror?.({ message: "" } as ErrorEvent));
+    expect(result.current.error).toBe("The JavaScript worker crashed");
   });
 
   it("terminates the worker on unmount", () => {

@@ -8,6 +8,7 @@
   "functionName": "build_tree",
   "signature": "def build_tree(preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:",
   "starterCode": "def build_tree(preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:\n    \"\"\"Rebuild the tree from its preorder and inorder values and return the root.\"\"\"\n    pass\n",
+  "starterCodeJs": "// TreeNode is provided: new TreeNode(val, left, right) -> { val, left, right }\n\n/**\n * Rebuild the tree from its preorder and inorder values and return the root.\n * @param {number[]} preorder\n * @param {number[]} inorder\n * @return {TreeNode|null}\n */\nfunction buildTree(preorder, inorder) {\n\n}\n",
   "examples": [
     {"input": "preorder = [1, 2, 4, 3, 5], inorder = [4, 2, 1, 3, 5]", "output": "[1, 2, 3, 4, null, null, 5]", "explanation": "1 comes first in preorder, so it's the root; in inorder, 4 and 2 sit to its left and 3 and 5 to its right."},
     {"input": "preorder = [7], inorder = [7]", "output": "[7]", "explanation": "One value, one node."},

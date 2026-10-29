@@ -8,6 +8,7 @@
   "functionName": "group_anagrams",
   "signature": "def group_anagrams(strs: list[str]) -> list[list[str]]:",
   "starterCode": "def group_anagrams(strs: list[str]) -> list[list[str]]:\n    \"\"\"Return the strings of strs grouped so that each group holds words that are anagrams of each other.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the strings of strs grouped so that each group holds words that are anagrams of each other.\n * @param {string[]} strs\n * @return {string[][]}\n */\nfunction groupAnagrams(strs) {\n\n}\n",
   "examples": [
     {"input": "strs = [\"stop\", \"pots\", \"tops\", \"cat\", \"act\", \"dog\"]", "output": "[[\"stop\", \"pots\", \"tops\"], [\"cat\", \"act\"], [\"dog\"]]", "explanation": "\"stop\", \"pots\" and \"tops\" share letters, as do \"cat\" and \"act\"; \"dog\" stands alone."},
     {"input": "strs = [\"\"]", "output": "[[\"\"]]", "explanation": "A single empty string forms one group by itself."},

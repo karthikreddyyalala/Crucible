@@ -8,6 +8,7 @@
   "functionName": "is_same_tree",
   "signature": "def is_same_tree(p: Optional[TreeNode], q: Optional[TreeNode]) -> bool:",
   "starterCode": "def is_same_tree(p: Optional[TreeNode], q: Optional[TreeNode]) -> bool:\n    \"\"\"Return True if p and q have the same shape and values.\"\"\"\n    pass\n",
+  "starterCodeJs": "// TreeNode is provided: new TreeNode(val, left, right) -> { val, left, right }\n\n/**\n * Return true if p and q have the same shape and values.\n * @param {TreeNode|null} p\n * @param {TreeNode|null} q\n * @return {boolean}\n */\nfunction isSameTree(p, q) {\n\n}\n",
   "examples": [
     {"input": "p = [4, 7, 1], q = [4, 7, 1]", "output": "true", "explanation": "Same shape and the same value in every position."},
     {"input": "p = [4, 7], q = [4, null, 7]", "output": "false", "explanation": "Both trees hold 4 and 7, but 7 is a left child in p and a right child in q."},

@@ -8,6 +8,7 @@
   "functionName": "count_bits",
   "signature": "def count_bits(n: int) -> list[int]:",
   "starterCode": "def count_bits(n: int) -> list[int]:\n    \"\"\"Return the number of 1 bits of every integer from 0 to n, as a list of length n + 1.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the number of 1 bits of every integer from 0 to n, as a list of length n + 1.\n * @param {number} n\n * @return {number[]}\n */\nfunction countBits(n) {\n\n}\n",
   "examples": [
     {"input": "n = 2", "output": "[0, 1, 1]", "explanation": "0 is 0, 1 is 1 and 2 is 10 in binary, so the counts are 0, 1, 1."},
     {"input": "n = 5", "output": "[0, 1, 1, 2, 1, 2]", "explanation": "3 is 11 (two 1s), 4 is 100 (one) and 5 is 101 (two)."},

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { CheckCircle, WarningOctagon, CaretDown, Sparkle, ArrowClockwise, Copy, Check } from "@phosphor-icons/react";
 import type { AnswerEvaluation, PlannedQuestion } from "@/types/contracts";
 import { useCoach } from "@/hooks/useCoach";
+import type { CodingLanguage } from "@/lib/coding/types";
 import { RubricBar } from "./RubricBar";
 import { TypeChip } from "./QuestionMeta";
 
@@ -13,6 +14,7 @@ interface VerdictCardProps {
   // Coding answers: passed to the coach so it can return a clean solution.
   sessionId?: string;
   code?: string;
+  language?: CodingLanguage;
 }
 
 export type TranscriptEntry = { role: "Q" | "A"; text: string };
@@ -41,7 +43,7 @@ export function parseTranscript(raw: string): TranscriptEntry[] | null {
   return entries.length > 0 ? entries : null;
 }
 
-export function VerdictCard({ evaluation, question, index, sessionId, code }: VerdictCardProps) {
+export function VerdictCard({ evaluation, question, index, sessionId, code, language }: VerdictCardProps) {
   const survives = evaluation.wouldSurviveRealInterview;
   const tone = survives ? "var(--color-survive)" : "var(--color-fail)";
   const [transcriptOpen, setTranscriptOpen] = useState(false);
@@ -174,6 +176,7 @@ export function VerdictCard({ evaluation, question, index, sessionId, code }: Ve
                       weaknessTags={evaluation.weaknessTags}
                       sessionId={sessionId}
                       code={code}
+                      language={language}
                     />
                   </div>
                 )}
@@ -252,14 +255,16 @@ function CoachPanel({
   weaknessTags,
   sessionId,
   code,
+  language,
 }: {
   question: PlannedQuestion;
   transcript: string;
   weaknessTags: string[];
   sessionId?: string;
   code?: string;
+  language?: CodingLanguage;
 }) {
-  const { state, load } = useCoach({ question, transcript, weaknessTags, sessionId, code });
+  const { state, load } = useCoach({ question, transcript, weaknessTags, sessionId, code, language });
 
   useEffect(load, []); // eslint-disable-line react-hooks/exhaustive-deps
 

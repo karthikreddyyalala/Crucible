@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { animate, motion, useReducedMotion } from "motion/react";
 import { ArrowClockwise, CaretRight, CheckCircle, CircleNotch, Timer, WarningCircle, XCircle } from "@phosphor-icons/react";
-import type { RunOutcome, TestResult } from "@/lib/coding/types";
+import type { CodingLanguage, RunOutcome, TestResult } from "@/lib/coding/types";
 import type { RunnerStatus } from "@/hooks/usePythonRunner";
 import type { PublicProblem } from "@/lib/coding/types";
 import { describeError, designCalls, formatValue } from "./format";
@@ -21,10 +21,13 @@ interface Props {
   problem: PublicProblem;
   onRetry: () => void;
   shortcut: string;
+  language?: CodingLanguage;
 }
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const LOAD_FAILED = "Couldn't load Python. Check your connection and retry.";
+// JavaScript downloads nothing: an error is its worker dying, never the connection.
+const JS_FAILED = "The JavaScript runner stopped. Restart it and run again.";
 const TIMED_OUT = "Stopped after 5 seconds. This usually means an infinite loop. Your code is safe; try again.";
 
 const passCount = (rows: TestResult[]) => rows.filter((r) => r.passed).length;
@@ -33,25 +36,27 @@ function split(rows: TestResult[], visibleCount: number) {
   return { visible: rows.filter((r) => r.index < visibleCount), hidden: rows.filter((r) => r.index >= visibleCount) };
 }
 
-export function TestResults({ status, progress, loadedBefore, run, problem, onRetry, shortcut }: Props) {
+export function TestResults({ status, progress, loadedBefore, run, problem, onRetry, shortcut, language = "python" }: Props) {
+  const js = language === "javascript";
   const headingId = useId();
   const outcome = run?.outcome;
   const loadError = outcome?.kind === "results" ? outcome.results.find((r) => r.index < 0) : undefined;
   const loading = status === "loading" && outcome?.kind !== "timeout";
-  const loadingLine = loadedBefore ? "Loading Python…" : "Loading Python (first time only, ~10 MB)…";
+  const loadingLine = js ? "Starting JavaScript…" : loadedBefore ? "Loading Python…" : "Loading Python (first time only, ~10 MB)…";
+  const failed = js ? JS_FAILED : LOAD_FAILED;
 
   let body: ReactNode;
   let announce = "";
   if (status === "error") {
-    announce = LOAD_FAILED;
+    announce = failed;
     body = (
-      <Notice icon={<WarningCircle size={18} weight="fill" />} text={LOAD_FAILED}>
+      <Notice icon={<WarningCircle size={18} weight="fill" />} text={failed}>
         <button
           onClick={onRetry}
           className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-lg border border-line-bright px-4 font-sans text-[14px] text-chalk tactile transition-colors hover:border-mist focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >
           <ArrowClockwise size={16} weight="bold" />
-          Retry loading Python
+          {js ? "Restart JavaScript" : "Retry loading Python"}
         </button>
       </Notice>
     );
@@ -95,7 +100,7 @@ export function TestResults({ status, progress, loadedBefore, run, problem, onRe
     const { visible, hidden } = split(outcome.results, problem.visibleTestCount);
     announce = `${passCount(visible)} of ${visible.length} examples passed.`;
     if (hidden.length) announce += ` Hidden tests: ${passCount(hidden)} of ${hidden.length} passed.`;
-    body = <ResultList key={run.seq} rows={outcome.results} problem={problem} />;
+    body = <ResultList key={run.seq} rows={outcome.results} problem={problem} language={language} />;
   }
 
   const running = status === "running";
@@ -126,7 +131,7 @@ export function TestResults({ status, progress, loadedBefore, run, problem, onRe
   );
 }
 
-function ResultList({ rows, problem }: { rows: TestResult[]; problem: PublicProblem }) {
+function ResultList({ rows, problem, language }: { rows: TestResult[]; problem: PublicProblem; language: CodingLanguage }) {
   const reduced = useReducedMotion();
   const { visible, hidden } = split(rows, problem.visibleTestCount);
   const firstFail = visible.find((r) => !r.passed)?.index;
@@ -168,7 +173,7 @@ function ResultList({ rows, problem }: { rows: TestResult[]; problem: PublicProb
       <ul className="space-y-1 border-t border-line pt-2">
         {visible.map((r, i) => (
           <motion.li key={r.index} {...enter(i + 1)}>
-            <TestRow result={r} problem={problem} open={open.has(r.index)} onToggle={() => toggle(r.index)} />
+            <TestRow result={r} problem={problem} language={language} open={open.has(r.index)} onToggle={() => toggle(r.index)} />
           </motion.li>
         ))}
       </ul>
@@ -176,7 +181,19 @@ function ResultList({ rows, problem }: { rows: TestResult[]; problem: PublicProb
   );
 }
 
-function TestRow({ result, problem, open, onToggle }: { result: TestResult; problem: PublicProblem; open: boolean; onToggle: () => void }) {
+function TestRow({
+  result,
+  problem,
+  language,
+  open,
+  onToggle,
+}: {
+  result: TestResult;
+  problem: PublicProblem;
+  language: CodingLanguage;
+  open: boolean;
+  onToggle: () => void;
+}) {
   const detailId = useId();
   const label = (
     <>
@@ -207,7 +224,7 @@ function TestRow({ result, problem, open, onToggle }: { result: TestResult; prob
           transition={{ duration: 0.18 }}
           className="mx-3 mb-2 mt-1 rounded-lg border border-line bg-surface px-4 py-3"
         >
-          <Detail result={result} problem={problem} />
+          <Detail result={result} problem={problem} language={language} />
         </motion.div>
       )}
     </>
@@ -221,7 +238,8 @@ interface DesignArgs {
 const isDesignArgs = (v: unknown): v is DesignArgs =>
   typeof v === "object" && v !== null && Array.isArray((v as DesignArgs).ops) && Array.isArray((v as DesignArgs).args);
 
-function Detail({ result, problem }: { result: TestResult; problem: PublicProblem }) {
+function Detail({ result, problem, language }: { result: TestResult; problem: PublicProblem; language: CodingLanguage }) {
+  const show = (value: unknown) => formatValue(value, language);
   const args = problem.tests[result.index]?.args;
   const error = result.error ? describeError(result.error, false).text : null;
   const design = problem.kind === "design" && isDesignArgs(args);
@@ -230,13 +248,13 @@ function Detail({ result, problem }: { result: TestResult; problem: PublicProble
     <dl className="grid grid-cols-[72px_minmax(0,1fr)] gap-x-4 gap-y-2 font-mono text-[13px] leading-relaxed">
       {design ? (
         <div className="col-span-2">
-          <DesignTable rows={designCalls(args, asList(result.expected), asList(result.got))} />
+          <DesignTable rows={designCalls(args, asList(result.expected), asList(result.got), language)} />
         </div>
       ) : (
         <>
-          <Field term="Input">{problem.examples[result.index]?.input ?? formatValue(args)}</Field>
-          <Field term="Expected">{formatValue(result.expected)}</Field>
-          {!error && <Field term="Got">{formatValue(result.got)}</Field>}
+          <Field term="Input">{problem.examples[result.index]?.input ?? show(args)}</Field>
+          <Field term="Expected">{show(result.expected)}</Field>
+          {!error && <Field term="Got">{show(result.got)}</Field>}
         </>
       )}
       {error && <Field term="Error" tone="text-fail">{error}</Field>}

@@ -9,6 +9,7 @@
   "functionName": "rotate",
   "signature": "def rotate(matrix: list[list[int]]) -> None:",
   "starterCode": "def rotate(matrix: list[list[int]]) -> None:\n    \"\"\"Rotate matrix 90 degrees clockwise, in place. Return nothing.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Rotate matrix 90 degrees clockwise, in place. Return nothing.\n * @param {number[][]} matrix\n * @return {void}\n */\nfunction rotate(matrix) {\n\n}\n",
   "examples": [
     {"input": "matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]", "output": "[[7, 4, 1], [8, 5, 2], [9, 6, 3]]", "explanation": "The left column, read bottom to top, becomes the top row."},
     {"input": "matrix = [[1, 2], [3, 4]]", "output": "[[3, 1], [4, 2]]", "explanation": "The output shows matrix after your function has run."},

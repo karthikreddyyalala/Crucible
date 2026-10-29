@@ -1,20 +1,12 @@
+import { literal } from "@/lib/coding/summary";
+import type { CodingLanguage } from "@/lib/coding/types";
+
 const MAX_VALUE = 1000;
 
-/** A value as Python would print it: None / True / False, lists with ", ". Long values cut short. */
-export function formatValue(value: unknown): string {
-  const text = pythonish(value);
+/** A value as the candidate's language prints it (None / True / False in Python), lists with ", ". Long values cut short. */
+export function formatValue(value: unknown, language: CodingLanguage = "python"): string {
+  const text = literal(value, language);
   return text.length > MAX_VALUE ? `${text.slice(0, MAX_VALUE)}…` : text;
-}
-
-function pythonish(value: unknown): string {
-  if (value === null || value === undefined) return "None";
-  if (value === true) return "True";
-  if (value === false) return "False";
-  if (Array.isArray(value)) return `[${value.map(pythonish).join(", ")}]`;
-  if (typeof value === "object") {
-    return `{${Object.entries(value).map(([k, v]) => `${JSON.stringify(k)}: ${pythonish(v)}`).join(", ")}}`;
-  }
-  return JSON.stringify(value);
 }
 
 /**
@@ -51,12 +43,14 @@ export function designCalls(
   test: { ops: string[]; args: unknown[][] },
   expected: unknown[],
   got: unknown[],
+  language: CodingLanguage = "python",
 ): DesignCall[] {
+  const show = (value: unknown) => formatValue(value, language);
   return test.ops.map((op, i) => {
     const ran = i < got.length;
-    const want = formatValue(expected[i]);
-    const have = ran ? formatValue(got[i]) : "—";
-    return { call: `${op}(${(test.args[i] ?? []).map(formatValue).join(", ")})`, expected: want, got: have, ok: ran && want === have };
+    const want = show(expected[i]);
+    const have = ran ? show(got[i]) : "—";
+    return { call: `${op}(${(test.args[i] ?? []).map(show).join(", ")})`, expected: want, got: have, ok: ran && want === have };
   });
 }
 

@@ -8,6 +8,7 @@
   "functionName": "is_valid_bst",
   "signature": "def is_valid_bst(root: Optional[TreeNode]) -> bool:",
   "starterCode": "def is_valid_bst(root: Optional[TreeNode]) -> bool:\n    \"\"\"Return True if the tree is a valid binary search tree.\"\"\"\n    pass\n",
+  "starterCodeJs": "// TreeNode is provided: new TreeNode(val, left, right) -> { val, left, right }\n\n/**\n * Return true if the tree is a valid binary search tree.\n * @param {TreeNode|null} root\n * @return {boolean}\n */\nfunction isValidBst(root) {\n\n}\n",
   "examples": [
     {"input": "root = [5, 3, 8, 1, 4]", "output": "true", "explanation": "Everything left of 5 is smaller and everything right of it is larger, and the same holds under 3."},
     {"input": "root = [5, 3, 8, 1, 6]", "output": "false", "explanation": "6 is a fine right child for 3, but it sits in 5's left subtree and is larger than 5."},

@@ -8,6 +8,7 @@
   "functionName": "pacific_atlantic",
   "signature": "def pacific_atlantic(heights: list[list[int]]) -> list[list[int]]:",
   "starterCode": "def pacific_atlantic(heights: list[list[int]]) -> list[list[int]]:\n    \"\"\"Return all [row, col] cells whose water can flow to both the Pacific and the Atlantic.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return all [row, col] cells whose water can flow to both the Pacific and the Atlantic.\n * @param {number[][]} heights\n * @return {number[][]}\n */\nfunction pacificAtlantic(heights) {\n\n}\n",
   "examples": [
     {"input": "heights = [[1, 2], [2, 1]]", "output": "[[0, 1], [1, 0]]", "explanation": "[0, 1] touches the Pacific (top) and the Atlantic (right edge). [1, 0] touches the Pacific (left) and the Atlantic (bottom). Each cell of height 1 is boxed in by higher neighbours and reaches only one ocean."},
     {"input": "heights = [[5, 4, 3], [4, 3, 2], [3, 2, 1]]", "output": "[[0, 0], [0, 1], [0, 2], [1, 0], [2, 0]]", "explanation": "Everything slopes down toward the bottom right. The top row and left column touch the Pacific and can still run downhill to the Atlantic; the other cells can never climb back to the Pacific."},

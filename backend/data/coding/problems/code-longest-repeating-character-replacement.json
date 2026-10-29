@@ -8,6 +8,7 @@
   "functionName": "character_replacement",
   "signature": "def character_replacement(s: str, k: int) -> int:",
   "starterCode": "def character_replacement(s: str, k: int) -> int:\n    \"\"\"Return the length of the longest substring that can become all one letter using at most k replacements.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the length of the longest substring that can become all one letter using at most k replacements.\n * @param {string} s\n * @param {number} k\n * @return {number}\n */\nfunction characterReplacement(s, k) {\n\n}\n",
   "examples": [
     {"input": "s = \"CCDCCBBD\", k = 1", "output": "5", "explanation": "Change the single D to C and \"CCDCC\" becomes five Cs."},
     {"input": "s = \"ABCD\", k = 0", "output": "1", "explanation": "With no changes allowed, the longest run of one letter is a single character."},

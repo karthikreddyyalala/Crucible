@@ -73,6 +73,39 @@ describe("Results coach context", () => {
     });
     cardProps.length = 0;
     render(<MemoryRouter><Results /></MemoryRouter>);
-    expect(cardProps.at(-1)).toMatchObject({ sessionId: "s9", code: "def two_sum(): pass" });
+    expect(cardProps.at(-1)).toMatchObject({ sessionId: "s9", code: "def two_sum(): pass", language: "python" });
+  });
+
+  it("gives the JavaScript draft and language when the candidate coded in JavaScript", () => {
+    const codingPlan: QuestionPlan = {
+      sessionId: "s9",
+      questions: [{ id: "c1", type: "coding", prompt: "Two sum.", targetDifficulty: 2, weightedFromWeakness: false, exemplarId: "code-two-sum" }],
+    };
+    useSessionStore.setState({
+      plan: codingPlan, evaluations: [{ ...EVAL, questionId: "c1" }], endedForConduct: false, updatedMemory: MEMORY,
+      codeByQuestion: { c1: "def two_sum(): pass", "c1:javascript": "function twoSum() {}" }, codingLanguage: "javascript",
+    });
+    cardProps.length = 0;
+    render(<MemoryRouter><Results /></MemoryRouter>);
+    expect(cardProps.at(-1)).toMatchObject({ code: "function twoSum() {}", language: "javascript" });
+    useSessionStore.setState({ codingLanguage: "python" });
+  });
+
+  it("gives each question the language it was solved in", () => {
+    const coding = (id: string) =>
+      ({ id, type: "coding", prompt: "Code.", targetDifficulty: 2, weightedFromWeakness: false, exemplarId: "code-two-sum" }) as const;
+    useSessionStore.setState({
+      plan: { sessionId: "s9", questions: [coding("c1"), coding("c2")] },
+      evaluations: [{ ...EVAL, questionId: "c1" }, { ...EVAL, questionId: "c2" }], endedForConduct: false, updatedMemory: MEMORY,
+      codeByQuestion: { c1: "def a(): pass", "c1:javascript": "function a() {}", c2: "def b(): pass", "c2:javascript": "function b() {}" },
+      languageByQuestion: { c1: "python", c2: "javascript" }, codingLanguage: "javascript",
+    });
+    cardProps.length = 0;
+    render(<MemoryRouter><Results /></MemoryRouter>);
+    expect(cardProps.slice(-2)).toMatchObject([
+      { code: "def a(): pass", language: "python" },
+      { code: "function b() {}", language: "javascript" },
+    ]);
+    useSessionStore.setState({ codingLanguage: "python", languageByQuestion: {} });
   });
 });

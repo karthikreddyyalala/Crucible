@@ -8,6 +8,7 @@
   "functionName": "num_islands",
   "signature": "def num_islands(grid: list[list[str]]) -> int:",
   "starterCode": "def num_islands(grid: list[list[str]]) -> int:\n    \"\"\"Return the number of islands of \"1\" cells connected up, down, left or right.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the number of islands of \"1\" cells connected up, down, left or right.\n * @param {string[][]} grid\n * @return {number}\n */\nfunction numIslands(grid) {\n\n}\n",
   "examples": [
     {"input": "grid = [[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"1\",\"0\",\"0\",\"1\",\"0\"],[\"0\",\"0\",\"1\",\"1\",\"0\"],[\"0\",\"0\",\"0\",\"0\",\"1\"]]", "output": "3", "explanation": "The top-left group, the group in the middle right, and the lone cell in the corner. The corner cell only touches the middle group diagonally."},
     {"input": "grid = [[\"1\",\"0\",\"1\"],[\"0\",\"1\",\"0\"],[\"1\",\"0\",\"1\"]]", "output": "5", "explanation": "No two land cells share a side, so each of the five is its own island."},

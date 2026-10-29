@@ -8,6 +8,7 @@
   "functionName": "count_substrings",
   "signature": "def count_substrings(s: str) -> int:",
   "starterCode": "def count_substrings(s: str) -> int:\n    \"\"\"Return how many substrings of s (counted by position) are palindromes.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return how many substrings of s (counted by position) are palindromes.\n * @param {string} s\n * @return {number}\n */\nfunction countSubstrings(s) {\n\n}\n",
   "examples": [
     {"input": "s = \"abc\"", "output": "3", "explanation": "Only the three single letters are palindromes, so the count is 3."},
     {"input": "s = \"aaa\"", "output": "6", "explanation": "The palindromes are a, a, a (three positions), aa, aa (two positions) and aaa: 6 in total."},

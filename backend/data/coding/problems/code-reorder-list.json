@@ -9,6 +9,7 @@
   "functionName": "reorder_list",
   "signature": "def reorder_list(head: Optional[ListNode]) -> None:",
   "starterCode": "def reorder_list(head: Optional[ListNode]) -> None:\n    \"\"\"Reorder the list in place as first, last, second, second-to-last, and so on.\"\"\"\n    pass\n",
+  "starterCodeJs": "// ListNode is provided: new ListNode(val, next) -> { val, next }\n\n/**\n * Reorder the list in place as first, last, second, second-to-last, and so on.\n * @param {ListNode|null} head\n * @return {void}\n */\nfunction reorderList(head) {\n\n}\n",
   "examples": [
     {"input": "head = [1, 2, 3, 4]", "output": "[1, 4, 2, 3]", "explanation": "Front, back, second, second-to-last: 1, 4, 2, 3."},
     {"input": "head = [1, 2, 3, 4, 5]", "output": "[1, 5, 2, 4, 3]", "explanation": "With an odd length, the middle node ends up last."},
