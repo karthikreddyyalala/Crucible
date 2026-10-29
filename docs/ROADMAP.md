@@ -17,13 +17,18 @@ Spec: [superpowers/specs/2026-10-28-phase-1-design.md](superpowers/specs/2026-10
 Why first: live coding is most of a real software interview loop and Crucible couldn't
 practice it; company style is how people actually prepare.
 
-## Phase 2 — feels even more like a person (next; needs a Deepgram account)
+## Phase 2 — feels even more like a person (in progress)
 
-- Semantic end-of-turn detection (Deepgram Flux or LiveKit): knows when you've finished.
-- Barge-in: interrupt Marcus mid-sentence.
-- Instant backchannel ("Mm-hm") while the reply is generated.
-- Tavus video avatar speaks with the same ElevenLabs voice.
-- JavaScript in the coding round.
+Split into four pieces, each with its own spec, plan and PR:
+
+- **2a, conversation feel** (built on `feat/phase-2a-voice-turns`):
+  Deepgram Flux end-of-turn detection, an instant "Mm-hm" while Marcus thinks, and
+  interrupting him mid-sentence. Spec: [superpowers/specs/2026-10-28-phase-2a-voice-turns-design.md](superpowers/specs/2026-10-28-phase-2a-voice-turns-design.md)
+- **2b, smarter Marcus:** skip questions already answered; key points of each answer in
+  the report, next to his verdict (grading still uses the candidate's real words).
+- **2c, accuracy:** after each answer, re-check the recording with Deepgram's pre-recorded
+  mode to fix misheard words ("p99" heard as "page 99"), never tidying the wording.
+- **2d:** Tavus avatar speaks with the same ElevenLabs voice; JavaScript in the coding round.
 
 ## Phase 3 — shows you're improving
 
