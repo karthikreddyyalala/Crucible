@@ -13,3 +13,17 @@ export function silenceBeforeSendMs(transcript: string): number {
   const tail = transcript.trim().replace(/[\s,.…-]+$/, "");
   return MID_THOUGHT.test(tail) ? MID_THOUGHT_SEND_MS : SILENCE_SEND_MS;
 }
+
+// Barge-in: the mic is open while the interviewer talks, so his own voice can leak
+// back in through the speakers, and people say "mm-hm" while listening. Only stop him
+// for at least two words that aren't fillers and aren't words he's saying right now.
+const FILLERS = new Set(["mm", "mmm", "mhm", "hm", "hmm", "uh", "um", "er", "ah", "oh", "ok", "okay", "yeah", "yep", "right", "sure"]);
+
+function words(text: string): string[] {
+  return text.toLowerCase().match(/[a-z0-9']+/g) ?? [];
+}
+
+export function isRealInterruption(heard: string, interviewerLine: string): boolean {
+  const his = new Set(words(interviewerLine));
+  return words(heard).filter((w) => !FILLERS.has(w) && !his.has(w)).length >= 2;
+}
