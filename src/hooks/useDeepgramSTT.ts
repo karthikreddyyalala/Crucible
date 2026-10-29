@@ -10,6 +10,28 @@ import { api } from "@/lib/api";
 
 const LISTEN_URL =
   "wss://api.deepgram.com/v1/listen?model=nova-3&smart_format=true&interim_results=true&endpointing=300";
+
+// Nova-3 keyterm prompting: words an interview is full of that a general model mishears
+// ("idempotent" came back as "eat important" in a live test). The candidate's own skills
+// from their resume are added on top.
+const INTERVIEW_TERMS = [
+  "idempotent", "idempotency", "Kafka", "Kubernetes", "Postgres", "PostgreSQL", "Redis", "DynamoDB",
+  "gRPC", "REST", "GraphQL", "microservices", "monolith", "latency", "throughput", "p99", "SLO",
+  "sharding", "replication", "consistency", "eventual consistency", "cache", "load balancer",
+  "rate limiter", "queue", "pub/sub", "API", "schema", "index", "Big O", "hash map", "linked list",
+  "binary search", "recursion", "memoization", "dynamic programming", "two pointers", "BFS", "DFS",
+  "heap", "trie", "STAR", "stakeholder", "on-call", "postmortem", "RAG", "embeddings", "LLM",
+];
+const MAX_TERMS = 80;
+
+export function listenUrl(extraTerms: readonly string[] = []): string {
+  const seen = new Set<string>();
+  const terms = [...extraTerms, ...INTERVIEW_TERMS]
+    .map((t) => t.trim())
+    .filter((t) => t.length > 1 && t.length <= 40 && !seen.has(t.toLowerCase()) && seen.add(t.toLowerCase()))
+    .slice(0, MAX_TERMS);
+  return LISTEN_URL + terms.map((t) => `&keyterm=${encodeURIComponent(t)}`).join("");
+}
 const OPEN_TIMEOUT_MS = 5_000;
 const CHUNK_MS = 250;
 
@@ -24,7 +46,7 @@ interface DeepgramResult {
   channel?: { alternatives?: { transcript?: string }[] };
 }
 
-export function useDeepgramSTT() {
+export function useDeepgramSTT(keyterms: readonly string[] = []) {
   const supported =
     typeof window !== "undefined" &&
     typeof WebSocket !== "undefined" &&
@@ -38,6 +60,8 @@ export function useDeepgramSTT() {
   const streamRef = useRef<MediaStream | null>(null);
   const finalRef = useRef("");
   const busyRef = useRef(false); // a start in progress or running: never two streams
+  const keytermsRef = useRef(keyterms);
+  keytermsRef.current = keyterms;
 
   const release = useCallback(() => {
     const recorder = recorderRef.current;
@@ -86,7 +110,7 @@ export function useDeepgramSTT() {
     }
     if (!busyRef.current) return cancelled();
 
-    const socket = new WebSocket(LISTEN_URL, ["bearer", token]);
+    const socket = new WebSocket(listenUrl(keytermsRef.current), ["bearer", token]);
     socketRef.current = socket;
     const opened = await new Promise<boolean>((resolve) => {
       const timer = setTimeout(() => resolve(false), OPEN_TIMEOUT_MS);
