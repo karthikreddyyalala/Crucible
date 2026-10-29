@@ -46,7 +46,16 @@ Where we are (all merged to main):
   recognizer if Deepgram can't start. Hooks: src/hooks/useDeepgramSTT.ts,
   useSpeechInput.ts, useSpeechRecognition.ts, useTavus.ts.
 - PR #9: docs/EVAL-RESULTS.md (eval summary, resume bullets) and this prompt.
-- Tests: backend pytest about 1,578 passed / 37 skipped, frontend vitest 241, Playwright 8
+- PR #10: the live site showed "Failed to fetch" on Begin interview. The Lambda had been
+  built with anthropic 2.3, and Bedrock rejected every call ("temperature: Extra inputs are
+  not permitted"). The Anthropic SDK is now pinned to 1.4.0 in both
+  deploy/requirements-lambda.txt and backend/pyproject.toml, and a test fails if they drift.
+  Lesson: after any deploy, read the Lambda's CloudWatch logs (free) before saying it works.
+- PR #11: clear error messages instead of "Failed to fetch", rejected model calls fail fast
+  instead of retrying past API Gateway's 30 s limit, and no em dashes anywhere on screen
+  (including the tab title). The site is deployed with all of this and is shown to
+  recruiters, so nothing may break mid-interview.
+- Tests: backend pytest about 1,581 passed / 37 skipped, frontend vitest 243, Playwright 8
   (npm run test:e2e). Live evals (final): 76/76 decisions, 34/34 survival verdicts.
 - Deploy: deploy/README.md. AWS account 557690618983, region us-west-2, CLI profile
   "crucible". Deploys need CRUCIBLE_COGNITO_USER_POOL_ID and CRUCIBLE_COGNITO_CLIENT_ID in
