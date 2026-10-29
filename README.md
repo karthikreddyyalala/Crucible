@@ -4,6 +4,10 @@ A mock interviewer that talks to you, remembers what you got wrong last time, an
 
 Live app: https://dvbk879zy1q2l.cloudfront.net
 
+[![Watch the 74-second demo of Crucible (sound on)](docs/media/demo-thumbnail.jpg)](https://www.youtube.com/watch?v=BLeKX64la3o)
+
+**Demo (74 s, sound on):** https://www.youtube.com/watch?v=BLeKX64la3o
+
 ## Why I built this
 
 I was practicing for interviews with Claude's and ChatGPT's voice mode. Whatever I said, I heard "that's great" or "you're acing it." It felt nice. It was also useless, because a real interviewer would have stopped me halfway through and asked what I actually did.
