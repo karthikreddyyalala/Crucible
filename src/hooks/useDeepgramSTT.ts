@@ -186,10 +186,11 @@ export function useDeepgramSTT(keyterms: readonly string[] = [], onTurnEnd?: (te
       }
     };
     live.onclose = () => {
-      // Flux that closes before saying anything rejected us: don't try it again this session.
-      if (onFlux && !heard) fluxFailedRef.current = true;
       // Dropped mid-answer (network): keep what was heard and show the mic as off.
+      // A close we didn't ask for (socketRef still points at it) before Flux said
+      // anything means Flux rejected us: don't try it again this session.
       if (socketRef.current === live) {
+        if (onFlux && !heard) fluxFailedRef.current = true;
         release();
         setListening(false);
       }

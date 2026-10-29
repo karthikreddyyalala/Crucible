@@ -183,6 +183,20 @@ describe("useDeepgramSTT on Flux", () => {
     expect(FakeSocket.last.url).toContain("model=nova-3");
   });
 
+  it("keeps Flux when the candidate stops the mic before saying anything", async () => {
+    const { result } = renderHook(() => useDeepgramSTT());
+    await act(async () => {
+      await result.current.start();
+    });
+    const first = FakeSocket.last;
+    act(() => result.current.stop());
+    act(() => first.onclose?.()); // the close we asked for arrives afterwards
+    await act(async () => {
+      await result.current.start();
+    });
+    expect(FakeSocket.last.url).toContain("model=flux-general-en");
+  });
+
   it("stop during connecting is not a Flux failure", async () => {
     const { result } = renderHook(() => useDeepgramSTT());
     await act(async () => {
