@@ -42,6 +42,14 @@ describe("SessionReview chips", () => {
     expect(screen.getByText("Ended early")).toBeInTheDocument();
   });
 
+  it("shows the stored day (not the day before), the level as on the dashboard, and the way back", async () => {
+    await showRecord(RECORD);
+    expect(screen.getByText(/OCTOBER 28, 2026/)).toBeInTheDocument();
+    expect(screen.getByText("mid")).toBeInTheDocument();
+    expect(screen.queryByText(/level/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Your progress" })).toHaveAttribute("href", "/dashboard");
+  });
+
   it("shows neither for an older record", async () => {
     await showRecord(RECORD);
     expect(screen.queryByText("Ended early")).not.toBeInTheDocument();
@@ -66,7 +74,7 @@ describe("SessionReview states", () => {
   it("says when nothing was scored and offers a new interview", async () => {
     await showRecord(RECORD);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("No answers were scored.");
-    expect(screen.getByRole("link", { name: "Start a new interview" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start your next interview" })).toHaveAttribute("href", "/setup");
   });
 
   it("explains a load failure in plain words and retries", async () => {

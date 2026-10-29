@@ -34,7 +34,7 @@ const EVAL: AnswerEvaluation = {
 };
 const CONDUCT_NOTE = "This session ended early because of the conduct of the conversation.";
 
-function show(evaluations: AnswerEvaluation[], endedForConduct: boolean, updatedMemory: MemoryProfile = MEMORY) {
+function show(evaluations: AnswerEvaluation[], endedForConduct: boolean, updatedMemory: MemoryProfile | null = MEMORY) {
   useSessionStore.setState({ plan: PLAN, evaluations, endedForConduct, updatedMemory });
   render(<MemoryRouter><Results /></MemoryRouter>);
 }
@@ -67,7 +67,7 @@ describe("Results takeaway", () => {
       { ...MEMORY, improvementTrend: [{ sessionDate: "2026-10-28", avgScore: 3.2 }] });
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("You held up on 1 of 2 answers.");
     expect(screen.getByText("No edge cases is the next thing to work on.")).toBeInTheDocument();
-    expect(document.body.textContent).toMatch(/Average score 3\.20 \/ 5/);
+    expect(document.body.textContent).toMatch(/Average score 3\.2 of 5/);
   });
 
   it("lists remembered weak spots in plain words under Next to work on", () => {
@@ -80,6 +80,23 @@ describe("Results takeaway", () => {
     expect(screen.getByText("Vague impact")).toBeInTheDocument();
     expect(screen.getByText("Came up 3 times")).toBeInTheDocument();
     expect(screen.queryByText("vague-impact")).not.toBeInTheDocument();
+  });
+});
+
+describe("Results while progress is saving", () => {
+  it("shows a status skeleton, not the empty weak-spot copy or an empty chart", () => {
+    show([EVAL], false, null);
+    expect(screen.getByRole("status")).toHaveTextContent("Updating your progress…");
+    expect(screen.queryByRole("heading", { name: "Next to work on" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/trend line starts/)).not.toBeInTheDocument();
+  });
+
+  it("goes back to your progress from the top bar and clears the finished session", async () => {
+    show([EVAL], false);
+    const link = screen.getAllByRole("link", { name: "Your progress" })[0];
+    expect(link).toHaveAttribute("href", "/dashboard");
+    link.click();
+    expect(useSessionStore.getState().plan).toBeNull();
   });
 });
 

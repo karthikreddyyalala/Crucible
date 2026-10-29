@@ -5,7 +5,14 @@ import { ArrowRight, ArrowClockwise } from "@phosphor-icons/react";
 import { TopBar } from "@/components/TopBar";
 import { SURVIVE_HINT, VerdictCard } from "@/components/VerdictCard";
 import { TrendChart } from "@/components/TrendChart";
-import { humanizeTag } from "@/lib/humanize";
+import {
+  formatAverage,
+  humanizeTag,
+  TREND_HEADING,
+  TREND_HINT,
+  WEAK_SPOT_EMPTY,
+  WEAK_SPOT_HINT,
+} from "@/lib/humanize";
 import { takeaway } from "@/lib/takeaway";
 import { codeKey, languageOf, useSessionStore } from "@/stores/sessionStore";
 
@@ -41,19 +48,7 @@ export function Results() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="min-h-[100dvh]">
-        <TopBar
-          right={
-            <button
-              onClick={() => {
-                reset();
-                navigate("/");
-              }}
-              className={`min-h-11 rounded px-2 font-mono text-[11px] tracking-wide text-mist transition-colors hover:text-chalk ${FOCUS}`}
-            >
-              EXIT
-            </button>
-          }
-        />
+        <TopBar onProgress={reset} />
 
         {/* the takeaway: one sentence, then the one thing to do next */}
         <section className="relative overflow-hidden border-b border-line">
@@ -99,7 +94,7 @@ export function Results() {
 
             {summary && avg !== undefined && (
               <p className="mt-6 font-mono text-sm text-mist">
-                Average score <span className="text-chalk tabular-nums">{avg.toFixed(2)}</span> / 5
+                Average score <span className="text-chalk tabular-nums">{formatAverage(avg)}</span>
               </p>
             )}
           </div>
@@ -132,16 +127,27 @@ export function Results() {
           )}
 
           {/* what carries over to the next interview */}
+          {updatedMemory === null ? (
+            <div
+              role="status"
+              className={`grid gap-10 border-t border-line pt-10 lg:grid-cols-[1fr_1.1fr] ${noAnswers ? "" : "mt-14"}`}
+            >
+              <span className="sr-only">Updating your progress…</span>
+              <div aria-hidden className="animate-pulse space-y-4">
+                <p className="text-sm text-mist">Updating your progress…</p>
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="h-10 rounded bg-surface-2" />
+                ))}
+              </div>
+              <div aria-hidden className="h-40 animate-pulse rounded-2xl bg-surface-2" />
+            </div>
+          ) : (
           <div className={`grid gap-10 border-t border-line pt-10 lg:grid-cols-[1fr_1.1fr] ${noAnswers ? "" : "mt-14"}`}>
             <section>
               <h2 className="font-display text-lg font-semibold tracking-tight text-chalk">Next to work on</h2>
-              <p className="mt-2 text-sm leading-relaxed text-mist">
-                Your next interview comes back to these, so you get to practise them again.
-              </p>
+              <p className="mt-2 text-sm leading-relaxed text-mist">{WEAK_SPOT_HINT}</p>
               {topWeak.length === 0 ? (
-                <p className="mt-5 text-sm text-mist">
-                  Nothing keeps coming up yet. Anything that does will show here.
-                </p>
+                <p className="mt-5 text-sm text-mist">{WEAK_SPOT_EMPTY}</p>
               ) : (
                 <ul className="mt-4 divide-y divide-line">
                   {topWeak.map((w, i) => (
@@ -163,13 +169,14 @@ export function Results() {
             </section>
 
             <section>
-              <h2 className="font-display text-lg font-semibold tracking-tight text-chalk">How you're trending</h2>
-              <p className="mt-2 text-sm text-mist">Average score across your interviews.</p>
+              <h2 className="font-display text-lg font-semibold tracking-tight text-chalk">{TREND_HEADING}</h2>
+              <p className="mt-2 text-sm text-mist">{TREND_HINT}</p>
               <div className="mt-6">
-                <TrendChart points={updatedMemory?.improvementTrend ?? []} />
+                <TrendChart points={updatedMemory.improvementTrend} />
               </div>
             </section>
           </div>
+          )}
 
           {/* next step */}
           <section className="mt-14 border-t border-line pt-10">
@@ -191,7 +198,7 @@ export function Results() {
                 }}
                 className={`inline-flex min-h-11 items-center gap-2 rounded-full border border-line-bright px-6 py-3 text-sm font-semibold text-chalk tactile hover:bg-surface ${FOCUS}`}
               >
-                View your progress
+                Your progress
                 <ArrowRight size={16} weight="bold" aria-hidden />
               </button>
             </div>

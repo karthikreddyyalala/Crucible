@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { Dashboard } from "./Dashboard";
+import { Dashboard, deltaLabel } from "./Dashboard";
 import type { MemoryProfile, SessionSummary } from "@/types/contracts";
 
 vi.mock("@/lib/api", () => ({ api: { getMemory: vi.fn(), listSessions: vi.fn() } }));
@@ -70,6 +70,17 @@ describe("Dashboard", () => {
     expect(screen.getByText("Clear structure")).toBeInTheDocument();
     expect(screen.queryByText("vague-impact")).not.toBeInTheDocument();
     expect(screen.getByRole("img", { name: /oldest first, out of 5: 2.4, 2.9, 3.3/ })).toBeInTheDocument();
+    expect(screen.getByText("3.3 of 5")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Start your next interview/ })).toBeInTheDocument();
+  });
+
+  it("uses a shorter chart for fewer than 3 points", async () => {
+    const api = await mocked();
+    api.getMemory.mockResolvedValue({ ...PROFILE, improvementTrend: PROFILE.improvementTrend.slice(0, 2) });
+    api.listSessions.mockResolvedValue(SESSIONS.slice(0, 2));
+    renderPage();
+    const chart = await screen.findByRole("img", { name: /oldest first/ });
+    expect(chart.getAttribute("viewBox")).toBe("0 0 560 120");
   });
 
   it("says what will appear when there are no sessions, with one action", async () => {
@@ -78,7 +89,7 @@ describe("Dashboard", () => {
     api.listSessions.mockResolvedValue([]);
     renderPage();
     expect(await screen.findByRole("heading", { name: "No sessions yet." })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Start your first session/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Start your first interview/ })).toBeInTheDocument();
   });
 
   it("explains a load failure in plain words and retries", async () => {
@@ -92,5 +103,15 @@ describe("Dashboard", () => {
     await userEvent.click(screen.getByRole("button", { name: "Try again" }));
     expect(await screen.findByRole("heading", { name: "Next to work on" })).toBeInTheDocument();
     expect(api.getMemory).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("deltaLabel", () => {
+  it("says No change when the shown number would be zero", () => {
+    expect(deltaLabel(0)).toBe("No change");
+    expect(deltaLabel(0.04)).toBe("No change");
+    expect(deltaLabel(-0.04)).toBe("No change");
+    expect(deltaLabel(0.4)).toBe("+0.4");
+    expect(deltaLabel(-0.5)).toBe("-0.5");
   });
 });

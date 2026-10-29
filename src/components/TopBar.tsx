@@ -7,7 +7,8 @@ import { useAuthStore } from "@/stores/authStore";
 const QUIET =
   "inline-flex min-h-11 items-center rounded-lg px-2 text-[13px] text-mist transition-colors hover:text-chalk focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
 
-export function TopBar({ right, wide = false }: { right?: ReactNode; wide?: boolean }) {
+// onProgress runs before the "Your progress" link navigates (Results clears the finished session).
+export function TopBar({ right, wide = false, onProgress }: { right?: ReactNode; wide?: boolean; onProgress?: () => void }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const status = useAuthStore((s) => s.status);
@@ -25,7 +26,7 @@ export function TopBar({ right, wide = false }: { right?: ReactNode; wide?: bool
         {!right && (
           <nav aria-label="Account" className="flex items-center gap-2 sm:gap-4">
             {showProgress && (
-              <Link to="/dashboard" className={QUIET}>
+              <Link to="/dashboard" onClick={onProgress} className={QUIET}>
                 Your progress
               </Link>
             )}

@@ -7,7 +7,16 @@ import { TrendChart } from "@/components/TrendChart";
 import { MagneticButton } from "@/components/MagneticButton";
 import { api } from "@/lib/api";
 import { getCandidateId } from "@/lib/identity";
-import { humanizeTag } from "@/lib/humanize";
+import {
+  formatAverage,
+  formatDay,
+  humanizeTag,
+  MODE_LABEL,
+  TREND_HEADING,
+  TREND_HINT,
+  WEAK_SPOT_EMPTY,
+  WEAK_SPOT_HINT,
+} from "@/lib/humanize";
 import {
   dashboardTakeaway,
   dotsLabel,
@@ -118,7 +127,7 @@ function Populated({
 
         <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-5">
           <MagneticButton onClick={onStart}>
-            Start session {summary.sessionsCompleted + 1}
+            Start your next interview
             <ArrowRight size={17} weight="bold" />
           </MagneticButton>
           {targets.length > 0 && (
@@ -131,9 +140,9 @@ function Populated({
 
       <section aria-labelledby="trend-heading" className="border-t border-line pt-8">
         <h2 id="trend-heading" className="font-display text-lg font-semibold tracking-tight text-chalk">
-          How your scores are moving
+          {TREND_HEADING}
         </h2>
-        <p className="mt-1 text-sm text-mist">Average score per session, out of 5.</p>
+        <p className="mt-1 text-sm text-mist">{TREND_HINT}</p>
         <div className="mt-6">
           <TrendChart points={profile.improvementTrend} />
         </div>
@@ -147,6 +156,13 @@ function Populated({
       {sessions.length > 0 && <PastSessions sessions={sessions} onOpen={onOpenSession} />}
     </div>
   );
+}
+
+// Rounds like the number shown, so a tiny change never reads as "+0.0".
+export function deltaLabel(delta: number): string {
+  const shown = delta.toFixed(1);
+  if (Number(shown) === 0) return "No change";
+  return delta > 0 ? `+${shown}` : shown;
 }
 
 // At most three numbers, each in support of the sentence above it.
@@ -163,8 +179,7 @@ function HeadlineNumbers({ summary }: { summary: MemorySummary }) {
         <div>
           <dt className="text-mist">Latest average</dt>
           <dd className="font-mono text-lg font-semibold tabular-nums text-chalk">
-            {latestAvg.toFixed(1)}
-            <span className="ml-1 text-sm font-normal text-mist">of 5</span>
+            {formatAverage(latestAvg)}
           </dd>
         </div>
       )}
@@ -177,8 +192,7 @@ function HeadlineNumbers({ summary }: { summary: MemorySummary }) {
             }`}
           >
             <Icon size={16} weight="bold" aria-hidden />
-            {delta > 0 ? "+" : ""}
-            {delta.toFixed(1)}
+            {deltaLabel(delta)}
           </dd>
         </div>
       )}
@@ -205,12 +219,12 @@ function WeakSpots({ spots, sessionCount }: { spots: WeakSpotHistory[]; sessionC
         Next to work on
       </h2>
       <p className="mt-1 max-w-[52ch] text-sm leading-relaxed text-mist">
-        Your next session asks more about these.
+        {WEAK_SPOT_HINT}
         {sessionCount > 1 && " Each dot is a recent session, oldest on the left."}
       </p>
       {spots.length === 0 ? (
         <p className="mt-5 text-sm text-mist">
-          Nothing keeps coming back. Weak spots appear here once the same one shows up in your answers.
+          {WEAK_SPOT_EMPTY}
         </p>
       ) : (
         <ul className="mt-4 divide-y divide-line">
@@ -281,14 +295,6 @@ function Strengths({ areas }: { areas: string[] }) {
   );
 }
 
-const MODE_LABEL: Record<string, string> = {
-  full: "Full mock",
-  behavioral: "Behavioral",
-  technical: "Technical",
-  system_design: "System design",
-  coding: "Coding",
-};
-
 function PastSessions({
   sessions,
   onOpen,
@@ -326,11 +332,7 @@ function PastSessions({
 }
 
 function SessionRow({ session, onClick }: { session: SessionSummary; onClick: () => void }) {
-  // Dates are YYYY-MM-DD; read them as local days so they don't slip back a day west of UTC.
-  const dateLabel = new Date(`${session.date.slice(0, 10)}T00:00:00`).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
+  const dateLabel = formatDay(session.date, { month: "short", day: "numeric" });
   return (
     <button
       type="button"
@@ -380,7 +382,7 @@ function EmptyState({ onStart }: { onStart: () => void }) {
       </p>
       <div className="mt-8">
         <MagneticButton onClick={onStart}>
-          Start your first session
+          Start your first interview
           <ArrowRight size={17} weight="bold" />
         </MagneticButton>
       </div>
@@ -397,7 +399,7 @@ function ErrorState({ onRetry, onStart }: { onRetry: () => void; onStart: () => 
       </h1>
       <p className="mt-2 text-sm leading-relaxed text-mist">
         This is usually a connection problem. Check you're online and try again. You can still
-        start a new session in the meantime.
+        start an interview in the meantime.
       </p>
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <button
@@ -412,7 +414,7 @@ function ErrorState({ onRetry, onStart }: { onRetry: () => void; onStart: () => 
           onClick={onStart}
           className={`min-h-11 rounded-full px-4 text-sm text-mist transition-colors hover:text-chalk ${FOCUS}`}
         >
-          Start a session
+          Start an interview
         </button>
       </div>
     </section>

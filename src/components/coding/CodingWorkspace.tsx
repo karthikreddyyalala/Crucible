@@ -120,6 +120,7 @@ function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; q
   const recordRun = useSessionStore((s) => s.recordRun);
   const sendCheckin = useSessionStore((s) => s.sendCheckin);
   const messageCount = useSessionStore((s) => s.messages.length);
+  const approaching = useSessionStore((s) => s.codingStage === "approach");
   const checkinDue = useSessionStore(
     (s) => s.status === "live" && s.codingStage === "coding" && !s.checkinSent[questionId],
   );
@@ -190,6 +191,7 @@ function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; q
         status={runner.status}
         pending={pending}
         canReset={!atStarter}
+        quietSubmit={approaching}
         shortcuts={SHORTCUTS}
         hintId={hintId}
         onRun={() => void execute("run")}

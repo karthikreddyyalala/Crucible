@@ -3,6 +3,7 @@ import { session, startSession } from "./helpers";
 
 test("the company style picker shows on Setup and its choice reaches the session", async ({ page }) => {
   await page.goto("/setup");
+  await page.getByRole("button", { name: /More options/ }).click();
   const picker = page.getByRole("group", { name: "Company style" });
   await expect(picker.getByRole("button", { name: /^General/ })).toHaveAttribute("aria-pressed", "true");
   await expect(picker.getByRole("button", { name: /^Amazon-style/ })).toBeVisible();

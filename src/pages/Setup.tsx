@@ -1,8 +1,8 @@
-import { humanizeTag } from "@/lib/humanize";
+import { humanizeTag, MODE_LABEL } from "@/lib/humanize";
 import { useEffect, useId, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
-import { ArrowRight, Sparkle, Brain, UploadSimple, VideoCamera } from "@phosphor-icons/react";
+import { ArrowRight, Sparkle, Brain, CaretDown, UploadSimple, VideoCamera } from "@phosphor-icons/react";
 import { TopBar } from "@/components/TopBar";
 import { MagneticButton } from "@/components/MagneticButton";
 import { useSessionStore } from "@/stores/sessionStore";
@@ -21,13 +21,9 @@ const ROLES = [
   { key: "ai_engineer", label: "AI Engineer", hint: "LLMs, evals, RAG, production ML" },
 ];
 
-const MODES: { key: InterviewMode; label: string }[] = [
-  { key: "full", label: "Full Mock" },
-  { key: "behavioral", label: "Behavioral" },
-  { key: "technical", label: "Technical" },
-  { key: "system_design", label: "System Design" },
-  { key: "coding", label: "Coding" },
-];
+const MODES: { key: InterviewMode; label: string }[] = (
+  ["full", "behavioral", "technical", "system_design", "coding"] as const
+).map((key) => ({ key, label: MODE_LABEL[key] }));
 
 const MODE_HINT: Partial<Record<InterviewMode, string>> = {
   full: "Mixed and adaptive: behavioral, one coding problem, technical & system design.",
@@ -59,6 +55,7 @@ export function Setup() {
   const [resume, setResume] = useState("");
   const [jd, setJd] = useState("");
   const [startError, setStartError] = useState("");
+  const [moreOpen, setMoreOpen] = useState(false);
 
   // surface any persisted weaknesses from a previous session
   useEffect(() => {
@@ -158,6 +155,22 @@ export function Setup() {
             </div>
           </div>
 
+          {/* resume */}
+          <Field
+            label="YOUR RESUME"
+            value={resume}
+            onChange={setResume}
+            placeholder="Paste your full resume: skills, projects, experience, dates. The more detail, the sharper the questions."
+            sample={SAMPLE_RESUME}
+          />
+          <Field
+            label="JOB DESCRIPTION"
+            value={jd}
+            onChange={setJd}
+            placeholder="Paste the full job description: requirements, responsibilities, what they're looking for."
+            sample={SAMPLE_JD}
+          />
+
           {/* mode */}
           <div className="mt-7">
             <p id="mode-label" className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-mist">
@@ -202,8 +215,8 @@ export function Setup() {
                     key={l.key}
                     onClick={() => setLevel(l.key)}
                     aria-pressed={active}
-                    className={`min-h-11 rounded-lg px-5 py-2 font-display text-sm font-semibold tracking-tight tactile transition-colors ${FOCUS} ${
-                      active ? "bg-accent text-void" : "text-mist hover:text-chalk"
+                    className={`min-h-11 rounded-lg border px-5 py-2 font-display text-sm font-semibold tracking-tight tactile transition-colors ${FOCUS} ${
+                      active ? "border-accent bg-accent/10 text-chalk" : "border-transparent text-mist hover:text-chalk"
                     }`}
                   >
                     {l.label}
@@ -216,101 +229,108 @@ export function Setup() {
             </p>
           </div>
 
-          {/* company style */}
-          <div className="mt-7">
-            <p id="company-style-label" className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-mist">
-              COMPANY STYLE
-            </p>
-            <div role="group" aria-labelledby="company-style-label" className="grid gap-3 sm:grid-cols-2">
-              {COMPANY_STYLES.map((c) => {
-                const active = companyStyle === c.id;
-                return (
+          {/* secondary choices, closed by default */}
+          <div className="mt-7 border-t border-line pt-5">
+            <button
+              type="button"
+              onClick={() => setMoreOpen((v) => !v)}
+              aria-expanded={moreOpen}
+              aria-controls="setup-more"
+              className={`inline-flex min-h-11 items-center gap-2 rounded-lg px-1 text-sm text-mist transition-colors hover:text-chalk ${FOCUS}`}
+            >
+              More options
+              <span className="text-xs text-fog">Company style, video</span>
+              <CaretDown
+                size={14}
+                weight="bold"
+                aria-hidden
+                className={`transition-transform duration-200 ${moreOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+            {moreOpen && (
+              <div id="setup-more">
+                {/* company style */}
+                <div className="mt-5">
+                  <p id="company-style-label" className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-mist">
+                    COMPANY STYLE
+                  </p>
+                  <div role="group" aria-labelledby="company-style-label" className="grid gap-3 sm:grid-cols-2">
+                    {COMPANY_STYLES.map((c) => {
+                      const active = companyStyle === c.id;
+                      return (
+                        <button
+                          key={c.id}
+                          onClick={() => setCompanyStyle(c.id)}
+                          aria-pressed={active}
+                          className={`rounded-2xl border p-4 text-left tactile transition-colors ${FOCUS} ${
+                            active
+                              ? "border-accent bg-accent/10"
+                              : "border-line bg-ink hover:border-line-bright"
+                          }`}
+                        >
+                          <span
+                            className={`font-display text-lg font-semibold tracking-tight ${
+                              active ? "text-chalk" : "text-mist"
+                            }`}
+                          >
+                            {c.name}
+                          </span>
+                          <span className="mt-1 block text-xs text-mist">{c.description}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="mt-2 text-xs text-mist">Crucible isn't affiliated with these companies.</p>
+                </div>
+
+                {/* video interview opt-in */}
+                <div className="mt-7">
+                  <p className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-mist">
+                    FORMAT
+                  </p>
                   <button
-                    key={c.id}
-                    onClick={() => setCompanyStyle(c.id)}
-                    aria-pressed={active}
-                    className={`rounded-2xl border p-4 text-left tactile transition-colors ${FOCUS} ${
-                      active
-                        ? "border-accent bg-accent/10"
-                        : "border-line bg-ink hover:border-line-bright"
+                    onClick={() => setUseVideo((v) => !v)}
+                    aria-pressed={useVideo}
+                    className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left tactile transition-colors ${FOCUS} ${
+                      useVideo ? "border-accent bg-accent/10" : "border-line bg-ink hover:border-line-bright"
                     }`}
                   >
+                    <div className="flex items-center gap-3">
+                      <VideoCamera
+                        size={22}
+                        weight={useVideo ? "fill" : "regular"}
+                        className={useVideo ? "text-accent" : "text-fog"}
+                      />
+                      <div>
+                        <span
+                          className={`font-display text-[15px] font-semibold tracking-tight ${
+                            useVideo ? "text-chalk" : "text-mist"
+                          }`}
+                        >
+                          Live video interviewer
+                        </span>
+                        <span className="mt-0.5 block text-xs text-mist">
+                          A real face greets you and asks the questions on camera. Otherwise: voice + a
+                          stylized avatar.
+                        </span>
+                      </div>
+                    </div>
                     <span
-                      className={`font-display text-lg font-semibold tracking-tight ${
-                        active ? "text-chalk" : "text-mist"
+                      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+                        useVideo ? "bg-accent" : "bg-surface-2"
                       }`}
                     >
-                      {c.name}
+                      <span
+                        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white-pure transition-transform ${
+                          useVideo ? "translate-x-[22px]" : "translate-x-0.5"
+                        }`}
+                      />
                     </span>
-                    <span className="mt-1 block text-xs text-mist">{c.description}</span>
                   </button>
-                );
-              })}
-            </div>
-            <p className="mt-2 text-xs text-mist">Crucible isn't affiliated with these companies.</p>
-          </div>
-
-          {/* video interview opt-in */}
-          <div className="mt-7">
-            <p className="mb-2.5 block font-mono text-[11px] tracking-[0.16em] text-mist">
-              FORMAT
-            </p>
-            <button
-              onClick={() => setUseVideo((v) => !v)}
-              aria-pressed={useVideo}
-              className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left tactile transition-colors ${FOCUS} ${
-                useVideo ? "border-accent bg-accent/10" : "border-line bg-ink hover:border-line-bright"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <VideoCamera
-                  size={22}
-                  weight={useVideo ? "fill" : "regular"}
-                  className={useVideo ? "text-accent" : "text-fog"}
-                />
-                <div>
-                  <span
-                    className={`font-display text-[15px] font-semibold tracking-tight ${
-                      useVideo ? "text-chalk" : "text-mist"
-                    }`}
-                  >
-                    Live video interviewer
-                  </span>
-                  <span className="mt-0.5 block text-xs text-mist">
-                    A real face greets you and asks the questions on camera. Otherwise: voice + a
-                    stylized avatar.
-                  </span>
                 </div>
               </div>
-              <span
-                className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
-                  useVideo ? "bg-accent" : "bg-surface-2"
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white-pure transition-transform ${
-                    useVideo ? "translate-x-[22px]" : "translate-x-0.5"
-                  }`}
-                />
-              </span>
-            </button>
+            )}
           </div>
-
-          {/* resume */}
-          <Field
-            label="YOUR RESUME"
-            value={resume}
-            onChange={setResume}
-            placeholder="Paste your full resume: skills, projects, experience, dates. The more detail, the sharper the questions."
-            sample={SAMPLE_RESUME}
-          />
-          <Field
-            label="JOB DESCRIPTION"
-            value={jd}
-            onChange={setJd}
-            placeholder="Paste the full job description: requirements, responsibilities, what they're looking for."
-            sample={SAMPLE_JD}
-          />
 
           <div className="mt-9 flex flex-col items-start gap-3">
             <MagneticButton
@@ -394,23 +414,23 @@ function Field({
 
   return (
     <div className="mt-7">
-      <div className="mb-1 flex flex-wrap items-center justify-between gap-x-3">
+      <div className="mb-1 flex flex-col items-start sm:flex-row sm:items-center sm:justify-between sm:gap-x-3">
         <label htmlFor={id} className="font-mono text-[11px] tracking-[0.16em] text-mist">{label}</label>
-        <div className="flex items-center gap-1">
+        <div className="-ml-2 flex items-center gap-1 sm:ml-0">
           <button
             onClick={() => fileRef.current?.click()}
             disabled={extracting}
             className={`inline-flex min-h-11 items-center gap-1.5 rounded px-2 font-mono text-[11px] text-mist transition-colors hover:text-chalk disabled:opacity-40 ${FOCUS}`}
           >
             <UploadSimple size={13} weight="bold" aria-hidden />
-            {extracting ? "READING…" : "UPLOAD PDF"}
+            {extracting ? "Reading…" : "Upload PDF"}
           </button>
           <button
             onClick={() => replace(sample)}
             className={`inline-flex min-h-11 items-center gap-1.5 rounded px-2 font-mono text-[11px] text-accent transition-opacity hover:opacity-70 ${FOCUS}`}
           >
             <Sparkle size={13} weight="fill" aria-hidden />
-            USE SAMPLE
+            Use sample
           </button>
         </div>
       </div>
@@ -448,7 +468,7 @@ function SidePanel({ starting }: { starting: boolean }) {
     "Your weak spots carry over, so the next session works on them.",
   ];
   return (
-    <aside className="border-t border-line pt-8 lg:sticky lg:top-24 lg:h-fit lg:border-t-0 lg:border-l lg:pl-10 lg:pt-0">
+    <aside className="hidden border-t border-line pt-8 lg:sticky lg:top-24 lg:h-fit lg:border-t-0 lg:border-l lg:block lg:pl-10 lg:pt-0">
       <h2 className="font-display text-lg font-semibold tracking-tight text-chalk">What happens next</h2>
       <ol className="mt-5 space-y-4">
         {steps.map((t, i) => (

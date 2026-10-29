@@ -7,7 +7,7 @@ import { KineticHeadline } from "@/components/KineticHeadline";
 import { Reveal } from "@/components/Reveal";
 
 const FOCUS = "rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
-const QUIET_LINK = `inline-flex min-h-11 items-center px-1 text-[13px] text-mist transition-colors hover:text-chalk ${FOCUS}`;
+const QUIET_LINK = `min-h-11 items-center px-1 text-[13px] text-mist transition-colors hover:text-chalk ${FOCUS}`;
 const H2 =
   "mt-4 font-display text-[clamp(2rem,4.4vw,3.4rem)] font-bold leading-[1.02] tracking-tight text-white-pure";
 const EYEBROW = "font-mono text-xs tracking-[0.2em] text-accent";
@@ -29,7 +29,7 @@ export function Landing() {
               to="/setup"
               className={`inline-flex min-h-11 items-center rounded-full border border-line-bright px-4 text-[13px] text-chalk tactile transition-colors hover:border-fog hover:bg-surface ${FOCUS} focus-visible:rounded-full`}
             >
-              Start a session
+              Start an interview
             </Link>
           </nav>
         </div>
@@ -88,10 +88,10 @@ function HeroSection() {
             className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3"
           >
             <MagneticButton to="/setup">
-              Start a session
+              Start an interview
               <ArrowRight size={17} weight="bold" aria-hidden />
             </MagneticButton>
-            <a href="#how" className={QUIET_LINK}>
+            <a href="#how" className={`inline-flex ${QUIET_LINK}`}>
               See how it works
             </a>
           </motion.div>
@@ -247,6 +247,7 @@ function CoverageSection() {
     { k: "Behavioral", d: "Clear structure, specifics, and what you owned, not rehearsed lines." },
     { k: "Technical", d: "Correctness, depth, edge cases, and whether you can explain how it works." },
     { k: "System design", d: "Asking about scope, naming tradeoffs out loud, and reasoning at scale." },
+    { k: "Coding", d: "Live problems in Python or JavaScript, run against real tests, then talked through." },
   ];
   return (
     <section className="mx-auto max-w-[1200px] px-5 py-28 sm:px-8">
@@ -283,7 +284,7 @@ function FinalCta() {
         </p>
         <div className="mt-10 flex justify-center">
           <MagneticButton to="/setup">
-            Start your first session
+            Start your first interview
             <ArrowRight size={17} weight="bold" aria-hidden />
           </MagneticButton>
         </div>
@@ -298,10 +299,10 @@ function Footer() {
       <div className="mx-auto flex max-w-[1200px] flex-col items-center justify-between gap-4 px-5 sm:flex-row sm:px-8">
         <Wordmark />
         <nav aria-label="Footer" className="flex items-center gap-4">
-          <Link to="/dashboard" className={QUIET_LINK}>
+          <Link to="/dashboard" className={`inline-flex ${QUIET_LINK}`}>
             Your progress
           </Link>
-          <Link to="/privacy" className={QUIET_LINK}>
+          <Link to="/privacy" className={`inline-flex ${QUIET_LINK}`}>
             Privacy & terms
           </Link>
         </nav>

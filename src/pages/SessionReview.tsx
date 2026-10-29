@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion, MotionConfig } from "motion/react";
-import { ArrowLeft, ArrowClockwise } from "@phosphor-icons/react";
+import { ArrowClockwise, ArrowRight } from "@phosphor-icons/react";
 import { TopBar } from "@/components/TopBar";
 import { SURVIVE_HINT, VerdictCard } from "@/components/VerdictCard";
 import { api } from "@/lib/api";
 import { getCandidateId } from "@/lib/identity";
 import { COMPANY_STYLES } from "@/lib/companyStyles";
 import { takeaway } from "@/lib/takeaway";
+import { formatDay, MODE_LABEL } from "@/lib/humanize";
 import type { SessionRecord } from "@/types/contracts";
 
 type LoadState =
@@ -15,14 +16,6 @@ type LoadState =
   | { phase: "missing" }
   | { phase: "error" }
   | { phase: "ready"; record: SessionRecord };
-
-const MODE_LABEL: Record<string, string> = {
-  full: "Full Mock",
-  behavioral: "Behavioral",
-  technical: "Technical",
-  system_design: "System Design",
-  coding: "Coding",
-};
 
 const FOCUS = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-void";
 const PRIMARY = `inline-flex min-h-11 items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-void tactile ${FOCUS}`;
@@ -57,34 +50,24 @@ export function SessionReview() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="min-h-[100dvh]">
-        <TopBar
-          right={
-            <Link
-              to="/dashboard"
-              className={`inline-flex min-h-11 items-center gap-1.5 rounded px-2 font-mono text-[11px] tracking-wide text-mist transition-colors hover:text-chalk ${FOCUS}`}
-            >
-              <ArrowLeft size={13} weight="bold" aria-hidden />
-              DASHBOARD
-            </Link>
-          }
-        />
+        <TopBar />
         <main className="mx-auto max-w-[1000px] px-4 py-12 sm:px-8">
           {state.phase === "loading" && <ReviewSkeleton />}
           {state.phase === "error" && (
             <Message
               text="Couldn't load this session."
-              sub="It may be a connection problem. Try again, or head back to your dashboard."
+              sub="It may be a connection problem. Try again, or head back to your progress."
             >
               <button type="button" onClick={() => setAttempt((n) => n + 1)} className={PRIMARY}>
                 <ArrowClockwise size={14} weight="bold" aria-hidden />
                 Try again
               </button>
-              <Link to="/dashboard" className={SECONDARY}>Back to your dashboard</Link>
+              <Link to="/dashboard" className={SECONDARY}>Back to your progress</Link>
             </Message>
           )}
           {state.phase === "missing" && (
             <Message text="Session not found." sub="It may have been cleared, or the link is wrong.">
-              <Link to="/dashboard" className={PRIMARY}>Back to your dashboard</Link>
+              <Link to="/dashboard" className={PRIMARY}>Back to your progress</Link>
             </Message>
           )}
           {state.phase === "ready" && <Loaded record={state.record} />}
@@ -96,7 +79,7 @@ export function SessionReview() {
 
 function Loaded({ record }: { record: SessionRecord }) {
   const summary = record.evaluations.length > 0 ? takeaway(record.evaluations, record.questions) : null;
-  const date = new Date(record.date).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
+  const date = formatDay(record.date, { month: "long", day: "numeric", year: "numeric" });
 
   return (
     <div>
@@ -110,7 +93,7 @@ function Loaded({ record }: { record: SessionRecord }) {
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Chip label={MODE_LABEL[record.mode] ?? record.mode} />
-          <Chip label={`${record.level} level`} />
+          <Chip label={record.level} />
           {record.companyStyle && (
             <Chip label={COMPANY_STYLES.find((c) => c.id === record.companyStyle)?.name ?? record.companyStyle} />
           )}
@@ -131,11 +114,14 @@ function Loaded({ record }: { record: SessionRecord }) {
             })}
           </div>
         </section>
-      ) : (
-        <div className="mt-10 border-t border-line pt-8">
-          <Link to="/setup" className={PRIMARY}>Start a new interview</Link>
-        </div>
-      )}
+      ) : null}
+
+      <div className="mt-12 border-t border-line pt-8">
+        <Link to="/setup" className={PRIMARY}>
+          Start your next interview
+          <ArrowRight size={16} weight="bold" aria-hidden />
+        </Link>
+      </div>
     </div>
   );
 }

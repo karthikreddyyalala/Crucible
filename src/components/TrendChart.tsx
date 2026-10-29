@@ -15,13 +15,14 @@ export function TrendChart({ points }: { points: TrendPoint[] }) {
   if (points.length === 0) {
     return (
       <div className="grid h-40 place-items-center rounded-2xl border border-dashed border-line px-4 text-center text-sm text-mist">
-        Your trend line starts after your first session.
+        Your trend line starts after your first interview.
       </div>
     );
   }
 
   const w = 560;
-  const h = 180;
+  // One or two points don't need the full height.
+  const h = points.length < 3 ? 120 : 180;
   const pad = 28;
   const maxScore = 5;
   const xs = (i: number) =>

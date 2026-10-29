@@ -264,8 +264,9 @@ export function Interview() {
     : phase === "closing" ? "YOUR QUESTIONS FOR THE INTERVIEWER"
     : null;
   const total = plan.questions.length;
-  const progressPct =
-    phase === "closing" ? 100 : inQuestions ? (currentIdx / total) * 100 : 0;
+  // total planned questions plus your-questions at the end: Q1 already shows some progress.
+  const progress =
+    phase === "closing" ? 1 : inQuestions ? (currentIdx + 1) / (total + 1) : 0;
 
   const avatarState: AvatarState = tts.speaking
     ? "speaking"
@@ -431,6 +432,8 @@ export function Interview() {
                 ? "Your results haven't saved yet. Try again above."
                 : status === "wrapping" || status === "complete"
                 ? "Interview complete. Saving your results…"
+                : phase === "closing"
+                ? "Ask Marcus anything about the role"
                 : compact
                 ? "Talk through your thinking, or ask Marcus a question."
                 : "Type or speak your answer. Be specific."
@@ -599,7 +602,7 @@ export function Interview() {
             )}
             {USE_MOCK && (
               <span
-                className="hidden rounded-full border border-warning/40 px-2.5 py-1 font-mono text-[10px] tracking-[0.14em] text-warning sm:inline"
+                className="hidden rounded-full border border-line px-2.5 py-1 font-mono text-[10px] tracking-[0.14em] text-mist sm:inline"
                 title="No backend connected: replies are scripted, not generated. Set VITE_USE_MOCK=false to use the real interviewer."
               >
                 DEMO MODE
@@ -616,8 +619,9 @@ export function Interview() {
             )}
             <div aria-hidden className="hidden h-1.5 w-28 overflow-hidden rounded-full bg-surface-2 sm:block">
               <motion.div
-                className="h-full rounded-full bg-accent"
-                animate={{ width: `${progressPct}%` }}
+                className="h-full origin-left rounded-full bg-accent"
+                initial={false}
+                animate={{ scaleX: progress }}
                 transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.6 }}
               />
             </div>

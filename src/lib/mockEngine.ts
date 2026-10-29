@@ -362,8 +362,13 @@ function scoreAnswer(
 }
 
 // Demo stand-in for the evaluator's keyPoints: the first few sentences, trimmed to 14 words.
+// Only the candidate's own lines count; Marcus's "Q: " lines are never "what you said".
 function keyPointsOf(answer: string): string[] {
   return answer
+    .split(/\n(?=[QA]: )/)
+    .filter((seg) => !seg.startsWith("Q: "))
+    .map((seg) => seg.replace(/^A: /, ""))
+    .join(" ")
     .split(/(?<=[.!?])\s+/)
     .map((s) => s.trim().split(/\s+/).slice(0, 14).join(" ").replace(/[.!?]+$/, ""))
     .filter((s) => s.split(" ").length >= 3)

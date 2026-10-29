@@ -149,13 +149,36 @@ afterEach(() => {
 });
 
 describe("Interview", () => {
+  it("makes Submit the primary button once coding starts", async () => {
+    setScreen(true);
+    start(coding, { codingStage: "coding" });
+    await screen.findByRole("heading", { name: "Two Sum" });
+    expect(screen.getByRole("button", { name: /^Submit/ }).className).toContain("bg-accent");
+  });
+
+  it("shows some progress on the first question, and invites questions in the closing phase", () => {
+    setScreen(true);
+    const view = start(behavioral, { plan: { sessionId: "s1", questions: [behavioral, { ...behavioral, id: "q2" }, { ...behavioral, id: "q3" }] } });
+    const bar = document.querySelector(".origin-left") as HTMLElement;
+    expect(bar.style.transform).toBe("scaleX(0.25)");
+    view.unmount();
+
+    start(behavioral, { phase: "closing" });
+    expect(screen.getByRole("textbox", { name: "Your answer" })).toHaveAttribute(
+      "placeholder",
+      "Ask Marcus anything about the role",
+    );
+  });
+
   it("opens the coding workspace for a coding question on a wide screen", async () => {
     setScreen(true);
     start(coding);
     expect(await screen.findByRole("heading", { name: "Two Sum" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Run/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Submit/ })).toBeInTheDocument();
-    expect(screen.getByText("Stage 1 of 3: Approach")).toBeInTheDocument();
+    expect(document.body).toHaveTextContent("Step 1 of 3: Approach");
+    // Submit is secondary while the approach is being talked through.
+    expect(screen.getByRole("button", { name: /^Submit/ }).className).not.toContain("bg-accent");
     expect(screen.getByRole("textbox", { name: "Your answer" })).toBeInTheDocument();
     expect(screen.getByText("Let's do a coding problem.")).toBeInTheDocument();
   });

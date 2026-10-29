@@ -16,7 +16,7 @@ test("a junior coding round: solve, run, submit, review", async ({ page }) => {
 
   await page.getByRole("button", { name: "Submit", exact: true }).click();
   await expect(page.getByText(`Hidden tests: ${hidden} of ${hidden} passed`, { exact: true })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText("Stage 3 of 3: Review")).toBeAttached();
+  await expect(page.getByText("Step 3 of 3: Review")).toBeAttached();
   await expect(page.getByText("Okay, it passes. What's the time and space complexity?")).toBeVisible();
   expect((await session(page)).codingStage).toBe("review");
 });

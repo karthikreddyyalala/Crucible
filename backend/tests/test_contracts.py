@@ -108,9 +108,13 @@ def test_answer_evaluation_key_points_default_and_alias():
     assert ev.model_dump(by_alias=True)["keyPoints"] == ["a"]
 
 
-def test_evaluator_prompt_asks_for_key_points():
+def test_evaluator_prompt_asks_for_key_points_from_the_candidate_only():
     from pathlib import Path
-    assert "keyPoints" in (Path(__file__).parent.parent / "prompts" / "evaluator.md").read_text()
+    prompt = (Path(__file__).parent.parent / "prompts" / "evaluator.md").read_text()
+    assert "keyPoints" in prompt
+    key_points = prompt[prompt.index("- keyPoints"):].split("\n- ")[0]
+    assert "only" in key_points and "A: lines" in key_points
+    assert "never from the interviewer" in key_points
 
 
 def test_session_summary_weakness_tags_union_and_old_default():
