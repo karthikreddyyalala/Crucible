@@ -100,8 +100,8 @@ Spec: docs/superpowers/specs/2026-10-28-phase-2a-voice-turns-design.md · Plan: 
       voice-only mode (clips load from public/backchannel/)
 - [x] Barge-in on Flux: mic stays open while Marcus talks; 2+ new non-filler words stop him
 - [x] Mocked tests: vitest, pytest for the clip script, Playwright 8/8 (all $0)
-- [ ] Karthik OK: make the 3 clips (`cd backend && python -m cli.make_backchannel_clips`,
-      ElevenLabs, about 20 characters)
+- [x] Made the 3 clips (`cd backend && python -m cli.make_backchannel_clips`), 2026-10-29.
+      About 20 characters on the Creator plan's monthly allowance, no extra charge
 - [ ] Karthik OK: ~10 min live voice check (about $0.10 Deepgram, plus Marcus's Claude calls
       if run against the real backend). Confirms Flux accepts our browser token and keyterms
       on /v2, and that Marcus's own voice through speakers never stops him
