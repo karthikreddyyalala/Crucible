@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   DailyCall,
   DailyEventObjectAppMessage,
@@ -50,6 +50,15 @@ export function useTavus() {
     const call = callRef.current;
     callRef.current = null;
     conversationIdRef.current = null;
+    if (audioElRef.current) {
+      audioElRef.current.pause();
+      audioElRef.current.srcObject = null;
+      audioElRef.current = null;
+    }
+    setVideoTrack(null);
+    setSpeaking(false);
+    // Everything above is synchronous on purpose: a new activate() may start the
+    // moment this returns control. Only leaving the old room is awaited.
     if (call) {
       try {
         await call.leave();
@@ -58,13 +67,6 @@ export function useTavus() {
         /* already torn down */
       }
     }
-    if (audioElRef.current) {
-      audioElRef.current.pause();
-      audioElRef.current.srcObject = null;
-      audioElRef.current = null;
-    }
-    setVideoTrack(null);
-    setSpeaking(false);
   }, []);
 
   const activate = useCallback(async () => {
@@ -77,8 +79,8 @@ export function useTavus() {
       if (stale()) return;
       if (err) console.error("[useTavus] activation failed:", err);
       attemptRef.current += 1; // anything still in flight for this attempt stops
-      await teardown();
       setStatus("error");
+      await teardown();
     };
     timeoutRef.current = setTimeout(() => void fail(new Error("the avatar didn't join in time")), READY_TIMEOUT_MS);
 
@@ -138,6 +140,16 @@ export function useTavus() {
     }
   }, [setStatus, teardown]);
 
+  // Closing or reloading the tab skips React cleanup, which would leave the
+  // conversation billing until Tavus times it out. endAvatarSession uses keepalive.
+  useEffect(() => {
+    const onPageHide = () => {
+      if (conversationIdRef.current) void api.endAvatarSession(conversationIdRef.current);
+    };
+    window.addEventListener("pagehide", onPageHide);
+    return () => window.removeEventListener("pagehide", onPageHide);
+  }, []);
+
   // Echo mode: tell the replica exactly what to say (agents stay in control).
   const speak = useCallback((text: string) => {
     const call = callRef.current;
@@ -156,8 +168,8 @@ export function useTavus() {
 
   const deactivate = useCallback(async () => {
     attemptRef.current += 1; // cancels an activation that's still in flight
+    setStatus("idle"); // before any await, so an immediate activate() can start
     await teardown();
-    setStatus("idle");
   }, [setStatus, teardown]);
 
   const ready = status === "ready";

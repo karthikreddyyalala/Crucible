@@ -104,4 +104,27 @@ describe("useTavus", () => {
     });
     expect(result.current.status).toBe("error");
   });
+
+  it("connects when turned off and straight back on (React's dev remount does exactly this)", async () => {
+    const { result } = renderHook(() => useTavus());
+    await act(async () => {
+      void result.current.activate();
+      void result.current.deactivate();
+      await result.current.activate();
+    });
+    expect(avatarSession).toHaveBeenCalledTimes(2);
+    expect(result.current.status).toBe("connecting");
+    act(() => replicaVideo());
+    expect(result.current.status).toBe("ready");
+  });
+
+  it("ends the billed conversation when the tab is closed or reloaded", async () => {
+    const { result } = renderHook(() => useTavus());
+    await act(async () => {
+      await result.current.activate();
+    });
+    act(() => replicaVideo());
+    window.dispatchEvent(new Event("pagehide"));
+    expect(endAvatarSession).toHaveBeenCalledWith("c1");
+  });
 });
