@@ -172,7 +172,7 @@ function currentCoding(s: SessionState): PlannedQuestion | null {
 // The server's request limits (TurnRequest / EvaluateRequest in backend/routes/session.py).
 // Bigger values are cut, never sent as-is: a rejected request would get re-sent forever.
 // Threads keep their latest part; code and summaries their start.
-const LIMIT = { code: 20_000, testResults: 4_000, thread: 40_000 };
+const LIMIT = { code: 20_000, testResults: 4_000, thread: 40_000, earlier: 3_000 };
 
 function fitEval(p: PendingEval): PendingEval {
   return {
@@ -291,6 +291,14 @@ export const useSessionStore = create<SessionState>()(
           .filter((m) => m.questionId === threadId)
           .map((m) => `${m.speaker === "interviewer" ? "Q" : "A"}: ${m.text}`)
           .join("\n");
+        // What they've said elsewhere (not this thread, small talk or closing); only a new question can use it.
+        const earlier = nextQuestion
+          ? state.messages
+              .filter((m) => m.speaker === "candidate" && m.questionId !== threadId && m.questionId !== "intro" && m.questionId !== "closing")
+              .map((m) => m.text)
+              .join("\n")
+              .slice(-LIMIT.earlier)
+          : "";
         // An event turn sends the thread as it stands, ending with Marcus's last line.
         const thread = event ? priorThread : priorThread ? `${priorThread}\nA: ${text}` : text;
 
@@ -313,6 +321,7 @@ export const useSessionStore = create<SessionState>()(
             isLast,
             phase,
             nextQuestion,
+            earlier,
             candidateName: state.nameUsable ? state.candidateName : "",
             mode: state.mode,
             level: state.level,

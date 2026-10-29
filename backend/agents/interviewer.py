@@ -58,6 +58,7 @@ class InterviewerAgent:
         coding_stage: str = "",
         event: str = "",
         company_note: str = "",
+        earlier: str = "",
     ) -> InterviewDecision:
         user = (
             f"Phase: {phase}\n"
@@ -78,6 +79,9 @@ class InterviewerAgent:
             f"isLastQuestion: {'true' if is_last_question else 'false'}\n"
             + (f"Next question ({next_question.type}):\n{wrap_untrusted('next_question', next_question.prompt)}\n"
                if next_question else "")
+            # Only useful when Marcus can ask something new; fenced because it is the candidate's text.
+            + (f"Earlier in this interview (the candidate's own words):\n{wrap_untrusted('earlier_answers', earlier)}\n"
+               if next_question and earlier else "")
             + (f"Coding stage: {coding_stage}\n" if coding_stage else "")
             + (f"Event: {event}\n" if event else "")
             # Editor text and test summary come from the browser: fenced like the answer.

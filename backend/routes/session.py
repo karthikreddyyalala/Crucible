@@ -116,6 +116,7 @@ class TurnRequest(_Base):
     # and who it's talking to. All optional so older clients keep working.
     phase: Literal["warmup", "background", "question", "closing"] = "question"
     next_question: ClientQuestion | None = None
+    earlier: str = Field("", max_length=4000)  # the candidate's replies from other threads, for building on
     candidate_name: str = Field("", max_length=80)
     mode: Literal["", "full", "behavioral", "technical", "system_design", "coding"] = ""
     level: Literal["", "junior", "mid", "senior"] = ""
@@ -331,6 +332,7 @@ def build_session_router(
             follow_up_count=req.follow_up_count,
             is_last_question=req.is_last,
             next_question=req.next_question,
+            earlier=req.earlier,
             phase=req.phase,
             role_context=_role_context(req.profile),
             # A flagged name is never an error (real names trip the filter): Marcus just doesn't use one.

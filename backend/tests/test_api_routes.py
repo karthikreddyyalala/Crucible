@@ -212,6 +212,22 @@ def test_turn_forwards_phase_next_question_and_role_context_to_interviewer():
     assert "Karthik" in seen["user"]
 
 
+def test_turn_passes_earlier_answers_to_the_interviewer_and_caps_them():
+    seen: dict = {}
+
+    class _Spy(_FakeLLM):
+        def structured(self, **kw):
+            seen["user"] = kw["user"]
+            return super().structured(**kw)
+
+    client = TestClient(create_app(llm=_Spy({"InterviewDecision": _DECISION_ADVANCE}), store=InMemoryStore()))
+    body = {"question": _QUESTION_BODY, "answer": "ok", "followUpCount": 1, "isLast": False,
+            "nextQuestion": _QUESTION_BODY, "earlier": "I led the payments migration"}
+    assert client.post("/api/session/turn", json=body).status_code == 200
+    assert "<earlier_answers>\nI led the payments migration\n</earlier_answers>" in seen["user"]
+    assert client.post("/api/session/turn", json={**body, "earlier": "x" * 4001}).status_code == 422
+
+
 def test_finalize_returns_memory_profile():
     client = _client({"MemoryProfile": _MEMORY})
     res = client.post(
