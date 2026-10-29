@@ -17,7 +17,7 @@ function formatAuthError(e: unknown): string {
     case "UserNotFoundException":         return "No account found with that email.";
     case "NotAuthorizedException":        return "Incorrect email or password.";
     case "UsernameExistsException":       return "An account with that email already exists.";
-    case "CodeMismatchException":         return "Incorrect code — check your email.";
+    case "CodeMismatchException":         return "Incorrect code. Check your email.";
     case "ExpiredCodeException":          return "That code has expired. Request a new one.";
     case "LimitExceededException":        return "Too many attempts. Wait a few minutes and try again.";
     case "InvalidParameterException":     return "Check your email and password format.";

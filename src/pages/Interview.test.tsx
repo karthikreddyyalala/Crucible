@@ -172,7 +172,7 @@ describe("Interview", () => {
     start(coding, { status: "thinking", eventInFlight: true });
     const composer = await screen.findByRole("textbox", { name: "Your answer" });
     expect(composer).toBeEnabled();
-    expect(composer).toHaveAttribute("placeholder", "Marcus is looking at your run — you can keep typing.");
+    expect(composer).toHaveAttribute("placeholder", "Marcus is looking at your run. You can keep typing.");
   });
 
   it("locks the composer while Marcus answers the candidate's own message", async () => {

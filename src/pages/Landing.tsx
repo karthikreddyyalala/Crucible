@@ -123,7 +123,7 @@ function HeroDevice() {
   const lines = [
     { who: "iv", t: "Tell me about a project you owned under a tight deadline." },
     { who: "you", t: "We had a deadline and I made sure the team stayed focused and we shipped." },
-    { who: "iv", t: "You said \"the team\" — what did YOU specifically do that nobody else did?", probe: true },
+    { who: "iv", t: "You said \"the team\". What did YOU specifically do that nobody else did?", probe: true },
   ];
   return (
     <motion.div
@@ -213,7 +213,7 @@ function PushbackSection() {
   return (
     <section id="how" className="relative mx-auto max-w-[1200px] px-5 py-28 sm:px-8">
       <Reveal>
-        <span className="font-mono text-xs tracking-[0.2em] text-accent">01 — THE DIFFERENCE</span>
+        <span className="font-mono text-xs tracking-[0.2em] text-accent">01 · THE DIFFERENCE</span>
         <h2 className="mt-4 max-w-[18ch] font-display text-[clamp(2rem,4.4vw,3.4rem)] font-bold leading-[1.02] tracking-tight text-white-pure">
           It refuses to say "great answer."
         </h2>
@@ -243,7 +243,7 @@ function PushbackSection() {
             <span className="font-mono text-[11px] tracking-[0.16em] text-accent">CRUCIBLE</span>
             <Lightning size={28} weight="fill" className="mt-5 text-accent" />
             <p className="mt-3 text-lg leading-relaxed text-chalk">
-              "You said 'the team stayed focused' — what did <em>you</em> specifically do,
+              "You said 'the team stayed focused'. What did <em>you</em> specifically do,
               and what changed because you did it?"
             </p>
             <p className="mt-6 font-mono text-xs leading-relaxed text-fog">
@@ -282,7 +282,7 @@ function MemoryLoopSection() {
     <section className="relative border-t border-line bg-ink/40 py-28">
       <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
         <Reveal>
-          <span className="font-mono text-xs tracking-[0.2em] text-accent">02 — THE MEMORY LOOP</span>
+          <span className="font-mono text-xs tracking-[0.2em] text-accent">02 · THE MEMORY LOOP</span>
           <h2 className="mt-4 max-w-[20ch] font-display text-[clamp(2rem,4.4vw,3.4rem)] font-bold leading-[1.02] tracking-tight text-white-pure">
             The only one that trains you across sessions.
           </h2>
@@ -319,14 +319,14 @@ function MemoryLoopSection() {
 
 function CoverageSection() {
   const cols = [
-    { k: "BEHAVIORAL", d: "STAR structure, specificity, real ownership — not rehearsed platitudes." },
+    { k: "BEHAVIORAL", d: "STAR structure, specificity, real ownership, not rehearsed platitudes." },
     { k: "TECHNICAL", d: "Correctness, depth, edge cases, and whether you can explain the mechanism." },
     { k: "SYSTEM DESIGN", d: "Scope clarification, tradeoffs named out loud, and reasoning at scale." },
   ];
   return (
     <section className="mx-auto max-w-[1200px] px-5 py-28 sm:px-8">
       <Reveal>
-        <span className="font-mono text-xs tracking-[0.2em] text-accent">03 — ONE ENGINE</span>
+        <span className="font-mono text-xs tracking-[0.2em] text-accent">03 · ONE ENGINE</span>
         <h2 className="mt-4 max-w-[24ch] font-display text-[clamp(2rem,4.4vw,3.4rem)] font-bold leading-[1.02] tracking-tight text-white-pure">
           Stop stitching three tools together.
         </h2>

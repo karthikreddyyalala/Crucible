@@ -272,7 +272,7 @@ export function Interview() {
   const voiceStatus = tts.speaking
     ? "INTERVIEWER SPEAKING…"
     : stt.listening
-    ? "LISTENING — JUST PAUSE WHEN YOU'RE DONE"
+    ? "LISTENING · JUST PAUSE WHEN YOU'RE DONE"
     : "VOICE ON";
 
   const tooLong = draft.length > ANSWER_LIMIT;
@@ -333,16 +333,16 @@ export function Interview() {
               stt.listening
                 ? "Listening…"
                 : thinking && eventInFlight
-                ? "Marcus is looking at your run — you can keep typing."
+                ? "Marcus is looking at your run. You can keep typing."
                 : thinking
                 ? "Interviewer is thinking…"
                 : status === "wrapping" && turnError
-                ? "Couldn't pull your results — tap retry above."
+                ? "Couldn't pull your results. Tap retry above."
                 : status === "wrapping" || status === "complete"
-                ? "Session complete — pulling your results…"
+                ? "Session complete. Pulling your results…"
                 : compact
                 ? "Talk through your thinking, or ask Marcus a question."
-                : "Type or speak your answer — be specific."
+                : "Type or speak your answer. Be specific."
             }
             className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent px-2.5 py-2 font-sans text-[15px] leading-relaxed text-chalk placeholder:text-fog focus:outline-none disabled:opacity-50"
           />
@@ -387,7 +387,7 @@ export function Interview() {
                 }}
                 className="shrink-0 font-mono text-[10px] tracking-[0.14em] text-fog underline-offset-4 transition-colors hover:text-chalk hover:underline"
               >
-                NO QUESTIONS — END INTERVIEW
+                NO QUESTIONS · END INTERVIEW
               </button>
             )}
           </div>
@@ -410,7 +410,7 @@ export function Interview() {
             <div className="mx-auto flex max-w-[820px] items-center gap-2.5 px-5 py-3 sm:px-8">
               <ArrowCounterClockwise size={15} weight="bold" className="text-survive" />
               <span className="font-mono text-[11px] tracking-wide text-survive">
-                SESSION RESTORED — picked up right where you left off.
+                SESSION RESTORED. Picked up right where you left off.
               </span>
             </div>
           </motion.div>
@@ -476,7 +476,7 @@ export function Interview() {
             {USE_MOCK && (
               <span
                 className="hidden rounded-full border border-warning/40 px-2.5 py-1 font-mono text-[10px] tracking-[0.14em] text-warning sm:inline"
-                title="No backend connected — replies are scripted, not generated. Set VITE_USE_MOCK=false to use the real interviewer."
+                title="No backend connected: replies are scripted, not generated. Set VITE_USE_MOCK=false to use the real interviewer."
               >
                 DEMO MODE
               </span>

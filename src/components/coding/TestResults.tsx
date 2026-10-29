@@ -25,7 +25,7 @@ interface Props {
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const LOAD_FAILED = "Couldn't load Python. Check your connection and retry.";
-const TIMED_OUT = "Stopped after 5 seconds — this usually means an infinite loop. Your code is safe; try again.";
+const TIMED_OUT = "Stopped after 5 seconds. This usually means an infinite loop. Your code is safe; try again.";
 
 const passCount = (rows: TestResult[]) => rows.filter((r) => r.passed).length;
 

@@ -9,10 +9,10 @@ import type { CompanyStyleId, InterviewLevel, InterviewMode } from "@/types/cont
 import { extractPdfText } from "@/lib/pdf";
 import { COMPANY_STYLES } from "@/lib/companyStyles";
 
-const SAMPLE_RESUME = `Maya Okonkwo — Backend Engineer
+const SAMPLE_RESUME = `Maya Okonkwo, Backend Engineer
 4 years experience. Built a realtime pricing engine in Go that cut p99 latency from 940ms to 180ms under burst load. Led active-active failover for checkout across 3 AWS regions using Kubernetes and Envoy. Strong in distributed systems, Postgres, Kafka. Mentored 2 junior engineers.`;
 
-const SAMPLE_JD = `Senior Software Engineer — Payments Infrastructure
+const SAMPLE_JD = `Senior Software Engineer, Payments Infrastructure
 We need an engineer with strong distributed systems fundamentals who has operated services at scale. You will own reliability of the checkout path, lead incident postmortems, and drive capacity planning. Must be comfortable reasoning about consistency, failover, and measurable SLOs.`;
 
 const ROLES = [
@@ -29,8 +29,8 @@ const MODES: { key: InterviewMode; label: string }[] = [
 ];
 
 const MODE_HINT: Partial<Record<InterviewMode, string>> = {
-  full: "Mixed, adaptive — behavioral, one coding problem, technical & system design.",
-  coding: "Live coding in Python — problems from the Blind 75.",
+  full: "Mixed and adaptive: behavioral, one coding problem, technical & system design.",
+  coding: "Live coding in Python with problems from the Blind 75.",
 };
 
 // Keyboard focus ring for every control on this page.
@@ -93,7 +93,7 @@ export function Setup() {
           </h1>
           <p className="mt-4 max-w-[54ch] text-[15px] leading-relaxed text-mist">
             The Intake Agent extracts your real resume-to-JD gaps. The Planner builds a
-            question set aimed at them — not a generic bank.
+            question set aimed at them, not a generic bank.
           </p>
 
           {weakTags.length > 0 && (
@@ -104,7 +104,7 @@ export function Setup() {
             >
               <Brain size={18} weight="bold" className="text-warning" />
               <span className="font-mono text-[11px] tracking-wide text-warning">
-                MEMORY ACTIVE — TARGETING:
+                MEMORY ACTIVE · TARGETING:
               </span>
               {weakTags.map((t) => (
                 <span
@@ -192,7 +192,7 @@ export function Setup() {
               })}
             </div>
             <p className="mt-2 text-xs text-fog">
-              {MODE_HINT[mode] ?? "Focused track — every question stays in this area."}
+              {MODE_HINT[mode] ?? "Focused track. Every question stays in this area."}
             </p>
           </div>
 
@@ -219,7 +219,7 @@ export function Setup() {
               })}
             </div>
             <p className="mt-2 text-xs text-fog">
-              Controls difficulty and how much each question asks — Junior is smaller and guided.
+              Controls difficulty and how much each question asks. Junior is smaller and guided.
             </p>
           </div>
 
@@ -308,14 +308,14 @@ export function Setup() {
             label="YOUR RESUME"
             value={resume}
             onChange={setResume}
-            placeholder="Paste your full resume — skills, projects, experience, dates. The more detail, the sharper the questions."
+            placeholder="Paste your full resume: skills, projects, experience, dates. The more detail, the sharper the questions."
             onSample={() => setResume(SAMPLE_RESUME)}
           />
           <Field
             label="JOB DESCRIPTION"
             value={jd}
             onChange={setJd}
-            placeholder="Paste the full job description — requirements, responsibilities, what they're looking for."
+            placeholder="Paste the full job description: requirements, responsibilities, what they're looking for."
             onSample={() => setJd(SAMPLE_JD)}
           />
 

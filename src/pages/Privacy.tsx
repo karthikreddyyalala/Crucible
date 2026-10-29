@@ -34,7 +34,7 @@ export function Privacy() {
               <li>
                 <span className="text-chalk">Anonymous weakness tags and scores</span> (e.g.
                 "no-edge-cases", an average score) stored against a random browser-generated
-                id — never your name or email.
+                id, never your name or email.
               </li>
             </ul>
           </Section>
@@ -74,7 +74,7 @@ export function Privacy() {
 
           <Section title="Terms, briefly">
             Crucible is provided as-is for interview practice. Its feedback is AI-generated
-            and may be wrong — treat it as practice signal, not a guarantee of real
+            and may be wrong. Treat it as practice signal, not a guarantee of real
             interview outcomes. Don't paste anything you're not comfortable sending to an AI
             model for processing.
           </Section>

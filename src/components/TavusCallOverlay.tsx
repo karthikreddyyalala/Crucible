@@ -95,7 +95,7 @@ export function TavusCallOverlay({
           <div className="mb-4 min-h-[48px] rounded-2xl border border-line bg-ink px-4 py-3 text-[15px] leading-relaxed text-chalk">
             {draft || (
               <span className="text-fog">
-                {listening ? "Listening — speak your answer…" : "Tap the mic and answer out loud."}
+                {listening ? "Listening. Speak your answer…" : "Tap the mic and answer out loud."}
               </span>
             )}
           </div>

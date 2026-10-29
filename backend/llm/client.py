@@ -93,6 +93,11 @@ class LLMClient:
                 return result
             except Exception as e:  # noqa: BLE001 — network/parse/validation, retry
                 last_error = e
+                # A rejected request (bad parameter, no model access) fails the same way
+                # every time; retrying only pushes the caller past API Gateway's 30 s limit.
+                status = getattr(e, "status_code", None)
+                if isinstance(status, int) and 400 <= status < 500 and status not in (408, 409, 429):
+                    break
 
         usage = CallUsage(
             agent=agent, model=model, latency_s=time.monotonic() - t0,

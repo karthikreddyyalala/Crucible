@@ -25,7 +25,7 @@ describe("Setup — accessible pickers", () => {
     renderSetup();
     const mode = within(screen.getByRole("group", { name: "INTERVIEW MODE" }));
     await userEvent.click(mode.getByRole("button", { name: "Coding" }));
-    expect(screen.getByText("Live coding in Python — problems from the Blind 75.")).toBeInTheDocument();
+    expect(screen.getByText("Live coding in Python with problems from the Blind 75.")).toBeInTheDocument();
 
     const styles = within(screen.getByRole("group", { name: "COMPANY STYLE" })).getAllByRole("button");
     expect(styles[0]).toHaveTextContent("General");

@@ -7,7 +7,7 @@ export function TrendChart({ points }: { points: TrendPoint[] }) {
   if (points.length === 0) {
     return (
       <div className="grid h-40 place-items-center rounded-2xl border border-dashed border-line text-sm text-fog">
-        First session — your trend line starts here.
+        First session. Your trend line starts here.
       </div>
     );
   }
