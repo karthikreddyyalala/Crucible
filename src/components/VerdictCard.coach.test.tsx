@@ -25,8 +25,7 @@ async function openCoach(response: CoachResponse) {
   const { api } = await import("@/lib/api");
   vi.mocked(api.coachAnswer).mockResolvedValueOnce(response);
   render(<VerdictCard evaluation={evaluation} question={question} index={0} sessionId="s1" code="def two_sum(): pass" />);
-  fireEvent.click(screen.getByRole("button", { name: /REVIEW YOUR ANSWER/ }));
-  fireEvent.click(screen.getByRole("button", { name: /What a 5\/5 sounds like/ }));
+  fireEvent.click(screen.getByRole("button", { name: "Show me a strong answer" }));
   await screen.findByText("A clean approach.");
   return api;
 }
@@ -66,5 +65,45 @@ describe("VerdictCard key points", () => {
     expect(screen.queryByText("What you said")).toBeNull();
     rerender(<VerdictCard evaluation={evaluation} question={question} index={0} />);
     expect(screen.queryByText("What you said")).toBeNull();
+  });
+});
+
+describe("VerdictCard layout", () => {
+  it("leads with the verdict and reasoning, and frames tags as next to work on in plain words", () => {
+    render(<VerdictCard evaluation={{ ...evaluation, weaknessTags: ["vague-impact", "no_edge_cases"] }} question={question} index={0} />);
+    expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent("Wouldn't survive a real interview yet");
+    expect(screen.getByText("Fails example 2.")).toBeTruthy();
+    expect(screen.getByText("Next to work on")).toBeTruthy();
+    expect(screen.getByText("Vague impact")).toBeTruthy();
+    expect(screen.getByText("No edge cases")).toBeTruthy();
+    expect(screen.queryByText("vague-impact")).toBeNull();
+  });
+
+  it("keeps scores behind a Details disclosure", () => {
+    render(<VerdictCard evaluation={{ ...evaluation, rubricScores: { edge_cases: 2 } }} question={question} index={0} />);
+    const details = screen.getByRole("button", { name: "Details" });
+    expect(details.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByText("Edge cases")).toBeNull();
+    fireEvent.click(details);
+    expect(details.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByText("Edge cases")).toBeTruthy();
+    expect(screen.getByText(/Follow-up questions asked/)).toBeTruthy();
+  });
+
+  it("shows your answer on request", () => {
+    render(<VerdictCard evaluation={evaluation} question={question} index={0} />);
+    expect(screen.queryByText("Hash map.")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Your answer" }));
+    expect(screen.getByText("Hash map.")).toBeTruthy();
+  });
+
+  it("offers a retry when the strong answer can't be written", async () => {
+    const { api } = await import("@/lib/api");
+    vi.mocked(api.coachAnswer).mockRejectedValueOnce(new Error("boom"));
+    render(<VerdictCard evaluation={evaluation} question={question} index={0} />);
+    fireEvent.click(screen.getByRole("button", { name: "Show me a strong answer" }));
+    await screen.findByText(/Couldn't write a strong answer just now/);
+    expect(screen.queryByText("boom")).toBeNull();
+    expect(screen.getByRole("button", { name: "Retry" })).toBeTruthy();
   });
 });

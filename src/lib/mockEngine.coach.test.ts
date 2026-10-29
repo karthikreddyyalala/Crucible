@@ -36,3 +36,18 @@ describe("mockEngine.coach", () => {
     expect(r.improvements.join(" ")).toContain("failing-tests");
   });
 });
+
+describe("mockEngine.evaluate keyPoints", () => {
+  it("only uses the candidate's lines, never Marcus's", () => {
+    const thread = [
+      "Q: Tell me about a project you owned under a tight deadline.",
+      "A: I rebuilt the checkout retry queue in two weeks. It cut failed payments by 31 percent.",
+      "Q: You said the team stayed focused. What did you specifically do?",
+      "A: I wrote the idempotency keys myself and ran the load tests.",
+    ].join("\n");
+    const points = mockEngine.evaluate(q("behavioral"), thread, 1).keyPoints ?? [];
+    expect(points.length).toBeGreaterThan(0);
+    expect(points.join(" ")).not.toMatch(/Tell me about|You said the team|^Q:|^A:/);
+    expect(points[0]).toBe("I rebuilt the checkout retry queue in two weeks");
+  });
+});

@@ -45,7 +45,10 @@ export async function startSession(
   await page.getByLabel("Your name").fill("Karthik Reddy");
   await page.getByRole("group", { name: "Interview mode" }).getByRole("button", { name: mode, exact: true }).click();
   await page.getByRole("group", { name: "Level" }).getByRole("button", { name: level, exact: true }).click();
-  if (companyStyle) await page.getByRole("group", { name: "Company style" }).getByRole("button", { name: companyStyle }).click();
+  if (companyStyle) {
+    await page.getByRole("button", { name: /More options/ }).click();
+    await page.getByRole("group", { name: "Company style" }).getByRole("button", { name: companyStyle }).click();
+  }
   await page.getByLabel("Your resume").fill(RESUME);
   await page.getByLabel("Job description").fill(JD);
   await page.getByRole("button", { name: "Begin interview" }).click();

@@ -1,81 +1,93 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
-import {
-  ArrowRight,
-  Brain,
-  TrendUp,
-  TrendDown,
-  Minus,
-  Target,
-  Sparkle,
-  Warning,
-  CaretRight,
-} from "@phosphor-icons/react";
+import { MotionConfig, motion } from "motion/react";
+import { ArrowRight, CaretRight, TrendDown, TrendUp, Minus, WarningCircle } from "@phosphor-icons/react";
 import { TopBar } from "@/components/TopBar";
 import { TrendChart } from "@/components/TrendChart";
 import { MagneticButton } from "@/components/MagneticButton";
 import { api } from "@/lib/api";
 import { getCandidateId } from "@/lib/identity";
-import { summarizeMemory, type MemorySummary } from "@/lib/memoryStats";
+import {
+  formatAverage,
+  formatDay,
+  humanizeTag,
+  MODE_LABEL,
+  TREND_HEADING,
+  TREND_HINT,
+  WEAK_SPOT_EMPTY,
+  WEAK_SPOT_HINT,
+} from "@/lib/humanize";
+import {
+  dashboardTakeaway,
+  dotsLabel,
+  summarizeMemory,
+  weakSpotHistory,
+  type MemorySummary,
+  type WeakSpotHistory,
+  type WeakSpotStatus,
+} from "@/lib/memoryStats";
 import type { MemoryProfile, SessionSummary } from "@/types/contracts";
+
+const FOCUS =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-void";
+const RECENT_SESSIONS_SHOWN = 5;
 
 type LoadState =
   | { phase: "loading" }
-  | { phase: "error"; message: string }
+  | { phase: "error" }
   | { phase: "ready"; profile: MemoryProfile; summary: MemorySummary; sessions: SessionSummary[] };
 
 export function Dashboard() {
   const navigate = useNavigate();
   const [state, setState] = useState<LoadState>({ phase: "loading" });
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
+    setState({ phase: "loading" });
     (async () => {
       try {
         const cid = getCandidateId();
-        // Sessions are secondary — if that call fails, still show progress.
+        // Sessions are secondary: if that call fails, still show progress.
         const [profile, sessions] = await Promise.all([
           api.getMemory(cid),
           api.listSessions(cid).catch(() => [] as SessionSummary[]),
         ]);
         if (cancelled) return;
         setState({ phase: "ready", profile, summary: summarizeMemory(profile), sessions });
-      } catch (e) {
-        if (cancelled) return;
-        setState({
-          phase: "error",
-          message: e instanceof Error ? e.message : "Couldn't load your progress.",
-        });
+      } catch {
+        if (!cancelled) setState({ phase: "error" });
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [attempt]);
+
+  const start = () => navigate("/setup");
 
   return (
-    <div className="min-h-[100dvh]">
-      <TopBar />
-      <main className="mx-auto max-w-[1000px] px-5 py-12 sm:px-8 sm:py-16">
-        {state.phase === "loading" && <DashboardSkeleton />}
-        {state.phase === "error" && (
-          <ErrorState message={state.message} onRetry={() => setState({ phase: "loading" })} />
-        )}
-        {state.phase === "ready" && !state.summary.hasData && (
-          <EmptyState onStart={() => navigate("/setup")} />
-        )}
-        {state.phase === "ready" && state.summary.hasData && (
-          <Populated
-            profile={state.profile}
-            summary={state.summary}
-            sessions={state.sessions}
-            onStart={() => navigate("/setup")}
-            onOpenSession={(sid) => navigate(`/session/${sid}`)}
-          />
-        )}
-      </main>
-    </div>
+    <MotionConfig reducedMotion="user">
+      <div className="min-h-[100dvh]">
+        <TopBar />
+        <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-8 sm:py-16">
+          {state.phase === "loading" && <DashboardSkeleton />}
+          {state.phase === "error" && (
+            <ErrorState onRetry={() => setAttempt((a) => a + 1)} onStart={start} />
+          )}
+          {state.phase === "ready" && !state.summary.hasData && <EmptyState onStart={start} />}
+          {state.phase === "ready" && state.summary.hasData && (
+            <Populated
+              profile={state.profile}
+              summary={state.summary}
+              sessions={state.sessions}
+              onStart={start}
+              onOpenSession={(sid) => navigate(`/session/${sid}`)}
+            />
+          )}
+        </main>
+      </div>
+    </MotionConfig>
   );
 }
 
@@ -92,304 +104,341 @@ function Populated({
   onStart: () => void;
   onOpenSession: (sessionId: string) => void;
 }) {
-  const { sessionsCompleted, latestAvg, delta, trend, topWeaknesses, strongAreas } = summary;
-  const targets = topWeaknesses.slice(0, 3).map((w) => w.tag);
+  const spots = weakSpotHistory(summary.topWeaknesses, sessions);
+  const takeaway = dashboardTakeaway(summary, sessions[0], spots);
+  const targets = spots
+    .filter((s) => s.status !== "fixed")
+    .slice(0, 2)
+    .map((s) => humanizeTag(s.tag).toLowerCase());
 
   return (
-    <div className="space-y-10">
-      {/* header + headline stats */}
-      <section>
-        <span className="font-mono text-xs tracking-[0.2em] text-accent">YOUR PROGRESS</span>
-        <h1 className="mt-3 font-display text-[clamp(2rem,4.5vw,3rem)] font-bold leading-[1.02] tracking-tight text-white-pure">
-          Welcome back.
+    <div className="space-y-14">
+      <motion.section
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+      >
+        <p className="font-mono text-xs tracking-[0.2em] text-accent">YOUR PROGRESS</p>
+        <h1 className="mt-3 max-w-[32ch] font-display text-[clamp(1.6rem,3.6vw,2.4rem)] font-bold leading-[1.12] tracking-tight text-white-pure text-balance">
+          {takeaway}
         </h1>
-        <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-mist">
-          Every session sharpens the next. Here's how you're tracking and where the
-          interviewer will push hardest next time.
-        </p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          <StatCard label="SESSIONS COMPLETED" value={String(sessionsCompleted)} />
-          <StatCard
-            label="LATEST AVG SCORE"
-            value={latestAvg !== null ? latestAvg.toFixed(2) : "—"}
-            suffix="/ 5"
-          />
-          <DeltaCard delta={delta} trend={trend} />
+        <HeadlineNumbers summary={summary} />
+
+        <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-5">
+          <MagneticButton onClick={onStart}>
+            Start your next interview
+            <ArrowRight size={17} weight="bold" />
+          </MagneticButton>
+          {targets.length > 0 && (
+            <p className="text-sm text-mist">
+              It leans on {targets.join(" and ")}.
+            </p>
+          )}
         </div>
-      </section>
+      </motion.section>
 
-      {/* trend */}
-      <section className="rounded-3xl border border-line bg-ink p-7">
-        <h2 className="font-display text-lg font-semibold tracking-tight text-chalk">
-          Improvement trend
+      <section aria-labelledby="trend-heading" className="border-t border-line pt-8">
+        <h2 id="trend-heading" className="font-display text-lg font-semibold tracking-tight text-chalk">
+          {TREND_HEADING}
         </h2>
-        <p className="mt-1 text-sm text-mist">Average rubric score across every session.</p>
+        <p className="mt-1 text-sm text-mist">{TREND_HINT}</p>
         <div className="mt-6">
           <TrendChart points={profile.improvementTrend} />
         </div>
       </section>
 
-      {/* weaknesses + strengths */}
-      <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="rounded-3xl border border-warning/25 bg-ink p-7">
-          <div className="flex items-center gap-2.5">
-            <Brain size={20} weight="bold" className="text-warning" />
-            <h2 className="font-display text-lg font-semibold tracking-tight text-chalk">
-              Where you keep slipping
-            </h2>
-          </div>
-          <p className="mt-2 text-sm leading-relaxed text-mist">
-            Ranked by how often they've shown up. Your next session weights these higher.
-          </p>
-          <div className="mt-5 space-y-2.5">
-            {topWeaknesses.length === 0 && (
-              <p className="font-mono text-xs text-fog">
-                No recurring weaknesses logged. Strong run.
-              </p>
-            )}
-            {topWeaknesses.map((w, i) => (
-              <motion.div
-                key={w.tag}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.05 + i * 0.07 }}
-                className="flex items-center justify-between rounded-xl bg-surface-2 px-3.5 py-2.5"
-              >
-                <span className="font-mono text-[13px] text-chalk">{w.tag}</span>
-                <span className="font-mono text-[11px] text-fog">seen {w.frequency}×</span>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+      <div className="grid gap-12 border-t border-line pt-8 lg:grid-cols-[1.25fr_0.75fr] lg:gap-16">
+        <WeakSpots spots={spots} sessionCount={spots[0]?.dots.length ?? 0} />
+        <Strengths areas={summary.strongAreas} />
+      </div>
 
-        <div className="rounded-3xl border border-survive/25 bg-ink p-7">
-          <div className="flex items-center gap-2.5">
-            <Sparkle size={20} weight="fill" className="text-survive" />
-            <h2 className="font-display text-lg font-semibold tracking-tight text-chalk">
-              Your strengths
-            </h2>
-          </div>
-          <p className="mt-2 text-sm leading-relaxed text-mist">
-            Areas you consistently hold up in.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            {strongAreas.length === 0 && (
-              <p className="font-mono text-xs text-fog">
-                Nothing locked in yet. Keep going.
-              </p>
-            )}
-            {strongAreas.map((s) => (
-              <span
-                key={s}
-                className="rounded-md border border-survive/30 bg-survive/[0.06] px-2.5 py-1 font-mono text-[11px] text-survive"
-              >
-                {s}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* past sessions */}
-      {sessions.length > 0 && (
-        <section>
-          <h2 className="mb-4 font-display text-lg font-semibold tracking-tight text-chalk">
-            Past sessions
-          </h2>
-          <div className="overflow-hidden rounded-2xl border border-line divide-y divide-line">
-            {sessions.map((s, i) => (
-              <SessionRow
-                key={s.sessionId}
-                session={s}
-                index={i}
-                onClick={() => onOpenSession(s.sessionId)}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* next-session CTA */}
-      <section className="flex flex-col items-center gap-5 rounded-3xl border border-line bg-ink p-10 text-center">
-        {targets.length > 0 && (
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <Target size={16} weight="bold" className="text-accent" />
-            <span className="font-mono text-[11px] tracking-wide text-accent">
-              NEXT SESSION TARGETS:
-            </span>
-            {targets.map((t) => (
-              <span
-                key={t}
-                className="rounded-md bg-surface-2 px-2 py-0.5 font-mono text-[11px] text-chalk"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-        )}
-        <h3 className="max-w-[26ch] font-display text-2xl font-bold tracking-tight text-chalk text-balance">
-          Run session {sessionsCompleted + 1}. This time it's harder where you're weak.
-        </h3>
-        <MagneticButton onClick={onStart}>
-          Start next session
-          <ArrowRight size={17} weight="bold" />
-        </MagneticButton>
-      </section>
+      {sessions.length > 0 && <PastSessions sessions={sessions} onOpen={onOpenSession} />}
     </div>
   );
 }
 
-const MODE_LABEL: Record<string, string> = {
-  full: "Full Mock",
-  behavioral: "Behavioral",
-  technical: "Technical",
-  system_design: "System Design",
-  coding: "Coding",
+// Rounds like the number shown, so a tiny change never reads as "+0.0".
+export function deltaLabel(delta: number): string {
+  const shown = delta.toFixed(1);
+  if (Number(shown) === 0) return "No change";
+  return delta > 0 ? `+${shown}` : shown;
+}
+
+// At most three numbers, each in support of the sentence above it.
+function HeadlineNumbers({ summary }: { summary: MemorySummary }) {
+  const { sessionsCompleted, latestAvg, delta, trend } = summary;
+  const Icon = trend === "up" ? TrendUp : trend === "down" ? TrendDown : Minus;
+  return (
+    <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
+      <div>
+        <dt className="text-mist">Sessions</dt>
+        <dd className="font-mono text-lg font-semibold tabular-nums text-chalk">{sessionsCompleted}</dd>
+      </div>
+      {latestAvg !== null && (
+        <div>
+          <dt className="text-mist">Latest average</dt>
+          <dd className="font-mono text-lg font-semibold tabular-nums text-chalk">
+            {formatAverage(latestAvg)}
+          </dd>
+        </div>
+      )}
+      {delta !== null && (
+        <div>
+          <dt className="text-mist">Since last session</dt>
+          <dd
+            className={`flex items-center gap-1.5 font-mono text-lg font-semibold tabular-nums ${
+              trend === "up" ? "text-survive" : "text-chalk"
+            }`}
+          >
+            <Icon size={16} weight="bold" aria-hidden />
+            {deltaLabel(delta)}
+          </dd>
+        </div>
+      )}
+    </dl>
+  );
+}
+
+const STATUS_LABEL: Record<WeakSpotStatus, string> = {
+  still: "Still showing up",
+  new: "New",
+  fixed: "Looks fixed",
+};
+// Warning only on the one the user can act on next; fixed is good news.
+const STATUS_TONE: Record<WeakSpotStatus, string> = {
+  still: "text-warning",
+  new: "text-accent",
+  fixed: "text-survive",
 };
 
-function SessionRow({
-  session,
-  index,
-  onClick,
-}: {
-  session: SessionSummary;
-  index: number;
-  onClick: () => void;
-}) {
-  const ratio = session.total > 0 ? session.survived / session.total : 0;
-  const tone =
-    ratio >= 0.6 ? "var(--color-survive)" : ratio >= 0.34 ? "var(--color-accent)" : "var(--color-fail)";
-  const dateLabel = new Date(session.date).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
-
+function WeakSpots({ spots, sessionCount }: { spots: WeakSpotHistory[]; sessionCount: number }) {
   return (
-    <motion.button
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.03 * index }}
+    <section aria-labelledby="weak-heading">
+      <h2 id="weak-heading" className="font-display text-lg font-semibold tracking-tight text-chalk">
+        Next to work on
+      </h2>
+      <p className="mt-1 max-w-[52ch] text-sm leading-relaxed text-mist">
+        {WEAK_SPOT_HINT}
+        {sessionCount > 1 && " Each dot is a recent session, oldest on the left."}
+      </p>
+      {spots.length === 0 ? (
+        <p className="mt-5 text-sm text-mist">
+          {WEAK_SPOT_EMPTY}
+        </p>
+      ) : (
+        <ul className="mt-4 divide-y divide-line">
+          {spots.map((s, i) => (
+            <motion.li
+              key={s.tag}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.05 * i }}
+              className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-3.5"
+            >
+              <div className="min-w-0">
+                <p className="text-[15px] text-chalk">{humanizeTag(s.tag)}</p>
+                {s.status ? (
+                  <p className={`mt-0.5 text-xs font-medium ${STATUS_TONE[s.status]}`}>
+                    {STATUS_LABEL[s.status]}
+                  </p>
+                ) : (
+                  <p className="mt-0.5 text-xs text-mist">
+                    Seen {s.frequency} {s.frequency === 1 ? "time" : "times"} so far
+                  </p>
+                )}
+              </div>
+              {s.status && <DotStrip dots={s.dots} hits={s.hits} />}
+            </motion.li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function DotStrip({ dots, hits }: { dots: boolean[]; hits: number }) {
+  return (
+    <div role="img" aria-label={dotsLabel(hits, dots.length)} className="flex items-center gap-1.5">
+      {dots.map((on, i) => (
+        <span
+          key={i}
+          aria-hidden
+          className={`size-2.5 rounded-full ${on ? "bg-mist" : "border border-line-bright"}`}
+        />
+      ))}
+    </div>
+  );
+}
+
+function Strengths({ areas }: { areas: string[] }) {
+  return (
+    <section aria-labelledby="strong-heading">
+      <h2 id="strong-heading" className="font-display text-lg font-semibold tracking-tight text-chalk">
+        What's holding up
+      </h2>
+      {areas.length === 0 ? (
+        <p className="mt-1 text-sm leading-relaxed text-mist">
+          Nothing yet. Areas you score well in across sessions show up here.
+        </p>
+      ) : (
+        <ul className="mt-4 space-y-2.5">
+          {areas.map((a) => (
+            <li key={a} className="flex items-center gap-2.5 text-[15px] text-chalk">
+              <span aria-hidden className="size-1.5 rounded-full bg-survive" />
+              {humanizeTag(a)}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function PastSessions({
+  sessions,
+  onOpen,
+}: {
+  sessions: SessionSummary[];
+  onOpen: (sessionId: string) => void;
+}) {
+  const [showAll, setShowAll] = useState(false);
+  const shown = showAll ? sessions : sessions.slice(0, RECENT_SESSIONS_SHOWN);
+  return (
+    <section aria-labelledby="past-heading" className="border-t border-line pt-8">
+      <h2 id="past-heading" className="font-display text-lg font-semibold tracking-tight text-chalk">
+        Past sessions
+      </h2>
+      <p className="mt-1 text-sm text-mist">Open one to see each question and how it was judged.</p>
+      <ul className="mt-4 divide-y divide-line">
+        {shown.map((s) => (
+          <li key={s.sessionId}>
+            <SessionRow session={s} onClick={() => onOpen(s.sessionId)} />
+          </li>
+        ))}
+      </ul>
+      {sessions.length > RECENT_SESSIONS_SHOWN && (
+        <button
+          type="button"
+          onClick={() => setShowAll((v) => !v)}
+          aria-expanded={showAll}
+          className={`mt-3 min-h-11 rounded-md px-1 text-sm text-mist transition-colors hover:text-chalk ${FOCUS}`}
+        >
+          {showAll ? "Show fewer" : `Show all ${sessions.length} sessions`}
+        </button>
+      )}
+    </section>
+  );
+}
+
+function SessionRow({ session, onClick }: { session: SessionSummary; onClick: () => void }) {
+  const dateLabel = formatDay(session.date, { month: "short", day: "numeric" });
+  return (
+    <button
+      type="button"
       onClick={onClick}
-      className="group flex w-full items-center gap-4 bg-ink px-4 py-3.5 text-left transition-colors hover:bg-surface"
+      className={`group flex min-h-14 w-full items-center gap-4 rounded-md px-1 py-3 text-left transition-colors hover:bg-surface ${FOCUS}`}
     >
-      <span className="w-14 shrink-0 font-mono text-xs text-fog">{dateLabel}</span>
-      <span className="font-display text-sm font-semibold tracking-tight text-chalk">
-        {MODE_LABEL[session.mode] ?? session.mode}
+      <span className="w-14 shrink-0 font-mono text-xs text-mist">{dateLabel}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate font-display text-sm font-semibold tracking-tight text-chalk">
+          {MODE_LABEL[session.mode] ?? humanizeTag(session.mode)}
+        </span>
+        <span className="block text-xs capitalize text-mist">{session.level}</span>
       </span>
-      <span className="font-mono text-[11px] capitalize text-fog">{session.level}</span>
-      <span className="ml-auto font-mono text-sm font-bold tabular-nums" style={{ color: tone }}>
-        {session.survived}/{session.total}
-      </span>
+      {session.total > 0 && (
+        <span className="shrink-0 text-right text-xs text-mist">
+          <span className="font-mono text-sm font-semibold tabular-nums text-chalk">
+            {session.survived} of {session.total}
+          </span>{" "}
+          held up
+        </span>
+      )}
       <CaretRight
         size={14}
         weight="bold"
-        className="text-fog transition-transform group-hover:translate-x-0.5 group-hover:text-chalk"
+        aria-hidden
+        className="shrink-0 text-mist transition-transform group-hover:translate-x-0.5 group-hover:text-chalk"
       />
-    </motion.button>
-  );
-}
-
-function StatCard({ label, value, suffix }: { label: string; value: string; suffix?: string }) {
-  return (
-    <div className="rounded-2xl border border-line bg-ink p-5">
-      <p className="font-mono text-[11px] tracking-[0.14em] text-fog">{label}</p>
-      <p className="mt-2 font-mono text-3xl font-bold tabular-nums text-chalk">
-        {value}
-        {suffix && <span className="ml-1 text-base text-fog">{suffix}</span>}
-      </p>
-    </div>
-  );
-}
-
-function DeltaCard({
-  delta,
-  trend,
-}: {
-  delta: number | null;
-  trend: "up" | "down" | "flat" | null;
-}) {
-  const tone =
-    trend === "up" ? "var(--color-survive)" : trend === "down" ? "var(--color-fail)" : "var(--color-fog)";
-  const Icon = trend === "up" ? TrendUp : trend === "down" ? TrendDown : Minus;
-  const text =
-    delta === null
-      ? "First session: no trend yet"
-      : `${delta > 0 ? "+" : ""}${delta.toFixed(2)} vs last session`;
-
-  return (
-    <div className="rounded-2xl border border-line bg-ink p-5">
-      <p className="font-mono text-[11px] tracking-[0.14em] text-fog">MOMENTUM</p>
-      <div className="mt-2 flex items-center gap-2">
-        <Icon size={22} weight="bold" style={{ color: tone }} />
-        <span className="font-mono text-sm font-semibold tabular-nums" style={{ color: tone }}>
-          {delta === null ? "—" : `${delta > 0 ? "+" : ""}${delta.toFixed(2)}`}
-        </span>
-      </div>
-      <p className="mt-1 text-xs text-fog">{text}</p>
-    </div>
+    </button>
   );
 }
 
 function EmptyState({ onStart }: { onStart: () => void }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
+    <motion.section
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="mx-auto max-w-[560px] py-10 text-center"
+      transition={{ type: "spring", stiffness: 100, damping: 20 }}
+      className="max-w-[560px] py-6"
     >
-      <span className="font-mono text-xs tracking-[0.2em] text-accent">YOUR PROGRESS</span>
-      <h1 className="mt-3 font-display text-[clamp(2rem,4.5vw,3rem)] font-bold leading-[1.05] tracking-tight text-white-pure">
+      <p className="font-mono text-xs tracking-[0.2em] text-accent">YOUR PROGRESS</p>
+      <h1 className="mt-3 font-display text-[clamp(1.8rem,4vw,2.6rem)] font-bold leading-[1.08] tracking-tight text-white-pure">
         No sessions yet.
       </h1>
-      <p className="mx-auto mt-4 max-w-[44ch] text-[15px] leading-relaxed text-mist">
-        Run your first interview and this becomes your training log: your score over time,
-        the weak spots that keep resurfacing, and a plan that gets harder exactly where you
-        struggle.
+      <p className="mt-4 max-w-[48ch] text-[15px] leading-relaxed text-mist">
+        After your first interview this page shows how your scores move, the weak spots that keep
+        coming back, and whether they're shrinking. Your next session then leans on them.
       </p>
-      <div className="mt-8 flex justify-center">
+      <div className="mt-8">
         <MagneticButton onClick={onStart}>
-          Start your first session
+          Start your first interview
           <ArrowRight size={17} weight="bold" />
         </MagneticButton>
       </div>
-    </motion.div>
+    </motion.section>
   );
 }
 
-function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+function ErrorState({ onRetry, onStart }: { onRetry: () => void; onStart: () => void }) {
   return (
-    <div className="mx-auto max-w-[460px] py-16 text-center">
-      <Warning size={28} weight="fill" className="mx-auto text-fail" />
-      <p className="mt-4 text-[15px] text-chalk">Couldn't load your progress.</p>
-      <p className="mt-1 font-mono text-xs text-fog">{message}</p>
-      <button
-        onClick={onRetry}
-        className="mt-6 rounded-full border border-line-bright px-5 py-2.5 font-mono text-[11px] tracking-wide text-chalk tactile transition-colors hover:bg-surface"
-      >
-        TRY AGAIN
-      </button>
-    </div>
+    <section role="alert" className="max-w-[480px] py-10">
+      <WarningCircle size={28} weight="fill" aria-hidden className="text-warning" />
+      <h1 className="mt-4 font-display text-xl font-semibold tracking-tight text-chalk">
+        We couldn't load your progress.
+      </h1>
+      <p className="mt-2 text-sm leading-relaxed text-mist">
+        This is usually a connection problem. Check you're online and try again. You can still
+        start an interview in the meantime.
+      </p>
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={onRetry}
+          className={`min-h-11 rounded-full bg-accent px-5 text-sm font-medium text-void tactile transition-colors hover:bg-accent/90 ${FOCUS}`}
+        >
+          Try again
+        </button>
+        <button
+          type="button"
+          onClick={onStart}
+          className={`min-h-11 rounded-full px-4 text-sm text-mist transition-colors hover:text-chalk ${FOCUS}`}
+        >
+          Start an interview
+        </button>
+      </div>
+    </section>
   );
 }
 
 function DashboardSkeleton() {
   return (
-    <div className="animate-pulse space-y-10">
-      <div className="space-y-3">
+    <div role="status" aria-live="polite" className="space-y-14">
+      <span className="sr-only">Loading your progress</span>
+      <div aria-hidden className="animate-pulse space-y-4">
         <div className="h-3 w-28 rounded bg-surface-2" />
-        <div className="h-10 w-64 rounded bg-surface-2" />
-        <div className="grid gap-4 pt-4 sm:grid-cols-3">
+        <div className="h-9 w-full max-w-[520px] rounded bg-surface-2" />
+        <div className="flex gap-8 pt-2">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-24 rounded-2xl bg-surface-2" />
+            <div key={i} className="h-10 w-20 rounded bg-surface-2" />
           ))}
         </div>
       </div>
-      <div className="h-56 rounded-3xl bg-surface-2" />
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="h-48 rounded-3xl bg-surface-2" />
-        <div className="h-48 rounded-3xl bg-surface-2" />
+      <div aria-hidden className="h-52 animate-pulse rounded-2xl bg-surface-2" />
+      <div aria-hidden className="animate-pulse space-y-3">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="h-12 rounded bg-surface-2" />
+        ))}
       </div>
     </div>
   );

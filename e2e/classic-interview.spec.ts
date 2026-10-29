@@ -6,7 +6,7 @@ test("a behavioral session: intro, a vague answer gets probed, a concrete one mo
 
   const first = await getToFirstQuestion(page);
   expect(first).toMatch(/Tell me about a time you owned a project end-to-end/);
-  await expect(page.getByText("Q1 / 2")).toBeVisible();
+  await expect(page.getByText("Question 1 of 2")).toBeVisible();
 
   const probe = await say(page, "We just shipped it on time, it went fine.");
   expect(probe).toMatch(/What did you personally do there/);
@@ -20,6 +20,6 @@ test("a behavioral session: intro, a vague answer gets probed, a concrete one mo
       "We shipped on day 19, p99 dropped from 900 ms to 180 ms, and there were zero P1 incidents.",
   );
   expect(next).toMatch(/Describe a technical decision you pushed for/);
-  await expect(page.getByText("Q2 / 2")).toBeVisible();
+  await expect(page.getByText("Question 2 of 2")).toBeVisible();
   expect((await session(page)).followUpCount).toBe(0);
 });

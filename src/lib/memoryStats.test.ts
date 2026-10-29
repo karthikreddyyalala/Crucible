@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { summarizeMemory } from "./memoryStats";
-import type { MemoryProfile } from "@/types/contracts";
+import { dashboardTakeaway, dotsLabel, summarizeMemory, weakSpotHistory, weakSpotStatus } from "./memoryStats";
+import type { MemoryProfile, SessionSummary } from "@/types/contracts";
 
 function profile(over: Partial<MemoryProfile> = {}): MemoryProfile {
   return {
@@ -110,5 +110,92 @@ describe("summarizeMemory", () => {
   it("passes through strong areas", () => {
     const s = summarizeMemory(profile({ strongAreas: ["ownership", "clarity"] }));
     expect(s.strongAreas).toEqual(["ownership", "clarity"]);
+  });
+});
+
+describe("weakSpotStatus", () => {
+  const T = true;
+  const F = false;
+  it("is still showing up when present in the latest and earlier", () => {
+    expect(weakSpotStatus([T, F, T])).toBe("still");
+  });
+  it("is new when first seen in the latest session", () => {
+    expect(weakSpotStatus([F, F, T])).toBe("new");
+    expect(weakSpotStatus([T])).toBe("new");
+  });
+  it("looks fixed when absent from the last two or more sessions", () => {
+    expect(weakSpotStatus([T, F, F])).toBe("fixed");
+    expect(weakSpotStatus([T, T, F, F, F])).toBe("fixed");
+  });
+  it("is too soon to call fixed after a single clean session", () => {
+    expect(weakSpotStatus([T, T, F])).toBe("still");
+  });
+  it("has no status when no recent session recorded it", () => {
+    expect(weakSpotStatus([])).toBeNull();
+    expect(weakSpotStatus([F, F])).toBeNull();
+  });
+});
+
+function sess(id: string, date: string, tags?: string[]): SessionSummary {
+  return { sessionId: id, date, mode: "full", level: "mid", survived: 1, total: 2, weaknessTags: tags };
+}
+const w = (tag: string, frequency = 1) => ({ tag, frequency, lastSeen: "2026-10-01" });
+
+describe("weakSpotHistory", () => {
+  it("lays dots oldest to newest, last 8 only, and orders still, new, fixed", () => {
+    // newest first, the way the API returns them; s0 falls outside the window
+    const sessions = [
+      sess("s9", "2026-10-09", ["new-one", "stuck"]),
+      sess("s8", "2026-10-08", ["stuck"]),
+      sess("s7", "2026-10-07", []),
+      sess("s6", "2026-10-06", ["gone"]),
+      sess("s5", "2026-10-05"),
+      sess("s4", "2026-10-04"),
+      sess("s3", "2026-10-03"),
+      sess("s2", "2026-10-02"),
+      sess("s0", "2026-10-01", ["stuck", "gone", "new-one"]),
+    ];
+    const out = weakSpotHistory([w("gone", 9), w("new-one", 5), w("stuck", 2)], sessions);
+    expect(out.map((h) => [h.tag, h.status])).toEqual([
+      ["stuck", "still"],
+      ["new-one", "new"],
+      ["gone", "fixed"],
+    ]);
+    expect(out[0].dots).toEqual([false, false, false, false, false, false, true, true]);
+    expect(out[0].hits).toBe(2);
+  });
+
+  it("gives no status for weak spots no listed session recorded", () => {
+    const out = weakSpotHistory([w("old")], [sess("a", "2026-10-01"), sess("b", "2026-10-02", [])]);
+    expect(out[0]).toMatchObject({ status: null, hits: 0, dots: [false, false] });
+  });
+});
+
+describe("dotsLabel", () => {
+  it("reads naturally for one or many sessions", () => {
+    expect(dotsLabel(3, 8)).toBe("Showed up in 3 of your last 8 sessions");
+    expect(dotsLabel(1, 1)).toBe("Showed up in your only session");
+    expect(dotsLabel(0, 1)).toBe("Didn't show up in your only session");
+  });
+});
+
+describe("dashboardTakeaway", () => {
+  const summary = summarizeMemory(
+    profile({ improvementTrend: [{ sessionDate: "2026-10-01", avgScore: 3 }] }),
+  );
+  it("leads with the latest session and the next weak spot, humanized", () => {
+    const spots = weakSpotHistory([w("vague-impact")], [sess("a", "2026-10-01", ["vague-impact"])]);
+    expect(dashboardTakeaway(summary, sess("a", "2026-10-01"), spots)).toBe(
+      "You held up on 1 of 2 answers last session. Vague impact is the next thing to work on.",
+    );
+  });
+  it("celebrates a fixed weak spot when nothing else is open", () => {
+    const spots = weakSpotHistory(
+      [w("rambling")],
+      [sess("c", "2026-10-03", []), sess("b", "2026-10-02", []), sess("a", "2026-10-01", ["rambling"])],
+    );
+    expect(dashboardTakeaway(summary, undefined, spots)).toBe(
+      "You've finished 1 session. Rambling looks fixed. Keep it that way.",
+    );
   });
 });

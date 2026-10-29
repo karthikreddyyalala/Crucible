@@ -1,11 +1,22 @@
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
-import { ArrowRight, ArrowClockwise, Brain } from "@phosphor-icons/react";
+import { motion, MotionConfig } from "motion/react";
+import { ArrowRight, ArrowClockwise } from "@phosphor-icons/react";
 import { TopBar } from "@/components/TopBar";
-import { VerdictCard } from "@/components/VerdictCard";
+import { SURVIVE_HINT, VerdictCard } from "@/components/VerdictCard";
 import { TrendChart } from "@/components/TrendChart";
+import {
+  formatAverage,
+  humanizeTag,
+  TREND_HEADING,
+  TREND_HINT,
+  WEAK_SPOT_EMPTY,
+  WEAK_SPOT_HINT,
+} from "@/lib/humanize";
+import { takeaway } from "@/lib/takeaway";
 import { codeKey, languageOf, useSessionStore } from "@/stores/sessionStore";
+
+const FOCUS = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-void";
 
 export function Results() {
   const navigate = useNavigate();
@@ -26,202 +37,174 @@ export function Results() {
 
   if (!plan || nothingToShow) return null;
 
-  const survived = evaluations.filter((e) => e.wouldSurviveRealInterview).length;
-  const total = evaluations.length;
-  const ratio = total ? survived / total : 0;
   // Only a conduct end gets here with nothing scored: no score to show, just the note.
-  const noAnswers = total === 0;
-  const verdictTone =
-    noAnswers ? "var(--color-accent)"
-    : ratio >= 0.6 ? "var(--color-survive)" : ratio >= 0.34 ? "var(--color-accent)" : "var(--color-fail)";
-
-  const headline =
-    noAnswers ? "Interview ended early."
-    : ratio >= 0.6 ? "You'd mostly hold up."
-    : ratio >= 0.34 ? "You'd survive parts of this."
-    : "This wouldn't survive yet.";
-
+  const noAnswers = evaluations.length === 0;
+  const summary = noAnswers ? null : takeaway(evaluations, plan.questions);
+  const ratio = noAnswers ? 0 : evaluations.filter((e) => e.wouldSurviveRealInterview).length / evaluations.length;
+  const glow = ratio >= 0.6 ? "var(--color-survive)" : "var(--color-accent)";
+  const avg = updatedMemory?.improvementTrend.at(-1)?.avgScore;
   const topWeak = updatedMemory?.recurringWeaknesses.slice(0, 4) ?? [];
 
   return (
-    <div className="min-h-[100dvh]">
-      <TopBar
-        right={
-          <button
-            onClick={() => {
-              reset();
-              navigate("/");
-            }}
-            className="font-mono text-[11px] tracking-wide text-fog transition-colors hover:text-chalk"
-          >
-            EXIT
-          </button>
-        }
-      />
+    <MotionConfig reducedMotion="user">
+      <div className="min-h-[100dvh]">
+        <TopBar onProgress={reset} />
 
-      {/* verdict hero */}
-      <section className="relative overflow-hidden border-b border-line">
-        <div className="pointer-events-none absolute inset-0 grid-floor opacity-40" />
-        <div
-          className="pointer-events-none absolute -top-32 left-1/2 h-[400px] w-[600px] -translate-x-1/2 rounded-full blur-[120px]"
-          style={{ background: `color-mix(in srgb, ${verdictTone} 14%, transparent)` }}
-        />
-        <div className="relative mx-auto max-w-[1000px] px-5 py-16 sm:px-8 sm:py-20">
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="font-mono text-xs tracking-[0.2em] text-accent"
-          >
-            SESSION VERDICT
-          </motion.span>
+        {/* the takeaway: one sentence, then the one thing to do next */}
+        <section className="relative overflow-hidden border-b border-line">
+          <div className="pointer-events-none absolute inset-0 grid-floor opacity-40" />
+          <div
+            className="pointer-events-none absolute -top-32 left-1/4 h-[400px] w-[600px] max-w-full rounded-full blur-[120px]"
+            style={{ background: `color-mix(in srgb, ${glow} 12%, transparent)` }}
+          />
+          <div className="relative mx-auto max-w-[1000px] px-4 py-14 sm:px-8 sm:py-20">
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="font-mono text-xs tracking-[0.2em] text-accent"
+            >
+              YOUR INTERVIEW REPORT
+            </motion.span>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-4 font-display text-[clamp(2.4rem,6vw,4.4rem)] font-bold leading-[0.98] tracking-tight text-white-pure"
-          >
-            {headline}
-          </motion.h1>
+            <motion.h1
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-4 max-w-[20ch] font-display text-[clamp(2rem,5vw,3.6rem)] font-bold leading-[1.02] tracking-tight text-white-pure"
+            >
+              {summary ? summary.headline : "Interview ended early."}
+            </motion.h1>
 
-          {endedForConduct && (
-            <p className="mt-4 max-w-[60ch] text-sm text-mist">
-              This session ended early because of the conduct of the conversation.
-            </p>
-          )}
+            {summary && (
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="mt-4 max-w-[55ch] text-lg leading-relaxed text-chalk"
+              >
+                {summary.next}
+              </motion.p>
+            )}
 
+            {endedForConduct && (
+              <p className="mt-4 max-w-[60ch] text-sm text-mist">
+                This session ended early because of the conduct of the conversation.
+              </p>
+            )}
+
+            {summary && avg !== undefined && (
+              <p className="mt-6 font-mono text-sm text-mist">
+                Average score <span className="text-chalk tabular-nums">{formatAverage(avg)}</span>
+              </p>
+            )}
+          </div>
+        </section>
+
+        <main className="mx-auto max-w-[1000px] px-4 py-12 sm:px-8 sm:py-14">
+          {/* per-question verdicts */}
           {!noAnswers && (
-            <div className="mt-9 flex flex-wrap items-end gap-x-10 gap-y-6">
-              <div>
-                <div className="flex items-baseline gap-2 font-mono">
-                  <motion.span
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="text-6xl font-bold tabular-nums"
-                    style={{ color: verdictTone }}
-                  >
-                    {survived}
-                  </motion.span>
-                  <span className="text-2xl text-fog">/ {total}</span>
-                </div>
-                <p className="mt-1 max-w-[28ch] text-sm text-mist">
-                  answers would survive a real interviewer's follow-up grilling.
-                </p>
+            <section>
+              <h2 className="font-display text-2xl font-bold tracking-tight text-white-pure">Answer-by-answer</h2>
+              <p className="mt-2 max-w-[65ch] text-sm leading-relaxed text-mist">{SURVIVE_HINT}</p>
+              <div className="mt-6 space-y-5">
+                {evaluations.map((ev, i) => {
+                  const q = plan.questions.find((q) => q.id === ev.questionId) ?? plan.questions[i];
+                  const language = languageOf({ languageByQuestion, codingLanguage }, q.id);
+                  return (
+                    <VerdictCard
+                      key={ev.questionId}
+                      evaluation={ev}
+                      question={q}
+                      index={i}
+                      sessionId={plan.sessionId}
+                      code={codeByQuestion[codeKey(q.id, language)]}
+                      language={language}
+                    />
+                  );
+                })}
               </div>
-
-              <div className="h-12 w-px bg-line" />
-
-              <div className="font-mono">
-                <p className="text-xs tracking-wide text-fog">SESSION AVG</p>
-                <p className="mt-1 text-3xl font-bold tabular-nums text-chalk">
-                  {updatedMemory?.improvementTrend.at(-1)?.avgScore.toFixed(2) ?? "—"}
-                  <span className="ml-1 text-base text-fog">/ 5</span>
-                </p>
-              </div>
-            </div>
+            </section>
           )}
-        </div>
-      </section>
 
-      <main className="mx-auto max-w-[1000px] px-5 py-14 sm:px-8">
-        {/* memory + trend */}
-        <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
-          <div className="rounded-3xl border border-warning/25 bg-ink p-7">
-            <div className="flex items-center gap-2.5">
-              <Brain size={20} weight="bold" className="text-warning" />
-              <h2 className="font-display text-lg font-semibold tracking-tight text-chalk">
-                Saved to memory
-              </h2>
+          {/* what carries over to the next interview */}
+          {updatedMemory === null ? (
+            <div
+              role="status"
+              className={`grid gap-10 border-t border-line pt-10 lg:grid-cols-[1fr_1.1fr] ${noAnswers ? "" : "mt-14"}`}
+            >
+              <span className="sr-only">Updating your progress…</span>
+              <div aria-hidden className="animate-pulse space-y-4">
+                <p className="text-sm text-mist">Updating your progress…</p>
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="h-10 rounded bg-surface-2" />
+                ))}
+              </div>
+              <div aria-hidden className="h-40 animate-pulse rounded-2xl bg-surface-2" />
             </div>
-            <p className="mt-2 text-sm leading-relaxed text-mist">
-              Your next session's Planner will weight these higher. It gets harder exactly
-              where you're weak.
-            </p>
-            <div className="mt-5 space-y-2.5">
-              {topWeak.length === 0 && !noAnswers && (
-                <p className="font-mono text-xs text-fog">No recurring weaknesses logged. Strong run.</p>
+          ) : (
+          <div className={`grid gap-10 border-t border-line pt-10 lg:grid-cols-[1fr_1.1fr] ${noAnswers ? "" : "mt-14"}`}>
+            <section>
+              <h2 className="font-display text-lg font-semibold tracking-tight text-chalk">Next to work on</h2>
+              <p className="mt-2 text-sm leading-relaxed text-mist">{WEAK_SPOT_HINT}</p>
+              {topWeak.length === 0 ? (
+                <p className="mt-5 text-sm text-mist">{WEAK_SPOT_EMPTY}</p>
+              ) : (
+                <ul className="mt-4 divide-y divide-line">
+                  {topWeak.map((w, i) => (
+                    <motion.li
+                      key={w.tag}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 + i * 0.08 }}
+                      className="flex items-center justify-between gap-4 py-3"
+                    >
+                      <span className="text-sm text-chalk">{humanizeTag(w.tag)}</span>
+                      <span className="shrink-0 font-mono text-xs text-mist">
+                        Came up {w.frequency === 1 ? "once" : `${w.frequency} times`}
+                      </span>
+                    </motion.li>
+                  ))}
+                </ul>
               )}
-              {topWeak.map((w, i) => (
-                <motion.div
-                  key={w.tag}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 + i * 0.08 }}
-                  className="flex items-center justify-between rounded-xl bg-surface-2 px-3.5 py-2.5"
-                >
-                  <span className="font-mono text-[13px] text-chalk">{w.tag}</span>
-                  <span className="font-mono text-[11px] text-fog">
-                    seen {w.frequency}×
-                  </span>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+            </section>
 
-          <div className="rounded-3xl border border-line bg-ink p-7">
-            <h2 className="font-display text-lg font-semibold tracking-tight text-chalk">
-              Improvement trend
+            <section>
+              <h2 className="font-display text-lg font-semibold tracking-tight text-chalk">{TREND_HEADING}</h2>
+              <p className="mt-2 text-sm text-mist">{TREND_HINT}</p>
+              <div className="mt-6">
+                <TrendChart points={updatedMemory.improvementTrend} />
+              </div>
+            </section>
+          </div>
+          )}
+
+          {/* next step */}
+          <section className="mt-14 border-t border-line pt-10">
+            <h2 className="max-w-[28ch] font-display text-2xl font-bold tracking-tight text-chalk text-balance">
+              Run it back. This time it remembers.
             </h2>
-            <p className="mt-2 text-sm text-mist">Average rubric score across your sessions.</p>
-            <div className="mt-6">
-              <TrendChart points={updatedMemory?.improvementTrend ?? []} />
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <Link
+                to="/setup"
+                className={`inline-flex min-h-11 items-center gap-2 rounded-full bg-accent px-7 py-3 text-sm font-semibold text-void tactile ${FOCUS}`}
+              >
+                <ArrowClockwise size={16} weight="bold" aria-hidden />
+                Start your next interview
+              </Link>
+              <button
+                onClick={() => {
+                  reset();
+                  navigate("/dashboard");
+                }}
+                className={`inline-flex min-h-11 items-center gap-2 rounded-full border border-line-bright px-6 py-3 text-sm font-semibold text-chalk tactile hover:bg-surface ${FOCUS}`}
+              >
+                Your progress
+                <ArrowRight size={16} weight="bold" aria-hidden />
+              </button>
             </div>
-          </div>
-        </div>
-
-        {/* per-question verdicts */}
-        {!noAnswers && (
-          <>
-            <h2 className="mt-16 mb-6 font-display text-2xl font-bold tracking-tight text-white-pure">
-              Answer-by-answer
-            </h2>
-            <div className="space-y-5">
-              {evaluations.map((ev, i) => {
-                const q = plan.questions.find((q) => q.id === ev.questionId) ?? plan.questions[i];
-                const language = languageOf({ languageByQuestion, codingLanguage }, q.id);
-                return (
-                  <VerdictCard
-                    key={ev.questionId}
-                    evaluation={ev}
-                    question={q}
-                    index={i}
-                    sessionId={plan.sessionId}
-                    code={codeByQuestion[codeKey(q.id, language)]}
-                    language={language}
-                  />
-                );
-              })}
-            </div>
-          </>
-        )}
-
-        {/* next-session CTA */}
-        <div className="mt-16 flex flex-col items-center gap-5 rounded-3xl border border-line bg-ink p-10 text-center">
-          <h3 className="max-w-[28ch] font-display text-2xl font-bold tracking-tight text-chalk text-balance">
-            Run it back. This time it remembers.
-          </h3>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <Link
-              to="/setup"
-              className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-semibold text-void tactile shadow-[0_10px_30px_-10px_rgba(74,124,255,0.6)]"
-            >
-              <ArrowClockwise size={16} weight="bold" />
-              Start session 2
-            </Link>
-            <button
-              onClick={() => {
-                reset();
-                navigate("/dashboard");
-              }}
-              className="inline-flex items-center gap-2 rounded-full border border-line-bright px-6 py-3.5 text-sm font-semibold text-chalk tactile hover:bg-surface"
-            >
-              View your progress
-              <ArrowRight size={16} weight="bold" />
-            </button>
-          </div>
-        </div>
-      </main>
-    </div>
+          </section>
+        </main>
+      </div>
+    </MotionConfig>
   );
 }

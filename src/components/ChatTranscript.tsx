@@ -58,7 +58,7 @@ export function ChatTranscript({ messages, thinking, inset, insetBefore, compact
                   {m.speaker === "interviewer" && (
                     <span
                       className={`mb-1.5 block font-mono text-[10px] tracking-[0.16em] ${
-                        m.kind === "follow_up" ? "text-accent" : "text-fog"
+                        m.kind === "follow_up" ? "text-accent" : "text-mist"
                       }`}
                     >
                       {m.kind === "follow_up" ? "MARCUS · FOLLOW-UP" : "MARCUS · INTERVIEWER"}
@@ -109,9 +109,9 @@ function ThinkingBubble({ slow }: { slow: boolean }) {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.4 }}
-                className="font-mono text-[10px] tracking-wide text-fog"
+                className="font-mono text-[10px] tracking-wide text-mist"
               >
-                still thinking…
+                Still thinking…
               </motion.span>
             )}
           </AnimatePresence>

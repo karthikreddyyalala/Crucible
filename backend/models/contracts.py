@@ -95,6 +95,9 @@ class SessionSummary(_Base):
     level: str
     survived: int
     total: int
+    # Sorted union of the session's evaluation tags, so the dashboard can show
+    # which weak spots showed up when. Index rows written before this existed give [].
+    weakness_tags: list[str] = []
 
 
 class SessionRecord(_Base):
@@ -122,6 +125,7 @@ class SessionRecord(_Base):
             level=self.level,
             survived=survived,
             total=len(self.evaluations),
+            weakness_tags=sorted({t for e in self.evaluations for t in e.weakness_tags}),
         )
 
 

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 export function Wordmark({ to = "/" }: { to?: string }) {
   return (
-    <Link to={to} className="group inline-flex items-center gap-2.5">
+    <Link to={to} className="group inline-flex min-h-11 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
       <span className="relative grid h-7 w-7 place-items-center">
         <svg viewBox="0 0 32 32" className="h-7 w-7">
           <path

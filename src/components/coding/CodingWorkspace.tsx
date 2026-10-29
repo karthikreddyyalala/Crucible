@@ -7,6 +7,7 @@ import type { usePythonRunner } from "@/hooks/usePythonRunner";
 import { useCodingProblem } from "@/hooks/useCodingProblem";
 import type { PublicProblem } from "@/lib/coding/types";
 import { codeKey, useSessionStore } from "@/stores/sessionStore";
+import { FirstTimeHint } from "@/components/FirstTimeHint";
 import { SplitPane } from "./SplitPane";
 import { ProblemPanel } from "./ProblemPanel";
 import { Toolbar, type Shortcuts } from "./Toolbar";
@@ -92,13 +93,11 @@ export function CodingWorkspace({ question, runner, conversation }: Props) {
 export function CodingBrief({ question }: { question: PlannedQuestion }) {
   const { status, problem, retry } = useCodingProblem(question.exemplarId);
   return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-line bg-ink px-5 py-5">
-        <ProblemPanel status={status} problem={problem} onRetry={retry} />
-      </div>
-      <div className="flex items-start gap-3 rounded-xl border border-line bg-surface px-4 py-3.5">
+    <div className="space-y-5 border-y border-line py-6">
+      <ProblemPanel status={status} problem={problem} onRetry={retry} />
+      <div className="flex items-start gap-3">
         <Desktop size={18} className="mt-0.5 shrink-0 text-mist" aria-hidden />
-        <p className="font-sans text-[14px] leading-relaxed text-chalk">
+        <p className="font-sans text-[14px] leading-relaxed text-mist">
           The code editor needs a larger screen. You can still talk through your solution with Marcus.
         </p>
       </div>
@@ -121,6 +120,7 @@ function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; q
   const recordRun = useSessionStore((s) => s.recordRun);
   const sendCheckin = useSessionStore((s) => s.sendCheckin);
   const messageCount = useSessionStore((s) => s.messages.length);
+  const approaching = useSessionStore((s) => s.codingStage === "approach");
   const checkinDue = useSessionStore(
     (s) => s.status === "live" && s.codingStage === "coding" && !s.checkinSent[questionId],
   );
@@ -191,6 +191,7 @@ function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; q
         status={runner.status}
         pending={pending}
         canReset={!atStarter}
+        quietSubmit={approaching}
         shortcuts={SHORTCUTS}
         hintId={hintId}
         onRun={() => void execute("run")}
@@ -198,6 +199,10 @@ function EditorPane({ problem, questionId, runner }: { problem: PublicProblem; q
         onRetry={runner.retry}
         onReset={() => editor.current?.replace(starter)}
       />
+      <FirstTimeHint id="coding" className="shrink-0 border-b border-line bg-void px-4 py-1">
+        Talk through your approach with Marcus first, then code. Run checks the examples ({SHORTCUTS.run}); Submit
+        runs the hidden tests too and Marcus reviews it ({SHORTCUTS.submit}).
+      </FirstTimeHint>
       <SplitPane
         axis="y"
         storageKey="crucible.coding.split.editor"

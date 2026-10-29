@@ -21,7 +21,7 @@ function InterviewerAvatarBase({ state, size = 96 }: InterviewerAvatarProps) {
       : "var(--color-fog)";
 
   return (
-    <div className="relative grid place-items-center" style={{ width: size, height: size }}>
+    <div aria-hidden className="relative grid place-items-center" style={{ width: size, height: size }}>
       {/* breathing halo */}
       <motion.span
         className="absolute inset-0 rounded-full blur-xl"

@@ -20,6 +20,8 @@ interface Props {
   /** What the in-flight run is, if any. */
   pending: "run" | "submit" | null;
   canReset: boolean;
+  /** Submit as a secondary button (while the approach is still being talked through). */
+  quietSubmit?: boolean;
   shortcuts: Shortcuts;
   hintId: string;
   onRun: () => void;
@@ -32,7 +34,7 @@ const FOCUS = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visi
 const BUTTON = `inline-flex h-11 items-center gap-2 rounded-lg px-4 font-sans text-[14px] font-medium tactile transition-colors disabled:cursor-not-allowed ${FOCUS}`;
 
 export function Toolbar({
-  language, onLanguage, status, pending, canReset, shortcuts, hintId, onRun, onSubmit, onRetry, onReset,
+  language, onLanguage, status, pending, canReset, quietSubmit = false, shortcuts, hintId, onRun, onSubmit, onRetry, onReset,
 }: Props) {
   const name = LANGUAGE_NAMES[language];
   const loading = status === "loading";
@@ -109,7 +111,11 @@ export function Toolbar({
           disabled={busy || failed}
           title={busy || failed ? why : `Run every test, including hidden ones, and review with Marcus (${shortcuts.submit})`}
           aria-keyshortcuts={shortcuts.submitAria}
-          className={`${BUTTON} bg-accent text-void hover:bg-[#5d8aff] disabled:bg-accent/35 disabled:text-void/70`}
+          className={`${BUTTON} ${
+            quietSubmit
+              ? "border border-line-bright text-chalk hover:border-mist disabled:text-mist"
+              : "bg-accent text-void hover:bg-[#5d8aff] disabled:bg-accent/35 disabled:text-void/70"
+          }`}
         >
           {pending === "submit" ? spinner : <PaperPlaneRight size={15} weight="fill" aria-hidden />}
           {pending === "submit" ? (loading ? `Loading ${name}…` : "Submitting…") : "Submit"}

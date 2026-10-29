@@ -17,7 +17,12 @@ export function TypeChip({ type }: { type: QuestionType }) {
 
 export function DifficultyMeter({ value }: { value: Difficulty }) {
   return (
-    <span className="inline-flex items-center gap-[3px]" title={`Difficulty ${value}/5`}>
+    <span
+      role="img"
+      aria-label={`Difficulty ${value} of 5`}
+      className="inline-flex items-center gap-[3px]"
+      title={`Difficulty ${value}/5`}
+    >
       {[1, 2, 3, 4, 5].map((n) => (
         <span
           key={n}
