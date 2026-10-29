@@ -2,7 +2,8 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { Setup } from "./Setup";
+import { Setup, whatsMissing } from "./Setup";
+import { useSessionStore } from "@/stores/sessionStore";
 
 vi.mock("@/lib/pdf", () => ({ extractPdfText: vi.fn() }));
 
@@ -50,5 +51,51 @@ describe("Setup — accessible pickers", () => {
     const controls = [...document.querySelectorAll("main button, main input:not([type=file]), main textarea")];
     expect(controls.length).toBeGreaterThan(10);
     for (const c of controls) expect(c.className, c.outerHTML.slice(0, 80)).toContain("focus-visible:ring-2");
+  });
+});
+
+describe("Setup — preventing and recovering from a bad start", () => {
+  const begin = () => screen.getByRole("button", { name: /Begin interview/ });
+
+  it("keeps Begin off and says exactly what is missing", async () => {
+    renderSetup();
+    expect(begin()).toBeDisabled();
+    expect(begin()).toHaveAccessibleDescription(
+      "Add your resume, or use the sample. Add the job description, or use the sample.",
+    );
+    const jd = within(screen.getByLabelText("JOB DESCRIPTION").parentElement!);
+    await userEvent.click(jd.getByRole("button", { name: /USE SAMPLE/ }));
+    expect(begin()).toHaveAccessibleDescription("Add your resume, or use the sample.");
+    await userEvent.type(screen.getByLabelText("YOUR RESUME"), "Short resume");
+    expect(begin()).toHaveAccessibleDescription("Your resume looks short. Paste the full text.");
+  });
+
+  it("says nothing is missing once both are long enough", () => {
+    expect(whatsMissing("r".repeat(201), "j".repeat(101))).toBe("");
+    expect(whatsMissing("r".repeat(201), "short")).toBe("The job description looks short. Paste all of it.");
+  });
+
+  it("asks before the sample replaces pasted text", async () => {
+    renderSetup();
+    const box = screen.getByLabelText("YOUR RESUME");
+    await userEvent.type(box, "My own resume");
+    const confirm = vi.spyOn(window, "confirm").mockReturnValueOnce(false);
+    await userEvent.click(within(box.parentElement!).getByRole("button", { name: /USE SAMPLE/ }));
+    expect(confirm).toHaveBeenCalledOnce();
+    expect(box).toHaveValue("My own resume");
+    confirm.mockRestore();
+  });
+
+  it("explains a failed start and offers Try again", async () => {
+    const start = vi.fn().mockRejectedValue(new Error("Couldn't reach the server. Check your connection and try again."));
+    useSessionStore.setState({ start });
+    renderSetup();
+    for (const label of ["YOUR RESUME", "JOB DESCRIPTION"]) {
+      await userEvent.click(within(screen.getByLabelText(label).parentElement!).getByRole("button", { name: /USE SAMPLE/ }));
+    }
+    await userEvent.click(begin());
+    expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't reach the server.");
+    await userEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(start).toHaveBeenCalledTimes(2);
   });
 });
