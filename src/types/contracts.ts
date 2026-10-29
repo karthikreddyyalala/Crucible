@@ -63,6 +63,7 @@ export interface AnswerEvaluation {
   followUpCount: number;
   wouldSurviveRealInterview: boolean;
   survivalReasoning: string;
+  keyPoints?: string[];
 }
 
 export interface RecurringWeakness {

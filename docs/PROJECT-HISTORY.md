@@ -104,7 +104,18 @@ Phase 2 split into 2a to 2d. 2a, built with parallel workers and reviewed:
 - A quick "Mm-hm" in Marcus's voice right after a spoken answer, while he thinks.
 - Interrupting: on Flux the mic stays open while he talks; two or more new words that
   aren't fillers or his own words stop him.
-- All tested with mocks ($0). Live check and the clip recording wait for Karthik's OK.
+- All tested with mocks ($0). Clips recorded 2026-10-29 (inside the ElevenLabs plan).
+  Merged as PR #12. The live Flux check is on hold (Karthik: no spend for now).
+
+### 2026-10-29: Phase 2b, smarter Marcus (branch `feat/phase-2b-smarter-marcus`)
+- Marcus used to see only the current question's thread, so he re-asked things covered in
+  "tell me about yourself". Each turn now carries the candidate's earlier replies (last
+  3,000 characters, fenced as untrusted). If the next question was already covered he
+  names it and asks the part not yet covered. Questions are never skipped, so scoring and
+  Memory are unchanged.
+- The evaluator also returns 2 to 4 key points of what was said, shown as "What you said"
+  under the verdict. Same call, no new Claude calls; about a cent more per interview.
+- Mocked tests only ($0). The prompt wording isn't checked live yet.
 
 ## Bugs worth remembering
 

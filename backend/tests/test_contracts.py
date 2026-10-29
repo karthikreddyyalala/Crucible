@@ -94,3 +94,20 @@ def test_coach_response_code_defaults_empty():
     assert CoachResponse(modelAnswer="m", improvements=[]).code == ""
     r = CoachResponse.model_validate({"modelAnswer": "m", "improvements": [], "code": "def f(): pass"})
     assert r.model_dump(by_alias=True)["code"] == "def f(): pass"
+
+
+def test_answer_evaluation_key_points_default_and_alias():
+    base = dict(
+        questionId="q1", transcript="...", rubricScores={"depth": 2},
+        weaknessTags=[], followUpCount=0,
+        wouldSurviveRealInterview=True, survivalReasoning="ok",
+    )
+    assert AnswerEvaluation(**base).key_points == []
+    ev = AnswerEvaluation.model_validate({**base, "keyPoints": ["a"]})
+    assert ev.key_points == ["a"]
+    assert ev.model_dump(by_alias=True)["keyPoints"] == ["a"]
+
+
+def test_evaluator_prompt_asks_for_key_points():
+    from pathlib import Path
+    assert "keyPoints" in (Path(__file__).parent.parent / "prompts" / "evaluator.md").read_text()

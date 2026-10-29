@@ -313,3 +313,22 @@ def test_spoken_lines_have_no_dashes():
     assert d.follow_up_prompt == "What does that cost, in time?"
     d = _decide({"action": "advance", "say": "Got it. Mm-hm—moving on. Tell me about a launch you led."})
     assert d.say == "Got it. Mm-hm, moving on. Tell me about a launch you led."
+
+
+def test_earlier_answers_are_fenced_and_only_sent_with_a_next_question():
+    llm = _FakeLLM({"action": "advance", "followUpPrompt": None, "currentQuestionId": "q-beh-1"})
+    agent = InterviewerAgent(llm=llm, model="m")
+    kw = dict(question=_Q, candidate_answer="x", follow_up_count=1, is_last_question=False)
+    agent.run_turn(**kw, next_question=_Q, earlier="I led the payments migration")
+    assert ("Earlier in this interview (the candidate's own words):\n"
+            "<earlier_answers>\nI led the payments migration\n</earlier_answers>") in llm.last["user"]
+    agent.run_turn(**kw, earlier="I led the payments migration")
+    assert "Earlier in this interview" not in llm.last["user"]
+    agent.run_turn(**kw, next_question=_Q)
+    assert "Earlier in this interview" not in llm.last["user"]
+
+
+def test_interviewer_prompt_builds_on_earlier_answers():
+    from pathlib import Path
+    prompt = (Path(__file__).parent.parent / "prompts" / "interviewer.md").read_text()
+    assert "already covered" in _flat(prompt)

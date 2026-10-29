@@ -59,6 +59,9 @@ Output schema (camelCase keys):
 - survivalReasoning: string  (1-2 sentences: EXACTLY why it would or would not
     survive a real interviewer's follow-up. Name the specific strength or weakness.
     "Good answer" or "Weak answer" alone is NOT acceptable.)
+- keyPoints: string[]  (2 to 4 short points, each under 15 words, of what the candidate
+    actually said, in their own terms: their numbers, names, technologies. No judgement
+    words. [] when there was no real answer. Does not change any scoring rule.)
 
 Hard rules:
 - wouldSurviveRealInterview = true ONLY if ALL rubric scores are >= 3 AND the answer held

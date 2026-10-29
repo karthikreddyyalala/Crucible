@@ -357,7 +357,17 @@ function scoreAnswer(
     followUpCount,
     wouldSurviveRealInterview: survives,
     survivalReasoning: reasoning,
+    keyPoints: keyPointsOf(trimmed),
   };
+}
+
+// Demo stand-in for the evaluator's keyPoints: the first few sentences, trimmed to 14 words.
+function keyPointsOf(answer: string): string[] {
+  return answer
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim().split(/\s+/).slice(0, 14).join(" ").replace(/[.!?]+$/, ""))
+    .filter((s) => s.split(" ").length >= 3)
+    .slice(0, 3);
 }
 
 export const mockEngine = {

@@ -151,6 +151,8 @@ export interface TurnInput {
   isLast: boolean;
   phase: InterviewPhase;
   nextQuestion: PlannedQuestion | null;
+  // The candidate's own replies from other threads, so a new question can build on them.
+  earlier?: string;
   candidateName: string;
   mode: InterviewMode;
   level: InterviewLevel;

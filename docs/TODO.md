@@ -111,8 +111,9 @@ Spec: docs/superpowers/specs/2026-10-28-phase-2a-voice-turns-design.md · Plan: 
 
 ## Next — rest of Phase 2
 
-- [ ] 2b: skip questions already answered (warmup background asked again); answer key
-      points in the report next to the verdict
+- [x] 2b: Marcus builds on earlier answers instead of re-asking (no hard skip, so every
+      question is still scored); key points of each answer under the verdict (PR, $0 mocked)
+- [ ] 2b live check of the new prompt wording (a few cents of Claude; Karthik: not for now)
 - [ ] 2c: re-check each answer with Deepgram pre-recorded mode to fix misheard words
 - [ ] 2d: Tavus persona uses ElevenLabs "Chris"; video mode gets backchannel and barge-in
 - [ ] 2d: JavaScript in the coding round

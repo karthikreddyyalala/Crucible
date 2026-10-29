@@ -190,6 +190,17 @@ export function VerdictCard({ evaluation, question, index, sessionId, code }: Ve
         {evaluation.survivalReasoning}
       </p>
 
+      {evaluation.keyPoints && evaluation.keyPoints.length > 0 && (
+        <div className="mt-4">
+          <p className="mb-2 font-mono text-[10px] tracking-[0.16em] text-fog">What you said</p>
+          <ul className="space-y-1 pl-4 text-sm leading-relaxed text-mist list-disc marker:text-fog">
+            {evaluation.keyPoints.map((p, i) => (
+              <li key={i}>{p}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="mt-6 border-t border-line pt-2">
         {Object.entries(evaluation.rubricScores).map(([k, v], i) => (
           <RubricBar key={k} label={k} value={v} index={i} />

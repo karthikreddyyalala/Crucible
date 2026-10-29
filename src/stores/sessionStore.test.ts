@@ -616,6 +616,36 @@ describe("sessionStore — turnError", () => {
       expect(api.evaluateAnswer).not.toHaveBeenCalled();
     });
 
+    it("sends earlier candidate replies with a next question, and nothing on the last question", async () => {
+      seedWarmup();
+      const msg = (speaker: "interviewer" | "candidate", text: string, questionId: string) =>
+        ({ id: text, speaker, kind: speaker === "candidate" ? "answer" : "question", text, questionId }) as const;
+      useSessionStore.setState({
+        phase: "question",
+        currentIdx: 1,
+        messages: [
+          msg("candidate", "Doing well.", "intro"),
+          msg("candidate", "I led the payments migration.", "background"),
+          msg("interviewer", "Tell me about debugging.", "q1"),
+          msg("candidate", "I used tracing.", "q1"),
+          msg("interviewer", "And q2?", "q2"),
+          msg("candidate", "Current thread reply.", "q2"),
+        ],
+      });
+      const { api } = await import("@/lib/api");
+      vi.mocked(api.submitAnswer).mockResolvedValue(say("follow_up", "Why?"));
+
+      await useSessionStore.getState().submitAnswer("More.");
+      // Q2 is the last planned question here, so there is no next question to build toward.
+      expect(vi.mocked(api.submitAnswer).mock.calls[0][0].earlier).toBe("");
+
+      useSessionStore.setState({ currentIdx: 0, status: "live" });
+      await useSessionStore.getState().submitAnswer("More again.");
+      expect(vi.mocked(api.submitAnswer).mock.calls[1][0].earlier).toBe(
+        "I led the payments migration.\nCurrent thread reply.\nMore.",
+      );
+    });
+
     it("answers a clarifying question without counting a follow-up or scoring", async () => {
       seedLiveSession();
       const { api } = await import("@/lib/api");
