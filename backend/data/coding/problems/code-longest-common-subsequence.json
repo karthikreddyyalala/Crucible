@@ -8,6 +8,7 @@
   "functionName": "longest_common_subsequence",
   "signature": "def longest_common_subsequence(text1: str, text2: str) -> int:",
   "starterCode": "def longest_common_subsequence(text1: str, text2: str) -> int:\n    \"\"\"Return the length of the longest subsequence that both strings share.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the length of the longest subsequence that both strings share.\n * @param {string} text1\n * @param {string} text2\n * @return {number}\n */\nfunction longestCommonSubsequence(text1, text2) {\n\n}\n",
   "examples": [
     {"input": "text1 = \"stone\", text2 = \"longer\"", "output": "3", "explanation": "\"one\" is in both, in order: s-t-O-N-E and l-O-N-g-E-r."},
     {"input": "text1 = \"banana\", text2 = \"atana\"", "output": "4", "explanation": "\"aana\" appears in both once you skip the characters in between."},

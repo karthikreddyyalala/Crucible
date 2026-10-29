@@ -8,6 +8,7 @@
   "functionName": "min_window",
   "signature": "def min_window(s: str, t: str) -> str:",
   "starterCode": "def min_window(s: str, t: str) -> str:\n    \"\"\"Return the shortest substring of s that contains all characters of t (with multiplicity), or an empty string.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the shortest substring of s that contains all characters of t (with multiplicity), or an empty string.\n * @param {string} s\n * @param {string} t\n * @return {string}\n */\nfunction minWindow(s, t) {\n\n}\n",
   "examples": [
     {"input": "s = \"PQXZZQPXBQ\", t = \"XQB\"", "output": "\"XBQ\"", "explanation": "\"XBQ\" at the end holds one X, one Q and one B, and no shorter substring does."},
     {"input": "s = \"aabdecab\", t = \"aab\"", "output": "\"aab\"", "explanation": "t needs two a's and one b. The first three characters \"aab\" already contain them, so nothing shorter exists."},

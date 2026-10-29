@@ -8,6 +8,7 @@
   "functionName": "invert_tree",
   "signature": "def invert_tree(root: Optional[TreeNode]) -> Optional[TreeNode]:",
   "starterCode": "def invert_tree(root: Optional[TreeNode]) -> Optional[TreeNode]:\n    \"\"\"Return the root of the mirror image of the tree.\"\"\"\n    pass\n",
+  "starterCodeJs": "// TreeNode is provided: new TreeNode(val, left, right) -> { val, left, right }\n\n/**\n * Return the root of the mirror image of the tree.\n * @param {TreeNode|null} root\n * @return {TreeNode|null}\n */\nfunction invertTree(root) {\n\n}\n",
   "examples": [
     {"input": "root = [5, 3, 8, 1, 4, 7, 9]", "output": "[5, 8, 3, 9, 7, 4, 1]", "explanation": "Every left/right pair trades places, at every level."},
     {"input": "root = [1, 2]", "output": "[1, null, 2]", "explanation": "The only child moves from the left side to the right side."},

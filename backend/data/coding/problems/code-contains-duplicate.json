@@ -8,6 +8,7 @@
   "functionName": "contains_duplicate",
   "signature": "def contains_duplicate(nums: list[int]) -> bool:",
   "starterCode": "def contains_duplicate(nums: list[int]) -> bool:\n    \"\"\"Return True if any value appears at least twice in nums, otherwise False.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return true if any value appears at least twice in nums, otherwise false.\n * @param {number[]} nums\n * @return {boolean}\n */\nfunction containsDuplicate(nums) {\n\n}\n",
   "examples": [
     {"input": "nums = [4, 7, 1, 7]", "output": "True", "explanation": "The value 7 appears at positions 1 and 3."},
     {"input": "nums = [3, 1, 4, 2]", "output": "False", "explanation": "All four values are different."},

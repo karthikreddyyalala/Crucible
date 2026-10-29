@@ -8,6 +8,7 @@
   "functionName": "max_depth",
   "signature": "def max_depth(root: Optional[TreeNode]) -> int:",
   "starterCode": "def max_depth(root: Optional[TreeNode]) -> int:\n    \"\"\"Return the number of nodes on the longest root-to-leaf path.\"\"\"\n    pass\n",
+  "starterCodeJs": "// TreeNode is provided: new TreeNode(val, left, right) -> { val, left, right }\n\n/**\n * Return the number of nodes on the longest root-to-leaf path.\n * @param {TreeNode|null} root\n * @return {number}\n */\nfunction maxDepth(root) {\n\n}\n",
   "examples": [
     {"input": "root = [1, 2, 3, 4, null, null, null, 5]", "output": "4", "explanation": "The longest path is 1 -> 2 -> 4 -> 5, which has four nodes."},
     {"input": "root = [8, null, 6]", "output": "2", "explanation": "8 has only a right child, so the longest path is 8 -> 6."},

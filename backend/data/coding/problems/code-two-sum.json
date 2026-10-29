@@ -8,6 +8,7 @@
   "functionName": "two_sum",
   "signature": "def two_sum(nums: list[int], target: int) -> list[int]:",
   "starterCode": "def two_sum(nums: list[int], target: int) -> list[int]:\n    \"\"\"Return the indices of two different elements of nums that add up to target.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the indices of two different elements of nums that add up to target.\n * @param {number[]} nums\n * @param {number} target\n * @return {number[]}\n */\nfunction twoSum(nums, target) {\n\n}\n",
   "examples": [
     {"input": "nums = [3, 8, 11, 5], target = 13", "output": "[1, 3]", "explanation": "nums[1] + nums[3] = 8 + 5 = 13."},
     {"input": "nums = [4, 4, 9], target = 8", "output": "[0, 1]", "explanation": "The two 4s sit at different positions, so using both is allowed."},

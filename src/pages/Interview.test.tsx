@@ -59,6 +59,7 @@ const problem = {
   statement: "Find two numbers that add up to `target`.",
   signature: "def two_sum(nums, target):",
   starterCode: "def two_sum(nums, target):\n    pass\n",
+  starterCodeJs: "function twoSum(nums, target) {}\n",
   functionName: "two_sum",
   kind: "function",
   compare: "exact",

@@ -8,6 +8,7 @@
   "functionName": "combination_sum",
   "signature": "def combination_sum(candidates: list[int], target: int) -> list[list[int]]:",
   "starterCode": "def combination_sum(candidates: list[int], target: int) -> list[list[int]]:\n    \"\"\"Return every unique combination of candidates (reuse allowed) that sums to target.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return every unique combination of candidates (reuse allowed) that sums to target.\n * @param {number[]} candidates\n * @param {number} target\n * @return {number[][]}\n */\nfunction combinationSum(candidates, target) {\n\n}\n",
   "examples": [
     {"input": "candidates = [2, 4, 5], target = 9", "output": "[[2, 2, 5], [4, 5]]", "explanation": "2 + 2 + 5 and 4 + 5 both make 9. Order within a combination and between combinations is free."},
     {"input": "candidates = [3, 5, 7], target = 10", "output": "[[3, 7], [5, 5]]", "explanation": "5 can be used twice in the same combination."},

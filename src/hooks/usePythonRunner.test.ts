@@ -28,6 +28,7 @@ const problem: PublicProblem = {
   functionName: "two_sum",
   signature: "def two_sum(nums, target):",
   starterCode: "def two_sum(nums, target):\n    pass\n",
+  starterCodeJs: "function twoSum(nums, target) {}\n",
   examples: [],
   checkArg: null,
   visibleTestCount: 1,

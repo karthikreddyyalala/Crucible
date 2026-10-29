@@ -8,6 +8,7 @@
   "functionName": "coin_change",
   "signature": "def coin_change(coins: list[int], amount: int) -> int:",
   "starterCode": "def coin_change(coins: list[int], amount: int) -> int:\n    \"\"\"Return the fewest coins that sum to amount, or -1 if impossible.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the fewest coins that sum to amount, or -1 if impossible.\n * @param {number[]} coins\n * @param {number} amount\n * @return {number}\n */\nfunction coinChange(coins, amount) {\n\n}\n",
   "examples": [
     {"input": "coins = [1, 2, 5], amount = 11", "output": "3", "explanation": "5 + 5 + 1 uses three coins, and no two coins reach 11."},
     {"input": "coins = [1, 3, 4], amount = 6", "output": "2", "explanation": "3 + 3 works. Starting with the biggest coin gives 4 + 1 + 1, which needs three."},

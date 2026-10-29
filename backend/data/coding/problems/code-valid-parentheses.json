@@ -8,6 +8,7 @@
   "functionName": "is_valid",
   "signature": "def is_valid(s: str) -> bool:",
   "starterCode": "def is_valid(s: str) -> bool:\n    \"\"\"Return True if every bracket in s is closed by the same kind, in the right order.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return true if every bracket in s is closed by the same kind, in the right order.\n * @param {string} s\n * @return {boolean}\n */\nfunction isValid(s) {\n\n}\n",
   "examples": [
     {"input": "s = \"([]{})\"", "output": "True", "explanation": "Each opener is closed by its own kind, innermost first."},
     {"input": "s = \"([)]\"", "output": "False", "explanation": "The square bracket opens inside the round one, but the round one closes first."},

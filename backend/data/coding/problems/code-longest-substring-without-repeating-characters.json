@@ -8,6 +8,7 @@
   "functionName": "length_of_longest_substring",
   "signature": "def length_of_longest_substring(s: str) -> int:",
   "starterCode": "def length_of_longest_substring(s: str) -> int:\n    \"\"\"Return the length of the longest substring of s in which every character is different.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the length of the longest substring of s in which every character is different.\n * @param {string} s\n * @return {number}\n */\nfunction lengthOfLongestSubstring(s) {\n\n}\n",
   "examples": [
     {"input": "s = \"abcbdea\"", "output": "5", "explanation": "The substring \"cbdea\" has five different characters; the earlier \"abc\" is shorter."},
     {"input": "s = \"zzzz\"", "output": "1", "explanation": "Every character is the same letter, so the longest valid substring is a single character."},

@@ -8,6 +8,7 @@
   "functionName": "missing_number",
   "signature": "def missing_number(nums: list[int]) -> int:",
   "starterCode": "def missing_number(nums: list[int]) -> int:\n    \"\"\"Return the one value in 0..len(nums) that is not in nums.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the one value in 0..len(nums) that is not in nums.\n * @param {number[]} nums\n * @return {number}\n */\nfunction missingNumber(nums) {\n\n}\n",
   "examples": [
     {"input": "nums = [4, 2, 0, 1]", "output": "3", "explanation": "The range is 0 to 4, and 3 is the value that does not appear."},
     {"input": "nums = [1, 0]", "output": "2", "explanation": "The range is 0 to 2. The missing value can be the largest one."},

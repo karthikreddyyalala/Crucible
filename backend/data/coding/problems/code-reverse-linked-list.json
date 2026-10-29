@@ -9,6 +9,7 @@
   "functionName": "reverse_list",
   "signature": "def reverse_list(head: Optional[ListNode]) -> Optional[ListNode]:",
   "starterCode": "def reverse_list(head: Optional[ListNode]) -> Optional[ListNode]:\n    \"\"\"Return the head of the list with its nodes in reverse order.\"\"\"\n    pass\n",
+  "starterCodeJs": "// ListNode is provided: new ListNode(val, next) -> { val, next }\n\n/**\n * Return the head of the list with its nodes in reverse order.\n * @param {ListNode|null} head\n * @return {ListNode|null}\n */\nfunction reverseList(head) {\n\n}\n",
   "examples": [
     {"input": "head = [1, 2, 3, 4, 5]", "output": "[5, 4, 3, 2, 1]", "explanation": "Every link flips direction, so the old tail becomes the head."},
     {"input": "head = [8, -2]", "output": "[-2, 8]", "explanation": "Two nodes swap places."},

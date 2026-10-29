@@ -19,6 +19,7 @@ export interface PublicProblem {
   functionName: string;
   signature: string;
   starterCode: string;
+  starterCodeJs: string;
   examples: { input: string; output: string; explanation: string }[];
   visibleTestCount: number;
   tests: { args: unknown; expected: unknown }[];

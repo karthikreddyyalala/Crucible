@@ -8,6 +8,7 @@
   "functionName": "valid_tree",
   "signature": "def valid_tree(n: int, edges: List[List[int]]) -> bool:",
   "starterCode": "def valid_tree(n: int, edges: List[List[int]]) -> bool:\n    \"\"\"Return True if the edges connect all n nodes into one tree.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return true if the edges connect all n nodes into one tree.\n * @param {number} n\n * @param {number[][]} edges\n * @return {boolean}\n */\nfunction validTree(n, edges) {\n\n}\n",
   "examples": [
     {"input": "n = 4, edges = [[0, 1], [1, 2], [1, 3]]", "output": "true", "explanation": "Node 1 connects to the other three, and there are no loops."},
     {"input": "n = 3, edges = [[0, 1], [1, 2], [2, 0]]", "output": "false", "explanation": "The three edges make a loop: 0 -> 1 -> 2 -> 0."},

@@ -9,6 +9,7 @@
   "functionName": "Codec",
   "signature": "class Codec:\n    def encode(self, strs: List[str]) -> str:\n    def decode(self, s: str) -> List[str]:",
   "starterCode": "class Codec:\n    def encode(self, strs: List[str]) -> str:\n        \"\"\"Encode a list of strings to a single string.\"\"\"\n        pass\n\n    def decode(self, s: str) -> List[str]:\n        \"\"\"Decode a string made by encode back to the original list.\"\"\"\n        pass\n",
+  "starterCodeJs": "class Codec {\n    /**\n     * Encode a list of strings to a single string.\n     * @param {string[]} strs\n     * @return {string}\n     */\n    encode(strs) {\n\n    }\n\n    /**\n     * Decode a string made by encode back to the original list.\n     * @param {string} s\n     * @return {string[]}\n     */\n    decode(s) {\n\n    }\n}\n",
   "examples": [
     {"input": "strs = [\"interview\", \"prep\"]", "output": "[\"interview\", \"prep\"]", "explanation": "decode(encode(strs)) must return the same list."},
     {"input": "strs = []", "output": "[]", "explanation": "An empty list must survive the round trip as an empty list."},

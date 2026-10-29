@@ -8,6 +8,7 @@
   "functionName": "is_anagram",
   "signature": "def is_anagram(s: str, t: str) -> bool:",
   "starterCode": "def is_anagram(s: str, t: str) -> bool:\n    \"\"\"Return True if t is a rearrangement of the letters of s, using every letter exactly as often.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return true if t is a rearrangement of the letters of s, using every letter exactly as often.\n * @param {string} s\n * @param {string} t\n * @return {boolean}\n */\nfunction isAnagram(s, t) {\n\n}\n",
   "examples": [
     {"input": "s = \"listen\", t = \"silent\"", "output": "True", "explanation": "Rearranging the letters of \"listen\" can spell \"silent\"."},
     {"input": "s = \"rat\", t = \"car\"", "output": "False", "explanation": "The letters r, a and t are not the same as c, a and r."},

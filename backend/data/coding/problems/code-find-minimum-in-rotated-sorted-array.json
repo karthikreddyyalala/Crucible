@@ -8,6 +8,7 @@
   "functionName": "find_min",
   "signature": "def find_min(nums: list[int]) -> int:",
   "starterCode": "def find_min(nums: list[int]) -> int:\n    \"\"\"Return the smallest value in a sorted list that has been rotated, in O(log n) time.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the smallest value in a sorted list that has been rotated, in O(log n) time.\n * @param {number[]} nums\n * @return {number}\n */\nfunction findMin(nums) {\n\n}\n",
   "examples": [
     {"input": "nums = [6, 7, 9, 2, 3, 4]", "output": "2", "explanation": "The list was rotated so that 2 follows 9; the smallest value is 2."},
     {"input": "nums = [10, 12, 15, 18]", "output": "10", "explanation": "A rotation of zero leaves the list sorted, so the minimum is the first element."},

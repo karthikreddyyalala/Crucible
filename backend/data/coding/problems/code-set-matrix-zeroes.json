@@ -9,6 +9,7 @@
   "functionName": "set_zeroes",
   "signature": "def set_zeroes(matrix: List[List[int]]) -> None:",
   "starterCode": "def set_zeroes(matrix: List[List[int]]) -> None:\n    \"\"\"If a cell is 0, set its whole row and column to 0, in place.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * If a cell is 0, set its whole row and column to 0, in place.\n * @param {number[][]} matrix\n * @return {void}\n */\nfunction setZeroes(matrix) {\n\n}\n",
   "examples": [
     {"input": "matrix = [[1, 1, 1], [1, 0, 1], [1, 1, 1]]", "output": "[[1, 0, 1], [0, 0, 0], [1, 0, 1]]", "explanation": "The single zero clears its whole row and its whole column."},
     {"input": "matrix = [[0, 2, 3, 4], [5, 6, 7, 8], [9, 0, 1, 2]]", "output": "[[0, 0, 0, 0], [0, 0, 7, 8], [0, 0, 0, 0]]", "explanation": "Zeros at (0, 0) and (2, 1) clear rows 0 and 2 and columns 0 and 1."},

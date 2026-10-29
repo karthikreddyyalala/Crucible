@@ -8,6 +8,7 @@
   "functionName": "find_words",
   "signature": "def find_words(board: List[List[str]], words: List[str]) -> List[str]:",
   "starterCode": "def find_words(board: List[List[str]], words: List[str]) -> List[str]:\n    \"\"\"Return every word from words that can be traced on the board, in any order.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return every word from words that can be traced on the board, in any order.\n * @param {string[][]} board\n * @param {string[]} words\n * @return {string[]}\n */\nfunction findWords(board, words) {\n\n}\n",
   "examples": [
     {"input": "board = [[\"c\", \"a\", \"t\"], [\"o\", \"r\", \"e\"], [\"d\", \"o\", \"g\"]], words = [\"cat\", \"core\", \"dog\", \"care\", \"rod\", \"tag\"]", "output": "[\"cat\", \"core\", \"dog\", \"care\", \"rod\"]", "explanation": "\"tag\" fails because g isn't next to a; each of the others can be traced through neighboring cells."},
     {"input": "board = [[\"a\", \"b\"], [\"c\", \"d\"]], words = [\"abdc\", \"abc\", \"acdb\", \"ad\"]", "output": "[\"abdc\", \"acdb\"]", "explanation": "Diagonal moves don't count, so neither \"abc\" nor \"ad\" can be spelled."},

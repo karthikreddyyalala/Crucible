@@ -9,6 +9,7 @@
   "functionName": "erase_overlap_intervals",
   "signature": "def erase_overlap_intervals(intervals: List[List[int]]) -> int:",
   "starterCode": "def erase_overlap_intervals(intervals: List[List[int]]) -> int:\n    \"\"\"Return the minimum number of intervals to remove so the rest do not overlap.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the minimum number of intervals to remove so the rest do not overlap.\n * @param {number[][]} intervals\n * @return {number}\n */\nfunction eraseOverlapIntervals(intervals) {\n\n}\n",
   "examples": [
     {"input": "intervals = [[0, 5], [1, 2], [3, 4], [2, 3]]", "output": "1", "explanation": "The long interval [0, 5] overlaps all three others, so removing it leaves [1, 2], [2, 3], [3, 4]."},
     {"input": "intervals = [[1, 2], [1, 2], [1, 2]]", "output": "2", "explanation": "Three identical intervals all overlap, so two must go."},

@@ -8,6 +8,7 @@
   "functionName": "longest_palindrome",
   "signature": "def longest_palindrome(s: str) -> str:",
   "starterCode": "def longest_palindrome(s: str) -> str:\n    \"\"\"Return the longest substring of s that reads the same forwards and backwards.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the longest substring of s that reads the same forwards and backwards.\n * @param {string} s\n * @return {string}\n */\nfunction longestPalindrome(s) {\n\n}\n",
   "examples": [
     {"input": "s = \"mqracecarzk\"", "output": "\"racecar\"", "explanation": "\"racecar\" has seven characters and reads the same both ways; nothing longer qualifies."},
     {"input": "s = \"abbc\"", "output": "\"bb\"", "explanation": "The longest palindrome is the even-length \"bb\"; there is no single middle character."},

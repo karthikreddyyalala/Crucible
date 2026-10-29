@@ -8,6 +8,7 @@
   "functionName": "max_product",
   "signature": "def max_product(nums: list[int]) -> int:",
   "starterCode": "def max_product(nums: list[int]) -> int:\n    \"\"\"Return the largest product of any contiguous, non-empty slice of nums.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return the largest product of any contiguous, non-empty slice of nums.\n * @param {number[]} nums\n * @return {number}\n */\nfunction maxProduct(nums) {\n\n}\n",
   "examples": [
     {"input": "nums = [1, -2, 3, -1, 2]", "output": "12", "explanation": "Two negatives cancel: the whole list gives 1 * -2 * 3 * -1 * 2 = 12."},
     {"input": "nums = [-3, 0, -2]", "output": "0", "explanation": "Any slice containing the zero has product 0, and the single values -3 and -2 are negative, so the best product is 0."},

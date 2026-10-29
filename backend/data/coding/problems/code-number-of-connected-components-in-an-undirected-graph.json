@@ -8,6 +8,7 @@
   "functionName": "count_components",
   "signature": "def count_components(n: int, edges: List[List[int]]) -> int:",
   "starterCode": "def count_components(n: int, edges: List[List[int]]) -> int:\n    \"\"\"Return how many connected groups the n nodes form.\"\"\"\n    pass\n",
+  "starterCodeJs": "/**\n * Return how many connected groups the n nodes form.\n * @param {number} n\n * @param {number[][]} edges\n * @return {number}\n */\nfunction countComponents(n, edges) {\n\n}\n",
   "examples": [
     {"input": "n = 6, edges = [[0, 1], [2, 3], [3, 4]]", "output": "3", "explanation": "The groups are {0, 1}, {2, 3, 4} and {5} on its own."},
     {"input": "n = 3, edges = []", "output": "3", "explanation": "With no edges, every node is its own component."},

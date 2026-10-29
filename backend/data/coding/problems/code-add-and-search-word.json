@@ -9,6 +9,7 @@
   "functionName": "WordDictionary",
   "signature": "class WordDictionary:\n    def __init__(self):\n    def addWord(self, word: str) -> None:\n    def search(self, word: str) -> bool:",
   "starterCode": "class WordDictionary:\n    def __init__(self):\n        pass\n\n    def addWord(self, word: str) -> None:\n        \"\"\"Store word.\"\"\"\n        pass\n\n    def search(self, word: str) -> bool:\n        \"\"\"Return True if a stored word matches; '.' matches any one letter.\"\"\"\n        pass\n",
+  "starterCodeJs": "class WordDictionary {\n    constructor() {\n\n    }\n\n    /**\n     * Store word.\n     * @param {string} word\n     * @return {void}\n     */\n    addWord(word) {\n\n    }\n\n    /**\n     * Return true if a stored word matches; '.' matches any one letter.\n     * @param {string} word\n     * @return {boolean}\n     */\n    search(word) {\n\n    }\n}\n",
   "examples": [
     {"input": "[\"WordDictionary\", \"addWord\", \"addWord\", \"search\", \"search\", \"search\"]\n[[], [\"cat\"], [\"cot\"], [\"c.t\"], [\"ca\"], [\"..\"]]", "output": "[null, null, null, true, false, false]", "explanation": "\"c.t\" matches both stored words; \"ca\" is only a prefix; \"..\" would need a two-letter word."},
     {"input": "[\"WordDictionary\", \"addWord\", \"search\", \"search\", \"search\"]\n[[], [\"moon\"], [\"m..n\"], [\"....\"], [\"m...n\"]]", "output": "[null, null, true, true, false]", "explanation": "Dots can stand for any letters, but \"m...n\" has five characters and \"moon\" has four."},
