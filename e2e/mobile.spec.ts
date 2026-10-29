@@ -13,3 +13,15 @@ test("a coding question on a phone: problem and a notice, no editor", async ({ p
   await expect(editor(page)).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Run", exact: true })).toHaveCount(0);
 });
+
+test.describe("at 375px", () => {
+  test.use({ viewport: { width: 375, height: 740 } });
+
+  test("the interview screen fits with no sideways scroll", async ({ page }) => {
+    await startSession(page, { mode: "Coding", level: "Junior" });
+    await getToFirstQuestion(page);
+    await expect(page.getByTestId("interview-status")).toBeVisible();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+});

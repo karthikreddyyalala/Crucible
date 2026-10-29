@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
-import { forwardRef } from "react";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { forwardRef, type ReactElement } from "react";
 import { api } from "@/lib/api";
 import type { PublicProblem } from "@/lib/coding/types";
 import type { RunOutcome } from "@/lib/coding/types";
@@ -104,7 +104,15 @@ function setScreen(wide: boolean) {
   })) as unknown as typeof window.matchMedia;
 }
 
-function start(question: PlannedQuestion, extra: Partial<ReturnType<typeof useSessionStore.getState>> = {}) {
+function start(
+  question: PlannedQuestion,
+  extra: Partial<ReturnType<typeof useSessionStore.getState>> = {},
+  ui: ReactElement = (
+    <MemoryRouter>
+      <Interview />
+    </MemoryRouter>
+  ),
+) {
   useSessionStore.setState({
     status: "live",
     phase: "question",
@@ -124,11 +132,7 @@ function start(question: PlannedQuestion, extra: Partial<ReturnType<typeof useSe
     setCode,
     ...extra,
   });
-  return render(
-    <MemoryRouter>
-      <Interview />
-    </MemoryRouter>,
-  );
+  return render(ui);
 }
 
 beforeEach(() => {
@@ -234,7 +238,7 @@ describe("Interview", () => {
     start(coding, { status: "thinking", eventInFlight: false });
     const composer = await screen.findByRole("textbox", { name: "Your answer" });
     expect(composer).toBeDisabled();
-    expect(composer).toHaveAttribute("placeholder", "Interviewer is thinking…");
+    expect(composer).toHaveAttribute("placeholder", "Marcus is thinking…");
   });
 
   it("tells the store whether the editor is on screen, so Marcus knows to talk it through", async () => {
@@ -475,5 +479,114 @@ describe("Interview", () => {
       fireEvent.click(screen.getByRole("button", { name: "Speak your answer" }));
       expect(speech.start).toHaveBeenCalledWith();
     });
+  });
+});
+
+describe("Interview status and control", () => {
+  const status = () => screen.getByTestId("interview-status");
+
+  it("says what's happening in words, voice on or off", () => {
+    setScreen(true);
+    const view = start(behavioral);
+    expect(status()).toHaveTextContent("Your turn.");
+    expect(screen.getByText("Question 1 of 1")).toBeInTheDocument();
+    view.unmount();
+
+    start(behavioral, { status: "thinking", eventInFlight: false });
+    expect(status()).toHaveTextContent("Marcus is thinking…");
+  });
+
+  it("shows when Marcus is speaking and when the mic is listening", () => {
+    setScreen(true);
+    Object.assign(speech, { supported: true });
+    voice.speaking = true;
+    const view = start(behavioral);
+    fireEvent.click(screen.getByTitle("Turn voice on"));
+    expect(status()).toHaveTextContent("Marcus is speaking.");
+    view.unmount();
+
+    voice.speaking = false;
+    speech.listening = true;
+    start(behavioral);
+    expect(status()).toHaveTextContent("Listening. Tap the mic again to stop.");
+  });
+
+  it("names the stage in plain words", () => {
+    setScreen(true);
+    start(behavioral, { phase: "warmup" });
+    expect(screen.getByText("Introductions")).toBeInTheDocument();
+  });
+
+  it("asks before the logo takes you out of a live interview", () => {
+    setScreen(true);
+    start(
+      behavioral,
+      {},
+      <MemoryRouter initialEntries={["/interview"]}>
+        <Routes>
+          <Route path="/interview" element={<Interview />} />
+          <Route path="/" element={<p>Home page</p>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByRole("link", { name: "Crucible" }));
+    expect(screen.getByRole("alertdialog", { name: "Leave the interview?" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Stay in the interview" })).toHaveFocus();
+
+    fireEvent.keyDown(screen.getByRole("button", { name: "Stay in the interview" }), { key: "Escape" });
+    expect(screen.queryByText("Home page")).toBeNull();
+
+    fireEvent.click(screen.getByRole("link", { name: "Crucible" }));
+    fireEvent.click(screen.getByRole("button", { name: "Leave" }));
+    expect(screen.getByText("Home page")).toBeInTheDocument();
+  });
+
+  it("a failed turn offers to send the answer again", () => {
+    setScreen(true);
+    start(behavioral);
+    fireEvent.change(screen.getByRole("textbox", { name: "Your answer" }), { target: { value: "We used a queue." } });
+    act(() => useSessionStore.setState({ turnError: "Couldn't reach the server. Check your connection and try again." }));
+    expect(screen.getByRole("alert")).toHaveTextContent("Your answer is still in the box.");
+    fireEvent.click(screen.getByRole("button", { name: "Send again" }));
+    expect(useSessionStore.getState().submitAnswer).toHaveBeenCalledWith("We used a queue.");
+  });
+
+  it("a failed results save offers to try again", () => {
+    setScreen(true);
+    const retryFinalize = vi.fn();
+    start(behavioral, { status: "wrapping", turnError: "Something went wrong on our side.", retryFinalize });
+    expect(status()).toHaveTextContent("Your results haven't saved yet.");
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(retryFinalize).toHaveBeenCalled();
+  });
+
+  it("shows the coding tip once, until dismissed", async () => {
+    setScreen(true);
+    const view = start(coding);
+    expect(await screen.findByText(/Talk through your approach with Marcus first/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Got it" }));
+    expect(screen.queryByText(/Talk through your approach with Marcus first/)).toBeNull();
+    view.unmount();
+
+    start(coding);
+    await screen.findByRole("button", { name: /^Run/ });
+    expect(screen.queryByText(/Talk through your approach with Marcus first/)).toBeNull();
+  });
+
+  it("explains hands-free mode the first time voice is on", () => {
+    setScreen(true);
+    Object.assign(speech, { supported: true });
+    start(behavioral);
+    expect(screen.queryByText(/Hands-free: Marcus listens/)).toBeNull();
+    fireEvent.click(screen.getByTitle("Turn voice on"));
+    expect(screen.getByText(/Hands-free: Marcus listens/)).toBeInTheDocument();
+  });
+
+  it("lets you skip a video room that's still connecting", async () => {
+    setScreen(true);
+    start(behavioral, { useVideo: true });
+    expect(screen.getByText("Connecting you to Marcus…")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Continue without video" }));
+    await waitFor(() => expect(screen.queryByText("Connecting you to Marcus…")).toBeNull());
   });
 });

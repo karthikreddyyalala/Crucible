@@ -12,7 +12,7 @@ test("code and the coding question survive a reload", async ({ page }) => {
   const before = await session(page);
   await page.reload();
 
-  await expect(page.getByText("SESSION RESTORED")).toBeVisible();
+  await expect(page.getByText("Session restored.")).toBeVisible();
   await expect(page.getByRole("heading", { level: 1, name: problem.title, exact: true })).toBeVisible();
   await expect(editor(page)).toContainText("half-way through: try a hash map");
   const after = await session(page);

@@ -42,11 +42,33 @@ export function TavusCallOverlay({
     };
   }, [videoTrack]);
 
+  // Escape minimizes, like any overlay.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const caption = thinking
+    ? "Marcus is thinking…"
+    : speaking
+    ? "Marcus is speaking."
+    : listening
+    ? "Listening. Speak your answer."
+    : sttSupported
+    ? "Tap the mic and answer out loud."
+    : "Minimize to type your answer.";
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Video call with Marcus"
       className="fixed inset-0 z-[60] flex flex-col bg-void/95 backdrop-blur-xl"
     >
       {/* top bar: question + minimize */}
@@ -59,10 +81,11 @@ export function TavusCallOverlay({
         </div>
         <button
           onClick={onClose}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-line-bright px-3 py-1.5 font-mono text-[11px] tracking-wide text-fog tactile transition-colors hover:text-chalk"
+          title="Minimize (Esc)"
+          className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border border-line-bright px-4 font-sans text-[13px] text-mist tactile transition-colors hover:text-chalk focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >
-          <CornersIn size={13} weight="bold" />
-          MINIMIZE
+          <CornersIn size={14} weight="bold" aria-hidden />
+          Minimize
         </button>
       </div>
 
@@ -79,10 +102,8 @@ export function TavusCallOverlay({
         >
           <video ref={videoRef} autoPlay playsInline muted className="h-full w-full object-cover" />
           {speaking && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-              <span className="rounded-full bg-void/70 px-3 py-1 font-mono text-[10px] tracking-[0.16em] text-accent">
-                SPEAKING
-              </span>
+            <div aria-hidden className="absolute bottom-4 left-1/2 -translate-x-1/2">
+              <span className="rounded-full bg-void/70 px-3 py-1 font-sans text-[12px] text-accent">Speaking</span>
             </div>
           )}
         </motion.div>
@@ -92,20 +113,20 @@ export function TavusCallOverlay({
       <div className="px-5 py-6 sm:px-8">
         <div className="mx-auto max-w-[640px]">
           {/* live transcript of what you're saying */}
-          <div className="mb-4 min-h-[48px] rounded-2xl border border-line bg-ink px-4 py-3 text-[15px] leading-relaxed text-chalk">
-            {draft || (
-              <span className="text-fog">
-                {listening ? "Listening. Speak your answer…" : "Tap the mic and answer out loud."}
-              </span>
-            )}
+          <div className="mb-4 min-h-[48px] rounded-2xl border border-line bg-ink px-4 py-3 font-sans text-[15px] leading-relaxed text-chalk">
+            {draft || <span className="text-mist">{caption}</span>}
           </div>
+          <p role="status" className="sr-only">
+            {caption}
+          </p>
 
           <div className="flex items-center justify-center gap-4">
             {sttSupported && (
               <button
                 onClick={onToggleMic}
                 disabled={thinking}
-                className={`grid h-16 w-16 place-items-center rounded-full tactile transition-colors disabled:opacity-30 ${
+                autoFocus
+                className={`grid h-16 w-16 place-items-center rounded-full tactile transition-colors disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
                   listening
                     ? "bg-survive/20 text-survive ring-2 ring-survive/40"
                     : "border border-line-bright text-chalk hover:bg-surface"
@@ -127,15 +148,15 @@ export function TavusCallOverlay({
             <button
               onClick={onSend}
               disabled={!draft.trim() || thinking}
-              className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-4 text-sm font-semibold text-void tactile transition-opacity disabled:opacity-30"
+              className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-4 font-sans text-sm font-semibold text-void tactile transition-opacity disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
-              <PaperPlaneTilt size={17} weight="fill" />
+              <PaperPlaneTilt size={17} weight="fill" aria-hidden />
               {thinking ? "Sending…" : "Send answer"}
             </button>
           </div>
 
-          <p className="mt-4 text-center font-mono text-[10px] tracking-wide text-fog">
-            {sttSupported ? "MIC TO SPEAK · " : ""}THE INTERVIEWER RESPONDS IN VIDEO · MINIMIZE TO TYPE INSTEAD
+          <p className="mt-4 text-center font-sans text-[12px] text-mist">
+            {sttSupported ? "Mic to speak. " : ""}Minimize (Esc) to type instead.
           </p>
         </div>
       </div>
