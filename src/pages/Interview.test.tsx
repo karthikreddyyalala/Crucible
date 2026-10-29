@@ -22,10 +22,10 @@ vi.mock("@/hooks/usePythonRunner", () => ({ usePythonRunner: () => runner }));
 // Mutable so tests can drive the voice: what the mic hears, whether Marcus is talking.
 const speech = vi.hoisted(() => ({
   supported: false, listening: false, transcript: "", semantic: false,
-  start: vi.fn(), stop: vi.fn(), onTurnEnd: undefined as ((text: string) => void) | undefined,
+  start: vi.fn(), stop: vi.fn(), onTurnEnd: undefined as ((text: string) => boolean) | undefined,
 }));
 vi.mock("@/hooks/useSpeechInput", () => ({
-  useSpeechInput: (_terms: readonly string[], onTurnEnd?: (text: string) => void) => {
+  useSpeechInput: (_terms: readonly string[], onTurnEnd?: (text: string) => boolean) => {
     speech.onTurnEnd = onTurnEnd;
     return speech;
   },
@@ -34,9 +34,8 @@ const voice = vi.hoisted(() => ({ speak: vi.fn(), cancel: vi.fn(), unlock: vi.fn
 vi.mock("@/hooks/useElevenLabsTTS", () => ({ useElevenLabsTTS: () => voice }));
 const backchannel = vi.hoisted(() => ({ unlock: vi.fn(), play: vi.fn() }));
 vi.mock("@/hooks/useBackchannel", () => ({ useBackchannel: () => backchannel }));
-vi.mock("@/hooks/useSpeechSynthesis", () => ({
-  useSpeechSynthesis: () => ({ speak: vi.fn(), cancel: vi.fn(), speaking: false, supported: false }),
-}));
+const browserVoice = vi.hoisted(() => ({ speak: vi.fn(), cancel: vi.fn(), speaking: false, supported: false }));
+vi.mock("@/hooks/useSpeechSynthesis", () => ({ useSpeechSynthesis: () => browserVoice }));
 vi.mock("@/hooks/useTavus", () => ({
   useTavus: () => ({
     activate: vi.fn(), deactivate: vi.fn(), speak: vi.fn(), status: "idle", ready: false, speaking: false, videoTrack: null,
@@ -124,6 +123,7 @@ beforeEach(() => {
   vi.spyOn(api, "getProblem").mockResolvedValue(problem);
   Object.assign(speech, { supported: false, listening: false, transcript: "", semantic: false, onTurnEnd: undefined });
   Object.assign(voice, { speaking: false, available: true });
+  Object.assign(browserVoice, { speaking: false, supported: false });
 });
 
 afterEach(() => {
@@ -328,13 +328,114 @@ describe("Interview", () => {
       expect(voice.cancel).toHaveBeenCalled();
     });
 
-    it("ignores an end of turn while Marcus is still talking", () => {
+    it("ignores his own voice ending a turn while he's still talking", () => {
       setScreen(true);
       Object.assign(speech, { supported: true, semantic: true });
       voice.speaking = true;
       start(behavioral);
-      act(() => speech.onTurnEnd?.("Thank you so much."));
+      voiceOn();
+      act(() => {
+        expect(speech.onTurnEnd?.("about a conflict")).toBe(true);
+      });
       expect(submitted()).not.toHaveBeenCalled();
+    });
+
+    it("drops his own voice leaking back even when the turn ends just after he stops", () => {
+      setScreen(true);
+      Object.assign(speech, { supported: true, semantic: true, listening: true });
+      voice.speaking = true;
+      const view = start(behavioral);
+      voiceOn();
+      speech.transcript = "Tell me about a";
+      rerender(view);
+      voice.speaking = false;
+      rerender(view);
+      act(() => {
+        expect(speech.onTurnEnd?.("Tell me about a conflict.")).toBe(true);
+      });
+      expect(submitted()).not.toHaveBeenCalled();
+    });
+
+    it("sends a real answer that began while he was finishing", () => {
+      setScreen(true);
+      Object.assign(speech, { supported: true, semantic: true, listening: true });
+      voice.speaking = true;
+      const view = start(behavioral);
+      voiceOn();
+      speech.transcript = "Sorry, can I clarify";
+      rerender(view);
+      voice.speaking = false;
+      rerender(view);
+      act(() => {
+        speech.onTurnEnd?.("Sorry, can I clarify the scope first?");
+      });
+      expect(submitted()).toHaveBeenCalledWith("Sorry, can I clarify the scope first?");
+    });
+
+    it("a real interruption that ends while he talks stops him and is sent", () => {
+      setScreen(true);
+      Object.assign(speech, { supported: true, semantic: true });
+      voice.speaking = true;
+      start(behavioral);
+      voiceOn();
+      act(() => {
+        expect(speech.onTurnEnd?.("Sorry, can I clarify the scope first?")).toBe(true);
+      });
+      expect(voice.cancel).toHaveBeenCalled();
+      expect(submitted()).toHaveBeenCalledWith("Sorry, can I clarify the scope first?");
+    });
+
+    it("with voice off, an end of turn only fills the draft", () => {
+      setScreen(true);
+      Object.assign(speech, { supported: true, semantic: true });
+      start(behavioral);
+      act(() => {
+        expect(speech.onTurnEnd?.("We used a queue.")).toBe(false);
+      });
+      expect(submitted()).not.toHaveBeenCalled();
+    });
+
+    it("keeps the turn while the composer is locked", () => {
+      setScreen(true);
+      Object.assign(speech, { supported: true, semantic: true });
+      start(behavioral, { status: "thinking", eventInFlight: false });
+      voiceOn();
+      act(() => {
+        expect(speech.onTurnEnd?.("We used a queue.")).toBe(false);
+      });
+      expect(submitted()).not.toHaveBeenCalled();
+    });
+
+    it("doesn't cut off the browser voice: it isn't echo-cancelled", () => {
+      setScreen(true);
+      Object.assign(speech, { supported: true, semantic: true, listening: true });
+      Object.assign(browserVoice, { speaking: true, supported: true });
+      const view = start(behavioral);
+      speech.transcript = "Sorry, can I clarify something?";
+      rerender(view);
+      expect(browserVoice.cancel).not.toHaveBeenCalled();
+    });
+
+    it("opens the mic for Flux only when he starts speaking, and normally when he finishes", () => {
+      setScreen(true);
+      Object.assign(speech, { supported: true, semantic: true });
+      const view = start(behavioral);
+      voiceOn();
+      speech.start.mockClear();
+      voice.speaking = true;
+      rerender(view);
+      expect(speech.start).toHaveBeenLastCalledWith(true);
+      voice.speaking = false;
+      rerender(view);
+      expect(speech.start).toHaveBeenLastCalledWith();
+    });
+
+    it("the mic button never passes the click as an argument", () => {
+      setScreen(true);
+      Object.assign(speech, { supported: true });
+      start(behavioral);
+      fireEvent.click(screen.getByRole("button", { name: "Speak your answer" }));
+      expect(speech.start).toHaveBeenCalledWith();
     });
   });
 });

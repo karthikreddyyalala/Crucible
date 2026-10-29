@@ -170,14 +170,21 @@ export function Interview() {
     wasSpeaking.current = interviewerSpeaking;
     // On Flux the mic is open while he talks, so the candidate can interrupt him.
     const opens = finished || (started && stt.semantic && !useVideo);
-    if (opens && voiceOn && status === "live" && stt.supported && !stt.listening) stt.start();
+    if (!opens || !voiceOn || status !== "live" || !stt.supported || stt.listening) return;
+    // The "he started" start is Flux-only: it never falls back to Nova-3 or the browser.
+    if (finished) stt.start();
+    else stt.start(true);
   }, [interviewerSpeaking, voiceOn, status, stt, useVideo]);
 
   // Interrupting: a real sentence from the candidate stops his voice at once; their
-  // turn is then sent when Flux hears them finish.
+  // turn is then sent when Flux hears them finish. Only the ElevenLabs voice: the
+  // browser's OS voice isn't echo-cancelled, so the mic hears him as the candidate.
   const lastInterviewerLine = [...messages].reverse().find((m) => m.speaker === "interviewer")?.text ?? "";
+  // A turn that began while he was talking may be him, even if it ends after he stops.
+  const heardWhileSpeaking = useRef(false);
   useEffect(() => {
-    if (stt.semantic && !useVideo && tts.speaking && isRealInterruption(stt.transcript, lastInterviewerLine)) tts.cancel();
+    if (interviewerSpeaking && stt.transcript.trim()) heardWhileSpeaking.current = true;
+    if (stt.semantic && !useVideo && eleven.speaking && isRealInterruption(stt.transcript, lastInterviewerLine)) tts.cancel();
     // tts is recreated every render; the transcript is what matters here
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stt.transcript]);
@@ -210,6 +217,11 @@ export function Interview() {
     return () => clearTimeout(t);
   }, [justRestored, clearRestored]);
 
+  const thinking = status === "thinking";
+  // Marcus handling a check-in or Submit isn't a reply to the candidate: they can keep
+  // typing, and what they send goes out right after it.
+  const locked = (thinking && !eventInFlight) || status === "wrapping" || status === "complete";
+
   // Restore the draft when a turn fails so the user can retry without retyping.
   useEffect(() => {
     if (turnError && lastDraft) setDraft(lastDraft);
@@ -232,10 +244,6 @@ export function Interview() {
     phase === "warmup" || phase === "background" ? "INTRODUCTIONS"
     : phase === "closing" ? "YOUR QUESTIONS FOR THE INTERVIEWER"
     : null;
-  const thinking = status === "thinking";
-  // Marcus handling a check-in or Submit isn't a reply to the candidate: they can keep
-  // typing, and what they send goes out right after it.
-  const locked = (thinking && !eventInFlight) || status === "wrapping" || status === "complete";
   const total = plan.questions.length;
   const progressPct =
     phase === "closing" ? 100 : inQuestions ? (currentIdx / total) * 100 : 0;
@@ -269,17 +277,25 @@ export function Interview() {
       eleven.unlock();
       backchannel.unlock();
       tts.cancel();
-      stt.start();
+      stt.start(); // never the click event: start(true) means Flux-only
     }
   };
 
   const send = () => sendText(draft);
 
-  // An end of turn while he's still talking wasn't an interruption (that would have
-  // stopped him): it's his own voice or a "thank you", so drop it.
-  function handleTurnEnd(text: string) {
-    if (interviewerSpeaking) return;
+  // Flux heard the candidate finish. true = the text is used up (sent or thrown away),
+  // false = keep it and let the next turn add to it.
+  function handleTurnEnd(text: string): boolean {
+    if (!voiceOn) return false; // dictating: keep building the draft
+    const overlapped = interviewerSpeaking || heardWhileSpeaking.current;
+    heardWhileSpeaking.current = false;
+    // A turn that began while he was talking is his own voice leaking back or a "mm-hm",
+    // unless it's a real interruption.
+    if (overlapped && !isRealInterruption(text, lastInterviewerLine)) return true;
+    if (locked || text.length > ANSWER_LIMIT) return false; // keep it; nothing is lost
+    if (interviewerSpeaking) tts.cancel();
     void sendText(text, true);
+    return true;
   }
 
   async function sendText(raw: string, spoken = false) {

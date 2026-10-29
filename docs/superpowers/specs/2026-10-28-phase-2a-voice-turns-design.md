@@ -30,10 +30,16 @@ seconds. And the mic is off while he talks, so you can't interrupt him.
   answer on `onTurnEnd` and does **not** run the silence timer.
 - `eot_timeout_ms=5000`: after 5 s of silence Flux ends the turn even if unsure, so a
   candidate who stops mid-sentence is never stuck.
+- Finished turns are kept, like Nova-3's phrases. `onTurnEnd(text)` gets everything since
+  the last used turn and returns true when it used the text (sent it or threw it away);
+  false (voice off, composer locked) keeps it and the next turn is added to it.
+- Messages that arrive after stop or release are ignored, so a `CloseStream` flush can't
+  send half an answer.
+- Video mode also sends on Flux end of turn (no backchannel, no barge-in).
 
 ### 2. Fallbacks (the live site must not break)
 
-1. Flux socket doesn't open in 5 s or errors on connect (unknown param, token not
+1. Flux socket doesn't open in 3 s or errors on connect (unknown param, token not
    accepted on `/v2`, network) → the same `start()` tries Nova-3 exactly as today
    (`semantic: false`, silence timer as today). Once Flux fails, the session stays on
    Nova-3.
@@ -55,16 +61,20 @@ seconds. And the mic is off while he talks, so you can't interrupt him.
 
 ### 4. Barge-in (interrupt Marcus)
 
-- On Flux only. While Marcus is speaking (voice-only mode, ElevenLabs or browser voice), the
-  mic is already listening.
+- On Flux only. While Marcus is speaking (voice-only mode), the mic is already listening.
+  That start is Flux-only: if Flux isn't available it opens nothing (no Nova-3, no browser
+  recognizer) and the mic opens as usual when he finishes.
 - `isRealInterruption(heard, marcusLine)` in `turnTaking.ts` decides: at least 2 words heard,
   and at least 2 of them are not words in the line Marcus is saying (so his own voice
   leaking from the speakers, a cough or a lone "mm" never stop him).
+- Barge-in only stops the ElevenLabs voice. The browser's OS voice isn't echo-cancelled, so
+  the mic would hear Marcus as the candidate; with it he is never cut off mid-line.
 - On a real interruption: stop his voice at once (`tts.cancel()`), keep listening, and the
   candidate's turn is sent on `EndOfTurn` as usual. The interrupted message stays in the
   transcript as written.
-- An `EndOfTurn` that arrives while Marcus is still speaking and was not a real
-  interruption is thrown away (not sent).
+- Overlap rule: a turn that overlapped his speech (it ends while he speaks, or words were
+  heard while he spoke even if it ends just after) is thrown away unless it's a real
+  interruption. That catches his own voice leaking back and a "mm-hm".
 - Fallback modes (Nova-3, browser) keep today's behaviour: the mic opens after he finishes.
 - Video mode is unchanged (Tavus handles its own turn-taking; 2d).
 

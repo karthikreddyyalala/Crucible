@@ -12,6 +12,7 @@ class FakeSocket {
   static OPEN = 1;
   static last: FakeSocket;
   static failUrl: RegExp | null = null;
+  static urls: string[] = [];
   readyState = FakeSocket.CONNECTING;
   sent: unknown[] = [];
   onopen: (() => void) | null = null;
@@ -20,6 +21,7 @@ class FakeSocket {
   onmessage: ((e: { data: string }) => void) | null = null;
   constructor(public url: string, public protocols: string[]) {
     FakeSocket.last = this;
+    FakeSocket.urls.push(url);
     if (FakeSocket.failUrl?.test(url)) {
       queueMicrotask(() => this.onerror?.());
       return;
@@ -58,6 +60,8 @@ class FakeRecorder {
 const stopTrack = vi.fn();
 
 beforeEach(() => {
+  FakeSocket.urls = [];
+  stopTrack.mockClear();
   FakeSocket.failUrl = null;
   sttToken.mockReset().mockResolvedValue("jwt");
   vi.stubGlobal("WebSocket", FakeSocket);
@@ -109,6 +113,24 @@ describe("useDeepgramSTT", () => {
     expect(result.current.listening).toBe(false);
   });
 
+  it("asks for the mic before the 30 s token, and releases the mic without a token", async () => {
+    const order: string[] = [];
+    vi.mocked(navigator.mediaDevices.getUserMedia).mockImplementationOnce(async () => {
+      order.push("mic");
+      return { getTracks: () => [{ stop: stopTrack }] } as unknown as MediaStream;
+    });
+    sttToken.mockImplementationOnce(async () => {
+      order.push("token");
+      return null;
+    });
+    const { result } = renderHook(() => useDeepgramSTT());
+    await act(async () => {
+      expect(await result.current.start()).toBe(false);
+    });
+    expect(order).toEqual(["mic", "token"]);
+    expect(stopTrack).toHaveBeenCalled();
+  });
+
   it("reports false when the backend has no Deepgram", async () => {
     sttToken.mockResolvedValueOnce(null);
     const { result } = renderHook(() => useDeepgramSTT());
@@ -155,6 +177,62 @@ describe("useDeepgramSTT on Flux", () => {
     expect(onTurnEnd).not.toHaveBeenCalled();
   });
 
+  it("keeps a finished turn that wasn't used and adds the next one to it", async () => {
+    const onTurnEnd = vi.fn(() => false);
+    const { result } = renderHook(() => useDeepgramSTT([], onTurnEnd));
+    await act(async () => {
+      await result.current.start();
+    });
+    act(() => FakeSocket.last.turn("EndOfTurn", "First I sort."));
+    act(() => FakeSocket.last.turn("Update", "Then two"));
+    expect(result.current.transcript).toBe("First I sort. Then two");
+    act(() => FakeSocket.last.turn("EndOfTurn", "Then two pointers."));
+    expect(onTurnEnd).toHaveBeenLastCalledWith("First I sort. Then two pointers.");
+  });
+
+  it("starts fresh after a turn is used", async () => {
+    const onTurnEnd = vi.fn(() => true);
+    const { result } = renderHook(() => useDeepgramSTT([], onTurnEnd));
+    await act(async () => {
+      await result.current.start();
+    });
+    act(() => FakeSocket.last.turn("EndOfTurn", "First I sort."));
+    expect(result.current.transcript).toBe("");
+    act(() => FakeSocket.last.turn("EndOfTurn", "Next answer."));
+    expect(onTurnEnd).toHaveBeenLastCalledWith("Next answer.");
+  });
+
+  it("ignores a turn that arrives after stop", async () => {
+    const onTurnEnd = vi.fn(() => true);
+    const { result } = renderHook(() => useDeepgramSTT([], onTurnEnd));
+    await act(async () => {
+      await result.current.start();
+    });
+    const socket = FakeSocket.last;
+    act(() => result.current.stop());
+    act(() => socket.turn("EndOfTurn", "half an answer"));
+    expect(onTurnEnd).not.toHaveBeenCalled();
+  });
+
+  it("a Flux-only start that can't reach Flux opens nothing else", async () => {
+    FakeSocket.failUrl = /\/v2\//;
+    const { result } = renderHook(() => useDeepgramSTT());
+    await act(async () => {
+      expect(await result.current.start(true)).toBe(true);
+    });
+    expect(FakeSocket.urls).toHaveLength(1);
+    expect(FakeSocket.urls[0]).toContain("model=flux-general-en");
+    expect(result.current.listening).toBe(false);
+    expect(result.current.semantic).toBe(false);
+    expect(stopTrack).toHaveBeenCalled();
+    // Flux is gone for the session: the next Flux-only start does nothing at all.
+    await act(async () => {
+      expect(await result.current.start(true)).toBe(true);
+    });
+    expect(FakeSocket.urls).toHaveLength(1);
+    expect(result.current.listening).toBe(false);
+  });
+
   it("falls back to Nova-3 when Flux won't open, and stays there", async () => {
     FakeSocket.failUrl = /\/v2\//;
     const { result } = renderHook(() => useDeepgramSTT());
@@ -177,6 +255,7 @@ describe("useDeepgramSTT on Flux", () => {
       await result.current.start();
     });
     act(() => FakeSocket.last.onclose?.());
+    expect(result.current.semantic).toBe(false);
     await act(async () => {
       await result.current.start();
     });
@@ -251,6 +330,28 @@ describe("useSpeechInput", () => {
       await Promise.resolve();
     });
     expect(browserStart).toHaveBeenCalledTimes(1);
+    // On the browser recognizer, a Flux-only start does nothing.
+    act(() => result.current.start(true));
+    expect(browserStart).toHaveBeenCalledTimes(1);
+    delete window.SpeechRecognition;
+  });
+
+  it("a Flux-only start never falls back to the browser recognizer", async () => {
+    sttToken.mockResolvedValue(null);
+    const browserStart = vi.fn();
+    class FakeRecognition {
+      start = browserStart;
+      stop = vi.fn();
+      abort = vi.fn();
+    }
+    window.SpeechRecognition = FakeRecognition as unknown as typeof window.SpeechRecognition;
+
+    const { result } = renderHook(() => useSpeechInput());
+    await act(async () => {
+      result.current.start(true);
+      for (let i = 0; i < 5; i++) await Promise.resolve();
+    });
+    expect(browserStart).not.toHaveBeenCalled();
     delete window.SpeechRecognition;
   });
 });
