@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { dashboardTakeaway, dotsLabel, summarizeMemory, weakSpotHistory, weakSpotStatus } from "./memoryStats";
-import type { MemoryProfile, SessionSummary } from "@/types/contracts";
+import { codingHistory, dashboardTakeaway, formatSeconds, dotsLabel, summarizeMemory, weakSpotHistory, weakSpotStatus } from "./memoryStats";
+import type { CodingAttempt, MemoryProfile, SessionSummary } from "@/types/contracts";
 
 function profile(over: Partial<MemoryProfile> = {}): MemoryProfile {
   return {
@@ -197,5 +197,120 @@ describe("dashboardTakeaway", () => {
     expect(dashboardTakeaway(summary, undefined, spots)).toBe(
       "You've finished 1 session. Rambling looks fixed. Keep it that way.",
     );
+  });
+});
+
+
+function attempt(problemId: string, over: Partial<CodingAttempt> = {}): CodingAttempt {
+  return {
+    questionId: `q-${problemId}`,
+    problemId,
+    language: "python",
+    testsPassed: 10,
+    testsTotal: 10,
+    submitted: true,
+    seconds: 660,
+    ...over,
+  };
+}
+const coded = (id: string, date: string, coding: CodingAttempt[]): SessionSummary => ({
+  ...sess(id, date),
+  coding,
+});
+const TITLES = { "code-two-sum": "Two Sum", "code-3sum": "3Sum" };
+
+describe("formatSeconds", () => {
+  it("rounds to minutes, says under a minute, and omits unknown", () => {
+    expect(formatSeconds(660)).toBe("11 min");
+    expect(formatSeconds(689)).toBe("11 min");
+    expect(formatSeconds(59)).toBe("under a minute");
+    expect(formatSeconds(0)).toBe("under a minute");
+    expect(formatSeconds(null)).toBeNull();
+  });
+});
+
+describe("codingHistory", () => {
+  it("is null when no session has coding attempts", () => {
+    expect(codingHistory([sess("a", "2026-10-01"), coded("b", "2026-10-02", [])], TITLES)).toBeNull();
+  });
+
+  it("counts distinct problems solved and names the fastest solve", () => {
+    const out = codingHistory(
+      [
+        coded("b", "2026-10-02", [
+          attempt("code-two-sum", { seconds: 660 }),
+          attempt("code-3sum", { seconds: 1500 }),
+          attempt("code-valid-anagram", { testsPassed: 9 }),
+        ]),
+        coded("a", "2026-10-01", [
+          attempt("code-two-sum", { seconds: 900 }),
+          attempt("code-group-anagrams", { seconds: 120, submitted: false }),
+          attempt("code-3sum", { seconds: 30, testsPassed: 4 }),
+        ]),
+      ],
+      TITLES,
+    );
+    expect(out?.takeaway).toBe("You've solved 2 of 4 problems. Fastest: Two Sum in 11 min.");
+  });
+
+  it("drops the fastest clause when no solve has a time, and handles nothing solved", () => {
+    expect(
+      codingHistory([coded("a", "2026-10-01", [attempt("code-two-sum", { seconds: null })])], TITLES)?.takeaway,
+    ).toBe("You've solved 1 of 1 problem.");
+    expect(
+      codingHistory([coded("a", "2026-10-01", [attempt("code-two-sum", { submitted: false })])], TITLES)?.takeaway,
+    ).toBe("You've tried 1 problem. Submit with every test passing to solve it.");
+  });
+
+  it("lists newest first, at most 6, with titles, languages, tests and time", () => {
+    const out = codingHistory(
+      [
+        coded("old", "2026-10-01", [attempt("code-a"), attempt("code-b"), attempt("code-c")]),
+        coded("new", "2026-10-03", [
+          attempt("code-two-sum", { language: "javascript", testsPassed: 12, testsTotal: 14 }),
+          attempt("code-merge-k-sorted-lists", { submitted: false, seconds: null }),
+          attempt("code-3sum", { seconds: 45 }),
+        ]),
+        coded("mid", "2026-10-02", [attempt("code-d")]),
+      ],
+      TITLES,
+    );
+    expect(out?.rows.map((r) => r.title)).toEqual([
+      "3Sum",
+      "Merge k sorted lists",
+      "Two Sum",
+      "D",
+      "C",
+      "B",
+    ]);
+    expect(out?.rows[0]).toMatchObject({ language: "Python", tests: "10 of 10 tests", time: "under a minute", solved: true });
+    expect(out?.rows[1]).toMatchObject({ tests: "Not submitted", time: null, solved: false });
+    expect(out?.rows[2]).toMatchObject({ language: "JavaScript", tests: "12 of 14 tests", time: "11 min", solved: false });
+  });
+
+  it("calls out only positive changes against the previous try of the same problem", () => {
+    const out = codingHistory(
+      [
+        coded("c", "2026-10-03", [
+          attempt("code-two-sum", { seconds: 300 }), // solved, faster than 660
+          attempt("code-3sum", { testsPassed: 8 }), // more passing than 5
+          attempt("code-a", { seconds: 900 }), // slower: no label
+        ]),
+        coded("b", "2026-10-02", [
+          attempt("code-two-sum"),
+          attempt("code-3sum", { testsPassed: 5 }),
+          attempt("code-a", { seconds: 400 }),
+        ]),
+      ],
+      TITLES,
+    );
+    expect(out?.rows.map((r) => [r.title, r.note])).toEqual([
+      ["A", null],
+      ["3Sum", "More tests passing than last time"],
+      ["Two Sum", "Faster than last time"],
+      ["A", null],
+      ["3Sum", null],
+      ["Two Sum", null],
+    ]);
   });
 });

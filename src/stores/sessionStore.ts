@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type {
   AnswerEvaluation,
+  CodingAttempt,
   CompanyStyleId,
   IntakeProfile,
   InterviewDecision,
@@ -92,8 +93,11 @@ interface SessionState {
   // The language each question was actually worked in (last edit or run). Its code, run
   // and language are what Marcus, the Evaluator and the coach get; the tab is only a view.
   languageByQuestion: Record<string, CodingLanguage>;
-  // Keyed like codeByQuestion (codeKey).
-  lastRun: Record<string, RunSummary>;
+  // Keyed like codeByQuestion (codeKey). submitted: that run was a Submit (absent in older saves).
+  lastRun: Record<string, RunSummary & { submitted?: boolean }>;
+  // Per coding question (epoch ms): start when it's first shown; end at each Submit, or when
+  // it's left if never submitted. Saved, so a reload keeps the time.
+  codingClock: Record<string, { start: number; end?: number }>;
   checkinSent: Record<string, boolean>;
   // A Submit Marcus hasn't replied to yet (question id): queued while he was busy,
   // or in flight. Persisted, so a refresh mid-turn re-sends it once.
@@ -206,6 +210,45 @@ function fitEval(p: PendingEval): PendingEval {
   };
 }
 
+// Moves the coding clock when the current question changes: the one left gets its end
+// (unless a Submit already set it), a coding question shown for the first time its start.
+function stepClock(
+  clock: SessionState["codingClock"],
+  left: PlannedQuestion | null,
+  shown: PlannedQuestion | null,
+): SessionState["codingClock"] {
+  const now = Date.now();
+  const next = { ...clock };
+  const was = left && next[left.id];
+  if (left && was && was.end === undefined) next[left.id] = { ...was, end: now };
+  if (shown?.type === "coding" && !next[shown.id]) next[shown.id] = { start: now };
+  return next;
+}
+
+// One CodingAttempt per coding question the candidate reached, for the session record.
+function codingAttempts(s: SessionState): CodingAttempt[] {
+  const questions = s.plan?.questions ?? [];
+  const reached = s.phase === "question" ? s.currentIdx : s.phase === "closing" ? questions.length - 1 : -1;
+  return questions
+    .filter((q, i) => i <= reached && q.type === "coding")
+    .slice(0, 10) // the server's limit (FinalizeRequest.coding)
+    .map((q) => {
+      const language = languageOf(s, q.id);
+      const run = s.lastRun[codeKey(q.id, language)];
+      const clock = s.codingClock[q.id];
+      return {
+        questionId: q.id,
+        problemId: q.exemplarId ?? "",
+        language,
+        testsPassed: run ? run.visiblePassed + run.hiddenPassed : 0,
+        testsTotal: run ? run.visibleTotal + run.hiddenTotal : 0,
+        submitted: run?.submitted ?? false,
+        // Clamped to the server's 0..86400: a rejected finalize would be retried forever.
+        seconds: clock?.end === undefined ? null : Math.min(86_400, Math.max(0, Math.round((clock.end - clock.start) / 1000))),
+      };
+    });
+}
+
 // Cleared at the start of every session.
 const FRESH_ROUND = {
   strikes: 0,
@@ -214,6 +257,7 @@ const FRESH_ROUND = {
   codingStage: "approach" as CodingStep,
   languageByQuestion: {},
   lastRun: {},
+  codingClock: {},
   checkinSent: {},
   pendingSubmit: null,
   eventInFlight: false,
@@ -390,6 +434,7 @@ export const useSessionStore = create<SessionState>()(
             status: ended ? "wrapping" : "live",
             strikes,
             endedForConduct: ended,
+            ...(ended && phase === "question" && { codingClock: stepClock(s.codingClock, question, null) }),
             sessionCostUsd: addCost(s),
             messages: [
               ...s.messages.filter((m) => m !== candidateMsg),
@@ -422,6 +467,7 @@ export const useSessionStore = create<SessionState>()(
           const first = questions[0];
           set((s) => ({
             status: "live", phase: "question", currentIdx: 0, followUpCount: 0, codingStage: "approach",
+            codingClock: stepClock(s.codingClock, null, first),
             sessionCostUsd: addCost(s),
             messages: [...s.messages, reply(first.id, "question", first.prompt, first.weightedFromWeakness)],
           }));
@@ -464,6 +510,7 @@ export const useSessionStore = create<SessionState>()(
         if (!nextQuestion) {
           set((s) => ({
             status: "live", phase: "closing", followUpCount: 0, sessionCostUsd: addCost(s),
+            codingClock: stepClock(s.codingClock, question, null),
             messages: [...s.messages, reply("closing", "question",
               "That's everything I wanted to cover. What questions do you have for me?")],
           }));
@@ -475,6 +522,7 @@ export const useSessionStore = create<SessionState>()(
           currentIdx: s.currentIdx + 1,
           followUpCount: 0,
           codingStage: "approach",
+          codingClock: stepClock(s.codingClock, question, nextQuestion),
           sessionCostUsd: addCost(s),
           messages: [...s.messages, reply(nextQuestion.id, "question", nextQuestion.prompt, nextQuestion.weightedFromWeakness)],
         }));
@@ -505,6 +553,7 @@ export const useSessionStore = create<SessionState>()(
             costUsd: state.sessionCostUsd,
             companyStyle: state.companyStyle,
             endedForConduct: state.endedForConduct,
+            coding: codingAttempts(state),
           });
           set({ status: "complete", updatedMemory: updated, turnError: null, finalizing: false });
         } catch (e) {
@@ -630,8 +679,15 @@ export const useSessionStore = create<SessionState>()(
       recordRun: async (questionId, outcome, kind, visibleCount, language = get().codingLanguage) => {
         const submitted = kind === "submit" && currentCoding(get())?.id === questionId;
         set((s) => ({
-          lastRun: { ...s.lastRun, [codeKey(questionId, language)]: summarizeOutcome(outcome, visibleCount, language) },
+          lastRun: {
+            ...s.lastRun,
+            [codeKey(questionId, language)]: { ...summarizeOutcome(outcome, visibleCount, language), submitted: kind === "submit" },
+          },
           languageByQuestion: { ...s.languageByQuestion, [questionId]: language },
+          // A Submit on the current question stops its clock (a later Submit moves it).
+          ...(submitted && s.codingClock[questionId] && {
+            codingClock: { ...s.codingClock, [questionId]: { ...s.codingClock[questionId], end: Date.now() } },
+          }),
           codingStage: submitted ? "review" : s.codingStage,
           pendingSubmit: submitted ? questionId : s.pendingSubmit,
         }));
@@ -743,6 +799,7 @@ export const useSessionStore = create<SessionState>()(
         codingLanguage: s.codingLanguage,
         languageByQuestion: s.languageByQuestion,
         lastRun: s.lastRun,
+        codingClock: s.codingClock,
         checkinSent: s.checkinSent,
         pendingSubmit: s.pendingSubmit,
       }),

@@ -9,6 +9,7 @@ import type {
   AvatarSessionResponse,
   SttTokenResponse,
   CoachResponse,
+  CodingAttempt,
   CodingStage,
   CompanyStyleId,
   IntakeProfile,
@@ -134,6 +135,7 @@ function summarize(r: SessionRecord): SessionSummary {
     survived: r.evaluations.filter((e) => e.wouldSurviveRealInterview).length,
     total: r.evaluations.length,
     weaknessTags: [...new Set(r.evaluations.flatMap((e) => e.weaknessTags))].sort(),
+    coding: r.coding ?? [],
   };
 }
 
@@ -371,6 +373,7 @@ export const api = {
     costUsd: number;
     companyStyle: CompanyStyleId;
     endedForConduct: boolean;
+    coding: CodingAttempt[];
   }): Promise<MemoryProfile> {
     if (USE_MOCK) {
       await latency(900);
@@ -390,6 +393,7 @@ export const api = {
         costUsd: input.costUsd,
         companyStyle: input.companyStyle,
         endedForConduct: input.endedForConduct,
+        coding: input.coding,
       });
       return updated;
     }

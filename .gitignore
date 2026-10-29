@@ -10,8 +10,9 @@ dist/
 .vite/
 *.tsbuildinfo
 deploy/build/
-.env.local
-.env.*.local
+# Any env file can hold live keys; only the example is committed.
+.env.*
+!.env.example
 test-results/
 playwright-report/
 blob-report/

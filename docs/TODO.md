@@ -127,7 +127,8 @@ Spec: docs/superpowers/specs/2026-10-28-phase-2a-voice-turns-design.md · Plan: 
 - [x] All 10 usability heuristics applied to every page (audits in docs/superpowers/ux-audit-{a,b,c,d}.md)
 - [x] Results and Dashboard lead with one plain sentence; scores behind "Details"; tags in words
 - [x] Phase 3 first piece: weak spots show dots for the last 8 sessions and Looks fixed / Still showing up / New
-- [ ] Phase 3 next: coding history (after #14); answer replay (needs Claude calls, ask first)
+- [x] Phase 3: coding history on the dashboard (problem, language, tests, time; $0)
+- [ ] Phase 3 next: answer replay (needs Claude calls, ask first); hints needed (prompt change + paid check)
 
 ## Later
 

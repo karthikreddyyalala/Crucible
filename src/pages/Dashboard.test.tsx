@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { Dashboard, deltaLabel } from "./Dashboard";
@@ -72,6 +72,31 @@ describe("Dashboard", () => {
     expect(screen.getByRole("img", { name: /oldest first, out of 5: 2.4, 2.9, 3.3/ })).toBeInTheDocument();
     expect(screen.getByText("3.3 of 5")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Start your next interview/ })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Coding" })).not.toBeInTheDocument();
+  });
+
+  it("shows coding attempts with problem titles when a session has them", async () => {
+    const api = await mocked();
+    api.getMemory.mockResolvedValue(PROFILE);
+    api.listSessions.mockResolvedValue([
+      {
+        ...SESSIONS[0],
+        coding: [
+          { questionId: "q1", problemId: "code-two-sum", language: "python", testsPassed: 14, testsTotal: 14, submitted: true, seconds: 660 },
+          { questionId: "q2", problemId: "code-valid-anagram", language: "javascript", testsPassed: 3, testsTotal: 8, submitted: false, seconds: null },
+        ],
+      },
+      ...SESSIONS.slice(1),
+    ]);
+    renderPage();
+
+    const section = (await screen.findByRole("heading", { name: "Coding" })).closest("section");
+    expect(section).toHaveTextContent("You've solved 1 of 2 problems. Fastest: Two Sum in 11 min.");
+    const rows = within(section as HTMLElement).getAllByRole("listitem");
+    expect(rows.map((li) => li.textContent)).toEqual([
+      expect.stringMatching(/Valid Anagram.*JavaScript.*Not submitted/),
+      expect.stringMatching(/Two Sum.*Python.*11 min.*14 of 14 tests/),
+    ]);
   });
 
   it("uses a shorter chart for fewer than 3 points", async () => {

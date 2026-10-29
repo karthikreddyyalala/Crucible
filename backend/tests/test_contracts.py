@@ -134,3 +134,26 @@ def test_session_summary_weakness_tags_union_and_old_default():
     old = SessionSummary.model_validate({"sessionId": "s", "date": "2026-10-01", "mode": "full",
                                          "level": "mid", "survived": 1, "total": 2})
     assert old.weakness_tags == []
+    assert old.coding == []
+
+
+def test_coding_attempt_limits_and_session_record_coding():
+    import pytest
+    from pydantic import ValidationError
+    from models.contracts import CodingAttempt, SessionRecord
+
+    ok = {"questionId": "q1", "problemId": "code-two-sum", "language": "python",
+          "testsPassed": 12, "testsTotal": 14, "submitted": True, "seconds": 660}
+    assert CodingAttempt.model_validate(ok).model_dump(by_alias=True) == ok
+    assert CodingAttempt.model_validate({**ok, "seconds": None}).seconds is None
+    for bad in ({"problemId": "x" * 81}, {"testsPassed": -1}, {"testsTotal": 1001},
+                {"seconds": 86401}, {"seconds": -1}, {"language": "ruby"}):
+        with pytest.raises(ValidationError):
+            CodingAttempt.model_validate({**ok, **bad})
+
+    base = {"sessionId": "s", "candidateId": "c", "date": "2026-10-29", "mode": "coding",
+            "level": "mid", "questions": [], "evaluations": []}
+    old = SessionRecord.model_validate(base)  # records written before coding existed
+    assert old.coding == [] and old.summary().coding == []
+    rec = SessionRecord.model_validate({**base, "coding": [ok]})
+    assert rec.summary().model_dump(by_alias=True)["coding"] == [ok]

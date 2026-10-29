@@ -1259,6 +1259,21 @@ def test_finalize_stores_company_style_and_conduct_end():
     assert body["companyStyle"] == "general" and body["endedForConduct"] is False
 
 
+def test_finalize_stores_coding_attempts_and_caps_them():
+    store = InMemoryStore()
+    client = _client({"MemoryProfile": _MEMORY}, store=store)
+    attempt = {"questionId": "q1", "problemId": "code-two-sum", "language": "javascript",
+               "testsPassed": 3, "testsTotal": 5, "submitted": False, "seconds": None}
+    client.post("/api/session/finalize", json={**_finalize_body("sess-code"), "coding": [attempt]})
+    assert client.get("/api/sessions/sess-code").json()["coding"] == [attempt]
+    listed = {s["sessionId"]: s for s in client.get("/api/sessions").json()}
+    assert listed["sess-code"]["coding"] == [attempt]
+    client.post("/api/session/finalize", json=_finalize_body("sess-none"))
+    assert client.get("/api/sessions/sess-none").json()["coding"] == []
+    res = client.post("/api/session/finalize", json={**_finalize_body("sess-many"), "coding": [attempt] * 11})
+    assert res.status_code == 422
+
+
 class _FakeStt:
     def __init__(self):
         self.calls = 0

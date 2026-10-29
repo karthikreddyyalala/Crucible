@@ -921,6 +921,75 @@ describe("sessionStore — turnError", () => {
       expect(useSessionStore.getState().codingStage).toBe("coding"); // a Run doesn't end the coding stage
     });
 
+    describe("coding attempts saved at finalize", () => {
+      const MIN = 60_000;
+      const at = (minutes: number) => vi.setSystemTime(new Date(2026, 9, 29, 10, minutes));
+      const sentCoding = async () => {
+        const { api } = await import("@/lib/api");
+        return vi.mocked(api.finalizeSession).mock.lastCall?.[0].coding;
+      };
+
+      it("times each question from first shown to its last Submit, or to leaving it", async () => {
+        vi.useFakeTimers({ toFake: ["Date"] });
+        const { api } = await import("@/lib/api");
+        vi.mocked(api.finalizeSession).mockResolvedValue(MOCK_MEMORY);
+        seedCoding({ phase: "background", codingClock: {} });
+
+        at(0); // c1 shown
+        vi.mocked(api.submitAnswer).mockResolvedValueOnce(reply("advance", "Two sum."));
+        await useSessionStore.getState().submitAnswer("I've been working on payments.");
+        at(5); // Submit: 1 example + 2 hidden, all passing
+        vi.mocked(api.submitAnswer).mockResolvedValueOnce(reply("follow_up", "Complexity?"));
+        await useSessionStore.getState().recordRun("c1", { kind: "results", results: [passed(0), passed(1), passed(2)] }, "submit", 1);
+        at(7); // on to c2: c1 keeps its Submit time
+        vi.mocked(api.submitAnswer).mockResolvedValueOnce(reply("advance", "Group anagrams."));
+        await useSessionStore.getState().submitAnswer("O(n).");
+        at(8); // c2: one Run in JavaScript, never submitted
+        await useSessionStore.getState().recordRun("c2", { kind: "results", results: [passed(0), passed(1, false)] }, "run", 2, "javascript");
+        at(10); // c2 left for the closing
+        vi.mocked(api.submitAnswer).mockResolvedValueOnce(reply("advance", "Questions for me?"));
+        await useSessionStore.getState().submitAnswer("Ran out of time.");
+        at(12);
+        await useSessionStore.getState().endInterview();
+
+        expect(await sentCoding()).toEqual([
+          { questionId: "c1", problemId: "code-two-sum", language: "python", testsPassed: 3, testsTotal: 3, submitted: true, seconds: 5 * MIN / 1000 },
+          { questionId: "c2", problemId: "code-group-anagrams", language: "javascript", testsPassed: 1, testsTotal: 2, submitted: false, seconds: 3 * MIN / 1000 },
+        ]);
+        vi.useRealTimers();
+      });
+
+      it("sends 0 of 0 for a question with no run, leaves out questions never reached, and ends the clock on a conduct end", async () => {
+        vi.useFakeTimers({ toFake: ["Date"] });
+        const { api } = await import("@/lib/api");
+        vi.mocked(api.finalizeSession).mockResolvedValue(MOCK_MEMORY);
+        at(2);
+        seedCoding({ strikes: 2, codingClock: { c1: { start: Date.now() - 2 * MIN } } });
+        vi.mocked(api.submitAnswer).mockResolvedValueOnce(reply("end", "I'm going to end the interview here.", 3));
+        await useSessionStore.getState().submitAnswer("something abusive");
+
+        expect(await sentCoding()).toEqual([
+          { questionId: "c1", problemId: "code-two-sum", language: "python", testsPassed: 0, testsTotal: 0, submitted: false, seconds: 120 },
+        ]);
+        vi.useRealTimers();
+      });
+
+      it("uses the language the question was last worked in, and no time when the clock is unknown", async () => {
+        const { api } = await import("@/lib/api");
+        vi.mocked(api.finalizeSession).mockResolvedValue(MOCK_MEMORY);
+        // Submitted in Python, then switched to JavaScript and edited without running.
+        seedCoding({ phase: "closing", currentIdx: 1, codingClock: {}, languageByQuestion: { c1: "javascript", c2: "python" } });
+        await useSessionStore.getState().recordRun("c1", { kind: "results", results: [passed(0)] }, "submit", 1, "python");
+        useSessionStore.setState({ languageByQuestion: { c1: "javascript", c2: "python" } });
+        await useSessionStore.getState().endInterview();
+
+        expect(await sentCoding()).toEqual([
+          { questionId: "c1", problemId: "code-two-sum", language: "javascript", testsPassed: 0, testsTotal: 0, submitted: false, seconds: null },
+          { questionId: "c2", problemId: "code-group-anagrams", language: "python", testsPassed: 0, testsTotal: 0, submitted: false, seconds: null },
+        ]);
+      });
+    });
+
     describe("language", () => {
       it("defaults to Python, persists, and survives a new session", async () => {
         localStorage.clear();
@@ -1351,6 +1420,22 @@ describe("sessionStore — turnError", () => {
       await vi.waitFor(() => expect(useSessionStore.getState().pendingSubmit).toBeNull());
       expect(api.submitAnswer).toHaveBeenCalledTimes(2);
       expect(vi.mocked(api.submitAnswer).mock.calls[1][0].event).toBe("submit");
+    });
+
+    it("keeps the coding clock through a refresh; older saves load without one", async () => {
+      localStorage.clear();
+      seedCoding({ codingClock: { c1: { start: 1000, end: 5000 } } });
+      const saved = localStorage.getItem("crucible.session.v1")!;
+      expect(JSON.parse(saved).state.codingClock).toEqual({ c1: { start: 1000, end: 5000 } });
+      useSessionStore.setState({ codingClock: {} });
+      localStorage.setItem("crucible.session.v1", saved);
+      await useSessionStore.persist.rehydrate();
+      expect(useSessionStore.getState().codingClock).toEqual({ c1: { start: 1000, end: 5000 } });
+
+      localStorage.setItem("crucible.session.v1", JSON.stringify({ state: { status: "live", messages: [] }, version: 1 }));
+      useSessionStore.setState({ codingClock: {} });
+      await useSessionStore.persist.rehydrate();
+      expect(useSessionStore.getState().codingClock).toEqual({});
     });
 
     it("persists code, stage, runs, strikes, style and name usability", () => {

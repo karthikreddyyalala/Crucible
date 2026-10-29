@@ -15,6 +15,7 @@ from llm.usage import CallUsage
 from models.contracts import (
     AnswerEvaluation,
     AvatarSessionResponse,
+    CodingAttempt,
     SttTokenResponse,
     CoachResponse,
     IntakeProfile,
@@ -203,6 +204,7 @@ class FinalizeRequest(_Base):
     cost_usd: float = 0.0
     company_style: CompanyStyleId = "general"
     ended_for_conduct: bool = False
+    coding: list[CodingAttempt] = Field(default_factory=list, max_length=10)
 
 
 class CoachRequest(_Base):
@@ -479,6 +481,7 @@ def build_session_router(
                     cost_usd=req.cost_usd + sum(u.cost_usd for u in usage),
                     company_style=req.company_style,
                     ended_for_conduct=req.ended_for_conduct,
+                    coding=req.coding,
                 )
             )
         return updated
