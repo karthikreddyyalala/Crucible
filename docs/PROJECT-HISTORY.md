@@ -129,6 +129,19 @@ Phase 2 split into 2a to 2d. 2a, built with parallel workers and reviewed:
 - Built by three parallel workers plus a final review; mocked tests only ($0).
 - The Tavus "Chris" voice match turned out to be a dashboard setting, not code (see TODO).
 
+### 2026-10-29: UX pass, the 10 usability heuristics (branch `feat/ux-heuristics-pass`)
+- Karthik asked for every screen to follow the 10 usability heuristics and to feel
+  inviting, not gloomy or number-heavy. Four parallel workers each audited and fixed one
+  area (entry pages, interview, report, dashboard), then a reviewer walked the real app in
+  demo mode at 1440 and 375 px and 15 findings were fixed.
+- Each screen opens with one plain sentence; numbers support it; fewer bordered cards;
+  warning colour only where you can act; plain-word tags ("Vague impact").
+- Status always in words on the interview screen, a confirm before leaving a live
+  interview, errors that say what to do, first-time hints for voice and coding.
+- Phase 3 starts here: session summaries carry their weakness tags, and the dashboard shows
+  whether each weak spot is shrinking.
+- Mocked tests only ($0).
+
 ## Bugs worth remembering
 
 - **Every real AI call would have failed.** The installed Anthropic SDK has no

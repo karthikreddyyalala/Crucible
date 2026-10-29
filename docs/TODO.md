@@ -122,6 +122,13 @@ Spec: docs/superpowers/specs/2026-10-28-phase-2a-voice-turns-design.md · Plan: 
       mode dropped: Tavus plays its own audio.
 - [x] 2d: JavaScript in the coding round (Python | JavaScript switch on the editor; $0 to run)
 
+## UX pass (branch `feat/ux-heuristics-pass`, on top of PR #14)
+
+- [x] All 10 usability heuristics applied to every page (audits in docs/superpowers/ux-audit-{a,b,c,d}.md)
+- [x] Results and Dashboard lead with one plain sentence; scores behind "Details"; tags in words
+- [x] Phase 3 first piece: weak spots show dots for the last 8 sessions and Looks fixed / Still showing up / New
+- [ ] Phase 3 next: coding history (after #14); answer replay (needs Claude calls, ask first)
+
 ## Later
 
 - [x] Bank eval cases + A/B (with vs without notes): first-probe targeting 11/24 vs 14/24 —
