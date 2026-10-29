@@ -42,7 +42,7 @@ It stays professional, and so do you. Everything you type or say is checked befo
 
 It's consistent. The agents that score, plan and extract run at temperature 0, so the same answer gets the same verdict. Marcus runs at 0.3 so he doesn't sound like a script.
 
-It sounds like a person. Marcus speaks with an ElevenLabs voice. In voice mode you just talk: he listens when he's done speaking, and your answer sends when you pause. If you trail off on "and, um...", he waits longer before deciding you're finished.
+It sounds like a person. Marcus speaks with an ElevenLabs voice. In voice mode you just talk. Deepgram Flux listens for when you've finished a thought, not just for silence, so a pause to think doesn't cut you off. He says a quick "Mm-hm" while he works out his reply, and you can interrupt him mid-sentence. If Flux isn't available, it falls back to sending your answer after a pause, waiting longer if you trail off on "and, um...".
 
 ## How it works
 

@@ -1,14 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 
-// Live transcription of the candidate through Deepgram (Nova-3). The mic is
+// Live transcription of the candidate through Deepgram. The mic is
 // recorded in small Opus chunks and streamed over a WebSocket opened with a
 // 30-second token from our backend; the API key never reaches the browser.
 // Finished phrases are kept as they arrive, so a long answer can't lose its start.
 // Same surface as useSpeechRecognition, except start() resolves false when
 // Deepgram isn't available so the caller can fall back to the browser recognizer.
+// Flux is tried first: it tells us when the candidate has finished a thought, so the
+// answer goes when they're done instead of after a flat silence. If Flux won't open or
+// rejects us, the rest of the session uses Nova-3 (phrases plus a silence timer).
+// start(true) is Flux-only (the mic opening while the interviewer talks): without Flux
+// it opens nothing and still resolves true, so the caller doesn't fall back.
 
-const LISTEN_URL =
+// eot_timeout_ms: after 5 s of silence Flux ends the turn even if unsure.
+const FLUX_URL =
+  "wss://api.deepgram.com/v2/listen?model=flux-general-en&eot_threshold=0.7&eot_timeout_ms=5000";
+const NOVA_URL =
   "wss://api.deepgram.com/v1/listen?model=nova-3&smart_format=true&interim_results=true&endpointing=300";
 
 // Nova-3 keyterm prompting: words an interview is full of that a general model mishears
@@ -24,16 +32,23 @@ const INTERVIEW_TERMS = [
 ];
 const MAX_TERMS = 80;
 
-export function listenUrl(extraTerms: readonly string[] = []): string {
+function withTerms(base: string, extraTerms: readonly string[]): string {
   const seen = new Set<string>();
   const terms = [...extraTerms, ...INTERVIEW_TERMS]
     .map((t) => t.trim())
     .filter((t) => t.length > 1 && t.length <= 40 && !seen.has(t.toLowerCase()) && seen.add(t.toLowerCase()))
     .slice(0, MAX_TERMS);
-  return LISTEN_URL + terms.map((t) => `&keyterm=${encodeURIComponent(t)}`).join("");
+  return base + terms.map((t) => `&keyterm=${encodeURIComponent(t)}`).join("");
 }
+export function listenUrl(extraTerms: readonly string[] = []): string {
+  return withTerms(NOVA_URL, extraTerms);
+}
+export function fluxUrl(extraTerms: readonly string[] = []): string {
+  return withTerms(FLUX_URL, extraTerms);
+}
+const FLUX_OPEN_TIMEOUT_MS = 3_000; // fail over to Nova-3 quickly
 const OPEN_TIMEOUT_MS = 5_000;
-const CHUNK_MS = 250;
+const CHUNK_MS = 100; // Flux wants ~80 ms; fine for Nova-3 too
 
 function recorderMime(): string | null {
   if (typeof MediaRecorder === "undefined") return null;
@@ -46,7 +61,15 @@ interface DeepgramResult {
   channel?: { alternatives?: { transcript?: string }[] };
 }
 
-export function useDeepgramSTT(keyterms: readonly string[] = []) {
+interface FluxTurnInfo {
+  type?: string;
+  event?: string;
+  transcript?: string;
+}
+
+// onTurnEnd returns true when it used the text up (sent or threw it away): the next turn
+// starts fresh. false keeps it, and the next turn is added to it.
+export function useDeepgramSTT(keyterms: readonly string[] = [], onTurnEnd?: (text: string) => boolean) {
   const supported =
     typeof window !== "undefined" &&
     typeof WebSocket !== "undefined" &&
@@ -55,6 +78,7 @@ export function useDeepgramSTT(keyterms: readonly string[] = []) {
 
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [semantic, setSemantic] = useState(false); // on Flux: onTurnEnd marks the end of an answer
   const socketRef = useRef<WebSocket | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -62,6 +86,9 @@ export function useDeepgramSTT(keyterms: readonly string[] = []) {
   const busyRef = useRef(false); // a start in progress or running: never two streams
   const keytermsRef = useRef(keyterms);
   keytermsRef.current = keyterms;
+  const onTurnEndRef = useRef(onTurnEnd);
+  onTurnEndRef.current = onTurnEnd;
+  const fluxFailedRef = useRef(false); // once Flux fails, the session stays on Nova-3
 
   const release = useCallback(() => {
     const recorder = recorderRef.current;
@@ -80,7 +107,8 @@ export function useDeepgramSTT(keyterms: readonly string[] = []) {
     busyRef.current = false;
   }, []);
 
-  const start = useCallback(async (): Promise<boolean> => {
+  const start = useCallback(async (fluxOnly = false): Promise<boolean> => {
+    if (fluxOnly && fluxFailedRef.current) return true;
     if (!supported || busyRef.current) return busyRef.current;
     busyRef.current = true;
     finalRef.current = "";
@@ -98,9 +126,7 @@ export function useDeepgramSTT(keyterms: readonly string[] = []) {
       return true;
     };
 
-    const token = await api.sttToken();
-    if (!busyRef.current) return cancelled();
-    if (!token) return fail();
+    // The mic first: the token lasts 30 s and a permission prompt can take longer.
     try {
       streamRef.current = await navigator.mediaDevices.getUserMedia({
         audio: { echoCancellation: true, noiseSuppression: true },
@@ -109,24 +135,67 @@ export function useDeepgramSTT(keyterms: readonly string[] = []) {
       return fail(); // mic permission denied: the browser recognizer will ask again
     }
     if (!busyRef.current) return cancelled();
-
-    const socket = new WebSocket(listenUrl(keytermsRef.current), ["bearer", token]);
-    socketRef.current = socket;
-    const opened = await new Promise<boolean>((resolve) => {
-      const timer = setTimeout(() => resolve(false), OPEN_TIMEOUT_MS);
-      socket.onopen = () => {
-        clearTimeout(timer);
-        resolve(true);
-      };
-      socket.onerror = () => {
-        clearTimeout(timer);
-        resolve(false);
-      };
-    });
+    const token = await api.sttToken();
     if (!busyRef.current) return cancelled();
-    if (!opened) return fail();
+    if (!token) return fail(); // fail() releases the mic too
 
-    socket.onmessage = (event: MessageEvent) => {
+    const open = (url: string, timeoutMs: number) =>
+      new Promise<WebSocket | null>((resolve) => {
+        const ws = new WebSocket(url, ["bearer", token]);
+        socketRef.current = ws;
+        const timer = setTimeout(() => {
+          ws.close();
+          resolve(null);
+        }, timeoutMs);
+        ws.onopen = () => {
+          clearTimeout(timer);
+          resolve(ws);
+        };
+        ws.onerror = () => {
+          clearTimeout(timer);
+          resolve(null);
+        };
+      });
+
+    const flux = fluxFailedRef.current ? null : await open(fluxUrl(keytermsRef.current), FLUX_OPEN_TIMEOUT_MS);
+    if (!busyRef.current) return cancelled();
+    const onFlux = flux !== null;
+    let opened = flux;
+    if (!opened) {
+      fluxFailedRef.current = true; // the rest of the session goes straight to Nova-3
+      setSemantic(false);
+      if (fluxOnly) {
+        // Not a failure: he's talking, the mic opens normally when he finishes.
+        release();
+        setListening(false);
+        return true;
+      }
+      opened = await open(listenUrl(keytermsRef.current), OPEN_TIMEOUT_MS);
+      if (!busyRef.current) return cancelled();
+      if (!opened) return fail();
+    }
+    const live: WebSocket = opened;
+    setSemantic(onFlux);
+    let heard = false;
+
+    live.onmessage = (event: MessageEvent) => {
+      if (onFlux) {
+        // After stop or release: a CloseStream flush must not send half an answer.
+        if (socketRef.current !== live) return;
+        const turn: FluxTurnInfo = JSON.parse(String(event.data));
+        if (turn.type !== "TurnInfo") return;
+        heard = true;
+        const text = turn.transcript?.trim() ?? "";
+        const full = `${finalRef.current} ${text}`.trim();
+        setTranscript(full);
+        if (turn.event !== "EndOfTurn" || !text) return;
+        finalRef.current = full;
+        if (onTurnEndRef.current?.(full)) {
+          finalRef.current = "";
+          setTranscript("");
+        }
+        return;
+      }
       const data: DeepgramResult = JSON.parse(String(event.data));
       if (data.type !== "Results") return;
       const text = data.channel?.alternatives?.[0]?.transcript?.trim() ?? "";
@@ -137,9 +206,15 @@ export function useDeepgramSTT(keyterms: readonly string[] = []) {
         setTranscript(`${finalRef.current} ${text}`.trim());
       }
     };
-    socket.onclose = () => {
+    live.onclose = () => {
       // Dropped mid-answer (network): keep what was heard and show the mic as off.
-      if (socketRef.current === socket) {
+      // A close we didn't ask for (socketRef still points at it) before Flux said
+      // anything means Flux rejected us: don't try it again this session.
+      if (socketRef.current === live) {
+        if (onFlux && !heard) {
+          fluxFailedRef.current = true;
+          setSemantic(false);
+        }
         release();
         setListening(false);
       }
@@ -147,7 +222,7 @@ export function useDeepgramSTT(keyterms: readonly string[] = []) {
 
     const recorder = new MediaRecorder(streamRef.current, { mimeType: recorderMime() ?? undefined });
     recorder.ondataavailable = (e: BlobEvent) => {
-      if (e.data.size > 0 && socket.readyState === WebSocket.OPEN) socket.send(e.data);
+      if (e.data.size > 0 && live.readyState === WebSocket.OPEN) live.send(e.data);
     };
     recorder.start(CHUNK_MS);
     recorderRef.current = recorder;
@@ -161,5 +236,5 @@ export function useDeepgramSTT(keyterms: readonly string[] = []) {
 
   useEffect(() => release, [release]);
 
-  return { supported, listening, transcript, start, stop };
+  return { supported, listening, transcript, semantic, start, stop };
 }

@@ -2,7 +2,7 @@
 
 A plain record of what was built, in what order, what went wrong and what's next.
 Day-to-day status is in [TODO.md](TODO.md); the phase plan is in [ROADMAP.md](ROADMAP.md).
-Last updated 2026-10-28, after PR #5 was merged.
+Last updated 2026-10-29, after PR #11 and the Phase 2a branch.
 
 ## The product in one paragraph
 
@@ -29,7 +29,7 @@ schema before the next agent sees it.
 
 Stack: React + TypeScript + Vite + Tailwind + Zustand, FastAPI on AWS Lambda, Claude on
 Bedrock, DynamoDB, Cognito, ElevenLabs voice ("Chris", Flash v2.5) through the backend,
-browser speech recognition for the candidate, Tavus video avatar behind a flag, Pyodide +
+Deepgram (Flux, falling back to Nova-3, then the browser) for the candidate's speech, Tavus video avatar behind a flag, Pyodide +
 CodeMirror for the coding round, Playwright for browser tests.
 
 ## The conversation flow
@@ -85,6 +85,27 @@ Planned with a spec and a wave plan, built with parallel agents, reviewed, teste
 - Coach shows clean code only for a finished session (checked on the server).
 - Editor lazy-loaded: main bundle 1,142 kB to 668 kB.
 
+### 2026-10-28: PRs #6 to #11, voice, video and a live-site fix
+- PR #6: this history and the docs.
+- PR #7: video and voice fixes. Tavus counts as ready only when the replica's video
+  arrives; after 25 s it falls back to voice with a notice; the paid call ends on tab close.
+  Long spoken answers keep their start. Fewer dashes in Marcus's lines.
+- PR #8: live transcription with Deepgram Nova-3 (30-second tokens minted by the backend,
+  interview keyterms plus the candidate's skills), falling back to the browser recognizer.
+- PR #9: eval results summary and the new-chat prompt.
+- PR #10: the live site failed on Begin interview: the Lambda had anthropic 2.3, which
+  Bedrock rejects. Pinned to 1.4.0 in both the Lambda and the backend, with a test.
+- PR #11: clear error messages, fail fast on rejected model calls, no em dashes on screen.
+
+### 2026-10-29: Phase 2a, conversation feel (branch `feat/phase-2a-voice-turns`)
+Phase 2 split into 2a to 2d. 2a, built with parallel workers and reviewed:
+- Deepgram Flux decides when you've finished a thought, so a pause to think doesn't send
+  the answer. Nova-3 and the browser recognizer stay as fallbacks with the old timer.
+- A quick "Mm-hm" in Marcus's voice right after a spoken answer, while he thinks.
+- Interrupting: on Flux the mic stays open while he talks; two or more new words that
+  aren't fillers or his own words stop him.
+- All tested with mocks ($0). Live check and the clip recording wait for Karthik's OK.
+
 ## Bugs worth remembering
 
 - **Every real AI call would have failed.** The installed Anthropic SDK has no
@@ -128,7 +149,8 @@ Planned with a spec and a wave plan, built with parallel agents, reviewed, teste
   a good hobby"), occasional praise when moving on ("that's the right move"), two-part
   questions in Spanish.
 - No human interviewer has reviewed the questions, rubrics or coding problems yet.
-- Voice uses the browser's speech recognition: no semantic end-of-turn, no interrupting.
+- Flux auth and keyterms on /v2 are not yet confirmed live; the fallback covers a rejection.
+- Barge-in can misfire if speaker echo is misheard as new words; not yet tested live.
 
 ## Next
 

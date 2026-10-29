@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { silenceBeforeSendMs, SILENCE_SEND_MS, MID_THOUGHT_SEND_MS } from "./turnTaking";
+import { silenceBeforeSendMs, isRealInterruption, SILENCE_SEND_MS, MID_THOUGHT_SEND_MS } from "./turnTaking";
 
 describe("silenceBeforeSendMs", () => {
   it("sends after the normal pause when the thought is complete", () => {
@@ -15,5 +15,30 @@ describe("silenceBeforeSendMs", () => {
 
   it("does not mistake words that merely end in a connector", () => {
     expect(silenceBeforeSendMs("we used Redis as the brand")).toBe(SILENCE_SEND_MS);
+  });
+});
+
+describe("isRealInterruption", () => {
+  const line = "Okay. Walk me through how the cache stays consistent with the database.";
+
+  it("ignores his own words leaking back through the speakers", () => {
+    expect(isRealInterruption("walk me through how the cache", line)).toBe(false);
+    expect(isRealInterruption("Consistent with the database.", line)).toBe(false);
+  });
+
+  it("ignores single words, fillers and backchannels", () => {
+    expect(isRealInterruption("sorry", line)).toBe(false);
+    expect(isRealInterruption("Mm-hm.", line)).toBe(false);
+    expect(isRealInterruption("uh yeah okay", line)).toBe(false);
+    expect(isRealInterruption("", line)).toBe(false);
+  });
+
+  it("stops him for two or more new words", () => {
+    expect(isRealInterruption("Sorry, can I clarify something?", line)).toBe(true);
+    expect(isRealInterruption("wait, we used Redis", line)).toBe(true);
+  });
+
+  it("ignores case and punctuation", () => {
+    expect(isRealInterruption("WALK me, through!", line)).toBe(false);
   });
 });

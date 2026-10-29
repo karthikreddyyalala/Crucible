@@ -76,7 +76,7 @@ Roadmap for all phases: docs/ROADMAP.md
 - [x] Final live evals (v4): 76/76 decisions, 34/34 survival verdicts (docs/evals-phase-1.md)
 - [x] Live end-to-end coding interview saved (docs/sample-coding-interview-2026-10-28.md)
 - [x] README updated · PR #5 merged 2026-10-28
-- [ ] Redeploy backend + frontend so the live site has Phase 1
+- [x] Redeploy backend + frontend so the live site has Phase 1 (live with PRs #10 and #11)
 - [x] Video interview fixed and verified live (avatar in ~4 s, falls back to voice after 25 s,
       no leaked calls; Tavus plan allows very few concurrent conversations)
 - [x] Long spoken answers keep their start; Marcus's lines have no dashes
@@ -90,12 +90,32 @@ Roadmap for all phases: docs/ROADMAP.md
 Found while planning: every agent was running at the default temperature (1.0), scoring
 included. Phase 1 sets 0 for scoring/planning/extraction and 0.3 for Marcus.
 
-## Next — Voice feel (needs a Deepgram account + key)
+## Now — Phase 2a, conversation feel (branch `feat/phase-2a-voice-turns`)
 
-- [ ] Deepgram Flux streaming STT with semantic end-of-turn (replaces browser STT)
-- [ ] Instant backchannel ("Mm-hm") while the reply is generated
-- [ ] Barge-in: candidate can interrupt the interviewer
-- [ ] Tavus persona uses ElevenLabs "Chris" so video and voice-only sound the same
+Spec: docs/superpowers/specs/2026-10-28-phase-2a-voice-turns-design.md · Plan: docs/superpowers/plans/2026-10-28-phase-2a-voice-turns.md
+
+- [x] Deepgram Flux end of turn: the answer sends when Flux hears you finish; Nova-3 and
+      then the browser recognizer (with the old silence timer) are the fallbacks
+- [x] "Mm-hm" / "Mm" / "Right" clip right after a spoken answer, questions stage only,
+      voice-only mode (clips load from public/backchannel/)
+- [x] Barge-in on Flux: mic stays open while Marcus talks; 2+ new non-filler words stop him
+- [x] Mocked tests: vitest, pytest for the clip script, Playwright 8/8 (all $0)
+- [x] Made the 3 clips (`cd backend && python -m cli.make_backchannel_clips`), 2026-10-29.
+      About 20 characters on the Creator plan's monthly allowance, no extra charge
+- [ ] Karthik OK: ~10 min live voice check (about $0.10 Deepgram, plus Marcus's Claude calls
+      if run against the real backend). Confirms Flux accepts our browser token and keyterms
+      on /v2, and that Marcus's own voice through speakers never stops him
+- [ ] Watch: echo through speakers mishears as new words (false stop); his echoed words can
+      show in the draft until the candidate speaks
+- [ ] Status line still says "JUST PAUSE WHEN YOU'RE DONE" on Flux; fine, revisit in copy pass
+
+## Next — rest of Phase 2
+
+- [ ] 2b: skip questions already answered (warmup background asked again); answer key
+      points in the report next to the verdict
+- [ ] 2c: re-check each answer with Deepgram pre-recorded mode to fix misheard words
+- [ ] 2d: Tavus persona uses ElevenLabs "Chris"; video mode gets backchannel and barge-in
+- [ ] 2d: JavaScript in the coding round
 
 ## Later
 
