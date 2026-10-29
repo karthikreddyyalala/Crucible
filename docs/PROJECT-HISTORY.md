@@ -117,6 +117,18 @@ Phase 2 split into 2a to 2d. 2a, built with parallel workers and reviewed:
   under the verdict. Same call, no new Claude calls; about a cent more per interview.
 - Mocked tests only ($0). The prompt wording isn't checked live yet.
 
+- Merged as PR #13.
+
+### 2026-10-29: Phase 2d, JavaScript coding round (branch `feat/phase-2d-javascript`)
+- A Python | JavaScript switch on the editor. JavaScript runs in its own Web Worker through
+  a TypeScript port of the Python judge, so it's ready instantly and costs nothing to run.
+- All 75 problems got JavaScript starter code, generated once from the Python signatures by
+  `backend/cli/make_js_starters.py` and checked to parse and to load in the judge.
+- Drafts are kept per language (Python keeps the old key, so saved sessions still load).
+  Marcus, the evaluator and the coach are told the language.
+- Built by three parallel workers plus a final review; mocked tests only ($0).
+- The Tavus "Chris" voice match turned out to be a dashboard setting, not code (see TODO).
+
 ## Bugs worth remembering
 
 - **Every real AI call would have failed.** The installed Anthropic SDK has no
