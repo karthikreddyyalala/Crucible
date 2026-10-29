@@ -1,5 +1,5 @@
 from typing import Literal
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
 
@@ -87,6 +87,17 @@ class MemoryProfile(_Base):
     strong_areas: list[str]
 
 
+class CodingAttempt(_Base):
+    """What happened on one coding question: the problem, the language and the last run."""
+    question_id: str = Field(max_length=64)
+    problem_id: str = Field(max_length=80)  # the plan question's exemplar_id
+    language: Literal["python", "javascript"]
+    tests_passed: int = Field(ge=0, le=1000)
+    tests_total: int = Field(ge=0, le=1000)
+    submitted: bool  # the last run was a Submit (hidden tests included)
+    seconds: int | None = Field(ge=0, le=86400)  # first shown -> last Submit or leaving it; None if unknown
+
+
 class SessionSummary(_Base):
     """Lightweight row for the dashboard's past-sessions list."""
     session_id: str
@@ -98,6 +109,7 @@ class SessionSummary(_Base):
     # Sorted union of the session's evaluation tags, so the dashboard can show
     # which weak spots showed up when. Index rows written before this existed give [].
     weakness_tags: list[str] = []
+    coding: list[CodingAttempt] = []
 
 
 class SessionRecord(_Base):
@@ -115,6 +127,7 @@ class SessionRecord(_Base):
     cost_usd: float = 0.0
     company_style: str = "general"
     ended_for_conduct: bool = False  # the interviewer ended it after the third conduct strike
+    coding: list[CodingAttempt] = []  # one per coding question reached; [] on older records
 
     def summary(self) -> SessionSummary:
         survived = sum(1 for e in self.evaluations if e.would_survive_real_interview)
@@ -126,6 +139,7 @@ class SessionRecord(_Base):
             survived=survived,
             total=len(self.evaluations),
             weakness_tags=sorted({t for e in self.evaluations for t in e.weakness_tags}),
+            coding=self.coding,
         )
 
 

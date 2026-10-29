@@ -115,6 +115,7 @@ export interface AvatarSessionResponse {
   conversationId: string | null;
 }
 
+// What happened on one coding question (mirrored by Pydantic CodingAttempt in backend/models/contracts.py).
 export interface CodingAttempt {
   questionId: string;
   problemId: string;         // the plan question's exemplarId, e.g. "code-two-sum"
@@ -134,6 +135,7 @@ export interface SessionSummary {
   total: number;
   /** Sorted union of the session's weakness tags; missing on rows written before it existed. */
   weaknessTags?: string[];
+  /** One per coding question reached; missing on rows written before it existed. */
   coding?: CodingAttempt[];
 }
 
@@ -149,4 +151,5 @@ export interface SessionRecord {
   // Older records (and demo-mode ones) omit these; the server defaults them.
   companyStyle?: string;
   endedForConduct?: boolean;
+  coding?: CodingAttempt[];
 }

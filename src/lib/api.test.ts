@@ -85,3 +85,28 @@ describe("request errors", () => {
     await expect(api.getProblem("nope")).rejects.toThrow("Problem not found.");
   });
 });
+
+describe("demo mode session history", () => {
+  it("stores the coding attempts at finalize and returns them in the list and the record", async () => {
+    vi.useFakeTimers();
+    vi.stubEnv("VITE_USE_MOCK", "true");
+    vi.resetModules();
+    const { api } = await import("./api");
+    localStorage.clear();
+    const attempt = {
+      questionId: "q1", problemId: "code-two-sum", language: "python" as const,
+      testsPassed: 3, testsTotal: 3, submitted: true, seconds: 300,
+    };
+    const settle = async <T,>(p: Promise<T>): Promise<T> => {
+      await vi.runAllTimersAsync();
+      return p;
+    };
+    await settle(api.finalizeSession({
+      candidateId: "demo", evaluations: [], sessionId: "s1", mode: "coding", level: "mid", questions: [coding],
+      costUsd: 0, companyStyle: "general", endedForConduct: false, coding: [attempt],
+    }));
+    expect((await settle(api.listSessions("demo")))[0].coding).toEqual([attempt]);
+    expect((await settle(api.getSession("demo", "s1")))?.coding).toEqual([attempt]);
+    vi.useRealTimers();
+  });
+});
