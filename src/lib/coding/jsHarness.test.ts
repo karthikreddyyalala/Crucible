@@ -439,3 +439,14 @@ describe("js.worker", () => {
     expect(posted[1]).toMatchObject({ type: "result", id: 7, results: [{ passed: true }, { passed: true }, { passed: true }] });
   });
 });
+
+describe("JavaScript starters", () => {
+  it.each((problems as unknown as PublicProblem[]).map((p) => [p.id, p] as const))(
+    "%s: the judge loads the starter and finds its function or class",
+    (_id, problem) => {
+      const rows = run(problem.starterCodeJs, problem, true);
+      expect(rows.length).toBeGreaterThan(0);
+      expect(rows[0].index).toBe(0);
+    },
+  );
+});
