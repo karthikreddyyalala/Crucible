@@ -4,9 +4,9 @@ A mock interviewer that talks to you, remembers what you got wrong last time, an
 
 Live app: https://dvbk879zy1q2l.cloudfront.net
 
-[![Watch the 74-second demo of Crucible](docs/media/demo-thumbnail.jpg)](https://www.youtube.com/watch?v=BLeKX64la3o)
 
-**Demo (74 s):** https://www.youtube.com/watch?v=BLeKX64la3o
+
+
 
 ## Why I built this
 
