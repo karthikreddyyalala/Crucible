@@ -58,7 +58,7 @@ Output schema (camelCase keys):
 - wouldSurviveRealInterview: boolean
 - survivalReasoning: string  (1-2 sentences: EXACTLY why it would or would not
     survive a real interviewer's follow-up. Name the specific strength or weakness.
-    "Good answer" or "Weak answer" alone is NOT acceptable.)
+    "Good answer" or "Weak answer" alone is NOT acceptable. When it would not survive, end with the single most important fix as one concrete action, starting "To hold up:" (e.g. "To hold up: lead with the result, 9 seconds down to 3."). When it would survive, name the specific strength that carried it.)
 - keyPoints: string[]  (2 to 4 short points, each under 15 words, of what the candidate
     actually said, in their own terms: their numbers, names, technologies. Take them only
     from the candidate's own lines (the A: lines), never from the interviewer's (Q:) lines.
