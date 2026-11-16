@@ -32,3 +32,11 @@ def test_vague_result_gets_a_number() -> None:
 
 def test_survival_reasoning_names_one_fix() -> None:
     assert "To hold up:" in _load("evaluator")
+
+
+def test_remaining_recap_teaching_removed() -> None:
+    t = _load("interviewer")
+    assert "two flows, shipped on day nineteen" not in t
+    assert "one short sentence mirroring something SPECIFIC" not in t
+    assert "Never correct them on the first pass" in t
+    assert '("So,", "Okay, so",' not in t
