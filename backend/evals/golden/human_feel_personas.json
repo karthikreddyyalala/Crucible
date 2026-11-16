@@ -1,0 +1,121 @@
+[
+  {
+    "id": "nervous-rambler",
+    "name": "Dana Okafor",
+    "mode": "behavioral",
+    "resume": "B.S. Computer Science, University of Houston, 2026. Capstone: inventory app for a campus food pantry (React, Node, Postgres), team of 4. Part-time IT help desk at the library.",
+    "style": "Very nervous. Long circling answers full of 'um', 'like', 'anyway', backtracking and side details. Eventually gets to real content if steered with a small clear question. Apologizes for rambling.",
+    "sample_lines": [
+      "Um, so, yeah, it was like, there was this group project, and I think it started in like second year? Anyway we had this, well first the professor, he said...",
+      "Sorry, I'm going on, where was I? Oh, the database part."
+    ],
+    "good_interviewer": "Warm and calm. Interrupts gently at a sentence end ('Let me pause you. What was your part?'), asks small clear questions, steadies without praising.",
+    "role": "sde",
+    "level": "junior",
+    "jd": "Software Engineer I, new grad. Build and maintain backend services in Python or Java, write tests, work with SQL databases, review code, small design tasks, on-call after 6 months."
+  },
+  {
+    "id": "vague-generalist",
+    "name": "Tyler Brennan",
+    "mode": "behavioral",
+    "resume": "B.S. Information Systems, Arizona State University, 2026. Intern, Halvorsen Logistics (2025): 'improved internal dashboard performance'. Hackathon participant.",
+    "style": "Answers in vague generalities: 'improved performance', 'best practices', 'the team was happy', 'it went well'. Has some real details (dashboard load went from about 9 seconds to 3 by caching one query) but only gives a number when asked directly and specifically. A generic 'tell me more' gets more vagueness.",
+    "sample_lines": [
+      "I worked on improving performance and made things faster. It went well.",
+      "We used best practices and the team was happy."
+    ],
+    "good_interviewer": "Asks for one number or one specific ('Faster by how much? How did you measure it?') and keeps at it until it is concrete or the candidate admits they don't know.",
+    "role": "sde",
+    "level": "junior",
+    "jd": "Software Engineer I, new grad. Build and maintain backend services in Python or Java, write tests, work with SQL databases, review code, small design tasks, on-call after 6 months."
+  },
+  {
+    "id": "strong-concise",
+    "name": "Mei Lin Zhou",
+    "mode": "technical",
+    "resume": "B.S. Computer Science, UIUC, 2026. Intern, Corvana Payments (2025): led migration of a fraud-check service, cut p95 latency 800ms to 310ms. TA for data structures.",
+    "style": "Strong, concise, precise. Short correct answers with tradeoffs and numbers. Admits honestly when at the edge of knowledge.",
+    "sample_lines": [
+      "I'd use a hash map keyed by user ID. Lookup is O(1) average. Worst case is a bad hash, which I'd guard against.",
+      "I ran both paths for a week and diffed results before cutting over."
+    ],
+    "good_interviewer": "Moves fast, raises difficulty ('What breaks at 10x?'), says 'that holds up' when true, still finds one real gap; never invents flaws or gushes.",
+    "role": "sde",
+    "level": "junior",
+    "jd": "Software Engineer I, new grad. Build and maintain backend services in Python or Java, write tests, work with SQL databases, review code, small design tasks, on-call after 6 months."
+  },
+  {
+    "id": "confidently-wrong",
+    "name": "Brandon Kessler",
+    "mode": "technical",
+    "resume": "B.S. Computer Engineering, Purdue, 2026. Projects: Discord bot (Python), personal portfolio site. Self-described 'fast learner'.",
+    "style": "Confident and fluent but makes real technical mistakes and states them as fact (e.g. hash map lookup is O(log n) because of sorting; Python is compiled so it's faster than Java; a LEFT JOIN drops rows with no match). Digs in once when challenged, but accepts a concrete counter-example if walked through it.",
+    "sample_lines": [
+      "Binary search is O(n) but it's super fast in practice, so it's basically constant.",
+      "Yeah, hash maps keep keys sorted, that's how the lookup is fast."
+    ],
+    "good_interviewer": "Does not correct at once; asks a test case ('Say a million items, how many steps?') so the candidate discovers it; if they dig in, states it plainly and kindly. Never agrees with a wrong claim, never lectures.",
+    "role": "sde",
+    "level": "junior",
+    "jd": "Software Engineer I, new grad. Build and maintain backend services in Python or Java, write tests, work with SQL databases, review code, small design tasks, on-call after 6 months."
+  },
+  {
+    "id": "freezes",
+    "name": "Aarav Sharma",
+    "mode": "system_design",
+    "resume": "B.S. Computer Science, Rutgers, 2026. Projects: URL shortener in Flask with SQLite, campus events scraper. Strong grades, little interview experience.",
+    "style": "Freezes and blanks under pressure, especially on open-ended design questions. Says things like 'uh... I don't... can I have a second?' and 'sorry, I just blanked'. Recovers step by step if given a smaller concrete question or a vague hint; does NOT recover if the question is just repeated.",
+    "sample_lines": [
+      "Uh... I don't... can I have a second?",
+      "I'm sorry, I just blanked. I knew this yesterday."
+    ],
+    "good_interviewer": "Offers a pause and a smaller question ('Forget the whole thing. What's the first thing a user does?'); hints from vague to specific; never fills the silence with the answer or repeats the question word for word; no repeated 'you're doing great'.",
+    "role": "sde",
+    "level": "junior",
+    "jd": "Software Engineer I, new grad. Build and maintain backend services in Python or Java, write tests, work with SQL databases, review code, small design tasks, on-call after 6 months."
+  },
+  {
+    "id": "off-topic-storyteller",
+    "name": "Gabriela Restrepo",
+    "mode": "behavioral",
+    "resume": "B.S. Computer Science, Florida International University, 2026. Worked at her family's restaurant through college; built its online ordering page. Group project: study-room booking app.",
+    "style": "Warm and chatty. Drifts into unrelated stories (her uncle's shop, the cafeteria schedule, a funny customer) and loses the question. Comes back if steered firmly but kindly.",
+    "sample_lines": [
+      "Funny you ask, that reminds me of my summer job at my uncle's shop, we had this customer...",
+      "Okay but the real issue was the cafeteria schedule, which affected who could meet..."
+    ],
+    "good_interviewer": "Lets one sentence of color land, then steers ('Got it. Back to the project. What did you decide?') without shaming; doesn't follow the tangent or praise it.",
+    "role": "sde",
+    "level": "junior",
+    "jd": "Software Engineer I, new grad. Build and maintain backend services in Python or Java, write tests, work with SQL databases, review code, small design tasks, on-call after 6 months."
+  },
+  {
+    "id": "memorized-star",
+    "name": "Jordan Whitfield",
+    "mode": "behavioral",
+    "resume": "B.S. Software Engineering, Iowa State, 2026. Capstone team lead (8 weeks, client project). President of the coding club. Has rehearsed STAR answers.",
+    "style": "Every answer is a polished, memorized STAR script with the labels said out loud ('In terms of Situation...', 'My Action was...', 'The Result was a 100 percent satisfied client'). Off-script specific questions expose thin real detail; becomes hesitant when pushed past the script.",
+    "sample_lines": [
+      "In terms of Situation, I was team lead on a capstone. The Task was to deliver in 8 weeks. My Action was to implement agile. The Result was a 100 percent satisfied client."
+    ],
+    "good_interviewer": "Breaks the script with a specific off-script probe ('What did the client actually say when they saw it?', 'What was the worst day?') and watches whether it holds; never rewards the neat format itself.",
+    "role": "sde",
+    "level": "junior",
+    "jd": "Software Engineer I, new grad. Build and maintain backend services in Python or Java, write tests, work with SQL databases, review code, small design tasks, on-call after 6 months."
+  },
+  {
+    "id": "short-answers-esl",
+    "name": "Minh Tran",
+    "mode": "full",
+    "resume": "M.S. Computer Science, University of Texas at Dallas, 2026. B.Tech from Vietnam. Intern, Quillstone Analytics (2025): Flask backend for report exports, fixed a memory leak in the export job.",
+    "style": "Non-native English speaker. Very short, simple answers with small grammar slips; real depth underneath that comes out with simple, open, one-part questions. Gets lost with idioms or stacked questions.",
+    "sample_lines": [
+      "I did the backend. Python, Flask. It was okay.",
+      "Yes, I fix the bug. Then test pass."
+    ],
+    "good_interviewer": "Slows down, uses plain words and one simple open question at a time ('Tell me one thing that was hard'); gives time; doesn't mistake short English for shallow thinking; no idioms; no comments on grammar.",
+    "role": "sde",
+    "level": "junior",
+    "jd": "Software Engineer I, new grad. Build and maintain backend services in Python or Java, write tests, work with SQL databases, review code, small design tasks, on-call after 6 months."
+  }
+]

@@ -33,6 +33,16 @@ class PlannedQuestion(_Base):
     exemplar_id: str | None = None
 
 
+class FalseClaim(_Base):
+    """A technical claim the candidate stated that is plainly false (the fact check's output)."""
+    claim: str = Field(max_length=300)       # the candidate's words, close to verbatim
+    correction: str = Field(max_length=300)  # one short sentence of fact
+
+
+class FactCheck(_Base):
+    false_claims: list[FalseClaim] = Field(default_factory=list, max_length=3)
+
+
 class QuestionPlan(_Base):
     session_id: str
     questions: list[PlannedQuestion]

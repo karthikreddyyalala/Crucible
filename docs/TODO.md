@@ -130,6 +130,16 @@ Spec: docs/superpowers/specs/2026-10-28-phase-2a-voice-turns-design.md · Plan: 
 - [x] Phase 3: coding history on the dashboard (problem, language, tests, time; $0)
 - [ ] Phase 3 next: answer replay (needs Claude calls, ask first); hints needed (prompt change + paid check)
 
+## Now — Human-feel eval (branch `test/human-feel-eval`)
+
+Write-up: [evals-human-feel.md](evals-human-feel.md).
+- [x] Claude API switch for local evals (`INTERVIEWAI_LLM_PROVIDER=anthropic`, `ant auth login`)
+- [x] 8 student personas and an 8-point judge rubric from research
+- [x] Recaps cut (prompt + `no_recap`), fact check of technical claims
+- [ ] Results: one strength plus one fix per answer (confidence score is the weakest)
+- [ ] Marcus: counter-case before correcting a wrong claim
+- [ ] Run the other 5 personas (about $3.30)
+
 ## Later
 
 - [x] Bank eval cases + A/B (with vs without notes): first-probe targeting 11/24 vs 14/24 —

@@ -2,7 +2,8 @@ import re
 from pathlib import Path
 from agents.untrusted import wrap_untrusted
 from models.coding import CodingProblem
-from models.contracts import InterviewDecision, PlannedQuestion
+from agents.fact_check import format_claims
+from models.contracts import FalseClaim, InterviewDecision, PlannedQuestion
 from models.question_data import QuestionExemplar
 
 _PROMPT = (Path(__file__).resolve().parent.parent / "prompts" / "interviewer.md").read_text()
@@ -21,6 +22,29 @@ _SECOND_ASK = re.compile(
 
 def one_ask(text: str) -> str:
     return _SECOND_ASK.sub("?", text, count=1)
+
+
+# "Right. So you cut the export and trimmed the reminders, who did you tell?" reads the answer back
+# before the probe; real interviewers just ask. Cut a summary clause (6+ words, no quoted words:
+# quoting their word IS the probe) between the acknowledgment and the question.
+_RECAP = re.compile(
+    r"^((?:Okay|Ok|Got it|Right|Sure|Mm, okay|Mm)[.,]\s+)"
+    # "So when you mock it, what ..." sets up the question; only "So <summary>" is a recap.
+    r"((?:So\b,?(?!\s*(?:when|if|what|how|why|let'?s)\b)\s*|You\s+(?:said|mentioned)\b|You\b)[^?]*?)"
+    r"[,.]\s+"
+    r"((?:what|how|why|who|when|where|which|did|do|does|is|are|was|were|could|can|would)\b[^?]*\?)$",
+    re.IGNORECASE,
+)
+_OPEN_QUOTE = re.compile(r"(?:^|\s)['\"\u2018\u201c]")
+
+
+def no_recap(text: str) -> str:
+    m = _RECAP.match(text.strip())
+    if not m or len(m.group(2).split()) < 6 or _OPEN_QUOTE.search(m.group(2)):
+        return text
+    ack, question = m.group(1), m.group(3)
+    first = question[0].upper() if ack.rstrip().endswith(".") else question[0].lower()
+    return f"{ack}{first}{question[1:]}"
 
 
 # Marcus is heard (and shown) as plain speech: a dash reads as written prose, so it becomes a comma.
@@ -60,6 +84,7 @@ class InterviewerAgent:
         company_note: str = "",
         earlier: str = "",
         language: str = "python",
+        false_claims: list[FalseClaim] | None = None,
     ) -> InterviewDecision:
         user = (
             f"Phase: {phase}\n"
@@ -89,6 +114,8 @@ class InterviewerAgent:
             + (f"\nCandidate code (current editor{', JavaScript' if language == 'javascript' else ''}):\n{wrap_untrusted('candidate_code', code)}\n" if code else "")
             + (f"\nTest results (reported by the browser):\n{wrap_untrusted('test_results', test_results)}\n"
                if test_results else "")
+            + (f"\nFact check of their latest reply (from a separate checker):\n{format_claims(false_claims)}\n"
+               if false_claims else "")
             # Trusted: looked up server-side from the style id.
             + (f"\nCompany style: {company_note}\n" if company_note else "")
         )
@@ -126,7 +153,8 @@ class InterviewerAgent:
                 "follow_up_prompt": decision.follow_up_prompt and one_ask(decision.follow_up_prompt),
             })
         decision = decision.model_copy(update={
-            "say": plain_dashes(decision.say),
+            # After plain_dashes: "Okay — so you ..." only matches the recap once it reads "Okay, so you ...".
+            "say": no_recap(plain_dashes(decision.say)) if decision.action == "follow_up" else plain_dashes(decision.say),
             "follow_up_prompt": decision.follow_up_prompt and plain_dashes(decision.follow_up_prompt),
         })
         if decision.action == "end":  # only the server ends a session (conduct); for the model it resolves

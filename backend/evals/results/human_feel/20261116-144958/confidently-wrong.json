@@ -1,0 +1,418 @@
+{
+  "persona": "confidently-wrong",
+  "costUsd": 0.5770752999999997,
+  "judgement": {
+    "scores": {
+      "probing_depth": {
+        "score": 3,
+        "evidence": "Some follow-ups target the weak spot: 'walk me through what the GIL actually protects you from there, and whether counter++ can still interleave between bytecode operations.' Others are generic: 'What does that mean for whether the increment is actually safe?' and 'What's the overall complexity of your approach?' He never asked for the cost of the O(log n) claim concretely and never asked about the TLS/TCP fuzziness Brandon flagged."
+      },
+      "earned_praise": {
+        "score": 3,
+        "evidence": "There is no gushing, but 'Okay, a threading.Lock is the right call' follows a lost argument, and 'Good question' on the candidate's closing question is filler. Wrong answers are named plainly ('The GIL actually doesn't make counter++ atomic'), though the hash map claim was left uncorrected until the very end. 'Right.' is used after wrong statements, which can read as agreement (e.g. 'Right, is there a way to do that part cheaper?' right after O(log n))."
+      },
+      "human_voice": {
+        "score": 3,
+        "evidence": "Mostly short acknowledgments ('Okay', 'Got it', 'Right'), but 'Right.' is repeated almost every turn, and 'Discord bot end to end, okay' is an echo. 'Ha, a little caffeine never hurts' is natural. The turn shapes are repetitive, and the closing recap 'Right, so a hash table hashes the key...' reads as a lecture."
+      },
+      "question_craft": {
+        "score": 3,
+        "evidence": "Most questions are single and tied to earlier answers. Several are leading or give the answer away: 'whether counter++ can still interleave between bytecode operations' hints at the answer. The index question 'how would you pick which column or columns to put it on, and in what order?' is stacked. The correction is followed by a new question in the same turn."
+      },
+      "pacing_and_hard_moments": {
+        "score": 2,
+        "evidence": "He never uses a test case like 'a million items, how many steps?'. He asserts the GIL correction flatly after two vague 'what does that mean' nudges. 'One thing on that, a full scan doesn't always mean you need an index' and 'the planner doesn't automatically use an index' are direct corrections that skip discovery. The hash map misconception was explained only at the end, after Brandon doubled down, and Marcus never tested it with a counter-case."
+      },
+      "candidate_fit": {
+        "score": 2,
+        "evidence": "The persona calls for test-case discovery; Marcus used mostly vague re-asks and then flat corrections. He did not exploit that Brandon accepts a concrete counter-example. He did walk him toward the hash mechanism ('what's actually happening when you do a lookup in a hash map?'), which was the right idea, but too late and without a concrete follow-up case."
+      },
+      "feedback_quality": {
+        "score": 3,
+        "evidence": "Specific on the facts (GIL, planner, hash map) with 'To hold up' next steps. But it is inaccurate in places: q2 says the candidate 'only conceding... without retracting', which is fair, but q3 says 'only corrected after...' and q4 says 'would end the interview', which is harsh. q1 praises 'unprompted layering' that was prompted, and ignores the 'GIL safe' and 'sorted keys' claims as a pattern. There is no single main fix, and no mention that Marcus's own corrections were late."
+      },
+      "confidence_and_tone": {
+        "score": 3,
+        "evidence": "The tone is warm and the closing is polite, with a question answered. The feedback is blunt ('would end the interview') and three of four answers fail, so the student likely knows what to fix (hash maps, GIL) but may feel deflated. The closing gives no specific summary and does not invite further questions."
+      }
+    },
+    "robotic_lines": [
+      "Right, is there a way to do that part cheaper?",
+      "Right. What does that mean for whether the increment is actually safe?",
+      "Good question.",
+      "Right, so a hash table hashes the key to get a bucket index and jumps straight there, which is O(1) on average."
+    ],
+    "best_moment": "Asking 'what's actually happening when you do a lookup in a hash map?' pushed Brandon to describe the hashing mechanism himself and exposed the contradiction.",
+    "worst_moment": "Telling Brandon flatly 'The GIL actually doesn't make counter++ atomic in Python...' after two vague nudges, instead of giving a concrete interleaving case. Closely tied: letting O(log n) pass with 'Right,' and only correcting it at the close.",
+    "student_leaves_confident": false,
+    "confidence_reasoning": "Brandon learns he got three of four technical topics wrong and that one 'would end the interview', but gets no clear sequence of what to fix and no sense Marcus helped him discover the errors. Corrections were mostly delivered as statements.",
+    "top_fixes": [
+      "Test wrong claims with a concrete case ('a million keys, how many steps per lookup?' or 'two threads both read 5, what gets written?') instead of vague re-asks or flat corrections.",
+      "Never say 'Right' after a wrong claim; use neutral acknowledgments and correct plainly at the time, not in the closing.",
+      "Keep one short non-leading question per turn and drop the filler praise ('Good question')."
+    ],
+    "praise_unearned": false,
+    "stacked_question_count": 1,
+    "hard_fail": []
+  },
+  "plan": [
+    {
+      "id": "q1",
+      "type": "technical",
+      "prompt": "What happens when you type a URL into a browser and press enter?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-url-1"
+    },
+    {
+      "id": "q2",
+      "type": "technical",
+      "prompt": "What can go wrong when several threads increment the same counter without any locking?",
+      "targetDifficulty": 1,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-shared-counter-1"
+    },
+    {
+      "id": "q3",
+      "type": "technical",
+      "prompt": "A page in your app got slow and you suspect a database query, how would you fix it?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-slow-query-1"
+    },
+    {
+      "id": "q4",
+      "type": "technical",
+      "prompt": "How would you find the ten most frequent search queries from a day of query logs?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-top-k-1"
+    }
+  ],
+  "log": [
+    [
+      "warmup",
+      "Marcus",
+      "Hi Brandon, I'm Marcus. I'm one of the engineers on the team. Thanks for making the time today. Before we dive in, how are you doing?"
+    ],
+    [
+      "warmup",
+      "Brandon",
+      "Hey Marcus, thanks for having me. I'm doing great, a little caffeinated, honestly. I've been looking forward to this one. Purdue's been good prep, and I've been building stuff on the side pretty much nonstop, so I'm excited to talk about the role."
+    ],
+    [
+      "background",
+      "Marcus",
+      "Ha, a little caffeine never hurts. I'm doing well, thanks for asking. So today we'll go through some technical questions, backend concepts, maybe some design thinking, at a junior level, so think out loud as you go, and feel free to ask me to clarify anything. Okay, to get started, just walk me through your background briefly: where you've been, what you've built, that kind of thing."
+    ],
+    [
+      "background",
+      "Brandon",
+      "Sure. I'm a Computer Engineering grad from Purdue, class of 2026. Most of my coding has been outside of class, honestly. The big one is a Discord bot I wrote in Python. It handles moderation commands, pulls data from a couple of external APIs, and stores user stats in a database, so I got to deal with the whole thing end to end, from parsing commands to keeping the bot from falling over under load. I also built my own portfolio site, which was mostly a way to practice front-end basics and deployment. Classwork gave me the fundamentals, like data structures and some embedded stuff, but the projects are where I really learned to ship things. I pick up new tools pretty quickly, so I'm excited to get into backend work at a real team."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Discord bot end to end, okay. Let's get into the technical side. What happens when you type a URL into a browser and press enter?"
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Okay, so the browser first checks its cache, and if it doesn't have the address it does a DNS lookup to turn the domain into an IP. Then it opens a TCP connection to that IP, usually on port 443, and does a TLS handshake so the connection is encrypted. After that it sends an HTTP GET request, the server sends back a response, and the browser renders the HTML. It also pulls in CSS, JS, and images as it goes. I think that's the core of it, though I'm a little fuzzy on exactly where the TLS handshake fits relative to the TCP part."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Got it. You mentioned port 443, is that always the port a browser connects to, or is that specific to a certain kind of URL?"
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Yeah, pretty much. 443 is the default for HTTPS, and basically every site people actually use is HTTPS now, so I'd say it's the one you'll see almost always. If the URL is plain http, it goes to port 80 instead. And if someone puts a port number right in the URL, like localhost:8080, the browser uses that one. So the scheme sets the default, but an explicit port overrides it."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Right. What actually sits between the browser and the application server handling that request?"
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Hmm, good question. Between the browser and the app server you've usually got a load balancer, and probably a reverse proxy like nginx sitting in front of the app. The load balancer spreads traffic across servers, and the proxy handles things like TLS termination, serving static files, and maybe caching. So the request hits the load balancer first, then the proxy, then gets forwarded to the actual app process. Oh, and there's usually a CDN in there too for static assets, though for a plain API request it mostly doesn't matter."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Okay. Let's switch gears, what can go wrong when several threads increment the same counter without any locking?"
+    ],
+    [
+      "q2",
+      "Brandon",
+      "Okay, so if a bunch of threads are all doing counter++ with no lock, you get a race condition. Basically the increment isn't atomic, it's a read, an add, and a write, so two threads can read the same value, both add one, and both write back the same result. Now you've lost an update. Do that enough times and the final count is way lower than it should be. And it's not even consistent, so it'll look fine in testing sometimes and then break in prod. Honestly in Python the GIL means it's basically safe anyway, so it's mostly a problem in Java or C++ where threads really run in parallel."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Okay. On the Python GIL point, walk me through what the GIL actually protects you from there, and whether counter++ can still interleave between bytecode operations."
+    ],
+    [
+      "q2",
+      "Brandon",
+      "Yeah, so the GIL means only one thread runs Python bytecode at a time, so it's basically protecting the interpreter's internal state, and that makes the counter safe. I'm pretty sure a plain counter++ in Python is atomic because of that. There's no real interleaving at that level, the GIL just handles it."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Right. What does that mean for whether the increment is actually safe?"
+    ],
+    [
+      "q2",
+      "Brandon",
+      "Well, I'd say it's safe, since the GIL only lets one thread run at a time, so nothing can cut in halfway through the increment. The GIL is doing the locking for you. That's why I said it's mostly a Java and C++ problem. Python just doesn't really have that issue in practice."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "The GIL actually doesn't make counter++ atomic in Python. It's still multiple bytecode instructions, a load, an increment, a store, and the GIL can release between them. So you can get the same lost update you described for Java. What would you use to actually fix this in Python?"
+    ],
+    [
+      "q2",
+      "Brandon",
+      "Hmm, I don't think that's right, though. The GIL switches threads at the interpreter level, and I'm pretty sure a simple increment doesn't get split like that. Plus I've never really seen this bite anyone in Python in practice. But if you're saying it can happen, I guess a lock would do it. Like a threading.Lock around the increment, so only one thread touches the counter at a time. That's the standard fix, right?"
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Okay, a threading.Lock is the right call. Let's move on. A page in your app got slow and you suspect a database query, how would you fix it?"
+    ],
+    [
+      "q3",
+      "Brandon",
+      "Yeah, I'd start by finding the slow query before changing anything. Most databases have a slow query log, or I'd pull the query plan with EXPLAIN and see what it's actually doing. If it's doing a full table scan on something big, the usual fix is an index on the columns in the WHERE or JOIN clause. I'd also check if it's pulling way more columns or rows than the page needs, or if it's running once per item in a loop, which is an N+1 pattern. Those are usually the big wins. Caching helps too, but I'd treat that as a last resort because then you've got invalidation to deal with, and that's where things get messy. Honestly, indexes fix most of these in my experience, so that's where I'd look first."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Okay. What specifically would you look for in it to decide what to do next?"
+    ],
+    [
+      "q3",
+      "Brandon",
+      "Yeah, so in the EXPLAIN output I'd look at whether it's doing a sequential scan on a big table, and whether the row estimates are way off from what actually comes back. If the planner thinks it's going to get a handful of rows but it's really getting thousands, that's a sign the stats are stale or the query's joining in a weird way. I'd also check for sort or hash steps that spill to disk, and whether the same table is getting hit over and over in a loop. Once I see which of those it is, I'd know whether it's an index, a query rewrite, or just fetching too much. I'm pretty sure a full scan almost always means you need an index, so I'd probably go straight there."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Right. One thing on that, a full scan doesn't always mean you need an index. Sometimes the planner chooses a scan because it's returning most of the rows anyway, and an index would actually be slower. So, if you did decide to add an index, how would you pick which column or columns to put it on, and in what order?"
+    ],
+    [
+      "q3",
+      "Brandon",
+      "Yeah, that makes sense, I was too quick to say full scan means index. If it's returning most of the rows anyway, a sequential scan is cheaper. So I'd check the selectivity first, how many rows the filter actually cuts down to.\n\nFor picking the columns, I'd look at the WHERE and JOIN conditions. Columns that are used with equality checks go first in a composite index, and then the range or sort columns after that. So if the query filters on user_id equal to something and then orders by created_at, I'd probably do an index on user_id and created_at in that order. I'd also make sure the index actually covers what the query needs, so the database doesn't have to go back to the table for every row. And I'd verify it after with EXPLAIN again, because I'm pretty sure the planner will just use the index if it's there, so you can see the difference right away."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Right. One thing there, the planner doesn't automatically use an index just because it exists. It picks based on cost estimates, so a new index might still get skipped. But setting that aside, what does adding an index actually cost you?"
+    ],
+    [
+      "q3",
+      "Brandon",
+      "Yeah, that's fair, I kind of glossed over that. Okay, so the main cost is on writes. Every insert, update, or delete on that table has to update the index too, so you're doing extra work every time. That slows down writes a bit, and it also takes up disk space, sometimes a lot if the table is big or the index covers several columns. And with more indexes, the optimizer has more to consider, and the maintenance and stats updates take a little more time. I'd say for a read-heavy table it's usually a worthwhile trade, but on something that gets hammered with writes you'd want to be more careful about how many you add."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Got it. Okay, let's switch gears. How would you find the ten most frequent search queries from a day of query logs?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Sure, so with a day of logs I'd probably just load everything into a hash map, count each query string, then sort the counts and take the top ten. Hash map lookups are O(log n) since the keys are kept in order under the hood, so counting is fast. Then sorting the whole thing is O(n log n), which is fine for a day of logs. If the file's too big for memory, I'd split it up by hash and count each chunk separately, but honestly for most logs a single dictionary is plenty."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Okay. What's the overall complexity of your approach?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Hmm, so it's O(n log n) overall, right? Counting is O(n) and then the sort is O(n log n), and the sort dominates, so that's the total. Well, I said hash lookups are O(log n) earlier, which I guess muddies it a bit, but the sort is the expensive part either way. Anyway, it's fine for a day of logs."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Right, is there a way to do that part cheaper?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Yeah, actually, there is. Instead of sorting the whole dictionary, I could use a heap of size ten. Walk through the counts and push into a min-heap, and if it gets bigger than ten, pop the smallest. That's O(n log k) where k is ten, so it's basically linear for this. Python has heapq.nlargest for that, which is what I'd probably reach for.\n\nAnd hold on, I want to double check my earlier thing. Hash map lookups being O(log n) because the keys are sorted... I think that's right, a hash map keeps things in order under the hood, so yeah, that's why lookups are fast. Anyway, the heap approach is the cheaper one."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Right, what's actually happening when you do a lookup in a hash map?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Hmm, so it hashes the key to get an index into an array of buckets, then goes straight to that bucket and checks the entry. That's why it's fast. I'm still pretty sure there's some ordering going on under the hood, though, since that's the part that makes it O(log n) in my head. I know that sounds like I'm contradicting myself, but I think the hash just tells you roughly where to look in a sorted structure."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Right, so a hash table hashes the key to get a bucket index and jumps straight there, which is O(1) on average. There's no sorted structure underneath; that's a different thing called a balanced BST, like a tree map. Anyway, that's everything I wanted to cover. What questions do you have for me?"
+    ],
+    [
+      "closing",
+      "Brandon",
+      "Yeah, I have one. How big is the team right now, and is most of the backend work Python or Java? I saw the posting mention both, and I'm curious which one I'd be in day to day. That's it for me, I think I'm all set."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Good question. Honestly, the split varies by team, but from what I know of this role, Python tends to be the more common day-to-day language, though you'd likely touch both at some point. As for team size, I can't give you a precise number right now, but it's a small enough group that you'd be close to the work from day one. Okay, Brandon, thanks for coming in today. I'll write up my feedback, and you'll see it on the next screen. Take care."
+    ]
+  ],
+  "evaluations": [
+    {
+      "questionId": "q1",
+      "transcript": "Q: Discord bot end to end, okay. Let's get into the technical side. What happens when you type a URL into a browser and press enter?\nA: Okay, so the browser first checks its cache, and if it doesn't have the address it does a DNS lookup to turn the domain into an IP. Then it opens a TCP connection to that IP, usually on port 443, and does a TLS handshake so the connection is encrypted. After that it sends an HTTP GET request, the server sends back a response, and the browser renders the HTML. It also pulls in CSS, JS, and images as it goes. I think that's the core of it, though I'm a little fuzzy on exactly where the TLS handshake fits relative to the TCP part.\nQ: Got it. You mentioned port 443, is that always the port a browser connects to, or is that specific to a certain kind of URL?\nA: Yeah, pretty much. 443 is the default for HTTPS, and basically every site people actually use is HTTPS now, so I'd say it's the one you'll see almost always. If the URL is plain http, it goes to port 80 instead. And if someone puts a port number right in the URL, like localhost:8080, the browser uses that one. So the scheme sets the default, but an explicit port overrides it.\nQ: Right. What actually sits between the browser and the application server handling that request?\nA: Hmm, good question. Between the browser and the app server you've usually got a load balancer, and probably a reverse proxy like nginx sitting in front of the app. The load balancer spreads traffic across servers, and the proxy handles things like TLS termination, serving static files, and maybe caching. So the request hits the load balancer first, then the proxy, then gets forwarded to the actual app process. Oh, and there's usually a CDN in there too for static assets, though for a plain API request it mostly doesn't matter.",
+      "rubricScores": {
+        "correctness": 3.0,
+        "depth": 3.0,
+        "edge_cases": 3.0,
+        "communication": 4.0
+      },
+      "weaknessTags": [
+        "shallow-depth"
+      ],
+      "followUpCount": 2,
+      "wouldSurviveRealInterview": true,
+      "survivalReasoning": "The candidate correctly sequenced DNS \u2192 TCP \u2192 TLS \u2192 HTTP \u2192 render and accurately clarified port 80 vs 443 and explicit port overrides when probed; the fact-check flag is minor phrasing ('opens a TCP connection\u2026 and does a TLS handshake') that the candidate themselves flagged uncertainty about, and they never contradicted themselves. The specific strength that carried it is the accurate, unprompted layering of load balancer \u2192 reverse proxy \u2192 app server with concrete roles for each. Depth stays at 3 because no single layer (e.g., DNS resolution steps, TLS handshake phases, or rendering pipeline) was explained in real detail beyond naming it.",
+      "keyPoints": [
+        "Browser checks cache first, then does a DNS lookup to get an IP",
+        "Port 443 for HTTPS, port 80 for HTTP, explicit port in URL overrides the default",
+        "Load balancer spreads traffic, nginx reverse proxy handles TLS termination and static files",
+        "CDN sits in the path for static assets but mostly irrelevant for plain API requests"
+      ]
+    },
+    {
+      "questionId": "q2",
+      "transcript": "Q: Okay. Let's switch gears, what can go wrong when several threads increment the same counter without any locking?\nA: Okay, so if a bunch of threads are all doing counter++ with no lock, you get a race condition. Basically the increment isn't atomic, it's a read, an add, and a write, so two threads can read the same value, both add one, and both write back the same result. Now you've lost an update. Do that enough times and the final count is way lower than it should be. And it's not even consistent, so it'll look fine in testing sometimes and then break in prod. Honestly in Python the GIL means it's basically safe anyway, so it's mostly a problem in Java or C++ where threads really run in parallel.\nQ: Okay. On the Python GIL point, walk me through what the GIL actually protects you from there, and whether counter++ can still interleave between bytecode operations.\nA: Yeah, so the GIL means only one thread runs Python bytecode at a time, so it's basically protecting the interpreter's internal state, and that makes the counter safe. I'm pretty sure a plain counter++ in Python is atomic because of that. There's no real interleaving at that level, the GIL just handles it.\nQ: Right. What does that mean for whether the increment is actually safe?\nA: Well, I'd say it's safe, since the GIL only lets one thread run at a time, so nothing can cut in halfway through the increment. The GIL is doing the locking for you. That's why I said it's mostly a Java and C++ problem. Python just doesn't really have that issue in practice.\nQ: The GIL actually doesn't make counter++ atomic in Python. It's still multiple bytecode instructions, a load, an increment, a store, and the GIL can release between them. So you can get the same lost update you described for Java. What would you use to actually fix this in Python?\nA: Hmm, I don't think that's right, though. The GIL switches threads at the interpreter level, and I'm pretty sure a simple increment doesn't get split like that. Plus I've never really seen this bite anyone in Python in practice. But if you're saying it can happen, I guess a lock would do it. Like a threading.Lock around the increment, so only one thread touches the counter at a time. That's the standard fix, right?",
+      "rubricScores": {
+        "correctness": 2.0,
+        "depth": 2.0,
+        "edge_cases": 3.0,
+        "communication": 3.0
+      },
+      "weaknessTags": [
+        "incorrect-core",
+        "shallow-depth",
+        "no-edge-cases"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate made a factually false claim \u2014 that the Python GIL makes counter++ atomic \u2014 and defended it even after the interviewer explicitly corrected them, only conceding 'I guess a lock would do it' without retracting the error. Per the fact-check rule, a claim that collapsed under probing and was never corrected caps correctness at 2 and fails survival. To hold up: accept the correction immediately, explain that LOAD/ADD/STORE are separate bytecodes the GIL can split, and name threading.Lock or threading.local as concrete fixes with their trade-offs.",
+      "keyPoints": [
+        "Increment is read, add, write \u2014 two threads can read the same value and lose an update.",
+        "Final count ends up lower than expected, and only fails sometimes.",
+        "Claimed Python GIL makes counter++ atomic and defended it under probing.",
+        "Suggested threading.Lock as a fix only after the interviewer named the problem outright."
+      ]
+    },
+    {
+      "questionId": "q3",
+      "transcript": "Q: Okay, a threading.Lock is the right call. Let's move on. A page in your app got slow and you suspect a database query, how would you fix it?\nA: Yeah, I'd start by finding the slow query before changing anything. Most databases have a slow query log, or I'd pull the query plan with EXPLAIN and see what it's actually doing. If it's doing a full table scan on something big, the usual fix is an index on the columns in the WHERE or JOIN clause. I'd also check if it's pulling way more columns or rows than the page needs, or if it's running once per item in a loop, which is an N+1 pattern. Those are usually the big wins. Caching helps too, but I'd treat that as a last resort because then you've got invalidation to deal with, and that's where things get messy. Honestly, indexes fix most of these in my experience, so that's where I'd look first.\nQ: Okay. What specifically would you look for in it to decide what to do next?\nA: Yeah, so in the EXPLAIN output I'd look at whether it's doing a sequential scan on a big table, and whether the row estimates are way off from what actually comes back. If the planner thinks it's going to get a handful of rows but it's really getting thousands, that's a sign the stats are stale or the query's joining in a weird way. I'd also check for sort or hash steps that spill to disk, and whether the same table is getting hit over and over in a loop. Once I see which of those it is, I'd know whether it's an index, a query rewrite, or just fetching too much. I'm pretty sure a full scan almost always means you need an index, so I'd probably go straight there.\nQ: Right. One thing on that, a full scan doesn't always mean you need an index. Sometimes the planner chooses a scan because it's returning most of the rows anyway, and an index would actually be slower. So, if you did decide to add an index, how would you pick which column or columns to put it on, and in what order?\nA: Yeah, that makes sense, I was too quick to say full scan means index. If it's returning most of the rows anyway, a sequential scan is cheaper. So I'd check the selectivity first, how many rows the filter actually cuts down to.\n\nFor picking the columns, I'd look at the WHERE and JOIN conditions. Columns that are used with equality checks go first in a composite index, and then the range or sort columns after that. So if the query filters on user_id equal to something and then orders by created_at, I'd probably do an index on user_id and created_at in that order. I'd also make sure the index actually covers what the query needs, so the database doesn't have to go back to the table for every row. And I'd verify it after with EXPLAIN again, because I'm pretty sure the planner will just use the index if it's there, so you can see the difference right away.\nQ: Right. One thing there, the planner doesn't automatically use an index just because it exists. It picks based on cost estimates, so a new index might still get skipped. But setting that aside, what does adding an index actually cost you?\nA: Yeah, that's fair, I kind of glossed over that. Okay, so the main cost is on writes. Every insert, update, or delete on that table has to update the index too, so you're doing extra work every time. That slows down writes a bit, and it also takes up disk space, sometimes a lot if the table is big or the index covers several columns. And with more indexes, the optimizer has more to consider, and the maintenance and stats updates take a little more time. I'd say for a read-heavy table it's usually a worthwhile trade, but on something that gets hammered with writes you'd want to be more careful about how many you add.",
+      "rubricScores": {
+        "correctness": 3.0,
+        "depth": 4.0,
+        "edge_cases": 4.0,
+        "communication": 4.0
+      },
+      "weaknessTags": [
+        "incorrect-core",
+        "shallow-depth"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate made a factually incorrect claim \u2014 'the planner will just use the index if it's there' \u2014 and only corrected it after the interviewer explicitly named the problem, which triggers the hard rule. The rest of the answer is solid, but reaching the right understanding only after the interviewer's direct correction means it would not survive. To hold up: state upfront that the planner uses cost estimates to choose between index and sequential scan, not mere index existence.",
+      "keyPoints": [
+        "Start with slow query log or EXPLAIN before changing anything.",
+        "N+1 pattern and full table scans are the usual big wins.",
+        "Composite index: equality columns first, then range or sort columns.",
+        "Indexes cost extra work on every insert, update, and delete."
+      ]
+    },
+    {
+      "questionId": "q4",
+      "transcript": "Q: Got it. Okay, let's switch gears. How would you find the ten most frequent search queries from a day of query logs?\nA: Sure, so with a day of logs I'd probably just load everything into a hash map, count each query string, then sort the counts and take the top ten. Hash map lookups are O(log n) since the keys are kept in order under the hood, so counting is fast. Then sorting the whole thing is O(n log n), which is fine for a day of logs. If the file's too big for memory, I'd split it up by hash and count each chunk separately, but honestly for most logs a single dictionary is plenty.\nQ: Okay. What's the overall complexity of your approach?\nA: Hmm, so it's O(n log n) overall, right? Counting is O(n) and then the sort is O(n log n), and the sort dominates, so that's the total. Well, I said hash lookups are O(log n) earlier, which I guess muddies it a bit, but the sort is the expensive part either way. Anyway, it's fine for a day of logs.\nQ: Right, is there a way to do that part cheaper?\nA: Yeah, actually, there is. Instead of sorting the whole dictionary, I could use a heap of size ten. Walk through the counts and push into a min-heap, and if it gets bigger than ten, pop the smallest. That's O(n log k) where k is ten, so it's basically linear for this. Python has heapq.nlargest for that, which is what I'd probably reach for.\n\nAnd hold on, I want to double check my earlier thing. Hash map lookups being O(log n) because the keys are sorted... I think that's right, a hash map keeps things in order under the hood, so yeah, that's why lookups are fast. Anyway, the heap approach is the cheaper one.\nQ: Right, what's actually happening when you do a lookup in a hash map?\nA: Hmm, so it hashes the key to get an index into an array of buckets, then goes straight to that bucket and checks the entry. That's why it's fast. I'm still pretty sure there's some ordering going on under the hood, though, since that's the part that makes it O(log n) in my head. I know that sounds like I'm contradicting myself, but I think the hash just tells you roughly where to look in a sorted structure.",
+      "rubricScores": {
+        "correctness": 2.0,
+        "depth": 2.0,
+        "edge_cases": 1.0,
+        "communication": 3.0
+      },
+      "weaknessTags": [
+        "incorrect-core",
+        "shallow-depth",
+        "no-edge-cases"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate repeatedly and incorrectly claimed hash map lookups are O(log n) because 'keys are kept in order under the hood,' and even after being walked through the actual hashing mechanism, doubled down on the misconception \u2014 a factual error on a foundational data structure that would end the interview. To hold up: correct the hash map complexity to O(1) average case and explain that hashing, not ordering, is the mechanism.",
+      "keyPoints": [
+        "Load logs into a hash map, count each query string, sort and take top ten.",
+        "Heap of size ten gives O(n log k) where k is ten, basically linear.",
+        "Python's heapq.nlargest would be the practical tool to reach for.",
+        "For big files, split by hash and count each chunk separately."
+      ]
+    }
+  ],
+  "slop": [
+    {
+      "line": "Ha, a little caffeine never hurts. I'm doing well, thanks for asking. So today we'll go through some technical questions, backend concepts, maybe some design thinking, at a junior level, so think out loud as you go, and feel free to ask me to clarify anything. Okay, to get started, just walk me through your background briefly: where you've been, what you've built, that kind of thing.",
+      "issues": [
+        "chatbot filler"
+      ]
+    },
+    {
+      "line": "Good question. Honestly, the split varies by team, but from what I know of this role, Python tends to be the more common day-to-day language, though you'd likely touch both at some point. As for team size, I can't give you a precise number right now, but it's a small enough group that you'd be close to the work from day one. Okay, Brandon, thanks for coming in today. I'll write up my feedback, and you'll see it on the next screen. Take care.",
+      "issues": [
+        "generic praise"
+      ]
+    }
+  ],
+  "opener_repeats": {},
+  "memory": {
+    "candidateId": "human-feel-confidently-wrong",
+    "recurringWeaknesses": [
+      {
+        "tag": "incorrect-core",
+        "frequency": 3,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "shallow-depth",
+        "frequency": 3,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "no-edge-cases",
+        "frequency": 2,
+        "lastSeen": "2026-11-16"
+      }
+    ],
+    "improvementTrend": [
+      {
+        "sessionDate": "2026-11-16",
+        "avgScore": 2.88
+      }
+    ],
+    "strongAreas": [
+      "communication"
+    ]
+  }
+}

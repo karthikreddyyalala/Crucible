@@ -1,0 +1,528 @@
+{
+  "persona": "nervous-rambler",
+  "costUsd": 0.7510663999999998,
+  "judgement": {
+    "scores": {
+      "probing_depth": {
+        "score": 4,
+        "evidence": "Marcus asks targeted follow-ups: 'How did you know the fix actually worked?', 'What evidence did you actually bring to the conversation...', 'Did you tell anyone that was going to happen before it did...'. These hit the weakest spots (verification, evidence, early escalation). Misses: never asks for Dana's personal contribution in the sync bug fix, and never asks the result of the q3 compromise. The 'How do you know the change stuck' probe is good."
+      },
+      "earned_praise": {
+        "score": 4,
+        "evidence": "Praise is sparse: 'You're answering it, that's a real one' and 'Yeah, good question'. The first is mild reassurance and arguably earned. No gushing. But he never names plainly that Dana never answered the reasoning question cleanly or that her q3 evidence was thin; he just says 'Right.' and moves on."
+      },
+      "human_voice": {
+        "score": 3,
+        "evidence": "Mostly natural short acknowledgments ('Okay.', 'Right.', 'Got it'). But 'Right.' is used reflexively about 8 times, same shape each turn. Echo summary: 'So the donor API slipped, Priya had to pick it up, and you didn't flag it until Thursday.' Also 'nerves are totally normal. I appreciate you being upfront about it.' sounds scripted."
+      },
+      "question_craft": {
+        "score": 4,
+        "evidence": "Nearly every turn is one short question tied to earlier answers: 'What exactly was her approach...', 'What was the first actual change you shipped...'. Slight leading in 'Did you tell anyone... or did it kind of surface on its own?' (offers two options). Opening q1 prompt 'tell me about a time you had to make a decision...' is generic though linked to the pantry app."
+      },
+      "pacing_and_hard_moments": {
+        "score": 2,
+        "evidence": "Dana asks 'Did you want me to talk about X or Y?' after nearly every answer and Marcus never gently interrupts or redirects her ramble; answers run long with 'Sorry, I'm going on.' He lets her ask choices rather than saying 'Let me pause you. What was your part?'. 'Yeah, you're on track, go ahead and tell me what you actually decided' lets the wandering continue. Also he accepts Dana's non-answer to 'What was your reasoning' with just 'Right.' and moves on. Transitions are abrupt: 'Okay, let's move to something different.'"
+      },
+      "candidate_fit": {
+        "score": 3,
+        "evidence": "Opens warmly: 'no need to apologize, first software interview is a big deal'. Short, simple questions suit her. But he doesn't steady her during the interview, doesn't cut off circling, and ignores her repeated 'Sorry' pattern after the opening. Main cue (gentle interruption) is missed."
+      },
+      "feedback_quality": {
+        "score": 2,
+        "evidence": "Feedback cites some real moments ('I don't think I really had like, hard evidence'), but q1 is judged against 'career arc' when Marcus asked about a decision, so it's mismatched with the transcript. It says q4 'surfaced under probing' when Marcus' question was the probe, and claims 'Jordan asked' as if Dana was caught, which is partly misread. 'Even after three direct probes' in q3 is inaccurate framing. All five are survives=False with near identical tags; no single main fix about rambling/structure and steering is stated clearly. q5 asks for 'two days' timeline example that risks inventing facts."
+      },
+      "confidence_and_tone": {
+        "score": 2,
+        "evidence": "Five straight 'survives=False' with no named strength beyond q2's ownership, and no recognition that Dana was honest and self-aware. Likely to leave deflated, and told to fabricate-sounding polished claims. The interview closing is brief and warm ('Good luck') but not specific. Marcus did answer her question about the first months, which was nice."
+      }
+    },
+    "robotic_lines": [
+      "Hey, no need to apologize, first software interview is a big deal, and nerves are totally normal. I appreciate you being upfront about it.",
+      "So the donor API slipped, Priya had to pick it up, and you didn't flag it until Thursday. Okay, let's move on.",
+      "Right. (repeated opener across many turns)",
+      "The database work on that pantry app, okay, let's dig into some specifics."
+    ],
+    "best_moment": "'Did you tell anyone that was going to happen before it did, or did it kind of surface on its own?' This exposed the key ownership gap, and Dana honestly admitted she said it was fine.",
+    "worst_moment": "Letting Dana close every answer with 'Do you want me to talk about X or Y?' and replying 'Right.' or 'Go ahead' instead of gently interrupting and asking a small steering question; the q1 reasoning question was also left unresolved.",
+    "student_leaves_confident": false,
+    "confidence_reasoning": "Feedback marks every answer as failing, leans on structure-template critique that does not match what was asked, and gives little recognition of her honesty, her concrete technical detail (transactions, movements table), or a single clear fix. She is likely to feel she did badly across the board.",
+    "top_fixes": [
+      "Interrupt rambling gently at sentence end ('Let me pause you. What was your part?') and answer her 'X or Y?' choices with a single pointed question instead of 'Right.'",
+      "Vary acknowledgments and drop echo recaps and scripted warm lines; stop starting nearly every turn with 'Right.'",
+      "Write feedback that matches the questions actually asked, names one main fix (lead with your own action and result), and credits real strengths like her honest ownership and clear database reasoning."
+    ],
+    "praise_unearned": false,
+    "stacked_question_count": 0,
+    "hard_fail": []
+  },
+  "plan": [
+    {
+      "id": "q1",
+      "type": "behavioral",
+      "prompt": "Walk me through your background.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-intro-1"
+    },
+    {
+      "id": "q2",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you failed.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-failure-1"
+    },
+    {
+      "id": "q3",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you disagreed with a teammate about a technical approach.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-conflict-1"
+    },
+    {
+      "id": "q4",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you had more work than you could finish.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-priorities-1"
+    },
+    {
+      "id": "q5",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you had to become productive fast in a codebase or technology you'd never used.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-ramp-up-1"
+    }
+  ],
+  "log": [
+    [
+      "warmup",
+      "Marcus",
+      "Hi Dana, I'm Marcus. I'm one of the engineers on the team. Thanks for making the time today. Before we dive in, how are you doing?"
+    ],
+    [
+      "warmup",
+      "Dana",
+      "Oh, um, yeah, hi Marcus, thanks, I'm good, I think. Sorry, I'm a little nervous, it's like my first real interview, well, first one for a software role, I had like a couple of job fair things but those don't really count? Anyway, yeah, I'm doing okay. The weather's been kind of weird, like it was cold and then it was really hot again, so, yeah. Sorry, I'm rambling. You said we were going to dive in?"
+    ],
+    [
+      "background",
+      "Marcus",
+      "Hey, no need to apologize, first software interview is a big deal, and nerves are totally normal. I appreciate you being upfront about it. We'll just have a conversation, nothing too formal. Today's going to be behavioral questions, so we're talking about real things you've done, projects, decisions, situations you've been in. Think out loud as you go, and if anything I ask is unclear, just say so and I'll rephrase. So, to get us started, can you walk me through your background? Where you've been, what you've built, that kind of thing."
+    ],
+    [
+      "background",
+      "Dana",
+      "Okay, yeah, sure. So, um, I'm finishing my degree in computer science at the University of Houston, I graduate this spring, well, technically, like, I think I've got everything done? Anyway, I started out kind of not sure what I wanted to do, like I was doing some pre-nursing stuff for a semester, which, yeah, that was not for me, so I switched. And then I got into programming classes and it kind of clicked, I guess.\n\nThe biggest thing I did was my capstone, which was this inventory app for the campus food pantry. It's React on the front end, Node, and Postgres. There were four of us on the team, and, um, I think the project started in like, the fall? Or was it the spring before? Sorry, anyway, we built it over a couple semesters. I did a lot of the database stuff, which, I guess is kind of where I ended up liking things the most, so, yeah. Oh, and I also work part-time at the library on the IT help desk, which is like, resetting passwords and fixing printers mostly, but it's been good for, like, talking to people, I guess.\n\nSorry, I'm going on. Did you want me to go into the pantry project more, or was that enough?"
+    ],
+    [
+      "q1",
+      "Marcus",
+      "The database work on that pantry app, okay, let's dig into some specifics. Tell me about a time you had to make a decision on a project and you weren't sure it was the right call. What was the situation?"
+    ],
+    [
+      "q1",
+      "Dana",
+      "Um, okay, yeah, a decision I wasn't sure about. So, there was this thing with the inventory counts, like, how the app keeps track of how much food is on the shelves? And, well, first we had it so every single change just kind of updated the number directly, and I think, I don't know, it started in like the second semester? Or was it the middle of the first? Sorry. Anyway, so we were doing the database schema and I had this idea that we should keep a log of every change instead, like a history table, and then compute the current count from that. And I wasn't totally sure, because it felt like more work, and our teammate Priya thought it was overkill for a student project, which, yeah, she had a point, honestly.\n\nSorry, am I answering what you asked? I feel like I'm wandering. Do you want me to get to what we actually decided, or the part where it broke?"
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Yeah, you're on track, go ahead and tell me what you actually decided."
+    ],
+    [
+      "q1",
+      "Dana",
+      "Okay, um, so we ended up going with the history table, I think? Like, we kind of did both for a while, which, yeah, was maybe not the best. So the way it worked was every stock change, like a delivery coming in or a family picking something up, got written as a row in a movements table, with the item, the quantity, the type of change, and a timestamp. And then the current count was just the sum of those rows. Well, at first we had a cached count column too, for the dashboard, because the sum got slow when there were a lot of rows, and I think that's where the part that broke came in, but, sorry, do you want me to get to that? I don't want to skip ahead."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Got it, go ahead, tell me what broke."
+    ],
+    [
+      "q1",
+      "Dana",
+      "Okay, yeah, so, um, what broke was the cached count. So the dashboard count and the sum from the movements table got out of sync, like, not all the time, just sometimes? And I think it happened when two people were updating the same item at the same time, like two volunteers logging a pickup at once. I'm not totally sure how we found it, I think Priya noticed the numbers were off when she compared them to the paper sheet, or was it Jordan? Sorry, I'm mixing up the details. Anyway, we kind of fixed it by, um, I think we made the count update happen inside the same database transaction as the insert, and then we dropped the cached column for a while, and later we added it back with a trigger? Sorry, I'm going on. Did you want more on the trigger part, or the part about the paper sheets?"
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Okay. How did you know the fix actually worked?"
+    ],
+    [
+      "q1",
+      "Dana",
+      "Um, okay, so, how did we know it worked... I think we, like, tested it? Sort of. Jordan wrote a script that ran a bunch of pickups at the same time, like, a lot of them, I want to say a hundred? Or maybe it was fifty. Anyway, we ran it a few times and then checked the dashboard number against the sum of the movements, and they matched every time, which was, yeah, a relief.\n\nBut honestly, I'm not sure that was the best way to know? Like, Priya said we should also compare it against the paper sheets from the pantry for a week, and I think we did that for part of it, but I don't remember if we finished. Sorry, I think I'm mixing up which part was which. Did you want me to talk about the script, or the paper sheet comparison?"
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Right. What was your reasoning at the time?"
+    ],
+    [
+      "q1",
+      "Dana",
+      "Um, okay, my reasoning... so, I think at the time I was mostly thinking, like, if the numbers are wrong then the whole point of the app is kind of useless? Because the pantry volunteers were going to make decisions off the dashboard, like, what to order, whether a shelf was empty. So I kind of felt like we had to be really sure the count was right, more than we needed to be fast, I guess.\n\nAnd, well, the transaction thing made sense to me because it's like, the insert and the count update either both happen or neither does, right? That's what I remembered from my databases class. Anyway, I was worried that if we just kept the cached number and updated it separately, it would drift again, which, yeah, it kind of did. Sorry, I'm going on. Do you want me to explain why I wanted the trigger, or was that the reasoning you were asking about?"
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Right. Okay, let's move to something different. Tell me about a time you failed."
+    ],
+    [
+      "q2",
+      "Dana",
+      "Um, okay, a time I failed... so, yeah, I think the big one was, well, there was the pre-nursing thing, but that's not really a work failure? Like I just switched majors. Hmm. Okay, so with the capstone, I think it was like, the second semester, I said I'd do the API endpoints for the pantry's donor side, and, um, I kind of got stuck on the auth part and didn't say anything for like two weeks? Sorry, I think it was two weeks? Anyway, Priya ended up doing most of it and I felt really bad about that.\n\nSorry, am I answering the question? I feel like I went a little off track. Do you want me to talk more about the auth part, or about what I did after?"
+    ],
+    [
+      "q2",
+      "Marcus",
+      "You're answering it, that's a real one. So, what did you actually change afterwards, in how you work?"
+    ],
+    [
+      "q2",
+      "Dana",
+      "Um, okay, yeah, so after that I kind of started saying stuff earlier, like, I think I, um, I started putting my blockers in the group chat as soon as I hit them instead of just sitting on them? Which sounds really obvious now, I know. Anyway, I also got better about, like, breaking tasks down, because I think the auth thing was really big and I just kind of stared at it for, like, days. Sorry, that's a lot of \"I think.\" I'm not totally sure how much it changed, honestly, because we were almost done with the project by then. Do you want me to talk about how it went with Priya after, or is that not really what you're asking?"
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Right. How do you know the change actually stuck after that?"
+    ],
+    [
+      "q2",
+      "Dana",
+      "Um, okay, so, how do I know it stuck... honestly, I don't know if I have a great answer for that? Like, the next semester I had a group project for a different class, and I think I posted a blocker in the group chat early, like, within a day, when I couldn't get the React router thing working? And, um, the other person actually answered pretty fast, so that felt like it worked? Anyway, I'm not sure that's really proof of anything, it's just one time I remember. Sorry. Do you want me to talk about the router thing, or is that not really what you're asking?"
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Got it. Okay, let's move to something a bit different. Tell me about a time you disagreed with a teammate about a technical approach."
+    ],
+    [
+      "q3",
+      "Dana",
+      "Um, okay, yeah, a disagreement... so, the big one was kind of the same thing, with Priya and the history table? Like, she thought it was overkill, and I thought we needed it for the counts to be right. Anyway, I didn't really push back that hard in the moment, I kind of just went along with it at first and then, well, I did it my way anyway? Sorry, that sounds bad. I think we ended up doing both for a while, which, yeah, I already said that.\n\nSorry, I'm going around in circles. Do you want me to go into how we actually talked it through, or is there a different disagreement you're looking for?"
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Okay. What exactly was her approach, the one she was pushing for instead?"
+    ],
+    [
+      "q3",
+      "Dana",
+      "Um, okay, so Priya's thing was, like, keep it simple? She wanted to just have the one count column and update it directly, and I think she was kind of saying we don't need a whole movements table for a food pantry app, because, you know, it's not a bank. Anyway, she was thinking about the time it would take us, and we only had like a few weeks left on that part, I think? Sorry, I'm not sure if that's exactly what she said, I'm kind of reconstructing it. Do you want me to say more about what she was worried about, or the part where we compromised?"
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Okay. And what was the strongest argument for her side, like, what was the best case for just keeping the single count column?"
+    ],
+    [
+      "q3",
+      "Dana",
+      "Um, the best case for her side? Okay, so, I think... it's way simpler. Like, one column, you update it, done. You don't have to think about the sum, or the history table, or any of the extra queries. And for a student project that's a lot less stuff that can go wrong, which, yeah, honestly, kind of ended up being true in a way, because the thing that broke was the extra stuff we added. Sorry, that sounds like I'm saying she was right, and I don't know if she was totally right? Anyway, she also said we could just add an audit log later if we needed the history, which, I mean, that's kind of what we ended up doing, sort of? Sorry, I'm going on again. Do you want me to talk about the compromise part, or was that what you were asking?"
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Right. What evidence did you actually bring to the conversation to make the case for the history table?"
+    ],
+    [
+      "q3",
+      "Dana",
+      "Um, okay, evidence... so, I don't think I really had like, hard evidence? Like I didn't bring numbers or anything. It was mostly me going, like, if the counts are wrong the app is useless, and the volunteers are gonna order food based on the dashboard, so we need to be sure. Anyway, I think I kind of argued it from the what-if side, you know, what could go wrong.\n\nThen, um, I think Jordan had some stuff from his internship about how inventory systems usually keep a log, so that helped a little? But I'm not sure I actually brought anything concrete myself, honestly. Sorry, I know that's not a great answer. Do you want me to talk about how the compromise happened, or is that not what you're asking about?"
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Okay. Let's move on, tell me about a time you had more work than you could finish."
+    ],
+    [
+      "q4",
+      "Dana",
+      "Um, okay, more work than I could finish... yeah, so, I think the crunch time was like the last few weeks of the capstone? Like, the week before the demo, everybody had stuff, and I had the database migrations and then the donor API stuff I was still kind of behind on, from the auth thing? Anyway, I didn't really have a plan, I just kind of looked at the list every morning and picked whatever seemed scariest, which, yeah, probably not the best strategy.\n\nSorry, I'm going on. Do you want me to talk about how we split things up that week, or the part where I had to ask for help?"
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Okay. How did you actually decide which one to pick up first?"
+    ],
+    [
+      "q4",
+      "Dana",
+      "Um, okay, so, how I decided... honestly, I kind of didn't have a real system? Like, I'd look at the list in the morning and whatever felt the scariest, I'd do that first, I think because I didn't want it hanging over me all day? Anyway, I know that's backwards, like, the scary stuff usually takes the longest, so, yeah. Sorry. I think the migrations were the ones I did first most days, because Jordan was waiting on them for the staging stuff, but I'm not sure if that was on purpose or just luck? Sorry, I'm going on. Do you want me to talk about how Jordan and I actually figured out the order that week, or was that not what you meant?"
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Right. What actually happened to the donor API work while you were doing that?"
+    ],
+    [
+      "q4",
+      "Dana",
+      "Um, okay, so the donor API stuff... I think it kind of slipped? Like, I got the migrations done, and then I was supposed to pick up the donor endpoints after, but by then it was like two days to the demo, and I hadn't really started the parts I was supposed to. Anyway, Priya ended up taking over the rest of the auth piece, which, yeah, that's kind of the same thing that happened before, so that was not great. Sorry. I felt like I let the team down a little, honestly. Do you want me to talk about how we handled the demo, or what I did differently after that?"
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Right. Did you tell anyone that was going to happen before it did, or did it kind of surface on its own?"
+    ],
+    [
+      "q4",
+      "Dana",
+      "Um, okay, so, honestly? I don't think I told anyone before it happened? Like, I knew I was behind, I think, but I kind of didn't say it out loud until, I want to say, like the Thursday before the demo? Anyway, Jordan asked me how the donor stuff was going and I kind of said it was fine, which, yeah, it was not fine. Sorry. I think I was embarrassed, or I didn't want to look like I was the one holding everybody up, I don't know. So it kind of surfaced on its own, and then everybody had to scramble. Sorry, I'm going on again. Do you want me to talk about what happened on Thursday, or the part where Priya took over?"
+    ],
+    [
+      "q5",
+      "Marcus",
+      "Got it. So the donor API slipped, Priya had to pick it up, and you didn't flag it until Thursday. Okay, let's move on. Tell me about a time you had to become productive fast in a codebase or technology you'd never used before."
+    ],
+    [
+      "q5",
+      "Dana",
+      "Um, okay, yeah, a time I had to learn something fast... so, I think the closest one was the library help desk, which, I know, isn't really a codebase? But they had this ticketing system they switched to, like, the summer before last, and I had to learn it pretty quickly because people were waiting. Anyway, I think I just kind of clicked around for the first day and then asked the other tech there, Marcus, no, wait, a different Marcus, sorry, I think his name was Devon? Anyway, he showed me some stuff.\n\nSorry, I'm going on. Do you want me to talk about the ticketing system, or was there a coding one you were thinking of? I did learn the React router stuff for the group project, if that's closer to what you meant."
+    ],
+    [
+      "q5",
+      "Marcus",
+      "No worries, either one works, but let's go with the React Router one since that's closer to the work here. What was the very first thing you did when you realized you needed to learn it?"
+    ],
+    [
+      "q5",
+      "Dana",
+      "Um, okay, the React Router thing... so, the very first thing? I think I just, like, opened the docs? Well, I actually tried to just copy an example from a random tutorial first, which, yeah, didn't work, because it was for an older version, I think? Sorry. Anyway, then I went to the docs, and I kind of read the whole intro page, which took forever, and I don't think I really understood it until I started messing with a small example in a separate file. Sorry, I'm going on. Do you want me to talk about the example I built, or how we ended up structuring the routes in the actual project?"
+    ],
+    [
+      "q5",
+      "Marcus",
+      "Got it. What was the first actual change you shipped in the real project once you felt ready?"
+    ],
+    [
+      "q5",
+      "Dana",
+      "Um, okay, the first real change... so I think it was like, adding the route for the inventory detail page? Like, the page where you click an item and see its history? Anyway, I got that working in my little test file first, and then I moved it over to the actual project, and I think it broke the back button for a bit, which, yeah, that was fun to find. Sorry. I'm not sure if that's exactly the first one, honestly, there might have been a smaller one before it, like a link fix? Sorry, I'm going on. Do you want me to talk about the back button bug, or was that not what you were asking?"
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Right. And the back button, how did you actually track that down and fix it?"
+    ],
+    [
+      "closing",
+      "Dana",
+      "Um, okay, the back button... so, I think I first noticed it because when I'd click into an item and then hit back, it just kind of didn't go back? It would stay on the detail page, or it would jump all the way to the login page, I'm not totally sure which. Anyway, I didn't really know what was wrong, so I kind of just started commenting out stuff in the route file until it worked again, which, yeah, is not really debugging, I know.\n\nThen I think Priya looked at it with me for a little bit, and she said something about the nested routes and how I had the detail route defined in two places? Sorry, I'm not sure if it was two places or one place with the wrong path. Anyway, we moved it so there was only one definition and it started working. Sorry, I'm going on. Do you want me to talk about how I checked it afterward, or the part where I was embarrassed that it was such a simple thing?"
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Okay, that's everything I wanted to cover. What questions do you have for me?"
+    ],
+    [
+      "closing",
+      "Dana",
+      "Oh, um, yeah, sure. I guess, like, one thing I was wondering is, um, what does a typical first few months look like for someone starting on the team? Like, would I be mostly working on existing services, or building new stuff? Sorry, that's kind of a big question. Anyway, I think that's the main one for me, so, yeah, I'm all set. Thanks so much for your time, Marcus, I really appreciate it."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Yeah, good question. The first few months are usually pretty structured, you'd be ramping up on existing services, reading code, fixing smaller bugs, and pairing with someone more senior. New feature work tends to come a bit later, once you've got a feel for how things are built. Anything else on your mind?"
+    ],
+    [
+      "closing",
+      "Dana",
+      "Oh, um, no, I think that's it? I mean, that answer helps a lot, thank you. Sorry, I think I'm all set. Thanks again, Marcus, I really appreciate you taking the time with me."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Of course, Dana. Good luck, I'll write up my feedback and you'll see it on the next screen. Take care."
+    ]
+  ],
+  "evaluations": [
+    {
+      "questionId": "q1",
+      "transcript": "Q: The database work on that pantry app, okay, let's dig into some specifics. Tell me about a time you had to make a decision on a project and you weren't sure it was the right call. What was the situation?\nA: Um, okay, yeah, a decision I wasn't sure about. So, there was this thing with the inventory counts, like, how the app keeps track of how much food is on the shelves? And, well, first we had it so every single change just kind of updated the number directly, and I think, I don't know, it started in like the second semester? Or was it the middle of the first? Sorry. Anyway, so we were doing the database schema and I had this idea that we should keep a log of every change instead, like a history table, and then compute the current count from that. And I wasn't totally sure, because it felt like more work, and our teammate Priya thought it was overkill for a student project, which, yeah, she had a point, honestly.\n\nSorry, am I answering what you asked? I feel like I'm wandering. Do you want me to get to what we actually decided, or the part where it broke?\nQ: Yeah, you're on track, go ahead and tell me what you actually decided.\nA: Okay, um, so we ended up going with the history table, I think? Like, we kind of did both for a while, which, yeah, was maybe not the best. So the way it worked was every stock change, like a delivery coming in or a family picking something up, got written as a row in a movements table, with the item, the quantity, the type of change, and a timestamp. And then the current count was just the sum of those rows. Well, at first we had a cached count column too, for the dashboard, because the sum got slow when there were a lot of rows, and I think that's where the part that broke came in, but, sorry, do you want me to get to that? I don't want to skip ahead.\nQ: Got it, go ahead, tell me what broke.\nA: Okay, yeah, so, um, what broke was the cached count. So the dashboard count and the sum from the movements table got out of sync, like, not all the time, just sometimes? And I think it happened when two people were updating the same item at the same time, like two volunteers logging a pickup at once. I'm not totally sure how we found it, I think Priya noticed the numbers were off when she compared them to the paper sheet, or was it Jordan? Sorry, I'm mixing up the details. Anyway, we kind of fixed it by, um, I think we made the count update happen inside the same database transaction as the insert, and then we dropped the cached column for a while, and later we added it back with a trigger? Sorry, I'm going on. Did you want more on the trigger part, or the part about the paper sheets?\nQ: Okay. How did you know the fix actually worked?\nA: Um, okay, so, how did we know it worked... I think we, like, tested it? Sort of. Jordan wrote a script that ran a bunch of pickups at the same time, like, a lot of them, I want to say a hundred? Or maybe it was fifty. Anyway, we ran it a few times and then checked the dashboard number against the sum of the movements, and they matched every time, which was, yeah, a relief.\n\nBut honestly, I'm not sure that was the best way to know? Like, Priya said we should also compare it against the paper sheets from the pantry for a week, and I think we did that for part of it, but I don't remember if we finished. Sorry, I think I'm mixing up which part was which. Did you want me to talk about the script, or the paper sheet comparison?\nQ: Right. What was your reasoning at the time?\nA: Um, okay, my reasoning... so, I think at the time I was mostly thinking, like, if the numbers are wrong then the whole point of the app is kind of useless? Because the pantry volunteers were going to make decisions off the dashboard, like, what to order, whether a shelf was empty. So I kind of felt like we had to be really sure the count was right, more than we needed to be fast, I guess.\n\nAnd, well, the transaction thing made sense to me because it's like, the insert and the count update either both happen or neither does, right? That's what I remembered from my databases class. Anyway, I was worried that if we just kept the cached number and updated it separately, it would drift again, which, yeah, it kind of did. Sorry, I'm going on. Do you want me to explain why I wanted the trigger, or was that the reasoning you were asking about?",
+      "rubricScores": {
+        "structure": 1.5,
+        "specificity": 2.5,
+        "impact": 1.5,
+        "ownership": 2.0
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "rambling",
+        "vague-impact",
+        "no-ownership"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The answer never delivered a career arc or explained why this role is the next step \u2014 the core ask of 'walk me through your background' \u2014 and instead wandered through a single database bug with uncertain details and repeated deference to teammates ('Priya noticed,' 'Jordan wrote a script'). The ownership criterion is capped by the candidate consistently attributing key actions to others. To hold up: open with a two-sentence career arc ending at why this role is the next step, then anchor one concrete result you personally drove.",
+      "keyPoints": [
+        "Designed a movements table to log every stock change with timestamp and quantity",
+        "Cached count column got out of sync during concurrent volunteer updates",
+        "Fixed by wrapping count update and insert in the same database transaction",
+        "Jordan ran a script with ~50-100 simultaneous pickups to verify the fix"
+      ]
+    },
+    {
+      "questionId": "q2",
+      "transcript": "Q: Right. Okay, let's move to something different. Tell me about a time you failed.\nA: Um, okay, a time I failed... so, yeah, I think the big one was, well, there was the pre-nursing thing, but that's not really a work failure? Like I just switched majors. Hmm. Okay, so with the capstone, I think it was like, the second semester, I said I'd do the API endpoints for the pantry's donor side, and, um, I kind of got stuck on the auth part and didn't say anything for like two weeks? Sorry, I think it was two weeks? Anyway, Priya ended up doing most of it and I felt really bad about that.\n\nSorry, am I answering the question? I feel like I went a little off track. Do you want me to talk more about the auth part, or about what I did after?\nQ: You're answering it, that's a real one. So, what did you actually change afterwards, in how you work?\nA: Um, okay, yeah, so after that I kind of started saying stuff earlier, like, I think I, um, I started putting my blockers in the group chat as soon as I hit them instead of just sitting on them? Which sounds really obvious now, I know. Anyway, I also got better about, like, breaking tasks down, because I think the auth thing was really big and I just kind of stared at it for, like, days. Sorry, that's a lot of \"I think.\" I'm not totally sure how much it changed, honestly, because we were almost done with the project by then. Do you want me to talk about how it went with Priya after, or is that not really what you're asking?\nQ: Right. How do you know the change actually stuck after that?\nA: Um, okay, so, how do I know it stuck... honestly, I don't know if I have a great answer for that? Like, the next semester I had a group project for a different class, and I think I posted a blocker in the group chat early, like, within a day, when I couldn't get the React router thing working? And, um, the other person actually answered pretty fast, so that felt like it worked? Anyway, I'm not sure that's really proof of anything, it's just one time I remember. Sorry. Do you want me to talk about the router thing, or is that not really what you're asking?",
+      "rubricScores": {
+        "structure": 2.5,
+        "specificity": 3.0,
+        "impact": 2.0,
+        "ownership": 3.5
+      },
+      "weaknessTags": [
+        "vague-impact",
+        "no-star-structure",
+        "rambling"
+      ],
+      "followUpCount": 2,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate owns the failure plainly ('Priya ended up doing most of it') and names a real behaviour change (posting blockers immediately), but when pressed on whether the change stuck, they admitted 'I don't know if I have a great answer for that' and offered only one anecdote they themselves called 'not really proof of anything' \u2014 the impact criterion collapsed under the follow-up. To hold up: prepare one concrete later example where early escalation prevented a repeat, and state it as a result, not a question.",
+      "keyPoints": [
+        "Got stuck on auth for two weeks without telling the team",
+        "Priya ended up doing most of the API endpoints",
+        "Started posting blockers in the group chat as soon as hitting them",
+        "One later example: flagged a React router issue within a day and got a fast answer"
+      ]
+    },
+    {
+      "questionId": "q3",
+      "transcript": "Q: Got it. Okay, let's move to something a bit different. Tell me about a time you disagreed with a teammate about a technical approach.\nA: Um, okay, yeah, a disagreement... so, the big one was kind of the same thing, with Priya and the history table? Like, she thought it was overkill, and I thought we needed it for the counts to be right. Anyway, I didn't really push back that hard in the moment, I kind of just went along with it at first and then, well, I did it my way anyway? Sorry, that sounds bad. I think we ended up doing both for a while, which, yeah, I already said that.\n\nSorry, I'm going around in circles. Do you want me to go into how we actually talked it through, or is there a different disagreement you're looking for?\nQ: Okay. What exactly was her approach, the one she was pushing for instead?\nA: Um, okay, so Priya's thing was, like, keep it simple? She wanted to just have the one count column and update it directly, and I think she was kind of saying we don't need a whole movements table for a food pantry app, because, you know, it's not a bank. Anyway, she was thinking about the time it would take us, and we only had like a few weeks left on that part, I think? Sorry, I'm not sure if that's exactly what she said, I'm kind of reconstructing it. Do you want me to say more about what she was worried about, or the part where we compromised?\nQ: Okay. And what was the strongest argument for her side, like, what was the best case for just keeping the single count column?\nA: Um, the best case for her side? Okay, so, I think... it's way simpler. Like, one column, you update it, done. You don't have to think about the sum, or the history table, or any of the extra queries. And for a student project that's a lot less stuff that can go wrong, which, yeah, honestly, kind of ended up being true in a way, because the thing that broke was the extra stuff we added. Sorry, that sounds like I'm saying she was right, and I don't know if she was totally right? Anyway, she also said we could just add an audit log later if we needed the history, which, I mean, that's kind of what we ended up doing, sort of? Sorry, I'm going on again. Do you want me to talk about the compromise part, or was that what you were asking?\nQ: Right. What evidence did you actually bring to the conversation to make the case for the history table?\nA: Um, okay, evidence... so, I don't think I really had like, hard evidence? Like I didn't bring numbers or anything. It was mostly me going, like, if the counts are wrong the app is useless, and the volunteers are gonna order food based on the dashboard, so we need to be sure. Anyway, I think I kind of argued it from the what-if side, you know, what could go wrong.\n\nThen, um, I think Jordan had some stuff from his internship about how inventory systems usually keep a log, so that helped a little? But I'm not sure I actually brought anything concrete myself, honestly. Sorry, I know that's not a great answer. Do you want me to talk about how the compromise happened, or is that not what you're asking about?",
+      "rubricScores": {
+        "structure": 1.5,
+        "specificity": 2.5,
+        "impact": 1.5,
+        "ownership": 1.5
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "vague-impact",
+        "no-ownership",
+        "shallow-depth"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "Even after three direct probes, the candidate admitted they brought no concrete evidence ('I don't think I really had like, hard evidence'), which is the core test for this question \u2014 disagreeing with evidence rather than volume. To hold up: prepare one specific artifact (a written comparison, a quick prototype, or a cited example from a real system) that you personally brought to the conversation.",
+      "keyPoints": [
+        "Priya wanted a single count column; candidate wanted a history/movements table.",
+        "Candidate's argument was 'what-if' based: wrong counts make the app useless for volunteers.",
+        "Jordan cited internship experience with inventory logs, not the candidate themselves.",
+        "They ended up doing both approaches for a while, then added an audit log later."
+      ]
+    },
+    {
+      "questionId": "q4",
+      "transcript": "Q: Okay. Let's move on, tell me about a time you had more work than you could finish.\nA: Um, okay, more work than I could finish... yeah, so, I think the crunch time was like the last few weeks of the capstone? Like, the week before the demo, everybody had stuff, and I had the database migrations and then the donor API stuff I was still kind of behind on, from the auth thing? Anyway, I didn't really have a plan, I just kind of looked at the list every morning and picked whatever seemed scariest, which, yeah, probably not the best strategy.\n\nSorry, I'm going on. Do you want me to talk about how we split things up that week, or the part where I had to ask for help?\nQ: Okay. How did you actually decide which one to pick up first?\nA: Um, okay, so, how I decided... honestly, I kind of didn't have a real system? Like, I'd look at the list in the morning and whatever felt the scariest, I'd do that first, I think because I didn't want it hanging over me all day? Anyway, I know that's backwards, like, the scary stuff usually takes the longest, so, yeah. Sorry. I think the migrations were the ones I did first most days, because Jordan was waiting on them for the staging stuff, but I'm not sure if that was on purpose or just luck? Sorry, I'm going on. Do you want me to talk about how Jordan and I actually figured out the order that week, or was that not what you meant?\nQ: Right. What actually happened to the donor API work while you were doing that?\nA: Um, okay, so the donor API stuff... I think it kind of slipped? Like, I got the migrations done, and then I was supposed to pick up the donor endpoints after, but by then it was like two days to the demo, and I hadn't really started the parts I was supposed to. Anyway, Priya ended up taking over the rest of the auth piece, which, yeah, that's kind of the same thing that happened before, so that was not great. Sorry. I felt like I let the team down a little, honestly. Do you want me to talk about how we handled the demo, or what I did differently after that?\nQ: Right. Did you tell anyone that was going to happen before it did, or did it kind of surface on its own?\nA: Um, okay, so, honestly? I don't think I told anyone before it happened? Like, I knew I was behind, I think, but I kind of didn't say it out loud until, I want to say, like the Thursday before the demo? Anyway, Jordan asked me how the donor stuff was going and I kind of said it was fine, which, yeah, it was not fine. Sorry. I think I was embarrassed, or I didn't want to look like I was the one holding everybody up, I don't know. So it kind of surfaced on its own, and then everybody had to scramble. Sorry, I'm going on again. Do you want me to talk about what happened on Thursday, or the part where Priya took over?",
+      "rubricScores": {
+        "structure": 2.0,
+        "specificity": 3.0,
+        "impact": 2.0,
+        "ownership": 2.0
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "vague-impact",
+        "no-ownership",
+        "rambling"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate only disclosed the slip on Thursday when directly asked by Jordan \u2014 they admitted 'I said it was fine, which, yeah, it was not fine' \u2014 meaning the communication failure surfaced under probing rather than being owned proactively, which collapses the ownership criterion. To hold up: state upfront that you identified the risk, then proactively told the team two days earlier, and describe what you would do differently next time.",
+      "keyPoints": [
+        "Had database migrations and donor API work due before the capstone demo.",
+        "Picked tasks by 'whatever felt scariest,' not by dependency or deadline.",
+        "Donor API slipped; Priya took over the remaining auth piece.",
+        "Told Jordan the donor work was 'fine' on Thursday when it was not."
+      ]
+    },
+    {
+      "questionId": "q5",
+      "transcript": "Q: Got it. So the donor API slipped, Priya had to pick it up, and you didn't flag it until Thursday. Okay, let's move on. Tell me about a time you had to become productive fast in a codebase or technology you'd never used before.\nA: Um, okay, yeah, a time I had to learn something fast... so, I think the closest one was the library help desk, which, I know, isn't really a codebase? But they had this ticketing system they switched to, like, the summer before last, and I had to learn it pretty quickly because people were waiting. Anyway, I think I just kind of clicked around for the first day and then asked the other tech there, Marcus, no, wait, a different Marcus, sorry, I think his name was Devon? Anyway, he showed me some stuff.\n\nSorry, I'm going on. Do you want me to talk about the ticketing system, or was there a coding one you were thinking of? I did learn the React router stuff for the group project, if that's closer to what you meant.\nQ: No worries, either one works, but let's go with the React Router one since that's closer to the work here. What was the very first thing you did when you realized you needed to learn it?\nA: Um, okay, the React Router thing... so, the very first thing? I think I just, like, opened the docs? Well, I actually tried to just copy an example from a random tutorial first, which, yeah, didn't work, because it was for an older version, I think? Sorry. Anyway, then I went to the docs, and I kind of read the whole intro page, which took forever, and I don't think I really understood it until I started messing with a small example in a separate file. Sorry, I'm going on. Do you want me to talk about the example I built, or how we ended up structuring the routes in the actual project?\nQ: Got it. What was the first actual change you shipped in the real project once you felt ready?\nA: Um, okay, the first real change... so I think it was like, adding the route for the inventory detail page? Like, the page where you click an item and see its history? Anyway, I got that working in my little test file first, and then I moved it over to the actual project, and I think it broke the back button for a bit, which, yeah, that was fun to find. Sorry. I'm not sure if that's exactly the first one, honestly, there might have been a smaller one before it, like a link fix? Sorry, I'm going on. Do you want me to talk about the back button bug, or was that not what you were asking?",
+      "rubricScores": {
+        "structure": 2.0,
+        "specificity": 2.0,
+        "impact": 1.0,
+        "ownership": 2.0
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "vague-impact",
+        "shallow-depth"
+      ],
+      "followUpCount": 2,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The answer never lands a concrete deliverable with a timeline \u2014 the candidate says 'I think it was like, adding the route for the inventory detail page' but can't confirm it was even the first change, and no outcome or speed metric is given. To hold up: commit to one specific story, state what you shipped and how long the ramp took (e.g. 'I shipped the inventory detail route in two days').",
+      "keyPoints": [
+        "Tried a random tutorial first, then switched to the official React Router docs.",
+        "Built a small isolated example file before touching the real project.",
+        "Shipped the inventory detail page route as the first real change.",
+        "Broke the back button briefly after moving the route into the project."
+      ]
+    }
+  ],
+  "slop": [
+    {
+      "line": "Hey, no need to apologize, first software interview is a big deal, and nerves are totally normal. I appreciate you being upfront about it. We'll just have a conversation, nothing too formal. Today's going to be behavioral questions, so we're talking about real things you've done, projects, decisions, situations you've been in. Think out loud as you go, and if anything I ask is unclear, just say so and I'll rephrase. So, to get us started, can you walk me through your background? Where you've been, what you've built, that kind of thing.",
+      "issues": [
+        "chatbot courtesy",
+        "monologue (70+ words)"
+      ]
+    },
+    {
+      "line": "Yeah, good question. The first few months are usually pretty structured, you'd be ramping up on existing services, reading code, fixing smaller bugs, and pairing with someone more senior. New feature work tends to come a bit later, once you've got a feel for how things are built. Anything else on your mind?",
+      "issues": [
+        "generic praise"
+      ]
+    }
+  ],
+  "opener_repeats": {
+    "got it": 4,
+    "right what": 3
+  },
+  "memory": {
+    "candidateId": "human-feel-nervous-rambler",
+    "recurringWeaknesses": [
+      {
+        "tag": "rambling",
+        "frequency": 3,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "no-star-structure",
+        "frequency": 4,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "vague-impact",
+        "frequency": 5,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "no-ownership",
+        "frequency": 3,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "shallow-depth",
+        "frequency": 2,
+        "lastSeen": "2026-11-16"
+      }
+    ],
+    "improvementTrend": [
+      {
+        "sessionDate": "2026-11-16",
+        "avgScore": 2.05
+      }
+    ],
+    "strongAreas": []
+  }
+}

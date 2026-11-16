@@ -1,3 +1,5 @@
+import os
+import re
 import time
 from typing import TYPE_CHECKING, Any, TypeVar
 from pydantic import BaseModel
@@ -10,21 +12,37 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound=BaseModel)
 
 
+_BEDROCK_ID = re.compile(r"^(?:[a-z]{2}\.)?anthropic\.|(?:-\d{8})?-v\d+:\d+$")
+
+
+def direct_model_id(model: str) -> str:
+    """"us.anthropic.claude-haiku-4-5-20251001-v1:0" -> "claude-haiku-4-5": the same model on the Claude API."""
+    return _BEDROCK_ID.sub("", model)
+
+
 class LLMClient:
     """Thin, mockable wrapper over Claude on Bedrock.
 
     Pass a custom `client` in tests; in production it lazily builds an
     AnthropicBedrock client so importing this module never needs AWS creds.
+    INTERVIEWAI_LLM_PROVIDER=anthropic (local evals only) uses the Claude API instead,
+    signed in with `ant auth login` or ANTHROPIC_API_KEY, with the same models.
     """
 
-    def __init__(self, client: "AnthropicBedrock | Any | None" = None, region: str = "us-east-1"):
+    def __init__(self, client: "AnthropicBedrock | Any | None" = None, region: str = "us-east-1",
+                 provider: str | None = None):
         self._client = client
         self._region = region
+        self._direct = (provider or os.getenv("INTERVIEWAI_LLM_PROVIDER", "bedrock")) == "anthropic"
 
     def _ensure_client(self):
         if self._client is None:
-            from anthropic import AnthropicBedrock
-            self._client = AnthropicBedrock(aws_region=self._region)
+            if self._direct:
+                from anthropic import Anthropic
+                self._client = Anthropic()
+            else:
+                from anthropic import AnthropicBedrock
+                self._client = AnthropicBedrock(aws_region=self._region)
         return self._client
 
     def structured(self, *, agent: str, model: str, system: str, user: str,
@@ -52,6 +70,8 @@ class LLMClient:
         can sum a total — every call is always logged to CloudWatch regardless.
         """
         client = self._ensure_client()
+        if self._direct:
+            model = direct_model_id(model)
         base_user = user
         last_error: Exception | None = None
         input_tokens = 0

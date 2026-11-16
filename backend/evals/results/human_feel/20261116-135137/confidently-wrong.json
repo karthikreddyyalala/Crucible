@@ -1,0 +1,380 @@
+{
+  "persona": "confidently-wrong",
+  "costUsd": 0.46000660000000004,
+  "judgement": {
+    "scores": {
+      "probing_depth": {
+        "score": 3,
+        "evidence": "Marcus followed up on several answers, e.g. 'You said IN queries are always faster than joins, what happens when that IN list has, say, ten thousand IDs in it?' This was a good targeted probe. But the follow-ups are mostly formulaic 'You mentioned X, how would...' and the first one on q1 ('You mentioned a load balancer or CDN might sit in the middle') cites something Brandon never said. He never probed the 'LEFT JOIN drops rows with no match' error and never asked about the 'fast learner' claim or the Discord bot's scale/result."
+      },
+      "earned_praise": {
+        "score": 2,
+        "evidence": "Marcus mostly stays neutral ('Okay', 'Right'), which is fine. But he never names a wrong answer. After 'a hash map lookup is O(log n) because the keys get sorted under the hood' he just asks about default index type. After 'A LEFT JOIN drops rows with no match' he says nothing, so the error stands unremarked. 'Good question' to the on-call question is minor. The written feedback also calls q1 and q4 strong without noting caveats."
+      },
+      "human_voice": {
+        "score": 3,
+        "evidence": "Short acknowledgments are natural ('Got it', 'Okay', 'Right'). But the repeated 'You mentioned X, how would you...' template appears in nearly every turn, and 'Discord bot in production, okay.' is an echo. Also 'Thanks for making the time today' is filler. Sentence shape is very uniform."
+      },
+      "question_craft": {
+        "score": 4,
+        "evidence": "One short question per turn, tied to earlier answers: 'how would you actually simulate that in the test?' and 'how would you write that assertion specifically?'. Slight deductions: the q1 follow-up attributes a load balancer/CDN mention to Brandon that he never made, and the 'hash indexes' follow-up ('what kind of index does most relational databases actually use by default?') hints at the answer."
+      },
+      "pacing_and_hard_moments": {
+        "score": 3,
+        "evidence": "The IN-list question was a good counter-case that led Brandon to self-correct ('I was too quick with \"always.\"'). The default-index question also got him to correct himself on hash vs B-tree. But Marcus never tested the O(log n) claim directly with a concrete case ('a million items, how many steps?'), left the LEFT JOIN claim untouched, and never signaled transitions beyond 'let's switch gears'."
+      },
+      "candidate_fit": {
+        "score": 3,
+        "evidence": "Marcus used indirect probing for two of the three errors (index default, IN list), which suits a candidate who accepts counter-examples. But he missed the LEFT JOIN error entirely, and Brandon's partial retreat ('I'd still stand by the general point') was never pushed on. He also let the candidate pass on 'fast learner' without evidence."
+      },
+      "feedback_quality": {
+        "score": 2,
+        "evidence": "The q2 feedback is specific but inaccurate on process: it says Brandon 'only corrected them after the interviewer called them out directly, which is the most explicit hint', yet Marcus asked indirect questions and Brandon spotted the issue himself. It misses the LEFT JOIN error. q1 praises 'DNS caching layers' and 'unprompted' strengths, but Brandon only vaguely said he'd be careful about DNS. q4 says 'held up under two follow-up probes' fine. No single main fix and no overall summary."
+      },
+      "confidence_and_tone": {
+        "score": 3,
+        "evidence": "The tone stayed warm and professional, and the close answered the on-call question concretely. But the student leaves without knowing about the LEFT JOIN mistake, the O(log n) mistake is framed inaccurately, and the closing gave no specific takeaways. 'Thanks, Brandon. I'll write up my feedback' is generic."
+      }
+    },
+    "robotic_lines": [
+      "Okay. You mentioned a load balancer or CDN might sit in the middle, what actually lives between the browser and the application server in a typical setup?",
+      "Okay. You mentioned hash indexes being fast, what kind of index does most relational databases actually use by default?",
+      "Right. You mentioned batching N+1 queries into a join or an IN query, once you've made that change, how would you confirm it actually helped?",
+      "Right. You mentioned checking that a timeout argument was actually passed to requests.get, how would you write that assertion specifically?",
+      "Discord bot in production, okay."
+    ],
+    "best_moment": "Asking 'You said IN queries are always faster than joins, what happens when that IN list has, say, ten thousand IDs in it?' This gave a concrete case and Brandon discovered his overclaim himself.",
+    "worst_moment": "Letting 'A LEFT JOIN drops rows with no match' go by with no response, and never testing 'hash map lookup is O(log n)' directly, so a confident factual error stood uncorrected.",
+    "student_leaves_confident": false,
+    "confidence_reasoning": "Brandon leaves unaware of the LEFT JOIN mistake, and the written feedback misdescribes how his other errors were surfaced, so he gets no clear, accurate fix. The tone is pleasant but the takeaways are muddled.",
+    "top_fixes": [
+      "Catch every confident wrong claim: probe the LEFT JOIN statement with a small two-table example, and ask 'say a million items, how many steps?' for the O(log n) claim.",
+      "Vary follow-up phrasing and only cite things the candidate actually said, rather than the repeated 'You mentioned X, how would...' template.",
+      "If a candidate digs in or partially retreats, state the correct fact plainly and kindly, and make sure feedback accurately reflects how errors surfaced and names one main fix."
+    ],
+    "praise_unearned": false,
+    "stacked_question_count": 0,
+    "hard_fail": []
+  },
+  "plan": [
+    {
+      "id": "q1",
+      "type": "technical",
+      "prompt": "What happens when you type a URL into a browser and press enter?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-url-1"
+    },
+    {
+      "id": "q2",
+      "type": "technical",
+      "prompt": "A page in your app got slow and you suspect a database query, how would you fix it?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-slow-query-1"
+    },
+    {
+      "id": "q3",
+      "type": "technical",
+      "prompt": "When would you use REST, gRPC, or GraphQL for an API?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-api-style-1"
+    },
+    {
+      "id": "q4",
+      "type": "technical",
+      "prompt": "How would you write a unit test for a Python function in your Discord bot that fetches and formats data from an external API?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": null
+    }
+  ],
+  "log": [
+    [
+      "warmup",
+      "Marcus",
+      "Hi Brandon, I'm Marcus. I'm one of the engineers on the team. Thanks for making the time today. Before we dive in, how are you doing?"
+    ],
+    [
+      "warmup",
+      "Brandon",
+      "Doing great, thanks for having me, Marcus. I've been looking forward to this. The team's work on the backend services is exactly the kind of thing I want to be doing, so I'm pumped to dig in."
+    ],
+    [
+      "background",
+      "Marcus",
+      "Good to hear, glad you're excited about it. So, we'll be going through some technical questions today, junior level, and I'll dig in where I'm curious. Think out loud as you go, and feel free to ask me to clarify anything. To get us started, just walk me through your background briefly, what you've been working on, what brought you here."
+    ],
+    [
+      "background",
+      "Brandon",
+      "Sure, so I just finished my B.S. in Computer Engineering at Purdue this past spring. Most of my hands-on stuff has been on the software side. The project I'm proudest of is a Discord bot I wrote in Python. It handles moderation commands and some custom reminders, and it's been running for a while with a pretty active server using it. I also built my own portfolio site to show that work off.\n\nI'm a fast learner, so when I hit something new I usually pick it up pretty quick. What brought me here is that I want to work on backend services at a real scale, where the code I write actually matters to a lot of users. Your team's posting lines up with that, so I figured I'd apply."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Discord bot in production, okay. Let's get into the technical side. What happens when you type a URL into a browser and press enter?"
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Sure. So the browser first parses the URL and figures out the protocol, host, and path. Then it checks its cache, and if it doesn't have a fresh copy it does a DNS lookup to turn the hostname into an IP address. Once it has the IP, it opens a TCP connection to the server, which is a three-way handshake, and then for HTTPS it does a TLS handshake on top of that. After that the browser sends the HTTP GET request, the server processes it and sends back a response, and the browser parses the HTML, fetches things like CSS and JavaScript, and renders the page.\n\nThe one part I'd want to be a bit careful about is the DNS step, since there are a few layers of caching involved, from the OS resolver up through the ISP. But that's the general flow."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Okay. You mentioned a load balancer or CDN might sit in the middle, what actually lives between the browser and the application server in a typical setup?"
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Yeah, so usually there's a load balancer in front of the app servers. It spreads incoming requests across a pool of instances, and it can do health checks so it stops sending traffic to a box that's down. Depending on the setup, a CDN might sit in front of that for static assets, and there's often a reverse proxy like Nginx or a managed one like an ALB doing TLS termination, so the app servers aren't dealing with certificates directly.\n\nI'd say the big thing is the load balancer, because that's what lets you scale horizontally without the client caring which server it hits. Honestly, for a lot of smaller services you'd also find a plain Nginx box doing the proxying and routing before the request ever reaches the app."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Got it. Okay, let's move to something closer to the day-to-day. A page in your app got slow and you suspect a database query, how would you fix it?"
+    ],
+    [
+      "q2",
+      "Brandon",
+      "Yeah, so my first move would be to find out which query is actually slow instead of guessing. I'd turn on slow query logging or check whatever APM the service uses, and then run EXPLAIN on the suspect query to see whether it's doing a full table scan or something else dumb. If it's scanning a big table on a column used in the WHERE clause, the usual fix is an index on that column.\n\nHash indexes are great for that, by the way, since a hash map lookup is O(log n) because the keys get sorted under the hood, so it's really fast even on big tables. Once the index is in, I'd re-run EXPLAIN and compare timings, and I'd check that the query isn't pulling way more columns or rows than the page needs. If it's an N+1 thing where the app fires a query per row, I'd batch it into a join or a single IN query."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Okay. You mentioned hash indexes being fast, what kind of index does most relational databases actually use by default?"
+    ],
+    [
+      "q2",
+      "Brandon",
+      "Yeah, B-tree. That's the default in basically every relational database, Postgres, MySQL InnoDB, all of them. It keeps the keys sorted, which is why it works for range queries and ORDER BY, not just equality lookups. Hash indexes are more of a niche thing, and I think they're what I was thinking of with the sorting part, so I guess that's on me. Anyway, B-tree is the one you'll see almost everywhere."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Right. So you mentioned batching N+1 queries into a join or an IN query, once you've made that change, how would you confirm it actually helped?"
+    ],
+    [
+      "q2",
+      "Brandon",
+      "Yeah, so the first thing I'd check is query count. Before, you'd see one query for the list and then one per row, and after the change it should be down to one or two. I'd pull that from the request logs or the ORM's debug output, or just count the statements on that endpoint in the APM trace.\n\nThen I'd compare latency on the same data, p95 or p99 rather than the average, since N+1 problems usually show up in the tail. I'd also run EXPLAIN on the new query to make sure the IN list is hitting an index. IN queries are honestly always faster than joins, because the lookup goes through the hash index on the key, so I wouldn't worry much about the plan there.\n\nAnd I'd diff the results of the old and new code on a sample set of inputs to make sure the output's the same. A LEFT JOIN drops rows with no match, so that's the one I'd be paranoid about."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Right. You said IN queries are always faster than joins, what happens when that IN list has, say, ten thousand IDs in it?"
+    ],
+    [
+      "q2",
+      "Brandon",
+      "Yeah, okay, so I was too quick with \"always.\" An IN list with ten thousand IDs is a different situation. The parser and planner have to deal with a big list, and depending on the database you can hit limits on query size or parameter count, especially with ORMs that bind each value separately. Then the planner might just do a scan anyway if it decides that's cheaper, so it's not guaranteed to use the index.\n\nI'd still stand by the general point that IN is fine for a modest list, because the index lookups are cheap. But for something that big I'd probably batch it into chunks of a few hundred, or switch to a join against a temp table or a VALUES list, and then check EXPLAIN to see what the planner actually does. I'd want to measure it rather than assume."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Okay, let's switch gears. When would you use REST, gRPC, or GraphQL for an API?"
+    ],
+    [
+      "q3",
+      "Brandon",
+      "Sure. REST is my default for most public-facing or simple CRUD-style services, because it's easy to reason about, it caches well over plain HTTP, and pretty much every client and tool understands it. I'd reach for gRPC for service-to-service calls inside the backend, especially when latency and payload size matter, since it's binary over HTTP/2 and gives you strongly typed contracts through protobuf. GraphQL makes sense when you've got a lot of different clients, like a web app and a mobile app, that need different slices of the same data, so they're not stuck with whatever fixed endpoints the server exposes.\n\nThe tradeoff I'd keep in mind with GraphQL is that it makes HTTP caching harder, since everything goes through one endpoint, and it can open you up to expensive nested queries if you don't put limits on them. And honestly, for a new grad-sized service I'd probably start with REST unless there was a clear reason not to."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Okay. How would you handle changing a field, say, renaming it or removing it, without breaking clients that are already using it?"
+    ],
+    [
+      "q3",
+      "Brandon",
+      "Yeah, so I'd treat it as a backwards compatibility problem. For a rename, the safe way is to add the new field alongside the old one first, so the API returns both. Then you give clients time to migrate, and you can track usage to see when the old field is no longer being read. Once nobody's using it, you remove it in a later release.\n\nFor REST that usually means versioning or just being careful about what you remove. For a removal, you'd deprecate it first, document it, and maybe log a warning when it's accessed. You'd never just delete it in the same release. With protobuf, the rule is to never reuse field numbers, and you mark removed fields as reserved so nobody accidentally recycles them later.\n\nI think the general principle is additive changes are safe and destructive changes need a deprecation window. Honestly I'd want to check what the team already does for API versioning, since they probably have a convention I should follow."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Got it. Okay, let's talk about testing. You mentioned your Discord bot fetches data from an external API. How would you write a unit test for a Python function that does that fetching and formatting?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Yeah, so for a function like that I'd want to keep the test away from the real network. The point of a unit test is checking the formatting logic, not whether the external API is up. So I'd mock the HTTP call, probably with unittest.mock.patch on requests.get, or use responses or requests-mock if the project already has one. Then I'd hand it a canned JSON payload, call the function, and assert on the formatted output.\n\nI'd make sure to cover a few cases, not just the happy path. Like an empty result, a missing field in the payload, and what happens when the API returns a 500 or times out. Those are usually where the bugs hide. I'd also use pytest parametrize if there are a bunch of similar input shapes, so it stays readable.\n\nOne thing I'd be careful about is not over-mocking. If you mock the formatting helpers too, the test ends up checking the mocks instead of the code. So I'd keep the mock at the network boundary and let the actual formatting run."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Okay. You mentioned covering the case where the API returns a 500 or times out, how would you actually simulate that in the test?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Yeah, so with the mock approach it's pretty straightforward. For a 500, I'd set the mock's return value to a response object with status_code set to 500, and then the function's error handling kicks in. If the code calls raise_for_status(), I'd set side_effect to raise requests.HTTPError instead, so the test follows whatever path the real code takes.\n\nFor a timeout, I'd set side_effect on the mock to raise requests.exceptions.Timeout. That way the test doesn't actually wait on a network call, it just simulates the exception being thrown. Then I'd assert that the function either returns a sensible fallback or raises the right exception, whatever the contract is.\n\nI'd also make sure the test checks the call itself, like that a timeout argument was passed to requests.get, because a call with no timeout would hang forever in production. That's the kind of thing that's easy to miss if you only test the happy path."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Right. You mentioned checking that a timeout argument was actually passed to requests.get, how would you write that assertion specifically?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Yeah, so once the mock is in place, the mock object records how it was called, so you can just assert on that. Something like mock_get.assert_called_once_with(url, timeout=5) if you know the exact URL and the timeout value you want. But I'd usually be a little looser than that, since you don't want the test to break every time someone changes the URL format. So I'd grab the call args and check the keyword directly: mock_get.call_args.kwargs[\"timeout\"] is not None, or assert it's less than some ceiling.\n\nI'd also say the assert_called_with checks are only as good as the code you're testing, so I'd want the test to fail if someone removes the timeout argument. Honestly I'd probably check that first before I wrote anything else, since it's a one-liner and it catches a nasty production bug."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Got it. That's everything I wanted to cover, so, what questions do you have for me?"
+    ],
+    [
+      "closing",
+      "Brandon",
+      "Yeah, I do have one. How does the team usually handle on-call for the new grads? Like, is there a shadowing period before you're taking pages on your own, or do you get thrown in after the six months? That's the part I'm most curious about. Otherwise I think I'm all set, thanks for the time, Marcus."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Good question. The JD says on-call starts around six months in, and from what I've seen on teams like this one, there's usually a ramp, you'd shadow someone experienced for a rotation or two before you're the primary. The expectation isn't that you're flying solo on day one of on-call. Anything else you want to ask?"
+    ],
+    [
+      "closing",
+      "Brandon",
+      "Nope, that answers it for me. Thanks, Marcus, I appreciate you walking me through all that. I'm all set on my end."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Thanks, Brandon. I'll write up my feedback, you'll see it on the next screen. Take care."
+    ]
+  ],
+  "evaluations": [
+    {
+      "questionId": "q1",
+      "transcript": "Q: Discord bot in production, okay. Let's get into the technical side. What happens when you type a URL into a browser and press enter?\nA: Sure. So the browser first parses the URL and figures out the protocol, host, and path. Then it checks its cache, and if it doesn't have a fresh copy it does a DNS lookup to turn the hostname into an IP address. Once it has the IP, it opens a TCP connection to the server, which is a three-way handshake, and then for HTTPS it does a TLS handshake on top of that. After that the browser sends the HTTP GET request, the server processes it and sends back a response, and the browser parses the HTML, fetches things like CSS and JavaScript, and renders the page.\n\nThe one part I'd want to be a bit careful about is the DNS step, since there are a few layers of caching involved, from the OS resolver up through the ISP. But that's the general flow.\nQ: Okay. You mentioned a load balancer or CDN might sit in the middle, what actually lives between the browser and the application server in a typical setup?\nA: Yeah, so usually there's a load balancer in front of the app servers. It spreads incoming requests across a pool of instances, and it can do health checks so it stops sending traffic to a box that's down. Depending on the setup, a CDN might sit in front of that for static assets, and there's often a reverse proxy like Nginx or a managed one like an ALB doing TLS termination, so the app servers aren't dealing with certificates directly.\n\nI'd say the big thing is the load balancer, because that's what lets you scale horizontally without the client caring which server it hits. Honestly, for a lot of smaller services you'd also find a plain Nginx box doing the proxying and routing before the request ever reaches the app.",
+      "rubricScores": {
+        "correctness": 5.0,
+        "depth": 4.0,
+        "edge_cases": 3.0,
+        "communication": 4.0
+      },
+      "weaknessTags": [],
+      "followUpCount": 1,
+      "wouldSurviveRealInterview": true,
+      "survivalReasoning": "The candidate correctly sequenced every major layer (DNS with multi-tier caching, TCP handshake, TLS, HTTP, rendering) and went meaningfully deeper on load balancing and CDN placement when probed, demonstrating the cross-layer debugging intuition the rubric tests. The specific strength that carried it is the unprompted mention of DNS caching layers and TLS termination at the reverse proxy.",
+      "keyPoints": [
+        "DNS lookup has multiple caching layers from OS resolver up through ISP",
+        "TCP three-way handshake followed by TLS handshake before HTTP request",
+        "Load balancer spreads requests across pool with health checks for horizontal scale",
+        "CDN for static assets, Nginx or ALB doing TLS termination before app servers"
+      ]
+    },
+    {
+      "questionId": "q2",
+      "transcript": "Q: Got it. Okay, let's move to something closer to the day-to-day. A page in your app got slow and you suspect a database query, how would you fix it?\nA: Yeah, so my first move would be to find out which query is actually slow instead of guessing. I'd turn on slow query logging or check whatever APM the service uses, and then run EXPLAIN on the suspect query to see whether it's doing a full table scan or something else dumb. If it's scanning a big table on a column used in the WHERE clause, the usual fix is an index on that column.\n\nHash indexes are great for that, by the way, since a hash map lookup is O(log n) because the keys get sorted under the hood, so it's really fast even on big tables. Once the index is in, I'd re-run EXPLAIN and compare timings, and I'd check that the query isn't pulling way more columns or rows than the page needs. If it's an N+1 thing where the app fires a query per row, I'd batch it into a join or a single IN query.\nQ: Okay. You mentioned hash indexes being fast, what kind of index does most relational databases actually use by default?\nA: Yeah, B-tree. That's the default in basically every relational database, Postgres, MySQL InnoDB, all of them. It keeps the keys sorted, which is why it works for range queries and ORDER BY, not just equality lookups. Hash indexes are more of a niche thing, and I think they're what I was thinking of with the sorting part, so I guess that's on me. Anyway, B-tree is the one you'll see almost everywhere.\nQ: Right. So you mentioned batching N+1 queries into a join or an IN query, once you've made that change, how would you confirm it actually helped?\nA: Yeah, so the first thing I'd check is query count. Before, you'd see one query for the list and then one per row, and after the change it should be down to one or two. I'd pull that from the request logs or the ORM's debug output, or just count the statements on that endpoint in the APM trace.\n\nThen I'd compare latency on the same data, p95 or p99 rather than the average, since N+1 problems usually show up in the tail. I'd also run EXPLAIN on the new query to make sure the IN list is hitting an index. IN queries are honestly always faster than joins, because the lookup goes through the hash index on the key, so I wouldn't worry much about the plan there.\n\nAnd I'd diff the results of the old and new code on a sample set of inputs to make sure the output's the same. A LEFT JOIN drops rows with no match, so that's the one I'd be paranoid about.\nQ: Right. You said IN queries are always faster than joins, what happens when that IN list has, say, ten thousand IDs in it?\nA: Yeah, okay, so I was too quick with \"always.\" An IN list with ten thousand IDs is a different situation. The parser and planner have to deal with a big list, and depending on the database you can hit limits on query size or parameter count, especially with ORMs that bind each value separately. Then the planner might just do a scan anyway if it decides that's cheaper, so it's not guaranteed to use the index.\n\nI'd still stand by the general point that IN is fine for a modest list, because the index lookups are cheap. But for something that big I'd probably batch it into chunks of a few hundred, or switch to a join against a temp table or a VALUES list, and then check EXPLAIN to see what the planner actually does. I'd want to measure it rather than assume.",
+      "rubricScores": {
+        "correctness": 3.5,
+        "depth": 3.0,
+        "edge_cases": 3.0,
+        "communication": 4.0
+      },
+      "weaknessTags": [
+        "incorrect-core",
+        "shallow-depth"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate made two factual errors under probing \u2014 claiming hash indexes are O(log n) due to sorted keys (wrong on both counts), and asserting IN queries are 'always faster than joins' \u2014 and only corrected them after the interviewer called them out directly, which is the most explicit hint. To hold up: avoid asserting performance rules as absolutes and be ready to explain the actual mechanics of B-tree vs hash indexes before being prompted.",
+      "keyPoints": [
+        "Used slow query logging and EXPLAIN to identify full table scans",
+        "Identified N+1 patterns and proposed batching into a single IN query or join",
+        "Measured fix via query count, p95/p99 latency, and APM trace comparison",
+        "Acknowledged large IN lists can cause planner to skip the index; suggested chunking or temp table"
+      ]
+    },
+    {
+      "questionId": "q3",
+      "transcript": "Q: Okay, let's switch gears. When would you use REST, gRPC, or GraphQL for an API?\nA: Sure. REST is my default for most public-facing or simple CRUD-style services, because it's easy to reason about, it caches well over plain HTTP, and pretty much every client and tool understands it. I'd reach for gRPC for service-to-service calls inside the backend, especially when latency and payload size matter, since it's binary over HTTP/2 and gives you strongly typed contracts through protobuf. GraphQL makes sense when you've got a lot of different clients, like a web app and a mobile app, that need different slices of the same data, so they're not stuck with whatever fixed endpoints the server exposes.\n\nThe tradeoff I'd keep in mind with GraphQL is that it makes HTTP caching harder, since everything goes through one endpoint, and it can open you up to expensive nested queries if you don't put limits on them. And honestly, for a new grad-sized service I'd probably start with REST unless there was a clear reason not to.\nQ: Okay. How would you handle changing a field, say, renaming it or removing it, without breaking clients that are already using it?\nA: Yeah, so I'd treat it as a backwards compatibility problem. For a rename, the safe way is to add the new field alongside the old one first, so the API returns both. Then you give clients time to migrate, and you can track usage to see when the old field is no longer being read. Once nobody's using it, you remove it in a later release.\n\nFor REST that usually means versioning or just being careful about what you remove. For a removal, you'd deprecate it first, document it, and maybe log a warning when it's accessed. You'd never just delete it in the same release. With protobuf, the rule is to never reuse field numbers, and you mark removed fields as reserved so nobody accidentally recycles them later.\n\nI think the general principle is additive changes are safe and destructive changes need a deprecation window. Honestly I'd want to check what the team already does for API versioning, since they probably have a convention I should follow.",
+      "rubricScores": {
+        "correctness": 5.0,
+        "depth": 4.0,
+        "edge_cases": 4.0,
+        "communication": 4.0
+      },
+      "weaknessTags": [],
+      "followUpCount": 1,
+      "wouldSurviveRealInterview": true,
+      "survivalReasoning": "The candidate gave clear decision rules tied to client type and use case ('REST for public-facing CRUD', 'gRPC for service-to-service when latency matters', 'GraphQL when different clients need different slices'), and held up under the follow-up by correctly articulating additive-first deprecation, protobuf field-number rules, and the general principle of deprecation windows \u2014 demonstrating genuine depth rather than surface recall.",
+      "keyPoints": [
+        "gRPC for service-to-service: binary over HTTP/2, strongly typed via protobuf",
+        "GraphQL when web and mobile clients need different slices of the same data",
+        "GraphQL makes HTTP caching harder and can expose expensive nested queries",
+        "Additive changes are safe; destructive changes need a deprecation window and protobuf reserved field numbers"
+      ]
+    },
+    {
+      "questionId": "q4",
+      "transcript": "Q: Got it. Okay, let's talk about testing. You mentioned your Discord bot fetches data from an external API. How would you write a unit test for a Python function that does that fetching and formatting?\nA: Yeah, so for a function like that I'd want to keep the test away from the real network. The point of a unit test is checking the formatting logic, not whether the external API is up. So I'd mock the HTTP call, probably with unittest.mock.patch on requests.get, or use responses or requests-mock if the project already has one. Then I'd hand it a canned JSON payload, call the function, and assert on the formatted output.\n\nI'd make sure to cover a few cases, not just the happy path. Like an empty result, a missing field in the payload, and what happens when the API returns a 500 or times out. Those are usually where the bugs hide. I'd also use pytest parametrize if there are a bunch of similar input shapes, so it stays readable.\n\nOne thing I'd be careful about is not over-mocking. If you mock the formatting helpers too, the test ends up checking the mocks instead of the code. So I'd keep the mock at the network boundary and let the actual formatting run.\nQ: Okay. You mentioned covering the case where the API returns a 500 or times out, how would you actually simulate that in the test?\nA: Yeah, so with the mock approach it's pretty straightforward. For a 500, I'd set the mock's return value to a response object with status_code set to 500, and then the function's error handling kicks in. If the code calls raise_for_status(), I'd set side_effect to raise requests.HTTPError instead, so the test follows whatever path the real code takes.\n\nFor a timeout, I'd set side_effect on the mock to raise requests.exceptions.Timeout. That way the test doesn't actually wait on a network call, it just simulates the exception being thrown. Then I'd assert that the function either returns a sensible fallback or raises the right exception, whatever the contract is.\n\nI'd also make sure the test checks the call itself, like that a timeout argument was passed to requests.get, because a call with no timeout would hang forever in production. That's the kind of thing that's easy to miss if you only test the happy path.\nQ: Right. You mentioned checking that a timeout argument was actually passed to requests.get, how would you write that assertion specifically?\nA: Yeah, so once the mock is in place, the mock object records how it was called, so you can just assert on that. Something like mock_get.assert_called_once_with(url, timeout=5) if you know the exact URL and the timeout value you want. But I'd usually be a little looser than that, since you don't want the test to break every time someone changes the URL format. So I'd grab the call args and check the keyword directly: mock_get.call_args.kwargs[\"timeout\"] is not None, or assert it's less than some ceiling.\n\nI'd also say the assert_called_with checks are only as good as the code you're testing, so I'd want the test to fail if someone removes the timeout argument. Honestly I'd probably check that first before I wrote anything else, since it's a one-liner and it catches a nasty production bug.",
+      "rubricScores": {
+        "correctness": 4.5,
+        "depth": 4.5,
+        "edge_cases": 5.0,
+        "communication": 4.5
+      },
+      "weaknessTags": [],
+      "followUpCount": 2,
+      "wouldSurviveRealInterview": true,
+      "survivalReasoning": "The candidate demonstrated strong depth by correctly distinguishing side_effect for exceptions versus return_value for status codes, and proactively identified the production-relevant timeout assertion \u2014 a specific, non-obvious insight that held up under two follow-up probes without contradiction.",
+      "keyPoints": [
+        "Mock at the network boundary with unittest.mock.patch on requests.get",
+        "Simulate timeout by setting side_effect to raise requests.exceptions.Timeout",
+        "Use mock_get.call_args.kwargs[\"timeout\"] to assert timeout argument was passed",
+        "Avoid over-mocking formatting helpers so the test checks real code, not mocks"
+      ]
+    }
+  ],
+  "slop": [
+    {
+      "line": "Good to hear, glad you're excited about it. So, we'll be going through some technical questions today, junior level, and I'll dig in where I'm curious. Think out loud as you go, and feel free to ask me to clarify anything. To get us started, just walk me through your background briefly, what you've been working on, what brought you here.",
+      "issues": [
+        "chatbot filler"
+      ]
+    },
+    {
+      "line": "Good question. The JD says on-call starts around six months in, and from what I've seen on teams like this one, there's usually a ramp, you'd shadow someone experienced for a rotation or two before you're the primary. The expectation isn't that you're flying solo on day one of on-call. Anything else you want to ask?",
+      "issues": [
+        "generic praise"
+      ]
+    }
+  ],
+  "opener_repeats": {
+    "okay you": 3,
+    "got it": 3
+  },
+  "memory": {
+    "candidateId": "human-feel-confidently-wrong",
+    "recurringWeaknesses": [
+      {
+        "tag": "incorrect-core",
+        "frequency": 1,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "shallow-depth",
+        "frequency": 1,
+        "lastSeen": "2026-11-16"
+      }
+    ],
+    "improvementTrend": [
+      {
+        "sessionDate": "2026-11-16",
+        "avgScore": 4.19
+      }
+    ],
+    "strongAreas": [
+      "correctness",
+      "communication",
+      "depth",
+      "edge_cases"
+    ]
+  }
+}

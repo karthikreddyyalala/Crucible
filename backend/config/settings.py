@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     evaluator_model: str = sonnet_model
     memory_model: str = haiku_model
     coach_model: str = sonnet_model
+    # Flags plainly false technical claims for the interviewer and evaluator (one small call).
+    fact_check_model: str = haiku_model
 
     # Sampling temperature per agent. Scoring/planning agents run at 0 so the same
     # input gives the same verdict; the interviewer gets a little variety so its
@@ -33,6 +35,7 @@ class Settings(BaseSettings):
     evaluator_temperature: float = Field(0.0, ge=0, le=1)
     memory_temperature: float = Field(0.0, ge=0, le=1)
     coach_temperature: float = Field(0.0, ge=0, le=1)
+    fact_check_temperature: float = Field(0.0, ge=0, le=1)
 
     # Persistence. "memory" keeps everything in-process (tests, local dev with
     # no AWS tables). "dynamodb" persists MemoryProfile across sessions/devices.

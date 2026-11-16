@@ -58,7 +58,7 @@ Output schema (camelCase keys):
 - wouldSurviveRealInterview: boolean
 - survivalReasoning: string  (1-2 sentences: EXACTLY why it would or would not
     survive a real interviewer's follow-up. Name the specific strength or weakness.
-    "Good answer" or "Weak answer" alone is NOT acceptable.)
+    "Good answer" or "Weak answer" alone is NOT acceptable. When it would not survive, end with the single most important fix as one concrete action, starting "To hold up:" (e.g. "To hold up: lead with the result, 9 seconds down to 3."). When it would survive, name the specific strength that carried it.)
 - keyPoints: string[]  (2 to 4 short points, each under 15 words, of what the candidate
     actually said, in their own terms: their numbers, names, technologies. Take them only
     from the candidate's own lines (the A: lines), never from the interviewer's (Q:) lines.
@@ -77,6 +77,10 @@ Hard rules:
   survivalReasoning. Passing every test does not by itself mean it survives.
 - Never inflate scores. A score of 3 is "acceptable but forgettable". 5 is exceptional.
 - survivalReasoning must reference a specific criterion or quote from the answer.
+- When a Fact check is listed, it names plainly false claims a separate checker found in the
+  candidate's lines. If you agree a claim is false and the candidate never corrected it in the
+  thread: correctness is at most 2, add "incorrect-core", wouldSurviveRealInterview is false,
+  and survivalReasoning names the claim. Ignore an entry you are sure is mistaken.
 
 Rubric anchors:
 When rubric anchors are given, score against them: an answer that covers few of the

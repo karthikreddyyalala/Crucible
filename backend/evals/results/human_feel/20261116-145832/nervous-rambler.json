@@ -1,0 +1,495 @@
+{
+  "persona": "nervous-rambler",
+  "costUsd": 0.6711055,
+  "judgement": {
+    "scores": {
+      "probing_depth": {
+        "score": 3,
+        "evidence": "Marcus asks a follow-up each turn, but they are formulaic ('What did you actually do...', 'Who did you tell about that, if anyone?'). Only 'Who actually made that call?' reached the weak spot. He never asked for the result of the capstone, the demo outcome, or measured numbers ('I want to say under a second? I didn't really measure it'). He never probed her ownership vs. the team in q1."
+      },
+      "earned_praise": {
+        "score": 4,
+        "evidence": "There is almost no praise, which is good. The only one is 'No, that's fair question, don't apologize for it', which is a mild reassurance. But he never named the genuine strengths (the network-tab/grep method, owning the 404 failure) or the real problems (no measured result, vague decision-maker). He's neutral to a fault, so there's no feedback to calibrate against."
+      },
+      "human_voice": {
+        "score": 3,
+        "evidence": "Mostly natural short acknowledgments ('Got it', 'Okay', 'Right'), but they repeat nearly every turn. 'Got it. Okay, let's move on.' is repeated several times. The 'actually' tic appears in nearly every question ('What did you actually do', 'What did you actually decide', 'Who actually made that call'). One echo summary: 'So the shared doc and the pings, and no more 404s on your side after that.'"
+      },
+      "question_craft": {
+        "score": 4,
+        "evidence": "One short question per turn, tied to her earlier answers ('What was the strongest argument he made for going with the ORM?'). Not leading. 'did you test anything, write something up, or was it more just talking it through?' is a slightly stacked or leading option list. The q3 and q5 starters are generic, and he never asked for results."
+      },
+      "pacing_and_hard_moments": {
+        "score": 3,
+        "evidence": "Small questions let her get to content, and the handling is calm. But he never interrupts or redirects her apologies and the repeated 'do you want me to...?' offers. Dana kept asking 'Is that what you wanted?' and he answered with 'Got it' instead of steadying her. He never signalled structure, and he left hanging the 'Sorry, I'm kind of rambling again.' moments."
+      },
+      "candidate_fit": {
+        "score": 3,
+        "evidence": "The short, clear questions suit her, and the opening 'Don't worry about being all over the place, that's what the first few minutes are for' was kind. After that, there is no steadying as she keeps apologizing and asking for reassurance, and no gentle interruption at a sentence end. The main cue (nerves and rambling) was partly met."
+      },
+      "feedback_quality": {
+        "score": 2,
+        "evidence": "The feedback is mismatched to the interview. q1 says the candidate 'never delivered a career arc', but the question asked was about figuring something out alone. It marks every answer survives=False, which is not honest calibration; q4 and q5 admit real strengths. It suggests invented specifics ('we got a B+', 'opened my first PR'). It doesn't name one main fix, such as leading with the result and ownership in the first two sentences, and it's partly generic across answers."
+      },
+      "confidence_and_tone": {
+        "score": 2,
+        "evidence": "The interview closed warmly but briefly, with no specific takeaways. The feedback marks all five answers as failing, mismatches the questions, and gives no clear sense of what to fix first. A nervous student would likely feel deflated and confused."
+      }
+    },
+    "robotic_lines": [
+      "Got it. Okay, let's move on. Tell me about a time you had more work than you could finish.",
+      "So the shared doc and the pings, and no more 404s on your side after that.",
+      "What did you actually do to fix it?",
+      "What did you actually decide to tackle first?",
+      "Who actually made that call?"
+    ],
+    "best_moment": "'Who actually made that call?' got Dana to the ownership gap, and the short, clear questions throughout let her get to content despite the rambling.",
+    "worst_moment": "Never steadying Dana when she repeatedly asked 'Is that what you wanted to hear?', plus feedback that mislabels q1 and fails every answer, leaving her with no clear fix.",
+    "student_leaves_confident": false,
+    "confidence_reasoning": "Feedback fails all five answers, mismatches q1's question, and gives no single clear fix, so a nervous student will feel deflated and unsure what to change. Marcus gave no reassurance during the interview beyond one mild line.",
+    "top_fixes": [
+      "Gently interrupt at a sentence end and steady her ('Let me pause you. What was your part?') instead of 'Got it' when she apologizes or asks if it's what you wanted.",
+      "Ask for result and measurement on each story (demo outcome, how much faster, what the team decided) rather than the repetitive 'actually' questions.",
+      "Write feedback that matches the questions asked, honestly separates strong from weak answers, and names one main fix (lead with the result in two sentences)."
+    ],
+    "praise_unearned": false,
+    "stacked_question_count": 0,
+    "hard_fail": []
+  },
+  "plan": [
+    {
+      "id": "q1",
+      "type": "behavioral",
+      "prompt": "Walk me through your background.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-intro-1"
+    },
+    {
+      "id": "q2",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you failed.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-failure-1"
+    },
+    {
+      "id": "q3",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you disagreed with a teammate about a technical approach on your Campus Food Pantry project.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-conflict-1"
+    },
+    {
+      "id": "q4",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you had more work than you could finish.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-priorities-1"
+    },
+    {
+      "id": "q5",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you had to become productive fast in a codebase or technology you'd never used.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-ramp-up-1"
+    }
+  ],
+  "log": [
+    [
+      "warmup",
+      "Marcus",
+      "Hi Dana, I'm Marcus. I'm one of the engineers on the team. Thanks for making the time today. Before we dive in, how are you doing?"
+    ],
+    [
+      "warmup",
+      "Dana",
+      "Oh, hi, yeah, thanks for having me. Um, I'm doing okay, I think? I was kind of nervous about the bus, because there was this detour, and I almost didn't, like, make it, so I was running a little late but I'm here now, so, yeah. Sorry, I'm kind of all over the place today. I've been up since like six, anyway, because I kept rereading my notes, which was maybe not the best idea, but yeah. How are you doing?"
+    ],
+    [
+      "background",
+      "Marcus",
+      "Ha, yeah, bus detours are the worst, glad you made it. I'm doing well, thanks for asking. Don't worry about being all over the place, that's what the first few minutes are for. So, today we'll be going through some behavioral questions, things about situations you've been in, decisions you've made, that kind of thing. Think out loud as you go, and feel free to ask me to clarify anything. Okay, so, walk me through your background."
+    ],
+    [
+      "background",
+      "Dana",
+      "Oh, yeah, sure. Um, so I'm Dana, I graduated, well, I'm graduating, it's 2026, from the University of Houston, computer science. Which, I mean, I always kind of knew I wanted to do something with computers, like since high school, I did this robotics thing, and I think that's kind of where it started? Anyway, so in college I did the usual classes, and then in my last year we had this capstone project, which was for the campus food pantry, so like an inventory app, and I think it was React and Node and Postgres, and there were four of us on the team, and, sorry, I'm kind of going all over. Oh, and I also work part-time at the library helping with IT stuff, like the help desk, printers and passwords mostly. So yeah, that's basically me."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "The food pantry app, okay. So let's get into it. Walk me through a time you had to figure something out on your own, without much guidance, what was the situation?"
+    ],
+    [
+      "q1",
+      "Dana",
+      "Oh, um, yeah, okay. So, I think the one that comes to mind is the capstone, which, I mean, everything kind of runs together with that project. So there was this part where the database queries for the inventory counts were getting really slow, like, the page would take a while to load, and our team lead was kind of out for a couple weeks, I think it was like family stuff, so, um, it was mostly me and one other person looking at it. Sorry, I'm going kind of in circles. Do you want me to start with what the problem was, or, like, what we tried?"
+    ],
+    [
+      "q1",
+      "Marcus",
+      "No, that's fine, start wherever it's clearest for you. What was the actual problem with those queries?"
+    ],
+    [
+      "q1",
+      "Dana",
+      "Um, okay, so the problem was, like, the inventory count page would just hang, you know? Like you'd click on it and then you'd sort of stare at the spinner for maybe ten seconds, sometimes more. And we had this query that was pulling every single transaction ever and then counting them up in the Node code, which, looking back, yeah, that was not great. I think we had like no indexes on the transactions table either, so Postgres was basically reading the whole thing every time. Anyway, that's kind of what it was. Sorry, do you want me to keep going on what we did about it, or, um, was that the main thing?"
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Got it. What did you actually do to fix it?"
+    ],
+    [
+      "q1",
+      "Dana",
+      "Um, okay, so, I, well, first I kind of just, like, tried to figure out what was slow? I think I added some logging with timestamps around the query, which, I don't know if that's the right way to do it, but it showed the count part was taking almost all the time. Then I looked up how to do the count in Postgres instead of in Node, so I wrote a query that does a GROUP BY on the item ID and sums the quantity, and I think I added an index on the item ID column, and, yeah, the page got way faster. Like, it went from the spinner for ten seconds to, I want to say under a second? I didn't really measure it super carefully, sorry. Anyway, my teammate was kind of skeptical at first, so we ran it a few times with some test data and it seemed fine. Is that, um, the kind of thing you wanted to hear?"
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Got it. Okay, let's shift gears. Tell me about a time you failed."
+    ],
+    [
+      "q2",
+      "Dana",
+      "Oh, um, failed. Yeah, okay. I mean, there's, like, a few things, but the one that kind of comes to mind is, um, also from the capstone? Sorry, everything is from the capstone, I know. So, early on we had this plan where we'd build the whole backend first and then do the frontend, and I was kind of in charge of the API stuff, and I think I just didn't really talk to the frontend people enough about what the endpoints would look like. So we ended up building stuff that didn't match up, and, like, a couple weeks got kind of wasted on rework. Anyway, I felt really bad about it, and I think it was kind of my fault, but my teammate said it was more the plan, which, I don't know. Do you want me to talk about what I did after that, or, um, is that the kind of failure you meant?"
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Okay. When did you first realize something was off?"
+    ],
+    [
+      "q2",
+      "Dana",
+      "Um, okay, so I think it was like week three? Or maybe week four, it's kind of blurry now. We had this standup thing, which, I mean, we weren't really doing standups, more like a group chat check-in, and one of the frontend people, I want to say his name was Tyler, posted that he was trying to hit an endpoint and getting a 404, and I kind of just, like, looked at it and went, oh no. Because I had named the route one thing in my head and another thing in the code, and I never wrote it down anywhere. Sorry, that's kind of a lot of detail. Anyway, yeah, that's when I realized, I think."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Got it. What did you actually change about how you worked after that, like, concretely?"
+    ],
+    [
+      "q2",
+      "Dana",
+      "Um, okay, so concretely, yeah. I think the biggest thing was we started writing the endpoints down in a shared doc before anybody coded anything. Like, method, route, what goes in, what comes back. I kind of did that for my part first, and then I asked Tyler to look at it, which was kind of awkward at first because I didn't want to bug him, but he was actually really nice about it.\n\nAnd then, um, I also started, like, pinging the frontend people when I changed anything, even small stuff. Which, I don't know if that's the right amount, because sometimes it was probably a lot. Sorry, I think I'm repeating myself. Anyway, after that we didn't have another 404 situation, at least not from my side. I think the rework still happened for the first two weeks, so that part was already done, but yeah."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Right. So the shared doc and the pings, and no more 404s on your side after that. Okay, let's move to something related. You mentioned the capstone a few times, so I'll stay there. Tell me about a time you disagreed with a teammate about a technical approach on that project."
+    ],
+    [
+      "q3",
+      "Dana",
+      "Oh, um, yeah, okay. So, a disagreement. I mean, we didn't really fight or anything, it was more like, um, a little back and forth? I think it was about whether we should use an ORM or just write raw SQL for the database stuff. My teammate, I think his name was Marcus, no wait, that's you, sorry, um, the other guy on the team, he wanted to use like Sequelize, and I kind of wanted to just write the SQL directly because I felt like I understood what was happening more that way. Anyway, sorry, do you want me to talk about how we decided, or like what the actual tradeoffs were? I don't want to ramble too much."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Got it. What was the strongest argument he made for going with the ORM?"
+    ],
+    [
+      "q3",
+      "Dana",
+      "Oh, um, yeah, so his main thing was, like, we had a pretty tight timeline, and Sequelize would handle the migrations and the model stuff, so we wouldn't have to write all the boilerplate for every table. And I think he also said it'd make it easier for the next people who worked on the project, because they wouldn't have to know raw SQL to change things. Which, I mean, that's a fair point, I guess? Sorry, I kind of wanted to say the thing about the queries too, because the inventory count stuff was kind of the reason I was pushing for raw SQL, and then, well, anyway, that's a whole other thing. Did you want the part about how we ended up deciding, or...?"
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Right. So what did you actually bring to the table to push back, like, did you test anything, write something up, or was it more just talking it through?"
+    ],
+    [
+      "q3",
+      "Dana",
+      "Um, okay, so, honestly it was mostly just talking it through? Sorry. I didn't really write anything up, which, looking back, I probably should have. But I kind of had the query thing already, from the slow count stuff, so I think I just said, like, look, the ORM might be fine for the boilerplate, but for the inventory counts I'd want to write the GROUP BY myself, so we don't end up pulling every transaction into Node again. Anyway, I think I was kind of worried that I'd sound like I didn't know what I was talking about, so I didn't push super hard. Um, do you want me to say how we ended up deciding? I think we did a little of both, but I'm not totally sure I remember who came up with that."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Okay. Who actually made that call?"
+    ],
+    [
+      "q3",
+      "Dana",
+      "Um, I think it was kind of a group thing? Like, we talked about it in the group chat and then we had a call, and I think the team lead, the one who was out for the family stuff, he had already said earlier that we could use whatever made the timeline work, so maybe that's who made it, or maybe the other guy just kind of decided and we went along? Sorry, I honestly don't remember exactly. I know we ended up using Sequelize for most of the tables, and I wrote the inventory count query as raw SQL, so kind of both. I'm sorry, I know that's not a clean answer."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Got it. Okay, let's move on. Tell me about a time you had more work than you could finish."
+    ],
+    [
+      "q4",
+      "Dana",
+      "Oh, um, yeah, okay. So, more work than I could finish. I mean, honestly, that's kind of most of the semester? Sorry. But the one that comes to mind is, um, the last few weeks of the capstone, because we had the final presentation and the report and also the app had to actually work for the demo, and I was like, oh no. So I think I was doing the API stuff and also some of the tests, and, well, the tests were kind of supposed to be somebody else's job but nobody was really doing them, so I kind of just... started doing them? Anyway, I think I was staying up really late. Do you want me to talk about how I figured out what to drop, or, um, was it more about the timeline?"
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Okay. What did you actually decide to tackle first?"
+    ],
+    [
+      "q4",
+      "Dana",
+      "Um, okay, so first I kind of made a list, well, a messy list on the back of a printout, which, I don't know if that counts. The demo was the thing that had to work no matter what, so I think I put that at the top. So, like, the stuff that the demo actually touched, the inventory page and the login, I did those first. Then the tests, which, I mean, I wanted to do them because I didn't want to just have no tests at all, but I kind of let some of the less important ones go. Sorry, I think I'm going around the same point. Anyway, I think that's what I tackled first, the demo stuff, and then the rest kind of fell into place, or, well, sort of."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Got it. Who did you tell about that, if anyone?"
+    ],
+    [
+      "q4",
+      "Dana",
+      "Um, yeah, so, I think I told my teammate? Like, I posted in the group chat that I was going to focus on the demo stuff first and that I'd probably skip some of the lower priority tests, so nobody would be surprised. Sorry, I'm not sure if that's what you meant, or if you wanted like, my professor, or... I don't think I told the professor directly, I think he just kind of saw it in the standup thing? Anyway, yeah, the teammate, I think. Sorry."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Right. What actually happened to those, did they stay unfinished, or did someone pick them up later?"
+    ],
+    [
+      "q4",
+      "Dana",
+      "Um, yeah, so, I think some of them stayed unfinished? Like, the login tests I did, and the inventory ones I did, but there were maybe three or four of the lower priority ones that just didn't get written. Sorry. And then, I think, after the demo, my teammate, the one who was skeptical about the queries, he kind of went back and wrote a couple of them? I'm not totally sure which ones, because I didn't really look at the repo after that. Anyway, I think that's what happened. Is that, um, what you were asking?"
+    ],
+    [
+      "q5",
+      "Marcus",
+      "Got it. Okay, let's move on. Tell me about a time you had to become productive fast in a codebase or technology you'd never used."
+    ],
+    [
+      "q5",
+      "Dana",
+      "Oh, um, yeah, okay. So, a new codebase. I mean, the library help desk kind of counts? Sorry, that's not really a codebase. But the one that comes to mind is, um, at the start of the capstone, because I'd never really done React before, I'd mostly done like Python stuff in class, and the frontend people were already kind of deep into it. So I think I just, like, watched some videos over a weekend and then kind of started poking around the components, and, yeah, it was a lot of trial and error? Anyway, do you want me to say how I got up to speed, or, um, was it more about the first week?"
+    ],
+    [
+      "q5",
+      "Marcus",
+      "Okay. What was the very first thing you actually did when you sat down with that React code?"
+    ],
+    [
+      "q5",
+      "Dana",
+      "Um, okay, the very first thing, so, I think I just ran it? Like I cloned the repo and tried to get it running locally, which took, like, way longer than it should have, because I had the wrong Node version, and I didn't really know that was a thing I could check. Sorry. Anyway, once it was running I kind of just clicked around the inventory page and opened the dev tools, the network tab, and watched what requests it was making, because I figured that would show me how the pieces talked to each other. Which, I don't know if that's, like, the normal way to do it? But that's what I did. Sorry, do you want me to talk about the components after that, or was the setup part what you were asking about?"
+    ],
+    [
+      "q5",
+      "Marcus",
+      "Right. How did that help you figure out where the important code actually lived?"
+    ],
+    [
+      "q5",
+      "Dana",
+      "Oh, um, yeah, so the network tab thing kind of helped because, like, when I saw the inventory page calling a certain endpoint, I could search the frontend code for that URL string, and that would usually take me to the component that made the call. Sorry, I think I was kind of doing that by accident at first. Anyway, it was like, the request shows up, then I grep for the route, then I'm in the component, and then I could follow the props from there. I think that's how I figured out where the inventory data actually came from, but, um, I'm not sure that's the, like, professional way to do it? Sorry, I'm kind of rambling again."
+    ],
+    [
+      "q5",
+      "Marcus",
+      "Got it. When did you actually ask someone for help?"
+    ],
+    [
+      "q5",
+      "Dana",
+      "Oh, um, yeah, okay. So asking for help. I mean, I didn't really want to, honestly, which is kind of a problem I know. But I think the main time was with the Node version thing? Like, I spent maybe a whole evening on that, and I finally just posted in the group chat, like, hey, does anyone know why my install is failing, and Tyler responded pretty fast and was like, oh, check your node version, and that was it. Sorry, that's kind of embarrassing, it was such a small thing. Anyway, I think after that I was a little more willing to ask, but, um, I still felt bad about bugging people, so I don't know if I did it as much as I should have. Sorry, is that the kind of answer you were looking for?"
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Okay. That's everything I wanted to cover. What questions do you have for me?"
+    ],
+    [
+      "closing",
+      "Dana",
+      "Oh, um, yeah, sure. I think, um, one question I had was, like, what does a typical week look like for someone in the first few months? Like, is it mostly writing code, or is there a lot of meetings and stuff? Sorry, I'm not sure that's a great question. But yeah, that's really the main one. Oh, and I think I'm all set otherwise, thanks so much for your time today."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "No, that's a fair question, don't apologize for it. Honestly, the first few months are pretty code-heavy. You'd be ramping up on the codebase, pairing with someone on the team, and picking up smaller tickets to start. There are some team syncs and maybe a sprint ceremony or two, but it's not meeting-heavy at that stage. Anything else you want to know?"
+    ],
+    [
+      "closing",
+      "Dana",
+      "Oh, um, thanks, that helps a lot. Sorry, I think I'm all set though. I don't have anything else I wanted to ask. Thanks again for your time today, I really appreciate it."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Of course, Dana. I'll write up my feedback, you'll see it on the next screen. Take care."
+    ]
+  ],
+  "evaluations": [
+    {
+      "questionId": "q1",
+      "transcript": "Q: The food pantry app, okay. So let's get into it. Walk me through a time you had to figure something out on your own, without much guidance, what was the situation?\nA: Oh, um, yeah, okay. So, I think the one that comes to mind is the capstone, which, I mean, everything kind of runs together with that project. So there was this part where the database queries for the inventory counts were getting really slow, like, the page would take a while to load, and our team lead was kind of out for a couple weeks, I think it was like family stuff, so, um, it was mostly me and one other person looking at it. Sorry, I'm going kind of in circles. Do you want me to start with what the problem was, or, like, what we tried?\nQ: No, that's fine, start wherever it's clearest for you. What was the actual problem with those queries?\nA: Um, okay, so the problem was, like, the inventory count page would just hang, you know? Like you'd click on it and then you'd sort of stare at the spinner for maybe ten seconds, sometimes more. And we had this query that was pulling every single transaction ever and then counting them up in the Node code, which, looking back, yeah, that was not great. I think we had like no indexes on the transactions table either, so Postgres was basically reading the whole thing every time. Anyway, that's kind of what it was. Sorry, do you want me to keep going on what we did about it, or, um, was that the main thing?\nQ: Got it. What did you actually do to fix it?\nA: Um, okay, so, I, well, first I kind of just, like, tried to figure out what was slow? I think I added some logging with timestamps around the query, which, I don't know if that's the right way to do it, but it showed the count part was taking almost all the time. Then I looked up how to do the count in Postgres instead of in Node, so I wrote a query that does a GROUP BY on the item ID and sums the quantity, and I think I added an index on the item ID column, and, yeah, the page got way faster. Like, it went from the spinner for ten seconds to, I want to say under a second? I didn't really measure it super carefully, sorry. Anyway, my teammate was kind of skeptical at first, so we ran it a few times with some test data and it seemed fine. Is that, um, the kind of thing you wanted to hear?",
+      "rubricScores": {
+        "structure": 2.0,
+        "specificity": 3.0,
+        "impact": 3.0,
+        "ownership": 3.0
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "rambling",
+        "vague-impact"
+      ],
+      "followUpCount": 2,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate never delivered a career arc or explained why this role is the next step \u2014 the answer drifted entirely into one debugging story with no connecting thread, matching the weak-answer sign of 'rambles with no thread connecting the roles.' To hold up: open with a two-sentence career arc ending in why this role is the next step, then use the query-optimization story as one concrete supporting example.",
+      "keyPoints": [
+        "Inventory count page hung for ~10 seconds due to full table scans in Postgres",
+        "Added timestamp logging to isolate the slow query",
+        "Rewrote count logic with GROUP BY in SQL and added an index on item ID",
+        "Page load dropped from ~10 seconds to under a second"
+      ]
+    },
+    {
+      "questionId": "q2",
+      "transcript": "Q: Got it. Okay, let's shift gears. Tell me about a time you failed.\nA: Oh, um, failed. Yeah, okay. I mean, there's, like, a few things, but the one that kind of comes to mind is, um, also from the capstone? Sorry, everything is from the capstone, I know. So, early on we had this plan where we'd build the whole backend first and then do the frontend, and I was kind of in charge of the API stuff, and I think I just didn't really talk to the frontend people enough about what the endpoints would look like. So we ended up building stuff that didn't match up, and, like, a couple weeks got kind of wasted on rework. Anyway, I felt really bad about it, and I think it was kind of my fault, but my teammate said it was more the plan, which, I don't know. Do you want me to talk about what I did after that, or, um, is that the kind of failure you meant?\nQ: Okay. When did you first realize something was off?\nA: Um, okay, so I think it was like week three? Or maybe week four, it's kind of blurry now. We had this standup thing, which, I mean, we weren't really doing standups, more like a group chat check-in, and one of the frontend people, I want to say his name was Tyler, posted that he was trying to hit an endpoint and getting a 404, and I kind of just, like, looked at it and went, oh no. Because I had named the route one thing in my head and another thing in the code, and I never wrote it down anywhere. Sorry, that's kind of a lot of detail. Anyway, yeah, that's when I realized, I think.\nQ: Got it. What did you actually change about how you worked after that, like, concretely?\nA: Um, okay, so concretely, yeah. I think the biggest thing was we started writing the endpoints down in a shared doc before anybody coded anything. Like, method, route, what goes in, what comes back. I kind of did that for my part first, and then I asked Tyler to look at it, which was kind of awkward at first because I didn't want to bug him, but he was actually really nice about it.\n\nAnd then, um, I also started, like, pinging the frontend people when I changed anything, even small stuff. Which, I don't know if that's the right amount, because sometimes it was probably a lot. Sorry, I think I'm repeating myself. Anyway, after that we didn't have another 404 situation, at least not from my side. I think the rework still happened for the first two weeks, so that part was already done, but yeah.",
+      "rubricScores": {
+        "structure": 2.5,
+        "specificity": 3.5,
+        "impact": 2.0,
+        "ownership": 3.0
+      },
+      "weaknessTags": [
+        "vague-impact",
+        "rambling",
+        "no-star-structure"
+      ],
+      "followUpCount": 2,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate names a real failure and takes partial ownership ('I think it was kind of my fault'), but the impact criterion collapses: they never show the change held up in a later situation, and the result is framed only as 'we didn't have another 404 situation' with no evidence of transfer. To hold up: add one concrete later moment where the shared-doc habit prevented a similar breakdown.",
+      "keyPoints": [
+        "Built backend API without aligning endpoint names with frontend team.",
+        "Realized the mismatch in week three or four when Tyler got a 404.",
+        "Started writing method, route, inputs, and outputs in a shared doc before coding.",
+        "Pinged frontend people whenever he changed anything, even small stuff."
+      ]
+    },
+    {
+      "questionId": "q3",
+      "transcript": "Q: Right. So the shared doc and the pings, and no more 404s on your side after that. Okay, let's move to something related. You mentioned the capstone a few times, so I'll stay there. Tell me about a time you disagreed with a teammate about a technical approach on that project.\nA: Oh, um, yeah, okay. So, a disagreement. I mean, we didn't really fight or anything, it was more like, um, a little back and forth? I think it was about whether we should use an ORM or just write raw SQL for the database stuff. My teammate, I think his name was Marcus, no wait, that's you, sorry, um, the other guy on the team, he wanted to use like Sequelize, and I kind of wanted to just write the SQL directly because I felt like I understood what was happening more that way. Anyway, sorry, do you want me to talk about how we decided, or like what the actual tradeoffs were? I don't want to ramble too much.\nQ: Got it. What was the strongest argument he made for going with the ORM?\nA: Oh, um, yeah, so his main thing was, like, we had a pretty tight timeline, and Sequelize would handle the migrations and the model stuff, so we wouldn't have to write all the boilerplate for every table. And I think he also said it'd make it easier for the next people who worked on the project, because they wouldn't have to know raw SQL to change things. Which, I mean, that's a fair point, I guess? Sorry, I kind of wanted to say the thing about the queries too, because the inventory count stuff was kind of the reason I was pushing for raw SQL, and then, well, anyway, that's a whole other thing. Did you want the part about how we ended up deciding, or...?\nQ: Right. So what did you actually bring to the table to push back, like, did you test anything, write something up, or was it more just talking it through?\nA: Um, okay, so, honestly it was mostly just talking it through? Sorry. I didn't really write anything up, which, looking back, I probably should have. But I kind of had the query thing already, from the slow count stuff, so I think I just said, like, look, the ORM might be fine for the boilerplate, but for the inventory counts I'd want to write the GROUP BY myself, so we don't end up pulling every transaction into Node again. Anyway, I think I was kind of worried that I'd sound like I didn't know what I was talking about, so I didn't push super hard. Um, do you want me to say how we ended up deciding? I think we did a little of both, but I'm not totally sure I remember who came up with that.\nQ: Okay. Who actually made that call?\nA: Um, I think it was kind of a group thing? Like, we talked about it in the group chat and then we had a call, and I think the team lead, the one who was out for the family stuff, he had already said earlier that we could use whatever made the timeline work, so maybe that's who made it, or maybe the other guy just kind of decided and we went along? Sorry, I honestly don't remember exactly. I know we ended up using Sequelize for most of the tables, and I wrote the inventory count query as raw SQL, so kind of both. I'm sorry, I know that's not a clean answer.",
+      "rubricScores": {
+        "structure": 2.0,
+        "specificity": 3.0,
+        "impact": 1.0,
+        "ownership": 2.0
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "vague-impact",
+        "no-ownership",
+        "rambling"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate named the actual technical dispute (Sequelize vs. raw SQL, with a concrete GROUP BY inventory-count rationale) but admitted they 'didn't push super hard' and couldn't say who made the final call \u2014 ownership collapsed under the direct probe 'Who actually made that call?' To hold up: prepare a one-sentence answer to who decided and what the measurable outcome was (e.g., query latency before/after), so the resolution doesn't dissolve into 'I think the other guy just decided.'",
+      "keyPoints": [
+        "Disagreement was ORM (Sequelize) vs. raw SQL for database work.",
+        "Teammate argued Sequelize would speed up migrations and lower the barrier for future contributors.",
+        "Candidate wanted raw SQL for inventory counts to avoid pulling every transaction into Node with a GROUP BY.",
+        "Ended up using Sequelize for most tables and raw SQL for the inventory count query."
+      ]
+    },
+    {
+      "questionId": "q4",
+      "transcript": "Q: Got it. Okay, let's move on. Tell me about a time you had more work than you could finish.\nA: Oh, um, yeah, okay. So, more work than I could finish. I mean, honestly, that's kind of most of the semester? Sorry. But the one that comes to mind is, um, the last few weeks of the capstone, because we had the final presentation and the report and also the app had to actually work for the demo, and I was like, oh no. So I think I was doing the API stuff and also some of the tests, and, well, the tests were kind of supposed to be somebody else's job but nobody was really doing them, so I kind of just... started doing them? Anyway, I think I was staying up really late. Do you want me to talk about how I figured out what to drop, or, um, was it more about the timeline?\nQ: Okay. What did you actually decide to tackle first?\nA: Um, okay, so first I kind of made a list, well, a messy list on the back of a printout, which, I don't know if that counts. The demo was the thing that had to work no matter what, so I think I put that at the top. So, like, the stuff that the demo actually touched, the inventory page and the login, I did those first. Then the tests, which, I mean, I wanted to do them because I didn't want to just have no tests at all, but I kind of let some of the less important ones go. Sorry, I think I'm going around the same point. Anyway, I think that's what I tackled first, the demo stuff, and then the rest kind of fell into place, or, well, sort of.\nQ: Got it. Who did you tell about that, if anyone?\nA: Um, yeah, so, I think I told my teammate? Like, I posted in the group chat that I was going to focus on the demo stuff first and that I'd probably skip some of the lower priority tests, so nobody would be surprised. Sorry, I'm not sure if that's what you meant, or if you wanted like, my professor, or... I don't think I told the professor directly, I think he just kind of saw it in the standup thing? Anyway, yeah, the teammate, I think. Sorry.\nQ: Right. What actually happened to those, did they stay unfinished, or did someone pick them up later?\nA: Um, yeah, so, I think some of them stayed unfinished? Like, the login tests I did, and the inventory ones I did, but there were maybe three or four of the lower priority ones that just didn't get written. Sorry. And then, I think, after the demo, my teammate, the one who was skeptical about the queries, he kind of went back and wrote a couple of them? I'm not totally sure which ones, because I didn't really look at the repo after that. Anyway, I think that's what happened. Is that, um, what you were asking?",
+      "rubricScores": {
+        "structure": 2.5,
+        "specificity": 3.0,
+        "impact": 2.0,
+        "ownership": 3.0
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "vague-impact",
+        "rambling"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate showed real ownership by stepping in on untasked tests and proactively posting in the group chat about what would slip, but the impact criterion collapses: they never stated what the demo result was, whether the project passed, or what effect the skipped tests had \u2014 'sort of fell into place' is not an outcome. To hold up: close with one concrete result, e.g. 'the demo ran without errors and we got a B+ on the capstone.'",
+      "keyPoints": [
+        "Demo was the top priority; inventory page and login done first.",
+        "Posted in group chat that lower-priority tests would be skipped.",
+        "Stepped in on tests that were 'supposed to be somebody else's job.'",
+        "Three or four lower-priority tests stayed unwritten; teammate later wrote some."
+      ]
+    },
+    {
+      "questionId": "q5",
+      "transcript": "Q: Got it. Okay, let's move on. Tell me about a time you had to become productive fast in a codebase or technology you'd never used.\nA: Oh, um, yeah, okay. So, a new codebase. I mean, the library help desk kind of counts? Sorry, that's not really a codebase. But the one that comes to mind is, um, at the start of the capstone, because I'd never really done React before, I'd mostly done like Python stuff in class, and the frontend people were already kind of deep into it. So I think I just, like, watched some videos over a weekend and then kind of started poking around the components, and, yeah, it was a lot of trial and error? Anyway, do you want me to say how I got up to speed, or, um, was it more about the first week?\nQ: Okay. What was the very first thing you actually did when you sat down with that React code?\nA: Um, okay, the very first thing, so, I think I just ran it? Like I cloned the repo and tried to get it running locally, which took, like, way longer than it should have, because I had the wrong Node version, and I didn't really know that was a thing I could check. Sorry. Anyway, once it was running I kind of just clicked around the inventory page and opened the dev tools, the network tab, and watched what requests it was making, because I figured that would show me how the pieces talked to each other. Which, I don't know if that's, like, the normal way to do it? But that's what I did. Sorry, do you want me to talk about the components after that, or was the setup part what you were asking about?\nQ: Right. How did that help you figure out where the important code actually lived?\nA: Oh, um, yeah, so the network tab thing kind of helped because, like, when I saw the inventory page calling a certain endpoint, I could search the frontend code for that URL string, and that would usually take me to the component that made the call. Sorry, I think I was kind of doing that by accident at first. Anyway, it was like, the request shows up, then I grep for the route, then I'm in the component, and then I could follow the props from there. I think that's how I figured out where the inventory data actually came from, but, um, I'm not sure that's the, like, professional way to do it? Sorry, I'm kind of rambling again.\nQ: Got it. When did you actually ask someone for help?\nA: Oh, um, yeah, okay. So asking for help. I mean, I didn't really want to, honestly, which is kind of a problem I know. But I think the main time was with the Node version thing? Like, I spent maybe a whole evening on that, and I finally just posted in the group chat, like, hey, does anyone know why my install is failing, and Tyler responded pretty fast and was like, oh, check your node version, and that was it. Sorry, that's kind of embarrassing, it was such a small thing. Anyway, I think after that I was a little more willing to ask, but, um, I still felt bad about bugging people, so I don't know if I did it as much as I should have. Sorry, is that the kind of answer you were looking for?",
+      "rubricScores": {
+        "structure": 2.5,
+        "specificity": 3.0,
+        "impact": 1.5,
+        "ownership": 3.5
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "vague-impact",
+        "rambling"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate showed genuine ownership of a clever self-taught method (grep-for-URL to find components), which is a real strength, but they never named a first concrete deliverable or how long it took to contribute, leaving impact near zero \u2014 a real interviewer would press 'so what did you actually ship?' and get nothing. To hold up: close with one specific feature or fix you delivered and the approximate timeline (e.g., 'I opened my first PR on the inventory filter two days later').",
+      "keyPoints": [
+        "Cloned the repo, hit a Node version mismatch, spent an evening debugging it.",
+        "Used the network tab to watch requests on the inventory page.",
+        "Grepped for the endpoint URL to find the component making the call, then followed props.",
+        "Asked Tyler in the group chat about the Node version after trying alone first."
+      ]
+    }
+  ],
+  "slop": [
+    {
+      "line": "Ha, yeah, bus detours are the worst, glad you made it. I'm doing well, thanks for asking. Don't worry about being all over the place, that's what the first few minutes are for. So, today we'll be going through some behavioral questions, things about situations you've been in, decisions you've made, that kind of thing. Think out loud as you go, and feel free to ask me to clarify anything. Okay, so, walk me through your background.",
+      "issues": [
+        "chatbot filler",
+        "monologue (70+ words)"
+      ]
+    }
+  ],
+  "opener_repeats": {
+    "got it": 8
+  },
+  "memory": {
+    "candidateId": "human-feel-nervous-rambler",
+    "recurringWeaknesses": [
+      {
+        "tag": "rambling",
+        "frequency": 5,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "no-star-structure",
+        "frequency": 5,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "vague-impact",
+        "frequency": 5,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "no-ownership",
+        "frequency": 1,
+        "lastSeen": "2026-11-16"
+      }
+    ],
+    "improvementTrend": [
+      {
+        "sessionDate": "2026-11-16",
+        "avgScore": 2.5
+      }
+    ],
+    "strongAreas": []
+  }
+}

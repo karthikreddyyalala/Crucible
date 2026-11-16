@@ -1,0 +1,509 @@
+{
+  "persona": "nervous-rambler",
+  "costUsd": 0.6714629999999999,
+  "judgement": {
+    "scores": {
+      "probing_depth": {
+        "score": 3,
+        "evidence": "Good probes early: \"what did you actually do to track down why the numbers were off?\" and \"what's your best guess at why one of those would be better\". Later probes are repetitive 'what did you actually do' and drift to side details: \"how did she actually react when she heard the export was getting pushed?\" and \"who did you actually tell\". Never asks 'what was YOUR part?' even when ownership was visibly hedged (Priya did most things). Result is rarely pursued; dropped on q5 after the first change."
+      },
+      "earned_praise": {
+        "score": 3,
+        "evidence": "Mostly neutral, which is good. But \"that's a real data point\" is slightly generous for a hedged 'mostly didn't break', and \"that's a real change\" for an uncertain recollection. The shaky SELECT FOR UPDATE vs single update answer was not named as partly unsure or tested; Marcus just lectured the right answer."
+      },
+      "human_voice": {
+        "score": 2,
+        "evidence": "Heavy echo-summary pattern nearly every turn: \"Okay. So you noticed two checkouts hitting at the same time and one write overwriting the other, what did you...\", \"So you cut the export and trimmed the reminders, who did you...\", \"So you got a working query in there for the item count, that's a real change.\" Repeated \"Got it. Okay, let's move on.\" Same sentence shape (recap + comma + question) throughout. Comma-spliced, uses 'actually' constantly."
+      },
+      "question_craft": {
+        "score": 3,
+        "evidence": "Mostly one question per turn and tied to earlier answers. But recap-plus-question makes them long, and some are small trivia (\"who did you actually tell\", \"how did she react\") instead of probing contribution. \"Like, did a similar situation come up where you can point to it making a difference?\" is slightly double-barreled. The q1 prompt itself was long with several clauses."
+      },
+      "pacing_and_hard_moments": {
+        "score": 2,
+        "evidence": "Dana apologized and asked 'Was there a specific part you wanted me to get into?' almost every turn, and Marcus never steadied her or interrupted gently or said what he wanted. He lectured the correction: \"the single-statement update avoids the read-modify-write gap entirely...\". Followed tangents (Denise's reaction). Did not redirect with small questions about her part. Did give a decent 'stick with that one' redirect early."
+      },
+      "candidate_fit": {
+        "score": 2,
+        "evidence": "Early \"no need to apologize\" and \"Stick with that one\" are good. After that he treats her like anyone: no pausing her, no reassurance about what he's looking for, no pattern break despite her asking repeatedly what he wants. Small clear questions were partially used but not as a deliberate steadying technique."
+      },
+      "feedback_quality": {
+        "score": 2,
+        "evidence": "Feedback has some real quotes (\"because of the testing or just luck\", \"Priya wrote most of it\"). But q1 feedback describes a background walk-through that doesn't match the q1 question (it was a figure-it-out question), and cites 'ownership criterion' for the wrong answer. All five marked survives=False despite q2 and q3 having strengths. Never names the single main fix (own your part, state results, stop apologizing). Suggested outcomes like 'caught two bad requests during the demo' invent facts. Nothing on nerves."
+      },
+      "confidence_and_tone": {
+        "score": 2,
+        "evidence": "Student gets \"it was a good conversation\" at close, which doesn't match all-fail feedback. She apologized to the end and is told nothing about what to fix beyond rubric tags. Feedback is partly mismatched and invites confusion; no specific time-boxed closing or plan. Mixed message between warm conversation and five failures."
+      }
+    },
+    "robotic_lines": [
+      "Okay. So you noticed two checkouts hitting at the same time and one write overwriting the other, what did you actually do to fix it once you'd spotted that?",
+      "Right. So the single-statement update avoids the read-modify-write gap entirely, and SELECT FOR UPDATE holds a lock across that gap, either works, but the atomic update is generally cleaner.",
+      "Okay. So you missed some edge cases and turned it in late, what did you actually change about how you work after that?",
+      "Got it. So you cut the export and trimmed the reminders, who did you actually tell that those things were getting pushed or cut?",
+      "Right. So seeing the bad data actually land in the database, that's what flipped it.",
+      "Right. So you got a working query in there for the item count, that's a real change.",
+      "Got it. Okay, let's move on."
+    ],
+    "best_moment": "\"No worries, the inventory counts being off is a good place to start. Stick with that one.\" It steadied Dana and focused her, and the follow-up about how she tracked down the cause elicited her real content.",
+    "worst_moment": "After Dana's shaky SELECT FOR UPDATE answer, Marcus recapped the full correct explanation and moved on. He never tested her understanding, never asked what she personally did, and never acknowledged her uncertainty.",
+    "student_leaves_confident": false,
+    "confidence_reasoning": "Interview ended with warm but empty reassurance, while feedback marks every answer as failing with a partly mismatched q1 critique and no single clear fix. She would be unsure what to change and likely feel worse.",
+    "top_fixes": [
+      "Stop recapping the candidate's answer before each question; use short acknowledgments and a single small question like 'What was your part in that?'",
+      "With a rambler, interrupt gently at a sentence end, say what you're looking for, and ask for personal contribution and result on every story.",
+      "Write feedback matched to the actual question, with one main fix and honest credit for real strengths, instead of marking everything as failing."
+    ],
+    "praise_unearned": false,
+    "stacked_question_count": 0,
+    "hard_fail": []
+  },
+  "plan": [
+    {
+      "id": "q1",
+      "type": "behavioral",
+      "prompt": "Walk me through your background.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-intro-1"
+    },
+    {
+      "id": "q2",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you failed.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-failure-1"
+    },
+    {
+      "id": "q3",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you disagreed with a teammate about a technical approach on your Campus Food Pantry project.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-conflict-1"
+    },
+    {
+      "id": "q4",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you had more work than you could finish.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-priorities-1"
+    },
+    {
+      "id": "q5",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you had to become productive fast in a codebase or technology you'd never used.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-ramp-up-1"
+    }
+  ],
+  "log": [
+    [
+      "warmup",
+      "Marcus",
+      "Hi Dana, I'm Marcus. I'm one of the engineers on the team. Thanks for making the time today. Before we dive in, how are you doing?"
+    ],
+    [
+      "warmup",
+      "Dana",
+      "Oh, hi, yeah, um, thanks, I'm doing okay, I think? I'm a little nervous, sorry, I always get like kind of jittery at these things. My cat was, like, yelling at me this morning for breakfast, so that was a whole thing, and then I almost missed the bus, which, anyway, I'm here now, so that's good. Thanks for having me, Marcus. Sorry, I'm rambling already."
+    ],
+    [
+      "background",
+      "Marcus",
+      "Hey, no need to apologize, a cat alarm and a close call with the bus is a rough start, I get it. You made it, that's what counts. So, this'll be a behavioral interview, mostly questions about things you've actually done or been through, at whatever level, school projects, jobs, side stuff. Think out loud as you go, and if anything I ask is unclear, just say so and I'll rephrase. Okay, so, walk me through your background."
+    ],
+    [
+      "background",
+      "Dana",
+      "Um, yeah, okay, so my background. I'm, like, a computer science major at the University of Houston, I graduate this past spring, so, um, 2026. Well, I guess I'm about to graduate, I mean I finished the classes, there's just the paperwork and stuff. Anyway, the big thing was our capstone, which was this inventory app for the campus food pantry? And I think it started in like, second year? No, wait, it was senior year, the fall. There were four of us on the team, and we used React for the front end, Node on the back, and Postgres for the database. And then, I also work part-time on the IT help desk at the library, which is mostly resetting passwords and fixing printers, so, yeah. Sorry, I'm going kind of all over the place. Was there a specific part you wanted me to start with?"
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Got it, the food pantry app. Okay, let's get into the actual questions. Tell me about a time you had to figure something out on your own, no one to ask, no clear answer in the docs, and walk me through how you handled it."
+    ],
+    [
+      "q1",
+      "Dana",
+      "Oh, um, yeah, okay. So, a time I had to figure something out on my own. Hmm. I think, like, the capstone had a bunch of those? Um, there was this one thing with the database, I think? Or maybe it was the login stuff, sorry, let me think. Okay, so, the pantry had this thing where volunteers would check out items, and sometimes the counts would be like, off by a few, and, anyway, we weren't sure why. Our professor, he was kind of hands off, like, he said figure it out, which, honestly, same. Sorry, I'm going all over the place. Was there a specific kind of situation you wanted me to talk about?"
+    ],
+    [
+      "q1",
+      "Marcus",
+      "No worries, the inventory counts being off is a good place to start. Stick with that one. What did you actually do to track down why the numbers were off?"
+    ],
+    [
+      "q1",
+      "Dana",
+      "Oh, okay, yeah, so the counts. Um, so at first we just kind of assumed it was like a user thing, you know, volunteers typing the wrong number? And I think I spent like a whole evening just, like, reading the checkout code, which, honestly, I didn't really know what I was looking for, I was just kind of staring at it. Then, um, my teammate Priya, she was like, let's just check the logs, and we didn't really have logs, so we added some, like, console stuff, which, anyway, was kind of messy. And then I think we noticed that when two people hit checkout at almost the same time, sometimes both of them would read the same count and then write back, so one update would just, like, get overwritten? Sorry, I think that's right? I'm not totally sure I'm explaining it well."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Okay. So you noticed two checkouts hitting at the same time and one write overwriting the other, what did you actually do to fix it once you'd spotted that?"
+    ],
+    [
+      "q1",
+      "Dana",
+      "Um, okay, so the fix. Yeah. So, I think at first we, like, wanted to just put a lock on the whole inventory table? But Priya was like, that's gonna make everything super slow, which, she was right, she's usually right, honestly. And then I think we looked up something online, there was like a Stack Overflow thing, and it talked about doing the update in one statement instead of reading the number first in the code and then writing it back? So instead of, like, read the count, subtract one, write it, we did it as one update in Postgres, where the database does the subtraction itself. Anyway, I think there was also a row lock thing, like SELECT FOR UPDATE, but I'm honestly not sure which one we actually ended up using. Sorry, I think it was the single update? I'd have to double check my notes, I'm kind of blanking on the exact details right now."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Okay. You mentioned you're not sure if it was the single-statement update or the SELECT FOR UPDATE, what's your best guess at why one of those would be better than the other in that situation?"
+    ],
+    [
+      "q1",
+      "Dana",
+      "Um, okay, so, I think the single update is better because, like, the database does the math itself, right? So there's no gap where another checkout can sneak in between reading the number and writing it back. Wait, is that right? I think SELECT FOR UPDATE would also work because it locks the row while you read it, so nobody else can change it until you're done. Sorry, I think the difference is the single update is, like, quicker? Because you're not holding a lock across multiple steps in the code? I'm honestly not totally sure, I'd want to double check that part. Sorry, I'm going around in circles."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Right. So the single-statement update avoids the read-modify-write gap entirely, and SELECT FOR UPDATE holds a lock across that gap, either works, but the atomic update is generally cleaner. Okay, let's move on. Tell me about a time you failed."
+    ],
+    [
+      "q2",
+      "Dana",
+      "Oh, um, a time I failed. Okay. Hmm, yeah, so, I think, like, the biggest one was probably in my first semester? I was in this intro class and we had a project, and I kind of waited until the last like three nights to start it, which, anyway, was not great. Sorry, I'm, um, trying to remember the details. I think I got a C on it? Or maybe it was a C plus, I don't remember exactly. Was there a specific kind of failure you wanted me to talk about, or just any one?"
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Okay. So, the project you waited on, what exactly went wrong when you finally sat down to work on it?"
+    ],
+    [
+      "q2",
+      "Dana",
+      "Um, okay, so when I finally sat down with it, I think it was like, the assignment was a small program that read in a bunch of grades from a file and then, um, calculated averages? And I thought I could just, like, do it in one sitting, and I got stuck on the file reading part, because I didn't really understand how the file was formatted. Like, there were these commas and some lines had extra spaces, and my program kept crashing, and I was just, like, kind of panicking, to be honest. Sorry, I'm, um, going a little fast. I think I ended up asking a friend who had taken the class before, and she showed me a thing with splitting the lines, and then it mostly worked, but it was like, really late, and I think I missed some of the edge cases? Anyway, yeah, that's kind of what went wrong."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Got it. So you missed some edge cases and turned it in late, what did you actually change about how you work after that?"
+    ],
+    [
+      "q2",
+      "Dana",
+      "Oh, um, yeah, okay. So, what I changed. I think, like, I started starting things earlier? Which sounds dumb when I say it out loud, but, um, like, I'd break the assignment into smaller pieces, and I'd try to get one piece working before I moved on. And I also started, I don't know, testing stuff with weird inputs, like the extra spaces and blank lines, because that's what got me last time. Anyway, I think that helped, mostly. Sorry, I'm not sure that's really a clear answer. Was there like a specific part of that you wanted me to get into more?"
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Right. So you started earlier and tested with weird inputs after that, how do you know that actually stuck? Like, did a similar situation come up where you can point to it making a difference?"
+    ],
+    [
+      "q2",
+      "Dana",
+      "Um, yeah, so, how do I know it stuck? Hmm. I think, like, the capstone was kind of the test for that? Because we had a lot of stuff to do, and, anyway, there was this part where we had to import the pantry's donation spreadsheet into the database, and it was like a CSV, which, oh no, sorry, it's kind of the same problem as the grades thing, with the commas and the extra spaces. So I actually wrote a few test files with blank lines and weird spacing before I even touched the import code. And, um, I think that's the part that didn't break when we demoed it? Well, mostly didn't break. Sorry, I'm not totally sure how to say whether that was because of the testing or just luck."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Okay. The CSV import holding up during the demo, that's a real data point. Alright, let's move on. You mentioned the Campus Food Pantry project, tell me about a time you disagreed with a teammate about a technical approach on that project."
+    ],
+    [
+      "q3",
+      "Dana",
+      "Oh, um, yeah, a disagreement. Okay. So, I think, like, the one that comes to mind is with Priya again? Sorry, she's kind of my go-to example, she's the one who did the locking thing. Um, so we were deciding how to handle the checkout logic, and I think I wanted to, like, put a bunch of the validation in the front end, because it felt quicker to see the error right away? And she was like, no, we need it on the server too, or else anybody can just send a request and skip it. Anyway, I think she was right, but at the time I was kind of, um, defensive about it? Sorry, I'm not sure if that's the kind of disagreement you meant. Do you want me to talk about how we actually resolved it?"
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Got it. So you came around to her side on the server-side validation, what was it that actually convinced you?"
+    ],
+    [
+      "q3",
+      "Dana",
+      "Um, yeah, so, what convinced me. I think, like, she didn't just say it's insecure, she kind of showed me? She pulled up the request in, um, I think it was Postman, and sent a checkout with a negative quantity, and it went right through, because the front end was the only thing checking. And I was like, oh. Oh no. Anyway, that was kind of embarrassing, because I'd thought the front end check was enough, and it really wasn't. Sorry, I'm, um, not sure I'm explaining it super clearly. I guess the moment that made it click was seeing it actually work in the database, like, the bad number just sitting there. Is that the kind of thing you were asking about?"
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Right. So seeing the bad data actually land in the database, that's what flipped it. What happened after that, like, how did you two actually decide to move forward?"
+    ],
+    [
+      "q3",
+      "Dana",
+      "Um, yeah, so after that we kind of just, like, sat down together? I think it was like the next day, at the library, because that's where we both were anyway. And, um, Priya had this whiteboard thing, or I guess it was just a notebook page, and we basically wrote out which checks had to live on the server, like no negative counts, no checkouts for items that were already at zero, and stuff like that. And I kind of, um, offered to take the front end messages and make them match the server errors, so the user would see the same thing either way? Anyway, we agreed that the server was the source of truth, and the front end would just, like, mirror it. Sorry, I'm kind of going around again. I think that's basically how we decided? Was there a specific part of how we split the work you wanted me to get into?"
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Got it. Okay, let's move on. Tell me about a time you had more work than you could finish."
+    ],
+    [
+      "q4",
+      "Dana",
+      "Oh, um, yeah, more work than I could finish. Okay. So, I think, like, the one that comes to mind is, um, the end of the capstone? Right before the demo? Sorry, let me think. So we had a bunch of stuff still open, like the export feature, and the email reminders for volunteers, and I think the admin page, and, anyway, we had maybe like a week and a half left. And I was kind of, like, panicking a little, to be honest, because I was also still, um, finishing my other classes, and the library shifts, and, yeah. Sorry, I'm going a little fast. I think what we ended up doing was, um, talking to our advisor and figuring out what we actually had to have for the demo? Was there a specific part of that you wanted me to get into?"
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Okay. So you talked to your advisor and figured out what had to be there for the demo, how did you actually decide what came first once you had that list?"
+    ],
+    [
+      "q4",
+      "Dana",
+      "Um, okay, so, deciding what came first. I think, like, we kind of sorted things into, um, must have and nice to have? Sorry, I'm trying to remember. So the CSV import was obviously a must, because the pantry needed the donation data in there, and the checkout stuff, because that was the whole point of the app. And the export feature, I think we pushed that back? Because, honestly, the pantry coordinator said she could just copy and paste from the screen if she had to. And the email reminders, I think we cut those down to just one reminder instead of, like, a whole schedule. Anyway, I think that's how we did it, but, um, I'm not totally sure if that's the kind of answer you wanted? Sorry, I'm kind of going all over the place again."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Got it. So you cut the export and trimmed the reminders, who did you actually tell that those things were getting pushed or cut?"
+    ],
+    [
+      "q4",
+      "Dana",
+      "Oh, um, who did we tell? Okay, so, I think, like, we told the pantry coordinator first, because she was kind of the main person who'd be using it? Her name's Denise, I think, or, wait, Denise is maybe the one from the food bank side? Sorry, I'm mixing those up. Anyway, we sent her an email, and I think Priya wrote most of it, and then our advisor, Dr. Hale, he sort of signed off on the plan. And I think we also put a note in the README, which, I don't know if anyone actually reads those, but, yeah. Sorry, I'm not sure if that's the kind of communication you meant? Was there like a specific person you wanted me to talk about?"
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Right. So Denise got the email, how did she actually react when she heard the export was getting pushed?"
+    ],
+    [
+      "q4",
+      "Dana",
+      "Oh, um, Denise. Okay, so, I think she was actually fine about it? Well, I didn't talk to her directly, Priya did most of that, so I'm kind of going off what Priya told me. Um, I think Denise wrote back and said something like, that's okay, she'd rather have the import working right than have a bunch of stuff half done? And then, anyway, she asked if we could do the export later, after the semester, which, I don't know if that ever happened. Sorry, I'm not totally sure I'm answering what you asked. I can tell you more about the email if that's useful?"
+    ],
+    [
+      "q5",
+      "Marcus",
+      "Got it. Okay, let's move on. Tell me about a time you had to become productive fast in a codebase or technology you'd never used."
+    ],
+    [
+      "q5",
+      "Dana",
+      "Oh, um, a codebase I'd never used. Okay. So, I think, like, the library help desk? Sorry, that's not really a codebase. Um, but the capstone kind of was, because, anyway, I'd never really used Postgres before, I'd mostly done MySQL in a class? And, um, I think Priya was the one who set up the schema, so I was kind of, like, reading her migration files and trying to figure out how everything connected. Sorry, I'm going a little fast. I think I spent like a couple days just, you know, poking around the tables and running queries to see what came back. Was there a specific part of that you wanted me to get into?"
+    ],
+    [
+      "q5",
+      "Marcus",
+      "Okay. What was the very first thing you did when you sat down with those migration files?"
+    ],
+    [
+      "q5",
+      "Dana",
+      "Um, the very first thing? Okay. I think I just opened all the migration files in, like, tabs? And I started reading them in order, kind of, from the first one, which I guess was the users table, and then the items table, and then the checkouts one. Sorry, I'm not sure that was the smartest way to do it, but that's what I did. And then I wrote down the table names on a sticky note, like, on my monitor, because I kept forgetting which one had the foreign keys. Anyway, I think that's when I started running the little SELECT queries, just to see what the data looked like. Sorry, is that the kind of first step you meant?"
+    ],
+    [
+      "q5",
+      "Marcus",
+      "Got it. So after you had the table names on the sticky note and started running those SELECT queries, what was the first actual change you made to the code?"
+    ],
+    [
+      "q5",
+      "Dana",
+      "Oh, um, the first change to the code? Okay, so, let me think. I think it was like a small thing, I added a query to the checkout endpoint, or, wait, maybe it was the items list page? Sorry, I'm mixing those up. Anyway, I think I was trying to show the current count next to each item, because the volunteers kept asking what was left, and, yeah, that felt like a safe place to start. Sorry, I'm going kind of around again. I think that's the one, but I'd have to look at the commit history to be sure of the exact order."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Right. So you got a working query in there for the item count, that's a real change. Okay, that's everything I wanted to cover today. What questions do you have for me?"
+    ],
+    [
+      "closing",
+      "Dana",
+      "Oh, um, yeah, questions. Okay, so, I think, like, one thing I'd really want to know is, um, what the on-call thing looks like for someone in their first six months? Like, is it something you get thrown into right away, or is there kind of a ramp-up? Sorry, I think that's the main one. I'm honestly good after that, I think I'm all set. Thanks so much, Marcus, really. Sorry again for all the rambling."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "No need to apologize, it's a fair question. So for the first six months, you're not on-call at all. The expectation in the JD is that on-call readiness kicks in around that six-month mark, and typically that means you'd shadow someone more senior first, then get added to the rotation gradually. You wouldn't be thrown in cold. Anything else you want to know?"
+    ],
+    [
+      "closing",
+      "Dana",
+      "Oh, okay, great, that's really helpful, thanks. Um, no, I think that's it for me, I'm all set. Thanks so much for your time, Marcus, I really appreciate it. Sorry again for all the rambling."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "No need to apologize at all, Dana, it was a good conversation. I'll write up my feedback, and you'll see it on the next screen. Take care."
+    ]
+  ],
+  "evaluations": [
+    {
+      "questionId": "q1",
+      "transcript": "Q: Got it, the food pantry app. Okay, let's get into the actual questions. Tell me about a time you had to figure something out on your own, no one to ask, no clear answer in the docs, and walk me through how you handled it.\nA: Oh, um, yeah, okay. So, a time I had to figure something out on my own. Hmm. I think, like, the capstone had a bunch of those? Um, there was this one thing with the database, I think? Or maybe it was the login stuff, sorry, let me think. Okay, so, the pantry had this thing where volunteers would check out items, and sometimes the counts would be like, off by a few, and, anyway, we weren't sure why. Our professor, he was kind of hands off, like, he said figure it out, which, honestly, same. Sorry, I'm going all over the place. Was there a specific kind of situation you wanted me to talk about?\nQ: No worries, the inventory counts being off is a good place to start. Stick with that one. What did you actually do to track down why the numbers were off?\nA: Oh, okay, yeah, so the counts. Um, so at first we just kind of assumed it was like a user thing, you know, volunteers typing the wrong number? And I think I spent like a whole evening just, like, reading the checkout code, which, honestly, I didn't really know what I was looking for, I was just kind of staring at it. Then, um, my teammate Priya, she was like, let's just check the logs, and we didn't really have logs, so we added some, like, console stuff, which, anyway, was kind of messy. And then I think we noticed that when two people hit checkout at almost the same time, sometimes both of them would read the same count and then write back, so one update would just, like, get overwritten? Sorry, I think that's right? I'm not totally sure I'm explaining it well.\nQ: Okay. So you noticed two checkouts hitting at the same time and one write overwriting the other, what did you actually do to fix it once you'd spotted that?\nA: Um, okay, so the fix. Yeah. So, I think at first we, like, wanted to just put a lock on the whole inventory table? But Priya was like, that's gonna make everything super slow, which, she was right, she's usually right, honestly. And then I think we looked up something online, there was like a Stack Overflow thing, and it talked about doing the update in one statement instead of reading the number first in the code and then writing it back? So instead of, like, read the count, subtract one, write it, we did it as one update in Postgres, where the database does the subtraction itself. Anyway, I think there was also a row lock thing, like SELECT FOR UPDATE, but I'm honestly not sure which one we actually ended up using. Sorry, I think it was the single update? I'd have to double check my notes, I'm kind of blanking on the exact details right now.\nQ: Okay. You mentioned you're not sure if it was the single-statement update or the SELECT FOR UPDATE, what's your best guess at why one of those would be better than the other in that situation?\nA: Um, okay, so, I think the single update is better because, like, the database does the math itself, right? So there's no gap where another checkout can sneak in between reading the number and writing it back. Wait, is that right? I think SELECT FOR UPDATE would also work because it locks the row while you read it, so nobody else can change it until you're done. Sorry, I think the difference is the single update is, like, quicker? Because you're not holding a lock across multiple steps in the code? I'm honestly not totally sure, I'd want to double check that part. Sorry, I'm going around in circles.",
+      "rubricScores": {
+        "structure": 1.5,
+        "specificity": 2.5,
+        "impact": 1.5,
+        "ownership": 2.0
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "rambling",
+        "vague-impact",
+        "no-ownership"
+      ],
+      "followUpCount": 2,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate never delivered a background walk-through at all \u2014 the thread drifted entirely into a debugging story \u2014 and even within that story they repeatedly hedged ownership ('Priya was like...', 'I'm not sure which one we used'), which collapsed the ownership criterion. To hold up: prepare a 90-second career arc that ends with why this role is the next step, and own specific decisions with 'I chose X because Y.'",
+      "keyPoints": [
+        "Capstone food pantry app had inventory counts going off by a few.",
+        "Discovered a race condition: two checkouts reading the same count and one overwriting the other.",
+        "Teammate Priya suggested checking logs; they added console logging to diagnose.",
+        "Fix involved a single-statement Postgres update so the database does the subtraction itself."
+      ]
+    },
+    {
+      "questionId": "q2",
+      "transcript": "Q: Right. So the single-statement update avoids the read-modify-write gap entirely, and SELECT FOR UPDATE holds a lock across that gap, either works, but the atomic update is generally cleaner. Okay, let's move on. Tell me about a time you failed.\nA: Oh, um, a time I failed. Okay. Hmm, yeah, so, I think, like, the biggest one was probably in my first semester? I was in this intro class and we had a project, and I kind of waited until the last like three nights to start it, which, anyway, was not great. Sorry, I'm, um, trying to remember the details. I think I got a C on it? Or maybe it was a C plus, I don't remember exactly. Was there a specific kind of failure you wanted me to talk about, or just any one?\nQ: Okay. So, the project you waited on, what exactly went wrong when you finally sat down to work on it?\nA: Um, okay, so when I finally sat down with it, I think it was like, the assignment was a small program that read in a bunch of grades from a file and then, um, calculated averages? And I thought I could just, like, do it in one sitting, and I got stuck on the file reading part, because I didn't really understand how the file was formatted. Like, there were these commas and some lines had extra spaces, and my program kept crashing, and I was just, like, kind of panicking, to be honest. Sorry, I'm, um, going a little fast. I think I ended up asking a friend who had taken the class before, and she showed me a thing with splitting the lines, and then it mostly worked, but it was like, really late, and I think I missed some of the edge cases? Anyway, yeah, that's kind of what went wrong.\nQ: Got it. So you missed some edge cases and turned it in late, what did you actually change about how you work after that?\nA: Oh, um, yeah, okay. So, what I changed. I think, like, I started starting things earlier? Which sounds dumb when I say it out loud, but, um, like, I'd break the assignment into smaller pieces, and I'd try to get one piece working before I moved on. And I also started, I don't know, testing stuff with weird inputs, like the extra spaces and blank lines, because that's what got me last time. Anyway, I think that helped, mostly. Sorry, I'm not sure that's really a clear answer. Was there like a specific part of that you wanted me to get into more?\nQ: Right. So you started earlier and tested with weird inputs after that, how do you know that actually stuck? Like, did a similar situation come up where you can point to it making a difference?\nA: Um, yeah, so, how do I know it stuck? Hmm. I think, like, the capstone was kind of the test for that? Because we had a lot of stuff to do, and, anyway, there was this part where we had to import the pantry's donation spreadsheet into the database, and it was like a CSV, which, oh no, sorry, it's kind of the same problem as the grades thing, with the commas and the extra spaces. So I actually wrote a few test files with blank lines and weird spacing before I even touched the import code. And, um, I think that's the part that didn't break when we demoed it? Well, mostly didn't break. Sorry, I'm not totally sure how to say whether that was because of the testing or just luck.",
+      "rubricScores": {
+        "structure": 2.5,
+        "specificity": 3.0,
+        "impact": 2.5,
+        "ownership": 3.5
+      },
+      "weaknessTags": [
+        "vague-impact",
+        "rambling",
+        "no-star-structure"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate owns the procrastination plainly and surfaces a genuine parallel situation in the capstone CSV import, which is a real strength, but the impact criterion collapses: they cannot say whether the improvement was 'because of the testing or just luck,' and the consequence of the original failure (a C or C+, they can't remember) is too vague to land. To hold up: commit to one concrete, measurable outcome \u2014 e.g., 'the import ran clean on demo day with no crashes, which directly contrasted with the original project' \u2014 and drop the hedging.",
+      "keyPoints": [
+        "Waited until the last three nights to start an intro-class grades program.",
+        "Got stuck on file parsing \u2014 commas and extra spaces caused crashes.",
+        "Started breaking assignments into smaller pieces and testing with weird inputs afterward.",
+        "Capstone CSV import used blank-line and spacing test files before writing import code."
+      ]
+    },
+    {
+      "questionId": "q3",
+      "transcript": "Q: Okay. The CSV import holding up during the demo, that's a real data point. Alright, let's move on. You mentioned the Campus Food Pantry project, tell me about a time you disagreed with a teammate about a technical approach on that project.\nA: Oh, um, yeah, a disagreement. Okay. So, I think, like, the one that comes to mind is with Priya again? Sorry, she's kind of my go-to example, she's the one who did the locking thing. Um, so we were deciding how to handle the checkout logic, and I think I wanted to, like, put a bunch of the validation in the front end, because it felt quicker to see the error right away? And she was like, no, we need it on the server too, or else anybody can just send a request and skip it. Anyway, I think she was right, but at the time I was kind of, um, defensive about it? Sorry, I'm not sure if that's the kind of disagreement you meant. Do you want me to talk about how we actually resolved it?\nQ: Got it. So you came around to her side on the server-side validation, what was it that actually convinced you?\nA: Um, yeah, so, what convinced me. I think, like, she didn't just say it's insecure, she kind of showed me? She pulled up the request in, um, I think it was Postman, and sent a checkout with a negative quantity, and it went right through, because the front end was the only thing checking. And I was like, oh. Oh no. Anyway, that was kind of embarrassing, because I'd thought the front end check was enough, and it really wasn't. Sorry, I'm, um, not sure I'm explaining it super clearly. I guess the moment that made it click was seeing it actually work in the database, like, the bad number just sitting there. Is that the kind of thing you were asking about?\nQ: Right. So seeing the bad data actually land in the database, that's what flipped it. What happened after that, like, how did you two actually decide to move forward?\nA: Um, yeah, so after that we kind of just, like, sat down together? I think it was like the next day, at the library, because that's where we both were anyway. And, um, Priya had this whiteboard thing, or I guess it was just a notebook page, and we basically wrote out which checks had to live on the server, like no negative counts, no checkouts for items that were already at zero, and stuff like that. And I kind of, um, offered to take the front end messages and make them match the server errors, so the user would see the same thing either way? Anyway, we agreed that the server was the source of truth, and the front end would just, like, mirror it. Sorry, I'm kind of going around again. I think that's basically how we decided? Was there a specific part of how we split the work you wanted me to get into?",
+      "rubricScores": {
+        "structure": 3.0,
+        "specificity": 3.5,
+        "impact": 2.0,
+        "ownership": 3.0
+      },
+      "weaknessTags": [
+        "vague-impact",
+        "rambling"
+      ],
+      "followUpCount": 2,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate names the actual technical dispute (front-end-only vs. server-side validation) and the concrete evidence that settled it (Postman demo with a negative quantity landing in the database), which is a genuine strength. However, the impact criterion collapses: they never state what was actually shipped, whether the validation held up in production or the demo, or where the working relationship ended up \u2014 the answer trails off with process details and no stated outcome, capping impact at 2. To hold up: close with one concrete result \u2014 e.g., 'the server-side checks caught two bad requests during the demo and Priya and I kept pairing after that.'",
+      "keyPoints": [
+        "Wanted front-end-only validation; Priya argued server-side was also required for security.",
+        "Priya used Postman to send a negative-quantity checkout that bypassed the front-end check.",
+        "Saw the bad number actually persist in the database, which changed their mind.",
+        "Agreed server is source of truth; candidate took on matching front-end error messages to server errors."
+      ]
+    },
+    {
+      "questionId": "q4",
+      "transcript": "Q: Got it. Okay, let's move on. Tell me about a time you had more work than you could finish.\nA: Oh, um, yeah, more work than I could finish. Okay. So, I think, like, the one that comes to mind is, um, the end of the capstone? Right before the demo? Sorry, let me think. So we had a bunch of stuff still open, like the export feature, and the email reminders for volunteers, and I think the admin page, and, anyway, we had maybe like a week and a half left. And I was kind of, like, panicking a little, to be honest, because I was also still, um, finishing my other classes, and the library shifts, and, yeah. Sorry, I'm going a little fast. I think what we ended up doing was, um, talking to our advisor and figuring out what we actually had to have for the demo? Was there a specific part of that you wanted me to get into?\nQ: Okay. So you talked to your advisor and figured out what had to be there for the demo, how did you actually decide what came first once you had that list?\nA: Um, okay, so, deciding what came first. I think, like, we kind of sorted things into, um, must have and nice to have? Sorry, I'm trying to remember. So the CSV import was obviously a must, because the pantry needed the donation data in there, and the checkout stuff, because that was the whole point of the app. And the export feature, I think we pushed that back? Because, honestly, the pantry coordinator said she could just copy and paste from the screen if she had to. And the email reminders, I think we cut those down to just one reminder instead of, like, a whole schedule. Anyway, I think that's how we did it, but, um, I'm not totally sure if that's the kind of answer you wanted? Sorry, I'm kind of going all over the place again.\nQ: Got it. So you cut the export and trimmed the reminders, who did you actually tell that those things were getting pushed or cut?\nA: Oh, um, who did we tell? Okay, so, I think, like, we told the pantry coordinator first, because she was kind of the main person who'd be using it? Her name's Denise, I think, or, wait, Denise is maybe the one from the food bank side? Sorry, I'm mixing those up. Anyway, we sent her an email, and I think Priya wrote most of it, and then our advisor, Dr. Hale, he sort of signed off on the plan. And I think we also put a note in the README, which, I don't know if anyone actually reads those, but, yeah. Sorry, I'm not sure if that's the kind of communication you meant? Was there like a specific person you wanted me to talk about?\nQ: Right. So Denise got the email, how did she actually react when she heard the export was getting pushed?\nA: Oh, um, Denise. Okay, so, I think she was actually fine about it? Well, I didn't talk to her directly, Priya did most of that, so I'm kind of going off what Priya told me. Um, I think Denise wrote back and said something like, that's okay, she'd rather have the import working right than have a bunch of stuff half done? And then, anyway, she asked if we could do the export later, after the semester, which, I don't know if that ever happened. Sorry, I'm not totally sure I'm answering what you asked. I can tell you more about the email if that's useful?",
+      "rubricScores": {
+        "structure": 2.5,
+        "specificity": 3.0,
+        "impact": 1.5,
+        "ownership": 2.0
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "vague-impact",
+        "no-ownership",
+        "rambling"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "When probed on who communicated the cuts, the candidate revealed 'Priya wrote most of it' and 'I didn't talk to her directly, Priya did most of that' \u2014 the key ownership claim collapsed under follow-up. To hold up: own one specific action you personally took (e.g., 'I drafted the email to Denise cutting the export feature') and state the outcome for the demo.",
+      "keyPoints": [
+        "Sorted tasks into must-have and nice-to-have for the demo deadline.",
+        "CSV import and checkout kept; export feature pushed back.",
+        "Email reminders trimmed to one instead of a full schedule.",
+        "Priya handled most stakeholder communication; advisor Dr. Hale signed off."
+      ]
+    },
+    {
+      "questionId": "q5",
+      "transcript": "Q: Got it. Okay, let's move on. Tell me about a time you had to become productive fast in a codebase or technology you'd never used.\nA: Oh, um, a codebase I'd never used. Okay. So, I think, like, the library help desk? Sorry, that's not really a codebase. Um, but the capstone kind of was, because, anyway, I'd never really used Postgres before, I'd mostly done MySQL in a class? And, um, I think Priya was the one who set up the schema, so I was kind of, like, reading her migration files and trying to figure out how everything connected. Sorry, I'm going a little fast. I think I spent like a couple days just, you know, poking around the tables and running queries to see what came back. Was there a specific part of that you wanted me to get into?\nQ: Okay. What was the very first thing you did when you sat down with those migration files?\nA: Um, the very first thing? Okay. I think I just opened all the migration files in, like, tabs? And I started reading them in order, kind of, from the first one, which I guess was the users table, and then the items table, and then the checkouts one. Sorry, I'm not sure that was the smartest way to do it, but that's what I did. And then I wrote down the table names on a sticky note, like, on my monitor, because I kept forgetting which one had the foreign keys. Anyway, I think that's when I started running the little SELECT queries, just to see what the data looked like. Sorry, is that the kind of first step you meant?\nQ: Got it. So after you had the table names on the sticky note and started running those SELECT queries, what was the first actual change you made to the code?\nA: Oh, um, the first change to the code? Okay, so, let me think. I think it was like a small thing, I added a query to the checkout endpoint, or, wait, maybe it was the items list page? Sorry, I'm mixing those up. Anyway, I think I was trying to show the current count next to each item, because the volunteers kept asking what was left, and, yeah, that felt like a safe place to start. Sorry, I'm going kind of around again. I think that's the one, but I'd have to look at the commit history to be sure of the exact order.",
+      "rubricScores": {
+        "structure": 1.5,
+        "specificity": 2.5,
+        "impact": 1.0,
+        "ownership": 2.5
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "vague-impact",
+        "shallow-depth"
+      ],
+      "followUpCount": 2,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The answer never lands on a concrete deliverable or timeline \u2014 the candidate says 'I'd have to look at the commit history to be sure,' which collapses the impact criterion entirely under follow-up. To hold up: close with a specific result ('I shipped the item-count feature within three days of joining the codebase').",
+      "keyPoints": [
+        "Had never used Postgres before, mostly knew MySQL from class.",
+        "Read migration files in order: users, items, checkouts tables.",
+        "Wrote table names on a sticky note to track foreign keys.",
+        "Added a query to show current item count for volunteers."
+      ]
+    }
+  ],
+  "slop": [
+    {
+      "line": "Hey, no need to apologize, a cat alarm and a close call with the bus is a rough start, I get it. You made it, that's what counts. So, this'll be a behavioral interview, mostly questions about things you've actually done or been through, at whatever level, school projects, jobs, side stuff. Think out loud as you go, and if anything I ask is unclear, just say so and I'll rephrase. Okay, so, walk me through your background.",
+      "issues": [
+        "monologue (70+ words)"
+      ]
+    },
+    {
+      "line": "Right. So you started earlier and tested with weird inputs after that, how do you know that actually stuck? Like, did a similar situation come up where you can point to it making a difference?",
+      "issues": [
+        "more than one question"
+      ]
+    }
+  ],
+  "opener_repeats": {
+    "got it": 7,
+    "okay so": 3,
+    "right so": 5
+  },
+  "memory": {
+    "candidateId": "human-feel-nervous-rambler",
+    "recurringWeaknesses": [
+      {
+        "tag": "rambling",
+        "frequency": 4,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "vague-impact",
+        "frequency": 5,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "no-star-structure",
+        "frequency": 3,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "no-ownership",
+        "frequency": 2,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "shallow-depth",
+        "frequency": 1,
+        "lastSeen": "2026-11-16"
+      }
+    ],
+    "improvementTrend": [
+      {
+        "sessionDate": "2026-11-16",
+        "avgScore": 2.3
+      }
+    ],
+    "strongAreas": []
+  }
+}

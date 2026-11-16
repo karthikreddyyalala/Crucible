@@ -1,0 +1,79 @@
+{
+  "totalCostUsd": 1.9304,
+  "runs": [
+    {
+      "persona": "nervous-rambler",
+      "mode": "behavioral",
+      "scores": {
+        "probing_depth": 3,
+        "earned_praise": 4,
+        "human_voice": 3,
+        "question_craft": 4,
+        "pacing_and_hard_moments": 3,
+        "candidate_fit": 3,
+        "feedback_quality": 2,
+        "confidence_and_tone": 2
+      },
+      "avg": 3.0,
+      "hardFail": [],
+      "confident": false,
+      "slopLines": 1,
+      "openerRepeats": {
+        "got it": 8
+      },
+      "survived": "0/5",
+      "costUsd": 0.6711,
+      "seconds": 161
+    },
+    {
+      "persona": "vague-generalist",
+      "mode": "behavioral",
+      "scores": {
+        "probing_depth": 3,
+        "earned_praise": 4,
+        "human_voice": 3,
+        "question_craft": 4,
+        "pacing_and_hard_moments": 3,
+        "candidate_fit": 3,
+        "feedback_quality": 3,
+        "confidence_and_tone": 2
+      },
+      "avg": 3.12,
+      "hardFail": [],
+      "confident": false,
+      "slopLines": 0,
+      "openerRepeats": {
+        "got it": 5,
+        "right so": 4,
+        "okay what": 4
+      },
+      "survived": "0/5",
+      "costUsd": 0.6851,
+      "seconds": 146
+    },
+    {
+      "persona": "confidently-wrong",
+      "mode": "technical",
+      "scores": {
+        "probing_depth": 3,
+        "earned_praise": 3,
+        "human_voice": 3,
+        "question_craft": 3,
+        "pacing_and_hard_moments": 2,
+        "candidate_fit": 2,
+        "feedback_quality": 2,
+        "confidence_and_tone": 2
+      },
+      "avg": 2.5,
+      "hardFail": [],
+      "confident": false,
+      "slopLines": 1,
+      "openerRepeats": {
+        "right the": 3
+      },
+      "survived": "0/4",
+      "costUsd": 0.5742,
+      "seconds": 168
+    }
+  ]
+}

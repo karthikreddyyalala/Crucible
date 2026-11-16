@@ -1,0 +1,532 @@
+{
+  "persona": "nervous-rambler",
+  "costUsd": 0.7154618999999999,
+  "judgement": {
+    "scores": {
+      "probing_depth": {
+        "score": 4,
+        "evidence": "Marcus does probe: 'What was actually causing the counts to be off?', 'What was the piece you personally owned in tracking it down?', 'How do you know that change actually held up, did you run into a similar crunch on a later project?', 'Who actually made the final call...?'. These target the weak parts (ownership, evidence, results). But he drops some gaps: Dana's vague 'we decided together... not totally sure if that was the TA or Devon' gets no follow-up about her own position, and he never asks about the outcome of the ORM switch. In q4 the opening example was the library ticketing system, and he let her swap to Python without asking what the stakes were. Mostly good, not fully pressed."
+      },
+      "earned_praise": {
+        "score": 3,
+        "evidence": "Praise is mostly absent, which is good. But 'that's a good place to start' to a vague background, 'that's the piece that unlocked the whole thing' (overstating the script), and 'you're setting the scene well' to a rambling answer are unearned. Dana's weak q3 and q5 outcomes (fuzzy decision, half-done alerts) are not named plainly; he just echoes them. 'No need to apologize' is kind but not an honest note on rambling."
+      },
+      "human_voice": {
+        "score": 2,
+        "evidence": "Nearly every turn opens with 'Okay, so...' followed by a recap of Dana's last sentence: 'Okay, so two people reading the same count and both writing back.', 'Okay, so you kept breaking one case while fixing another, and time ran out.', 'Okay, so the TA stepped in, you landed on the ORM, and you had to redo the table.' Same shape every turn, heavy echo summaries. Some natural touches ('Ha, yeah, the parking garage thing')."
+      },
+      "question_craft": {
+        "score": 4,
+        "evidence": "One short question per turn, nicely tied to earlier answers: 'You mentioned Priya mostly did that part. What was the piece you personally owned...?' and 'What was the strongest argument Devon was making for his side?' Slightly leading: 'did you run into a similar crunch on a later project?' and 'did either of those actually get finished?' are mostly fine. Q2 and q3 openers are ok. Q5's 'during your capstone project' is a bit generic but fine."
+      },
+      "pacing_and_hard_moments": {
+        "score": 4,
+        "evidence": "Dana offers menus every turn ('Do you want me to get into the actual bug, or the part where we fixed it...?') and Marcus handles it well by choosing for her: 'Okay, yeah, go straight to the bug.' That is gentle steering with small questions. But he never explicitly interrupts or reassures about rambling beyond 'No need to apologize', and he transitions abruptly ('Okay, let's move to the next one. Tell me about a time you failed.') with no signposting. He lets the closing Q&A pass without noting the multi-part on-call question."
+      },
+      "candidate_fit": {
+        "score": 4,
+        "evidence": "He answers her menu questions by picking a path, keeps questions small, and reassures early: 'being a little nervous is completely normal'. That fits the persona. But he does not steady her with calm, short pauses or tell her what he wants (e.g., 'one sentence first'), and his repetitive recaps don't ease her nerves. Adapts, but only partly."
+      },
+      "feedback_quality": {
+        "score": 2,
+        "evidence": "Feedback cites quotes ('Priya mostly did this part', 'fuzzy') and gives survives verdicts per question. But it is harsh and partly inaccurate: q1 says Dana 'never delivered a coherent career arc' (that was the background question, not q1) and that impact collapsed, though she explained the bug, the fix and her reproduction script. It says nothing about the real main issue (rambling, apologizing, offering menus) beyond tags, gives no next step or one main fix, and q4 says 'three follow-up probes' with no deliverable even though the timestamps outcome was clear."
+      },
+      "confidence_and_tone": {
+        "score": 2,
+        "evidence": "Marcus was warm in the call, but the feedback is a list of 'survives=False' on 4 of 5 with no actionable advice or strengths beyond q2. A nervous student would leave deflated and without a clear fix. Closing was brief, with a generic 'Take care' and no feedback preview."
+      }
+    },
+    "robotic_lines": [
+      "Okay, so two people reading the same count and both writing back.",
+      "Okay, so you kept breaking one case while fixing another, and time ran out.",
+      "Okay, so the TA stepped in, you landed on the ORM, and you had to redo the table.",
+      "Got it, timestamps confirmed the overlap, and pulling the sleep out tightened it up.",
+      "Got it, the script that reproduced it, that's the piece that unlocked the whole thing.",
+      "Right, so you looked back at your own queries and found the string concatenation issue.",
+      "Okay, three things, two half-done.",
+      "No need to apologize, you're setting the scene well."
+    ],
+    "best_moment": "Asking 'You mentioned Priya mostly did that part. What was the piece you personally owned in tracking it down?' after Dana deflected ownership, which pulled out her log analysis and reproduction script.",
+    "worst_moment": "The closing and feedback: Marcus ends with no honest word on rambling and the written feedback marks four of five answers as failed without a clear fix, while he said 'you're setting the scene well' mid-call.",
+    "student_leaves_confident": false,
+    "confidence_reasoning": "The call was friendly, but the feedback is mostly 'survives=False' with tags and no concrete next step, and it misstates some of what Dana actually said. She would know she did poorly but not what to change.",
+    "top_fixes": [
+      "Drop the 'Okay, so [recap]' opener; use short acknowledgments and go straight to a fresh question, varying the rhythm.",
+      "Name problems plainly and kindly (e.g., 'Let me pause you. That answer had three stories in it; give me one sentence on the result') and avoid unearned lines like 'setting the scene well'.",
+      "Make feedback accurate and actionable: pick one main fix (lead with the result and your own part, stop offering menus) and cite the exact lines."
+    ],
+    "praise_unearned": true,
+    "stacked_question_count": 0,
+    "hard_fail": []
+  },
+  "plan": [
+    {
+      "id": "q1",
+      "type": "behavioral",
+      "prompt": "Walk me through your background.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-intro-1"
+    },
+    {
+      "id": "q2",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you failed.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-failure-1"
+    },
+    {
+      "id": "q3",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you disagreed with a teammate about a technical approach on your Campus Food Pantry project.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-conflict-1"
+    },
+    {
+      "id": "q4",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you had to become productive fast in a technology you'd never used.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-ramp-up-1"
+    },
+    {
+      "id": "q5",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you had more work than you could finish during your capstone project.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-priorities-1"
+    }
+  ],
+  "log": [
+    [
+      "warmup",
+      "Marcus",
+      "Hi Dana, I'm Marcus. I'm one of the engineers on the team. Thanks for making the time today. Before we dive in, how are you doing?"
+    ],
+    [
+      "warmup",
+      "Dana",
+      "Oh, hi, yeah, um, thanks for having me. I'm doing okay, I think? I'm a little nervous, which is, like, normal, right? I had this whole thing where I almost got lost finding the building, because the parking garage, it's like a maze, and I went up instead of down, anyway, so yeah, I'm here. Sorry, I'm kind of rambling already."
+    ],
+    [
+      "background",
+      "Marcus",
+      "Ha, yeah, the parking garage thing happens to everyone, don't worry about it. And being a little nervous is completely normal, honestly. So, today we'll be going through some behavioral questions, things about past experiences, decisions you've made, how you've handled different situations. I'll dig in where I'm curious, and it's totally fine to ask me to clarify anything. Think out loud as much as you want. Okay, so, to get started, walk me through your background."
+    ],
+    [
+      "background",
+      "Dana",
+      "Um, okay, background. So, I'm Dana, I graduated, well, I'm graduating, I mean I got my B.S. in computer science from the University of Houston, that's 2026, so, yeah. Um, I've kind of been doing like, a lot of things at once? Like school stuff and then I work part-time at the library, on the IT help desk, which is mostly like resetting passwords and fixing printers, which, honestly, the printers are the worst. Anyway, and then there's my capstone, which was, I think it was like our senior project? It was for the campus food pantry, they needed an inventory app, so we built one. Sorry, I'm going kind of all over the place. Do you want me to start with the school stuff or the capstone? I can do either, I just don't want to go on forever."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "The food pantry inventory app, okay, that's a good place to start. So, tell me about a time you had to push through something technically challenging on a project or at work."
+    ],
+    [
+      "q1",
+      "Dana",
+      "Oh, okay, yeah, so, um, the capstone. I think the hardest part was like, there was this thing with the inventory counts, where they wouldn't match up? So, like, the pantry staff would log donations and then when they'd check the shelves the numbers were off, and we spent, I want to say like two weeks on it? Or was it three, I don't really remember. Anyway, we had four people on the team, and at first everyone kind of had their own theory, and I think I was the one who, well, I was the one who wrote most of the database stuff, so I was like, okay, it's probably my fault, and I was really stressed about it, which, you know, is not the most productive. Sorry, I'm sort of going around in circles. Do you want me to get into the actual bug, or the part where we fixed it, or, um, the stressing part?"
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Okay, yeah, go straight to the bug. What was actually causing the counts to be off?"
+    ],
+    [
+      "q1",
+      "Dana",
+      "Um, okay, the bug. So, it was like, the app would take the donation entry and update the count, right? But if two people were logging stuff at the same time, like at the pantry during a busy shift, sometimes both of them would read the old number, and then they'd each write back their own version, so one of the updates just kind of, I guess, disappeared? I think we called it a race condition? Or my teammate called it that, I'm not totally sure I'd use the term right. Anyway, it was really intermittent, which is why it took forever to track down, because we couldn't reproduce it on demand. Sorry, is that the level of detail you wanted? I can say more about how we fixed it if that's helpful."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Okay, so two people reading the same count and both writing back. How did you actually fix it once you'd pinned that down?"
+    ],
+    [
+      "q1",
+      "Dana",
+      "Um, okay, so the fix. I think, well, my teammate Priya mostly did this part, but I helped test it? So we changed the update so it wasn't like, read the number in the app, add one, write it back. It was more like, the database does the math itself, so something like update the count set quantity equals quantity plus whatever, in one statement. And I think we also wrapped it in a transaction? Or maybe that was a different thing, I honestly don't remember which change did what. Anyway, after that we ran it with like, a bunch of fake entries at the same time, which is where we finally could make it happen on purpose, and then the counts stayed right. Sorry, I'm not sure that's the clearest way to explain it, but that's basically it."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Okay, so the atomic update, quantity plus the delta in one statement. You mentioned Priya mostly did that part. What was the piece you personally owned in tracking it down?"
+    ],
+    [
+      "q1",
+      "Dana",
+      "Oh, um, okay, so my part. I guess, well, I was the one who wrote the original inventory table and the logging endpoint, so when the counts were off I went through the logs and tried to figure out which entries were getting lost? And I think that's actually how we noticed they were always two entries close together in time, which, I don't know if that was a big deal or just, like, obvious in hindsight. Anyway, I also wrote the script that sent the fake simultaneous entries, which I think was kind of the thing that let us reproduce it. Sorry, I'm not sure if that's what you were asking, I can try to say it more clearly if you want."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Got it, the script that reproduced it, that's the piece that unlocked the whole thing. Okay, let's move to the next one. Tell me about a time you failed."
+    ],
+    [
+      "q2",
+      "Dana",
+      "Oh, a time I failed. Um, okay, so, yeah, I think the big one was, like, my first semester in the sophomore year? I was in this data structures class and there was a project, and I started it really late, like the night before, which, I know, I know, don't do that. And I thought I could just, like, get it done, and I didn't really test it, and it turned in with like half the functions not even working. I got a pretty bad grade on it, and I was kind of embarrassed, and I think my roommate was like, well, you literally knew it was due, so anyway. Sorry, I'm kind of rambling. Do you want me to talk about what I changed after that, or the grade part, or, um, the class itself?"
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Okay, so the project came in half-finished and you got a bad grade. What exactly went wrong when you were actually working on it that night?"
+    ],
+    [
+      "q2",
+      "Dana",
+      "Um, okay, so what went wrong that night. I think, well, I started around like nine at night? Which, I know, it's not like super late, but I'd already kind of, like, put it off for a week, so by then I was panicking. And the assignment was a linked list thing, and I kept getting stuck on the removal part, like when the node was at the end or the head, and I kept trying to fix one case and breaking another. I think I spent maybe three hours just going back and forth on that. Then I ran out of time and just, like, submitted what I had. Sorry, I think that's the part you wanted? I can also say what I did differently after, if that's helpful."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Okay, so you kept breaking one case while fixing another, and time ran out. What did you actually change about how you work after that?"
+    ],
+    [
+      "q2",
+      "Dana",
+      "Um, okay, what I changed. So, I think, well, the big thing was I started actually writing tests before I touched the code? Like, I didn't really know that was a thing people did until, um, my data structures TA kind of mentioned it in office hours. So for the next project I wrote out all the edge cases first, head, tail, empty list, one node, and then I'd run them after every little change, which, honestly, would have saved me that whole night. Anyway, I also started like, not waiting until the night before, which, yeah, I know that's obvious. Sorry, I think I'm kind of repeating myself. Do you want me to talk about how that worked on the next project, or was that the main thing you were asking?"
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Right, writing tests first, edge cases before touching the code. How do you know that change actually held up, did you run into a similar crunch on a later project?"
+    ],
+    [
+      "q2",
+      "Dana",
+      "Um, yeah, so, the next project was like, the team one for the database class? And honestly I was kind of worried I'd fall back into the old habits, because we had this group thing and everyone was like, let's just get it going. But I kind of pushed for us to write the test cases first, like a list of what the functions had to do, and I think, well, my teammate Jordan was skeptical at first? But then we caught a bug on like day two, where a query returned duplicate rows, and the test caught it before we built anything on top of it. So that felt, like, pretty good? We did end up getting a little crunch near the end, because the demo was earlier than we thought, and I did not love that, but we didn't have the all-nighter thing again. Anyway, yeah. Sorry, I think that's kind of long. Do you want me to say more about how the group dynamic went, or was that the main part?"
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Got it, the test caught the duplicate-row bug on day two, and the crunch still happened but no all-nighter. Okay, let's move to something a bit different. You mentioned the Campus Food Pantry project earlier, tell me about a time you disagreed with a teammate about a technical approach on that project."
+    ],
+    [
+      "q3",
+      "Dana",
+      "Oh, a disagreement. Um, yeah, so, there was, I think it was around the middle of the semester? We were deciding whether to use like, an ORM for the database stuff, or just write the raw SQL ourselves. And I, well, I was kind of leaning toward raw SQL because I'd already written the inventory table that way, and I didn't really want to redo it? But my teammate Marcus, no, wait, different Marcus, my teammate, uh, Devon, he wanted to use the ORM because he'd used it at his internship. So we went back and forth for like a few days, and honestly I don't think either of us was really listening to the other at first. Sorry, I'm kind of getting lost in the details. Do you want me to get into how we decided, or what the actual tradeoffs were?"
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Okay, so you were mid-project, raw SQL already in place, Devon pushing for the ORM. What was the strongest argument Devon was making for his side?"
+    ],
+    [
+      "q3",
+      "Dana",
+      "Oh, um, okay, Devon's side. So, I think his big thing was, like, the ORM would handle all the boring stuff for us, like the connection handling and, um, building the queries, so we wouldn't have to write as much SQL by hand? And he kept saying that raw SQL is where you make mistakes, like typos or forgetting a parameter, and he'd seen that happen at his internship, I think it was like a whole thing where someone had a security problem with string-built queries? Anyway, he was kind of right about that part, I think. I just didn't really want to throw away what I'd already done. Sorry, I know that's kind of a side point, but that's what he was pushing on."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Right, so Devon had a real point about the security angle. What did you actually bring to the conversation to push back, like, was there anything concrete you put in front of him, or was it more just talking it through?"
+    ],
+    [
+      "q3",
+      "Dana",
+      "Um, okay, so what I brought to it. Honestly, mostly it was just talking it through, I think? I don't know that I had anything super concrete. I think I said something like, well, the inventory table is already done, so switching now is a lot of work, and that's kind of a bad reason, like, I knew that even while I was saying it. Anyway, I did end up, um, actually going back and looking at the queries I'd written, and I was like, oh, some of these are built with string concatenation, which is exactly the thing Devon was worried about. So that kind of, like, changed my mind a little? Sorry, I'm not sure that's the strongest answer, I can say more about how we actually decided if you want."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Right, so you looked back at your own queries and found the string concatenation issue. Who actually made the final call on which way to go?"
+    ],
+    [
+      "q3",
+      "Dana",
+      "Um, okay, the final call. I think it was kind of, well, we sort of decided together? But I think our TA, or maybe it was our professor, Dr. Alvarez, I want to say he was the one who said something like, pick one and stick with it, because we'd been going back and forth for like a week. So I think we ended up going with the ORM, but then, I'm not totally sure if that was the TA or Devon or the group, honestly. Anyway, I'm sorry, I think I'm kind of fuzzy on the details there. Do you want me to talk about how the ORM went after we switched, or the part where I had to redo the table?"
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Okay, so the TA stepped in, you landed on the ORM, and you had to redo the table. Let's move on. Tell me about a time you had to become productive fast in a technology you'd never used."
+    ],
+    [
+      "q4",
+      "Dana",
+      "Oh, um, okay, a new technology. So, I think the big one was, like, when I started at the library help desk? Well, not a programming language, but the ticketing system they use, it's this old web thing, and I'd never touched it before. My manager just kind of, like, showed me the basics on the first day and then I was on my own with it. Anyway, I spent like the first week just clicking around and sort of guessing, and I think I made a couple tickets close by accident? Which, I felt really bad about. Sorry, I'm kind of going off track. Do you want me to talk about how I got up to speed on it, or the programming side, like, the Python stuff I picked up for the capstone?"
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Okay, yeah, let's go with the Python side, the capstone. What was the very first thing you did when you realized you needed to pick it up?"
+    ],
+    [
+      "q4",
+      "Dana",
+      "Um, okay, the Python side. So, honestly, I didn't really start with Python? Our capstone was mostly React and Node, and I think I was kind of, like, the one who knew the most Python because of my intro classes. So, um, when we needed a script for the fake entries, that's when it came up. I think my first move was just, like, googling how to send a bunch of requests at once, and I found some stuff about threads, and I was like, oh, okay, I think that's what I need? And then I just tried to copy an example and modify it until it worked. Anyway, it was kind of messy, and I think it took me a few tries. Sorry, I'm going kind of in circles. Is that the kind of thing you wanted, or do you want me to get into the actual script?"
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Okay, so you found a threading example and modified it until it ran. How did you figure out which parts of that example to keep and which to change for what you actually needed?"
+    ],
+    [
+      "q4",
+      "Dana",
+      "Um, okay, so which parts to keep. Honestly, I think I mostly just ran it and looked at what broke? Like, the example had this thing where it was printing a bunch of stuff from every thread, and I didn't need that, so I took it out. And then it had a sleep in it, which I didn't really understand, so I kind of left it in at first? Anyway, I think I figured out what each part was doing by adding print statements everywhere, which, I know that's not the most elegant way. Sorry, I'm kind of rambling again. Do you want me to talk about what I changed to make the threads actually hit the endpoint at the same time, or the part where I wasn't sure the entries were really overlapping?"
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Okay, print statements everywhere, running it to see what broke. So what actually came out of that script, did it do what you needed it to do in the end?"
+    ],
+    [
+      "q4",
+      "Dana",
+      "Um, yeah, so, did it do what I needed? I think, mostly? Like, it did send the requests at the same time, which was the main thing, but at first I wasn't totally sure they were actually overlapping, because some of them were kind of, like, spaced out a little? So I added timestamps to the output, and then I could see that a bunch of them were landing within the same few milliseconds, which, um, yeah, that's when we got the duplicate-count thing to show up. Anyway, I think I took the sleep out eventually, which helped. Sorry, I'm not sure that's super clear. Is that what you were asking?"
+    ],
+    [
+      "q5",
+      "Marcus",
+      "Got it, timestamps confirmed the overlap, and pulling the sleep out tightened it up. Okay, let's move to something different. Tell me about a time you had more work than you could finish during your capstone project."
+    ],
+    [
+      "q5",
+      "Dana",
+      "Um, okay, so more work than I could finish. Yeah, so, I think this was like, toward the end of the capstone? We had this list of features the pantry wanted, like the reporting page and the low-stock alerts and this whole barcode thing, and we'd kind of promised all of it at the start. And then around like week eight or nine, we realized, I think, that we just couldn't do all of it. Anyway, I was really stressed about that too, which, I'm noticing I get stressed about pretty much everything. Sorry, I'm kind of going around again. Do you want me to talk about how we decided what to cut, or was it more about how I handled my own piece of it?"
+    ],
+    [
+      "q5",
+      "Marcus",
+      "No need to apologize, you're setting the scene well. So, walk me through what was actually on your plate at that point, what were you personally responsible for?"
+    ],
+    [
+      "q5",
+      "Dana",
+      "Um, okay, so my plate. I think I had the, well, the reporting page? Like the backend endpoints for it, and then I was supposed to help with the low-stock alerts too, which, I think, was like a query that would look for items under a certain number? And the barcode stuff was Priya's, I think, but I was supposed to do the database side of it. Anyway, I had maybe like three things, but two of them were kind of half-done, and I was honestly not sure which one to finish first. Sorry, is that the kind of thing you wanted? I can say more about how I ended up prioritizing, if that's helpful."
+    ],
+    [
+      "q5",
+      "Marcus",
+      "Okay, three things, two half-done. So how did you decide which one to finish first?"
+    ],
+    [
+      "q5",
+      "Dana",
+      "Um, okay, so how I decided. Honestly, I don't think it was like a real decision? I kind of just looked at which one was closest to being done, which was the reporting endpoints, I think, because they were mostly written and I just needed to, like, hook them up to the page. So I did that first. And then the low-stock alerts I wasn't really sure about, because I kept thinking the query was wrong, and I didn't want to, like, rush it and break something else? Anyway, I think I talked to Priya about it, and she was like, just get the reporting done so we have something to show. So, yeah, that's kind of what we did. Sorry, I'm kind of going around again. Do you want me to get into how the alerts turned out, or the barcode database part?"
+    ],
+    [
+      "q5",
+      "Marcus",
+      "Okay, so reporting first because it was closest to done, and Priya confirmed that. What happened to the low-stock alerts and the database side of the barcode thing, did either of those actually get finished?"
+    ],
+    [
+      "q5",
+      "Dana",
+      "Um, okay, so the low-stock alerts. I think, well, I got the query mostly working? Like it would find items under the threshold, but I kept second-guessing whether it was counting items that were already reordered, and I never really fully resolved that. So I think we shipped it kind of, like, half-done, with a note in the readme saying it might show some extra items. Which, I know, is not ideal. And the barcode database part, I think I got the table set up, but Priya ended up doing most of the actual integration herself near the end, because I was kind of stuck on the alerts. Anyway, so, yeah, neither one was really finished the way I wanted. Sorry, I know that's kind of a bummer answer. Do you want me to say what I'd do differently, or was that what you were asking?"
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Okay. So the alerts shipped with a known gap, and the barcode table got handed off to Priya. That's everything I wanted to cover today. What questions do you have for me?"
+    ],
+    [
+      "closing",
+      "Dana",
+      "Oh, um, yeah, sure. I guess, um, I was wondering what a typical first few months look like for someone new on the team? Like, what kind of stuff would I actually be working on, and how much help would I get with the on-call part? Sorry, that's kind of a big question. But yeah, I think that's it for me, I'm all set. Thanks so much for your time, Marcus."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "No need to apologize, that's a fair question. The first few months are usually pretty structured: you'd be ramping up on the codebase, pairing with a more senior engineer on smaller tickets, and getting familiar with how we do code review. On-call typically doesn't kick in until around the six-month mark, and when it does, you'd shadow someone first before you're ever on the hook solo. Anything else you wanted to ask?"
+    ],
+    [
+      "closing",
+      "Dana",
+      "Oh, um, no, I think that's really helpful, thanks. I'm all set, I think. Sorry, I know I said that already, I just, yeah, I'm good. Thanks again for your time, Marcus, I really appreciate it."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "No worries, Dana. Thanks for coming in today, I'll write up my feedback, and you'll see it on the next screen. Take care."
+    ]
+  ],
+  "evaluations": [
+    {
+      "questionId": "q1",
+      "transcript": "Q: The food pantry inventory app, okay, that's a good place to start. So, tell me about a time you had to push through something technically challenging on a project or at work.\nA: Oh, okay, yeah, so, um, the capstone. I think the hardest part was like, there was this thing with the inventory counts, where they wouldn't match up? So, like, the pantry staff would log donations and then when they'd check the shelves the numbers were off, and we spent, I want to say like two weeks on it? Or was it three, I don't really remember. Anyway, we had four people on the team, and at first everyone kind of had their own theory, and I think I was the one who, well, I was the one who wrote most of the database stuff, so I was like, okay, it's probably my fault, and I was really stressed about it, which, you know, is not the most productive. Sorry, I'm sort of going around in circles. Do you want me to get into the actual bug, or the part where we fixed it, or, um, the stressing part?\nQ: Okay, yeah, go straight to the bug. What was actually causing the counts to be off?\nA: Um, okay, the bug. So, it was like, the app would take the donation entry and update the count, right? But if two people were logging stuff at the same time, like at the pantry during a busy shift, sometimes both of them would read the old number, and then they'd each write back their own version, so one of the updates just kind of, I guess, disappeared? I think we called it a race condition? Or my teammate called it that, I'm not totally sure I'd use the term right. Anyway, it was really intermittent, which is why it took forever to track down, because we couldn't reproduce it on demand. Sorry, is that the level of detail you wanted? I can say more about how we fixed it if that's helpful.\nQ: Okay, so two people reading the same count and both writing back. How did you actually fix it once you'd pinned that down?\nA: Um, okay, so the fix. I think, well, my teammate Priya mostly did this part, but I helped test it? So we changed the update so it wasn't like, read the number in the app, add one, write it back. It was more like, the database does the math itself, so something like update the count set quantity equals quantity plus whatever, in one statement. And I think we also wrapped it in a transaction? Or maybe that was a different thing, I honestly don't remember which change did what. Anyway, after that we ran it with like, a bunch of fake entries at the same time, which is where we finally could make it happen on purpose, and then the counts stayed right. Sorry, I'm not sure that's the clearest way to explain it, but that's basically it.\nQ: Okay, so the atomic update, quantity plus the delta in one statement. You mentioned Priya mostly did that part. What was the piece you personally owned in tracking it down?\nA: Oh, um, okay, so my part. I guess, well, I was the one who wrote the original inventory table and the logging endpoint, so when the counts were off I went through the logs and tried to figure out which entries were getting lost? And I think that's actually how we noticed they were always two entries close together in time, which, I don't know if that was a big deal or just, like, obvious in hindsight. Anyway, I also wrote the script that sent the fake simultaneous entries, which I think was kind of the thing that let us reproduce it. Sorry, I'm not sure if that's what you were asking, I can try to say it more clearly if you want.",
+      "rubricScores": {
+        "structure": 1.5,
+        "specificity": 2.5,
+        "impact": 1.5,
+        "ownership": 2.0
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "rambling",
+        "vague-impact",
+        "no-ownership"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate repeatedly deflected ownership to teammates ('Priya mostly did this part', 'my teammate called it that') and never delivered a coherent career arc or a result with any measurable outcome, which are the core requirements of this question; ownership and impact both collapsed under follow-up probing.",
+      "keyPoints": [
+        "Inventory counts were off due to two users reading the same number simultaneously.",
+        "Fix involved atomic SQL update: 'set quantity equals quantity plus whatever' in one statement.",
+        "Candidate wrote the original inventory table, logging endpoint, and the concurrency test script.",
+        "Bug was intermittent and took roughly two to three weeks to track down."
+      ]
+    },
+    {
+      "questionId": "q2",
+      "transcript": "Q: Got it, the script that reproduced it, that's the piece that unlocked the whole thing. Okay, let's move to the next one. Tell me about a time you failed.\nA: Oh, a time I failed. Um, okay, so, yeah, I think the big one was, like, my first semester in the sophomore year? I was in this data structures class and there was a project, and I started it really late, like the night before, which, I know, I know, don't do that. And I thought I could just, like, get it done, and I didn't really test it, and it turned in with like half the functions not even working. I got a pretty bad grade on it, and I was kind of embarrassed, and I think my roommate was like, well, you literally knew it was due, so anyway. Sorry, I'm kind of rambling. Do you want me to talk about what I changed after that, or the grade part, or, um, the class itself?\nQ: Okay, so the project came in half-finished and you got a bad grade. What exactly went wrong when you were actually working on it that night?\nA: Um, okay, so what went wrong that night. I think, well, I started around like nine at night? Which, I know, it's not like super late, but I'd already kind of, like, put it off for a week, so by then I was panicking. And the assignment was a linked list thing, and I kept getting stuck on the removal part, like when the node was at the end or the head, and I kept trying to fix one case and breaking another. I think I spent maybe three hours just going back and forth on that. Then I ran out of time and just, like, submitted what I had. Sorry, I think that's the part you wanted? I can also say what I did differently after, if that's helpful.\nQ: Okay, so you kept breaking one case while fixing another, and time ran out. What did you actually change about how you work after that?\nA: Um, okay, what I changed. So, I think, well, the big thing was I started actually writing tests before I touched the code? Like, I didn't really know that was a thing people did until, um, my data structures TA kind of mentioned it in office hours. So for the next project I wrote out all the edge cases first, head, tail, empty list, one node, and then I'd run them after every little change, which, honestly, would have saved me that whole night. Anyway, I also started like, not waiting until the night before, which, yeah, I know that's obvious. Sorry, I think I'm kind of repeating myself. Do you want me to talk about how that worked on the next project, or was that the main thing you were asking?\nQ: Right, writing tests first, edge cases before touching the code. How do you know that change actually held up, did you run into a similar crunch on a later project?\nA: Um, yeah, so, the next project was like, the team one for the database class? And honestly I was kind of worried I'd fall back into the old habits, because we had this group thing and everyone was like, let's just get it going. But I kind of pushed for us to write the test cases first, like a list of what the functions had to do, and I think, well, my teammate Jordan was skeptical at first? But then we caught a bug on like day two, where a query returned duplicate rows, and the test caught it before we built anything on top of it. So that felt, like, pretty good? We did end up getting a little crunch near the end, because the demo was earlier than we thought, and I did not love that, but we didn't have the all-nighter thing again. Anyway, yeah. Sorry, I think that's kind of long. Do you want me to say more about how the group dynamic went, or was that the main part?",
+      "rubricScores": {
+        "structure": 3.5,
+        "specificity": 3.5,
+        "impact": 3.5,
+        "ownership": 4.0
+      },
+      "weaknessTags": [
+        "rambling",
+        "vague-impact"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": true,
+      "survivalReasoning": "The candidate owned the failure plainly ('I started it really late', 'I didn't really test it') and, when probed, produced concrete evidence the change held up \u2014 a specific teammate (Jordan), a specific bug (duplicate rows caught on day two) \u2014 satisfying the rubric's requirement for a later situation where the change paid off.",
+      "keyPoints": [
+        "Started linked list project the night before, submitted half-finished functions.",
+        "Got stuck three hours on head/tail removal edge cases, ran out of time.",
+        "Learned test-first approach from data structures TA at office hours.",
+        "On next team project, tests caught a duplicate-row query bug on day two."
+      ]
+    },
+    {
+      "questionId": "q3",
+      "transcript": "Q: Got it, the test caught the duplicate-row bug on day two, and the crunch still happened but no all-nighter. Okay, let's move to something a bit different. You mentioned the Campus Food Pantry project earlier, tell me about a time you disagreed with a teammate about a technical approach on that project.\nA: Oh, a disagreement. Um, yeah, so, there was, I think it was around the middle of the semester? We were deciding whether to use like, an ORM for the database stuff, or just write the raw SQL ourselves. And I, well, I was kind of leaning toward raw SQL because I'd already written the inventory table that way, and I didn't really want to redo it? But my teammate Marcus, no, wait, different Marcus, my teammate, uh, Devon, he wanted to use the ORM because he'd used it at his internship. So we went back and forth for like a few days, and honestly I don't think either of us was really listening to the other at first. Sorry, I'm kind of getting lost in the details. Do you want me to get into how we decided, or what the actual tradeoffs were?\nQ: Okay, so you were mid-project, raw SQL already in place, Devon pushing for the ORM. What was the strongest argument Devon was making for his side?\nA: Oh, um, okay, Devon's side. So, I think his big thing was, like, the ORM would handle all the boring stuff for us, like the connection handling and, um, building the queries, so we wouldn't have to write as much SQL by hand? And he kept saying that raw SQL is where you make mistakes, like typos or forgetting a parameter, and he'd seen that happen at his internship, I think it was like a whole thing where someone had a security problem with string-built queries? Anyway, he was kind of right about that part, I think. I just didn't really want to throw away what I'd already done. Sorry, I know that's kind of a side point, but that's what he was pushing on.\nQ: Right, so Devon had a real point about the security angle. What did you actually bring to the conversation to push back, like, was there anything concrete you put in front of him, or was it more just talking it through?\nA: Um, okay, so what I brought to it. Honestly, mostly it was just talking it through, I think? I don't know that I had anything super concrete. I think I said something like, well, the inventory table is already done, so switching now is a lot of work, and that's kind of a bad reason, like, I knew that even while I was saying it. Anyway, I did end up, um, actually going back and looking at the queries I'd written, and I was like, oh, some of these are built with string concatenation, which is exactly the thing Devon was worried about. So that kind of, like, changed my mind a little? Sorry, I'm not sure that's the strongest answer, I can say more about how we actually decided if you want.\nQ: Right, so you looked back at your own queries and found the string concatenation issue. Who actually made the final call on which way to go?\nA: Um, okay, the final call. I think it was kind of, well, we sort of decided together? But I think our TA, or maybe it was our professor, Dr. Alvarez, I want to say he was the one who said something like, pick one and stick with it, because we'd been going back and forth for like a week. So I think we ended up going with the ORM, but then, I'm not totally sure if that was the TA or Devon or the group, honestly. Anyway, I'm sorry, I think I'm kind of fuzzy on the details there. Do you want me to talk about how the ORM went after we switched, or the part where I had to redo the table?",
+      "rubricScores": {
+        "structure": 2.5,
+        "specificity": 3.0,
+        "impact": 1.5,
+        "ownership": 2.0
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "vague-impact",
+        "no-ownership",
+        "shallow-depth"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The final call collapsed under probing \u2014 the candidate admitted they were 'fuzzy' on who actually decided, attributing it vaguely to the TA, Devon, or the group, which matches the weak-answer sign of 'settled by escalation or seniority with no evidence brought.' Ownership never materialized: the candidate's only concrete contribution was discovering their own string-concatenation bug, and they acknowledged their main argument ('the table is already done') was a bad one.",
+      "keyPoints": [
+        "Disagreement was ORM vs. raw SQL; inventory table already written in raw SQL.",
+        "Devon argued ORM prevents security issues like string-built query vulnerabilities.",
+        "Candidate found string concatenation in their own queries, partially changing their mind.",
+        "Final decision attributed to Dr. Alvarez or the TA saying 'pick one and stick with it.'"
+      ]
+    },
+    {
+      "questionId": "q4",
+      "transcript": "Q: Okay, so the TA stepped in, you landed on the ORM, and you had to redo the table. Let's move on. Tell me about a time you had to become productive fast in a technology you'd never used.\nA: Oh, um, okay, a new technology. So, I think the big one was, like, when I started at the library help desk? Well, not a programming language, but the ticketing system they use, it's this old web thing, and I'd never touched it before. My manager just kind of, like, showed me the basics on the first day and then I was on my own with it. Anyway, I spent like the first week just clicking around and sort of guessing, and I think I made a couple tickets close by accident? Which, I felt really bad about. Sorry, I'm kind of going off track. Do you want me to talk about how I got up to speed on it, or the programming side, like, the Python stuff I picked up for the capstone?\nQ: Okay, yeah, let's go with the Python side, the capstone. What was the very first thing you did when you realized you needed to pick it up?\nA: Um, okay, the Python side. So, honestly, I didn't really start with Python? Our capstone was mostly React and Node, and I think I was kind of, like, the one who knew the most Python because of my intro classes. So, um, when we needed a script for the fake entries, that's when it came up. I think my first move was just, like, googling how to send a bunch of requests at once, and I found some stuff about threads, and I was like, oh, okay, I think that's what I need? And then I just tried to copy an example and modify it until it worked. Anyway, it was kind of messy, and I think it took me a few tries. Sorry, I'm going kind of in circles. Is that the kind of thing you wanted, or do you want me to get into the actual script?\nQ: Okay, so you found a threading example and modified it until it ran. How did you figure out which parts of that example to keep and which to change for what you actually needed?\nA: Um, okay, so which parts to keep. Honestly, I think I mostly just ran it and looked at what broke? Like, the example had this thing where it was printing a bunch of stuff from every thread, and I didn't need that, so I took it out. And then it had a sleep in it, which I didn't really understand, so I kind of left it in at first? Anyway, I think I figured out what each part was doing by adding print statements everywhere, which, I know that's not the most elegant way. Sorry, I'm kind of rambling again. Do you want me to talk about what I changed to make the threads actually hit the endpoint at the same time, or the part where I wasn't sure the entries were really overlapping?\nQ: Okay, print statements everywhere, running it to see what broke. So what actually came out of that script, did it do what you needed it to do in the end?\nA: Um, yeah, so, did it do what I needed? I think, mostly? Like, it did send the requests at the same time, which was the main thing, but at first I wasn't totally sure they were actually overlapping, because some of them were kind of, like, spaced out a little? So I added timestamps to the output, and then I could see that a bunch of them were landing within the same few milliseconds, which, um, yeah, that's when we got the duplicate-count thing to show up. Anyway, I think I took the sleep out eventually, which helped. Sorry, I'm not sure that's super clear. Is that what you were asking?",
+      "rubricScores": {
+        "structure": 1.5,
+        "specificity": 2.0,
+        "impact": 1.5,
+        "ownership": 2.5
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "vague-impact",
+        "rambling",
+        "shallow-depth"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate never established a clear Situation or Task, and even after three follow-up probes could not articulate a concrete deliverable or timeline \u2014 the 'impact' criterion collapsed because the best they offered was 'mostly' working, with no stated outcome for the capstone project itself.",
+      "keyPoints": [
+        "Googled 'how to send a bunch of requests at once' and found threading examples.",
+        "Used print statements everywhere to figure out what each part was doing.",
+        "Added timestamps to output to confirm requests landed within the same few milliseconds.",
+        "Removed the sleep from the example, which helped requests overlap."
+      ]
+    },
+    {
+      "questionId": "q5",
+      "transcript": "Q: Got it, timestamps confirmed the overlap, and pulling the sleep out tightened it up. Okay, let's move to something different. Tell me about a time you had more work than you could finish during your capstone project.\nA: Um, okay, so more work than I could finish. Yeah, so, I think this was like, toward the end of the capstone? We had this list of features the pantry wanted, like the reporting page and the low-stock alerts and this whole barcode thing, and we'd kind of promised all of it at the start. And then around like week eight or nine, we realized, I think, that we just couldn't do all of it. Anyway, I was really stressed about that too, which, I'm noticing I get stressed about pretty much everything. Sorry, I'm kind of going around again. Do you want me to talk about how we decided what to cut, or was it more about how I handled my own piece of it?\nQ: No need to apologize, you're setting the scene well. So, walk me through what was actually on your plate at that point, what were you personally responsible for?\nA: Um, okay, so my plate. I think I had the, well, the reporting page? Like the backend endpoints for it, and then I was supposed to help with the low-stock alerts too, which, I think, was like a query that would look for items under a certain number? And the barcode stuff was Priya's, I think, but I was supposed to do the database side of it. Anyway, I had maybe like three things, but two of them were kind of half-done, and I was honestly not sure which one to finish first. Sorry, is that the kind of thing you wanted? I can say more about how I ended up prioritizing, if that's helpful.\nQ: Okay, three things, two half-done. So how did you decide which one to finish first?\nA: Um, okay, so how I decided. Honestly, I don't think it was like a real decision? I kind of just looked at which one was closest to being done, which was the reporting endpoints, I think, because they were mostly written and I just needed to, like, hook them up to the page. So I did that first. And then the low-stock alerts I wasn't really sure about, because I kept thinking the query was wrong, and I didn't want to, like, rush it and break something else? Anyway, I think I talked to Priya about it, and she was like, just get the reporting done so we have something to show. So, yeah, that's kind of what we did. Sorry, I'm kind of going around again. Do you want me to get into how the alerts turned out, or the barcode database part?\nQ: Okay, so reporting first because it was closest to done, and Priya confirmed that. What happened to the low-stock alerts and the database side of the barcode thing, did either of those actually get finished?\nA: Um, okay, so the low-stock alerts. I think, well, I got the query mostly working? Like it would find items under the threshold, but I kept second-guessing whether it was counting items that were already reordered, and I never really fully resolved that. So I think we shipped it kind of, like, half-done, with a note in the readme saying it might show some extra items. Which, I know, is not ideal. And the barcode database part, I think I got the table set up, but Priya ended up doing most of the actual integration herself near the end, because I was kind of stuck on the alerts. Anyway, so, yeah, neither one was really finished the way I wanted. Sorry, I know that's kind of a bummer answer. Do you want me to say what I'd do differently, or was that what you were asking?",
+      "rubricScores": {
+        "structure": 2.5,
+        "specificity": 3.0,
+        "impact": 2.0,
+        "ownership": 2.0
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "vague-impact",
+        "no-ownership"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate never proactively communicated what would slip to the client or team lead \u2014 Priya told them what to prioritize rather than the candidate making the call themselves \u2014 which directly collapses the ownership criterion and the 'who they told about what would slip' requirement of a strong answer.",
+      "keyPoints": [
+        "Had three tasks: reporting endpoints, low-stock alerts, barcode database side.",
+        "Finished reporting first because it was 'closest to being done.'",
+        "Shipped low-stock alerts half-done with a readme note about possible extra items.",
+        "Priya ended up doing most of the barcode integration herself."
+      ]
+    }
+  ],
+  "slop": [
+    {
+      "line": "Ha, yeah, the parking garage thing happens to everyone, don't worry about it. And being a little nervous is completely normal, honestly. So, today we'll be going through some behavioral questions, things about past experiences, decisions you've made, how you've handled different situations. I'll dig in where I'm curious, and it's totally fine to ask me to clarify anything. Think out loud as much as you want. Okay, so, to get started, walk me through your background.",
+      "issues": [
+        "monologue (70+ words)"
+      ]
+    },
+    {
+      "line": "No need to apologize, that's a fair question. The first few months are usually pretty structured: you'd be ramping up on the codebase, pairing with a more senior engineer on smaller tickets, and getting familiar with how we do code review. On-call typically doesn't kick in until around the six-month mark, and when it does, you'd shadow someone first before you're ever on the hook solo. Anything else you wanted to ask?",
+      "issues": [
+        "monologue (70+ words)"
+      ]
+    }
+  ],
+  "opener_repeats": {
+    "okay so": 9,
+    "got it": 3
+  },
+  "memory": {
+    "candidateId": "human-feel-nervous-rambler",
+    "recurringWeaknesses": [
+      {
+        "tag": "rambling",
+        "frequency": 4,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "vague-impact",
+        "frequency": 5,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "no-ownership",
+        "frequency": 4,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "no-star-structure",
+        "frequency": 4,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "shallow-depth",
+        "frequency": 2,
+        "lastSeen": "2026-11-16"
+      }
+    ],
+    "improvementTrend": [
+      {
+        "sessionDate": "2026-11-16",
+        "avgScore": 2.3
+      }
+    ],
+    "strongAreas": [
+      "ownership"
+    ]
+  }
+}
