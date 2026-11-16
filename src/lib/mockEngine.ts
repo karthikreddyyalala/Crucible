@@ -358,7 +358,16 @@ function scoreAnswer(
     wouldSurviveRealInterview: survives,
     survivalReasoning: reasoning,
     keyPoints: keyPointsOf(trimmed),
+    strength: strengthOf(question, trimmed, hasNumbers),
   };
+}
+
+// Demo stand-in for the evaluator's strength: one plain thing that worked, "" for a non-answer.
+function strengthOf(question: PlannedQuestion, answer: string, hasNumbers: boolean): string {
+  if (keyPointsOf(answer).length === 0) return "";
+  if (hasNumbers) return "You gave a real number, so the result is something an interviewer can check.";
+  if (question.type === "behavioral" && /\bI\b/.test(answer)) return "You said what you did yourself, not just what the team did.";
+  return "You gave a real example to build on, not a textbook definition.";
 }
 
 // Demo stand-in for the evaluator's keyPoints: the first few sentences, trimmed to 14 words.

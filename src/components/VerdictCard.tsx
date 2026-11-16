@@ -91,6 +91,13 @@ export function VerdictCard({ evaluation, question, index, sessionId, code, lang
       </h3>
       <p className="mt-2 max-w-[65ch] text-[15px] leading-relaxed text-chalk">{evaluation.survivalReasoning}</p>
 
+      {evaluation.strength && (
+        <div className="mt-5">
+          <p className="mb-2 font-mono text-[11px] tracking-[0.12em] text-mist">What worked</p>
+          <p className="max-w-[65ch] text-sm leading-relaxed text-chalk">{evaluation.strength}</p>
+        </div>
+      )}
+
       {evaluation.keyPoints && evaluation.keyPoints.length > 0 && (
         <div className="mt-5">
           <p className="mb-2 font-mono text-[11px] tracking-[0.12em] text-mist">What you said</p>

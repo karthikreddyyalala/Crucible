@@ -51,3 +51,11 @@ describe("mockEngine.evaluate keyPoints", () => {
     expect(points[0]).toBe("I rebuilt the checkout retry queue in two weeks");
   });
 });
+
+describe("mockEngine.evaluate strength", () => {
+  it("names one thing that worked, and nothing for a non-answer", () => {
+    const thread = "Q: Tell me about a deadline.\nA: I rebuilt the retry queue in two weeks and cut failed payments by 31 percent.";
+    expect(mockEngine.evaluate(q("behavioral"), thread, 0).strength).toMatch(/\w{3,}/);
+    expect(mockEngine.evaluate(q("behavioral"), "A: um", 0).strength).toBe("");
+  });
+});

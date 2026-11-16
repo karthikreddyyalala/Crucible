@@ -64,6 +64,7 @@ export interface AnswerEvaluation {
   wouldSurviveRealInterview: boolean;
   survivalReasoning: string;
   keyPoints?: string[];
+  strength?: string; // one earned, specific thing that worked; "" when nothing real
 }
 
 export interface RecurringWeakness {

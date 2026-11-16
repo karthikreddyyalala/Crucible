@@ -57,6 +57,7 @@ class AnswerEvaluation(_Base):
     would_survive_real_interview: bool
     survival_reasoning: str
     key_points: list[str] = []  # 2-4 short points of what the candidate actually said
+    strength: str = ""  # one earned, specific thing that worked; "" when nothing real
 
 
 class CoachResponse(_Base):

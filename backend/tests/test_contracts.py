@@ -157,3 +157,23 @@ def test_coding_attempt_limits_and_session_record_coding():
     assert old.coding == [] and old.summary().coding == []
     rec = SessionRecord.model_validate({**base, "coding": [ok]})
     assert rec.summary().model_dump(by_alias=True)["coding"] == [ok]
+
+
+def test_answer_evaluation_strength_default_and_alias():
+    base = dict(
+        questionId="q1", transcript="...", rubricScores={"depth": 2},
+        weaknessTags=[], followUpCount=0,
+        wouldSurviveRealInterview=False, survivalReasoning="r",
+    )
+    assert AnswerEvaluation(**base).strength == ""  # old stored sessions still load
+    ev = AnswerEvaluation.model_validate({**base, "strength": "Named the 9s to 3s drop."})
+    assert ev.model_dump(by_alias=True)["strength"] == "Named the 9s to 3s drop."
+
+
+def test_evaluator_prompt_asks_for_one_earned_strength():
+    from pathlib import Path
+    prompt = (Path(__file__).parent.parent / "prompts" / "evaluator.md").read_text()
+    strength = " ".join(prompt[prompt.index("- strength"):].split("\n- ")[0].split())
+    assert "A: lines" in strength and '""' in strength
+    assert "failing answer" in strength and "never generic praise" in strength
+    assert "never changes" in strength

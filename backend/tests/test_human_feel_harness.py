@@ -121,3 +121,11 @@ def test_follow_ups_reach_the_evaluator_like_the_app_counts_them():
     hf.run_interview(client, _FakeClaude(), hf.Meter(), PERSONA)
     graded = [u for u in llm.users if u.startswith("Question ID:")]  # evaluator prompts
     assert len(graded) == 2 and all("Follow-up count: 1" in u for u in graded)
+
+
+def test_judge_sees_the_strength_the_student_sees():
+    ev = {"questionId": "q1", "wouldSurviveRealInterview": False, "survivalReasoning": "Vague.",
+          "weaknessTags": ["vague-impact"], "strength": "Named the 9s to 3s drop."}
+    line = hf.feedback_lines([ev])
+    assert "What worked: Named the 9s to 3s drop." in line and "Vague." in line
+    assert "What worked" not in hf.feedback_lines([{**ev, "strength": ""}])
