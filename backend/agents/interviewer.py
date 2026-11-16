@@ -2,7 +2,8 @@ import re
 from pathlib import Path
 from agents.untrusted import wrap_untrusted
 from models.coding import CodingProblem
-from models.contracts import InterviewDecision, PlannedQuestion
+from agents.fact_check import format_claims
+from models.contracts import FalseClaim, InterviewDecision, PlannedQuestion
 from models.question_data import QuestionExemplar
 
 _PROMPT = (Path(__file__).resolve().parent.parent / "prompts" / "interviewer.md").read_text()
@@ -83,6 +84,7 @@ class InterviewerAgent:
         company_note: str = "",
         earlier: str = "",
         language: str = "python",
+        false_claims: list[FalseClaim] | None = None,
     ) -> InterviewDecision:
         user = (
             f"Phase: {phase}\n"
@@ -112,6 +114,8 @@ class InterviewerAgent:
             + (f"\nCandidate code (current editor{', JavaScript' if language == 'javascript' else ''}):\n{wrap_untrusted('candidate_code', code)}\n" if code else "")
             + (f"\nTest results (reported by the browser):\n{wrap_untrusted('test_results', test_results)}\n"
                if test_results else "")
+            + (f"\nFact check of their latest reply (from a separate checker):\n{format_claims(false_claims)}\n"
+               if false_claims else "")
             # Trusted: looked up server-side from the style id.
             + (f"\nCompany style: {company_note}\n" if company_note else "")
         )

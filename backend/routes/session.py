@@ -28,6 +28,7 @@ from models.contracts import (
 )
 from agents.coach import CoachAgent
 from agents.evaluator import EvaluatorAgent
+from agents.fact_check import CHECKED_TYPES, FactCheckAgent, candidate_lines, latest_reply
 from agents.interviewer import InterviewerAgent
 from agents.memory import MemoryAgent
 from models.coding import CodingProblem, find_problem
@@ -274,6 +275,8 @@ def build_session_router(
     memory_agent = MemoryAgent(
         llm=llm, model=settings.memory_model, temperature=settings.memory_temperature)
     coach = CoachAgent(llm=llm, model=settings.coach_model, temperature=settings.coach_temperature)
+    fact_check = FactCheckAgent(
+        llm=llm, model=settings.fact_check_model, temperature=settings.fact_check_temperature)
 
     @router.get("/health")
     def health() -> dict[str, str]:
@@ -331,6 +334,10 @@ def build_session_router(
         usage: list[CallUsage] = []
         in_question = req.phase == "question"  # other phases carry an unrelated question
         style = find_style(req.company_style)
+        # Only a real reply to a technical question can hold a false claim worth probing.
+        false_claims = (
+            fact_check.run(question=req.question.prompt, answer=latest_reply(thread), usage_sink=usage)
+            if in_question and not req.event and req.question.type in CHECKED_TYPES else [])
         decision = interviewer.run_turn(
             question=req.question,
             candidate_answer=thread,
@@ -354,6 +361,7 @@ def build_session_router(
             event=req.event,
             language=req.language,
             company_note=f"{style.name}. {style.interviewer_note}",
+            false_claims=false_claims,
         )
         return TurnResponse(decision=decision, cost_usd=sum(u.cost_usd for u in usage), strikes=req.strikes)
 
@@ -361,6 +369,9 @@ def build_session_router(
     def evaluate(req: EvaluateRequest, _sub: str | None = Depends(current_sub)) -> EvaluateResponse:
         usage: list[CallUsage] = []
         transcript, _ = _screen_thread(req.transcript)
+        false_claims = (
+            fact_check.run(question=req.question.prompt, answer=candidate_lines(transcript), usage_sink=usage)
+            if req.question.type in CHECKED_TYPES else [])
         evaluation = evaluator.run(
             question=req.question,
             transcript=transcript,
@@ -371,6 +382,7 @@ def build_session_router(
             code=req.code,
             test_results=req.test_results,
             language=req.language,
+            false_claims=false_claims,
         )
         return EvaluateResponse(evaluation=evaluation, cost_usd=sum(u.cost_usd for u in usage))
 

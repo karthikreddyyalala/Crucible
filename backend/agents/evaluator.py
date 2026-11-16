@@ -1,7 +1,8 @@
 from pathlib import Path
 from agents.untrusted import wrap_untrusted
 from models.coding import CodingProblem
-from models.contracts import AnswerEvaluation, PlannedQuestion
+from agents.fact_check import format_claims
+from models.contracts import AnswerEvaluation, FalseClaim, PlannedQuestion
 from models.question_data import QuestionExemplar
 
 _PROMPT = (Path(__file__).resolve().parent.parent / "prompts" / "evaluator.md").read_text()
@@ -17,7 +18,8 @@ class EvaluatorAgent:
             usage_sink: list | None = None,
             exemplar: QuestionExemplar | None = None,
             coding_problem: CodingProblem | None = None,
-            code: str = "", test_results: str = "", language: str = "python") -> AnswerEvaluation:
+            code: str = "", test_results: str = "", language: str = "python",
+            false_claims: list[FalseClaim] | None = None) -> AnswerEvaluation:
         user = (
             f"Question ID: {question.id}\n"
             f"Question Type: {question.type}\n"
@@ -29,6 +31,8 @@ class EvaluatorAgent:
             + (f"\nFinal code{' (JavaScript)' if language == 'javascript' else ''}:\n{wrap_untrusted('candidate_code', code)}\n" if code else "")
             + (f"\nTest results (reported by the browser):\n{wrap_untrusted('test_results', test_results)}\n"
                if test_results else "")
+            + (f"\nFact check of the candidate's answers (from a separate checker):\n{format_claims(false_claims)}\n"
+               if false_claims else "")
         )
         if exemplar:
             # Trusted server data from the bank (never from the client): outside the fence.

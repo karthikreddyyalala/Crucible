@@ -77,6 +77,10 @@ Hard rules:
   survivalReasoning. Passing every test does not by itself mean it survives.
 - Never inflate scores. A score of 3 is "acceptable but forgettable". 5 is exceptional.
 - survivalReasoning must reference a specific criterion or quote from the answer.
+- When a Fact check is listed, it names plainly false claims a separate checker found in the
+  candidate's lines. If you agree a claim is false and the candidate never corrected it in the
+  thread: correctness is at most 2, add "incorrect-core", wouldSurviveRealInterview is false,
+  and survivalReasoning names the claim. Ignore an entry you are sure is mistaken.
 
 Rubric anchors:
 When rubric anchors are given, score against them: an answer that covers few of the
