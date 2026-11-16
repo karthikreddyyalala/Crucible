@@ -91,6 +91,12 @@ def test_slop_checks_flag_ai_lines_and_pass_human_ones():
     assert hf.slop_hits("Got it. Let me pause you there. What was your part?") == []
 
 
+def test_closing_answers_may_run_long():
+    long_line = "word " * 80 + "."
+    assert "monologue (70+ words)" not in hf.slop_hits(long_line, stage="closing")
+    assert "monologue (70+ words)" in hf.slop_hits(long_line)
+
+
 def test_opener_repeats_counts_scripted_starts():
     lines = ["Got it. What next?", "Got it. Why?", "Got it, how?", "Okay, so what broke?", "Okay, so why?"]  # two of a kind is fine
     assert hf.opener_repeats(lines) == {"got it": 3}

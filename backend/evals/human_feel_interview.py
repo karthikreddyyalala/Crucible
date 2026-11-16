@@ -51,11 +51,11 @@ SLOP = [  # from docs/superpowers/research/2026-11-16-realistic-interviews.md se
 ]
 
 
-def slop_hits(line: str) -> list[str]:
+def slop_hits(line: str, stage: str = "") -> list[str]:
     hits = [label for pat, label in SLOP if re.search(pat, line, re.IGNORECASE | re.MULTILINE)]
     if line.count("?") > 1:
         hits.append("more than one question")
-    if len(line.split()) > 70:
+    if stage != "closing" and len(line.split()) > 70:
         hits.append("monologue (70+ words)")
     return hits
 
@@ -202,7 +202,7 @@ def run_interview(client, claude, meter: Meter, persona: dict) -> dict:
     def marcus(thread: str, text: str, stage: str) -> None:
         msgs.append({"speaker": "m", "text": text, "thread": thread})
         log.append((stage, "Marcus", text))
-        if hits := slop_hits(text):
+        if hits := slop_hits(text, stage):
             slop.append({"line": text, "issues": hits})
 
     def candidate(thread: str, stage: str) -> str:
