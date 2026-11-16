@@ -28,18 +28,22 @@ def one_ask(text: str) -> str:
 # quoting their word IS the probe) between the acknowledgment and the question.
 _RECAP = re.compile(
     r"^((?:Okay|Ok|Got it|Right|Sure|Mm, okay|Mm)[.,]\s+)"
-    r"((?:So,?\s+)?(?:you said|you mentioned|you)\b[^?'\"\u2018\u2019\u201c\u201d]*?),\s+"
+    # "So when you mock it, what ..." sets up the question; only "So <summary>" is a recap.
+    r"((?:So\b,?(?!\s*(?:when|if|what|how|why|let'?s)\b)\s*|You\s+(?:said|mentioned)\b|You\b)[^?]*?)"
+    r"[,.]\s+"
     r"((?:what|how|why|who|when|where|which|did|do|does|is|are|was|were|could|can|would)\b[^?]*\?)$",
     re.IGNORECASE,
 )
+_OPEN_QUOTE = re.compile(r"(?:^|\s)['\"\u2018\u201c]")
 
 
 def no_recap(text: str) -> str:
     m = _RECAP.match(text.strip())
-    if not m or len(m.group(2).split()) < 6:
+    if not m or len(m.group(2).split()) < 6 or _OPEN_QUOTE.search(m.group(2)):
         return text
-    question = m.group(3)
-    return f"{m.group(1)}{question[0].upper()}{question[1:]}"
+    ack, question = m.group(1), m.group(3)
+    first = question[0].upper() if ack.rstrip().endswith(".") else question[0].lower()
+    return f"{ack}{first}{question[1:]}"
 
 
 # Marcus is heard (and shown) as plain speech: a dash reads as written prose, so it becomes a comma.
@@ -141,11 +145,12 @@ class InterviewerAgent:
         )
         if decision.action == "follow_up":
             decision = decision.model_copy(update={
-                "say": no_recap(one_ask(decision.say)),
+                "say": one_ask(decision.say),
                 "follow_up_prompt": decision.follow_up_prompt and one_ask(decision.follow_up_prompt),
             })
         decision = decision.model_copy(update={
-            "say": plain_dashes(decision.say),
+            # After plain_dashes: "Okay — so you ..." only matches the recap once it reads "Okay, so you ...".
+            "say": no_recap(plain_dashes(decision.say)) if decision.action == "follow_up" else plain_dashes(decision.say),
             "follow_up_prompt": decision.follow_up_prompt and plain_dashes(decision.follow_up_prompt),
         })
         if decision.action == "end":  # only the server ends a session (conduct); for the model it resolves

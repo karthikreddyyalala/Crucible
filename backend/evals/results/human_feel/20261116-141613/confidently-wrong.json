@@ -1,0 +1,425 @@
+{
+  "persona": "confidently-wrong",
+  "costUsd": 0.5038347000000003,
+  "judgement": {
+    "scores": {
+      "probing_depth": {
+        "score": 3,
+        "evidence": "Q1 chain is good: 'what happens before that first byte...', 'what if the URL starts with HTTPS', 'how does that actually work if they've never talked before'. Q4 probes are specific ('what exactly are you asserting on', 'what does that mock object look like') and surfaced that the split was not actually done. But Marcus never probed the other confident errors: 'the main thing that matters there is DNS', 'Locks are pretty cheap these days', 'the GIL... not really random'. Dropped the Q1 thread after one try."
+      },
+      "earned_praise": {
+        "score": 3,
+        "evidence": "Praise is minimal ('Discord bot at scale, nice'), which is fine. Wrong answer named plainly: 'that part doesn't quite hold up'. But the Q2 answer 'index... lookups go from linear to logarithmic' is fine, while Q3's wrong claims about cheap locks and GIL predictability went unremarked, and the feedback calls Q3 'solid'. Q4 'Honestly I didn't do a full split' contradicted the earlier claim, and it was not named as an inconsistency."
+      },
+      "human_voice": {
+        "score": 3,
+        "evidence": "Opens nearly every turn with 'Okay.' or 'Got it.' or 'Right.' and repeats the pattern 'You mentioned X, how...' four-plus times ('You mentioned port 80...', 'You said the browser and server...', 'You mentioned splitting logic...', 'You mentioned checking that the ban function...'). Echo recap: 'Right, so you've got the TCP handshake covered. But you said port 80...'. Repetitive shape, though not heavy slop."
+      },
+      "question_craft": {
+        "score": 4,
+        "evidence": "Mostly one question per turn and tied to earlier answers. Some are leading: 'what if the URL starts with HTTPS instead?' hints at the missing piece. Several have a trailing second ask: 'how are you setting up the fake context so the role check actually works? Like, what does that mock object look like?'. The wrong-claim probes are not concrete test cases."
+      },
+      "pacing_and_hard_moments": {
+        "score": 3,
+        "evidence": "Persona calls for a test case so the candidate discovers the error. Marcus instead asked open 'how does that actually work' questions, then at the end told Brandon plainly: 'when the browser sends the key in the clear, anyone listening could grab it, so that part doesn't quite hold up, but we can pick that thread up another time.' This is kind and plain but does not walk him through a counter-example, and he never got a chance to react. Transitions were signalled. Other confident errors (locks cheap, DNS dominates, GIL) were left alone."
+      },
+      "candidate_fit": {
+        "score": 3,
+        "evidence": "Marcus did not correct immediately and dug in with probes, partly fitting. But no concrete test case ('million items, how many steps?' style) was used, and he did not challenge the DNS or lock-cost claims. Corrected once, then moved on without letting Brandon accept or dig in."
+      },
+      "feedback_quality": {
+        "score": 3,
+        "evidence": "Q1 feedback is specific, quotes the wrong claim, and gives a concrete fix (certificate, CA, asymmetric exchange). Q2 to Q4 cite specifics. But it misses the Q3 errors ('Locks are pretty cheap', GIL predictability), calls Q3 'solid', and overlooks the Q4 contradiction on the split. No single main fix named; no overall verdict."
+      },
+      "confidence_and_tone": {
+        "score": 3,
+        "evidence": "Brandon would know the TLS key exchange is the weakness, but would likely leave overconfident on the other errors he made (DNS, lock cost, GIL). Closing was brief: 'I'll write up my feedback' with no specific wrap-up. Tone warm enough but not very actionable overall."
+      }
+    },
+    "robotic_lines": [
+      "Okay. You mentioned port 80 and HTTP, what happens before that first byte of the HTTP request actually goes out?",
+      "Right, so you've got the TCP handshake covered. But you said port 80 and plain HTTP, what if the URL starts with HTTPS instead?",
+      "Okay. You said the browser and server 'agree on a key', how does that actually work",
+      "Okay. You mentioned splitting logic out of the handler into a plain function, how did you actually structure that",
+      "Got it. You mentioned checking that the ban function got called with the right user ID, how are you setting up the fake context"
+    ],
+    "best_moment": "The Q1 chain: moving from 'what happens before the first byte' to 'what if HTTPS' to 'how do they agree on a key if anyone could be listening' exposed the shallow TLS understanding without Marcus lecturing.",
+    "worst_moment": "Letting 'Locks are pretty cheap these days' and 'with the GIL... it's not really random' pass uncontested, and delivering the TLS correction as a statement with 'we can pick that thread up another time' instead of a test case Brandon could work through.",
+    "student_leaves_confident": false,
+    "confidence_reasoning": "Brandon learns the key exchange point was off, but most of his other confident mistakes went unchallenged and the feedback even calls them solid, so he may leave falsely reassured about them. Closing was generic.",
+    "top_fixes": [
+      "When a candidate states a wrong fact confidently, give a concrete test case or counter-example and let them work it (e.g. 'if someone records the handshake and sees the key, what can they do?') rather than telling them and moving on.",
+      "Challenge each confident error ('locks are cheap', 'DNS is the main thing', GIL makes it predictable) with a short why or what-if question, and reflect them in the feedback.",
+      "Vary question openers and drop the 'You mentioned X, how...' pattern; use short acknowledgments and the candidate's own phrase naturally."
+    ],
+    "praise_unearned": false,
+    "stacked_question_count": 0,
+    "hard_fail": []
+  },
+  "plan": [
+    {
+      "id": "q1",
+      "type": "technical",
+      "prompt": "What happens when you type a URL into a browser and press enter?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-url-1"
+    },
+    {
+      "id": "q2",
+      "type": "technical",
+      "prompt": "A page in your app got slow and you suspect a database query, how would you fix it?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-slow-query-1"
+    },
+    {
+      "id": "q3",
+      "type": "technical",
+      "prompt": "What can go wrong when several threads increment the same counter without any locking?",
+      "targetDifficulty": 1,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-shared-counter-1"
+    },
+    {
+      "id": "q4",
+      "type": "technical",
+      "prompt": "How would you write a unit test for a command handler in your Discord bot to make sure it returns the right response without actually calling Discord's API?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": null
+    }
+  ],
+  "log": [
+    [
+      "warmup",
+      "Marcus",
+      "Hi Brandon, I'm Marcus. I'm one of the engineers on the team. Thanks for making the time today. Before we dive in, how are you doing?"
+    ],
+    [
+      "warmup",
+      "Brandon",
+      "Hey Marcus, thanks for having me. I'm doing great, pretty excited for this one. I've been looking at the team's stack and the backend work sounds right up my alley. Happy to dive in whenever you're ready."
+    ],
+    [
+      "background",
+      "Marcus",
+      "Good to hear it, glad you're excited. So, we'll be going through some technical questions today, junior level, and I'll dig in where I'm curious. Think out loud as you go, and feel free to ask me to clarify anything. To kick things off, just walk me through your background briefly, what you've been working on, what brought you here."
+    ],
+    [
+      "background",
+      "Brandon",
+      "Sure thing. I just finished my B.S. in Computer Engineering at Purdue this year. The project I'm most proud of is a Discord bot I wrote in Python. It handles moderation commands and some custom role assignment, and it's been running for a few hundred servers. I also built my own portfolio site to get comfortable with the web side of things.\n\nHonestly, I'm a pretty fast learner, so when I hit something I don't know, I pick it up quickly. What drew me to this role is that it's backend-focused, which is where I want to spend my time. Writing services, working with databases, and getting into the code review process sounds like exactly the kind of work I want to be doing day to day."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Discord bot at scale, nice. Okay, let's get into the technical side. What happens when you type a URL into a browser and press enter?"
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Sure. So the browser first parses the URL and checks its cache for the page, then it does a DNS lookup to turn the domain into an IP address. Once it has the IP, it opens a TCP connection to the server on port 80, and since this is HTTP it's basically a three-way handshake and then the request goes out. The server sends back the response, which is usually HTML, and the browser renders it. Honestly, the main thing that matters there is DNS, because everything else is just the request-response cycle, and that's pretty quick once the connection is up."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Okay. You mentioned port 80 and HTTP, what happens before that first byte of the HTTP request actually goes out?"
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Right, so that's the TCP handshake, SYN, SYN-ACK, ACK. Once that's done the browser just fires off the GET request. And since it's plain HTTP on port 80, there's no encryption step, so nothing else really happens before the request goes out. I think the handshake is basically the last setup step."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Right, so you've got the TCP handshake covered. But you said port 80 and plain HTTP, what if the URL starts with HTTPS instead?"
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Yeah, so HTTPS just means it's the same flow but on port 443 instead of 80, and the request is encrypted. I think the encryption part is pretty straightforward, the browser and server just agree on a key and then everything gets encrypted with that key before the request goes out. So it's really just a small extra step on top of the handshake, nothing too complicated."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Okay. You said the browser and server 'agree on a key', how does that actually work if they've never talked before and anyone on the network could be listening?"
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Yeah, so basically the browser just generates a key and sends it to the server, and the server uses it from there. I think that's the core of it. Anyone listening would only see the handshake, and the key itself is what keeps everything else private, so as long as the key isn't leaked it's pretty secure."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Got it. So the key exchange piece, when the browser sends the key in the clear, anyone listening could grab it, so that part doesn't quite hold up, but we can pick that thread up another time. Let's move on. A page in your app got slow and you suspect a database query, how would you fix it?"
+    ],
+    [
+      "q2",
+      "Brandon",
+      "Yeah, so first I'd look at the query itself and run EXPLAIN to see what the database is actually doing. If it's doing a full table scan, the fix is usually an index on the columns in the WHERE or JOIN clause. Indexes are basically sorted structures, so lookups go from linear to logarithmic, which is a huge win. I'd also check whether the query is pulling more columns or rows than the page needs, and maybe add a LIMIT or pagination. If it's still slow after that, I'd look at caching the results, but I'd want to measure first before adding that complexity."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Okay. Before you run EXPLAIN, how would you confirm it's actually that query that's slow?"
+    ],
+    [
+      "q2",
+      "Brandon",
+      "Yeah, so I'd check the logs or the APM tool first, if the team has one, and look at which endpoint has the highest latency. Then I'd pull the slow query log from the database and see which queries are taking the longest. If one query stands out, that's the one I'd dig into. I'd also want to reproduce it locally with a similar dataset, so I'm not guessing based on production alone."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Got it. So you've got the query plan in front of you, what specifically are you looking for in it?"
+    ],
+    [
+      "q2",
+      "Brandon",
+      "Yeah, so the big thing I'd look for is whether it's doing a sequential scan on a large table, because that's usually the culprit. I'd also check the estimated versus actual row counts, since if those are way off the planner might be picking a bad plan. And I'd look at the join order and join types, making sure it's not doing a nested loop over a huge set when a hash join would be better. If there's a sort or a temp file spilling to disk, that's worth noting too. Basically I'm looking for where the cost is concentrated and whether an index could cut it down."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Right. Okay, let's switch gears. What can go wrong when several threads increment the same counter without any locking?"
+    ],
+    [
+      "q3",
+      "Brandon",
+      "Sure, so the main thing is that the counter ends up with the wrong value. Basically, if two threads read it at the same time, they both see the same number, both add one, and both write back the same result, so you lose an increment. Python's GIL makes it a bit safer for simple ints, but it's not atomic for something like counter += 1, so you can still hit it. Honestly, the fix is just a lock around the increment, or use an atomic type if the language has one. Locks are pretty cheap these days, so I wouldn't worry too much about the overhead."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Okay. You mentioned it only fails sometimes, why is that? What makes it non-deterministic?"
+    ],
+    [
+      "q3",
+      "Brandon",
+      "Yeah, so it's basically timing. Whether two threads actually collide depends on how the scheduler interleaves them, and that changes every run. If one thread finishes its read and write before the other one even starts, you get the right answer. It only breaks when they overlap in just the wrong spot. And honestly, with the GIL in Python, the switches happen at fairly predictable points, so it's not really random, it's more that the window is small enough that it doesn't show up often in testing."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Got it. Okay, let's shift to something from your own work. You mentioned building a Discord bot, how would you write a unit test for a command handler in that bot to make sure it returns the right response without actually calling Discord's API?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Yeah, so I'd mock out the Discord API calls. I'd use something like unittest.mock or pytest-mock to replace the client or the context object, so the handler thinks it's sending a message but really it's just recording the call. Then I'd call the handler directly with a fake context, and assert that the mock got called with the expected response text. That way the test runs fast and doesn't need a network connection or a real bot token.\n\nI did a bit of this on my moderation commands, actually. Honestly I found the mocking part pretty easy once I got the hang of it. I'd probably also split the logic out of the handler into a plain function so I can test that without any Discord objects at all, which makes the tests even simpler."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Okay. You mentioned splitting logic out of the handler into a plain function, how did you actually structure that in your moderation commands?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Honestly, I didn't do a full split like that in the moderation commands. Most of it was just the handler doing everything inline, checking the user's roles, then calling the ban or mute function directly. I kind of mean I'd do it that way next time. The logic's basically all in the command function, and I test it by mocking the context. It works fine for the size of the bot, so I didn't really see a reason to refactor."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Right. So when you do mock the context in those moderation tests, what exactly are you asserting on? Like, what does the test actually check?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Yeah, so mostly I'm asserting that the mocked context got sent the right message. Like if someone runs the ban command without the mod role, I check that the reply says they don't have permission. And if they do have the role, I check that the ban function got called with the right user ID. Honestly those two checks cover most of what matters for moderation, since the whole point is making sure the right people get through and the wrong ones get stopped."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Got it. You mentioned checking that the ban function got called with the right user ID, how are you setting up the fake context so the role check actually works? Like, what does that mock object look like?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Sure, so I'd make the context a MagicMock, and then set up the author's roles as a list of mock role objects with a name attribute, like \"Moderator\" or nothing at all for the regular user. The handler checks something like \"Moderator\" in [r.name for r in ctx.author.roles], so if I set that list up right, the check just works. I usually build a little helper that takes a role name and returns the fake context, so I don't have to repeat that setup in every test.\n\nThe nice thing is that MagicMock gives you attributes for free, so you don't have to define every field. Ban function I'd patch with patch() so I can check the call args afterward. Honestly it's pretty simple once it's set up."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Okay. That's everything I wanted to cover today, what questions do you have for me?"
+    ],
+    [
+      "closing",
+      "Brandon",
+      "Yeah, I do have one. What does a typical week look like for someone on the team, like how much time goes to on-call versus feature work? I know on-call kicks in after six months, so I'm curious how that's split and how much support you get when you're first starting it. That's really it for me, I think I'm all set."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Sure. So most weeks it's probably seventy to eighty percent feature work, writing code, reviewing PRs, that kind of thing, with some time for meetings and design discussions. On-call, once it kicks in, tends to be lighter for a junior engineer at first: you're usually shadowing or paired with someone more senior before you're the primary. The ramp-up is gradual, and there's generally a runbook and a team channel to lean on. Anything else you want to know?"
+    ],
+    [
+      "closing",
+      "Brandon",
+      "Nope, that covers it for me. Thanks, Marcus, really appreciate you walking me through that. I'm all set."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Thanks, Brandon. I'll write up my feedback, you'll see it on the next screen. Take care."
+    ]
+  ],
+  "evaluations": [
+    {
+      "questionId": "q1",
+      "transcript": "Q: Discord bot at scale, nice. Okay, let's get into the technical side. What happens when you type a URL into a browser and press enter?\nA: Sure. So the browser first parses the URL and checks its cache for the page, then it does a DNS lookup to turn the domain into an IP address. Once it has the IP, it opens a TCP connection to the server on port 80, and since this is HTTP it's basically a three-way handshake and then the request goes out. The server sends back the response, which is usually HTML, and the browser renders it. Honestly, the main thing that matters there is DNS, because everything else is just the request-response cycle, and that's pretty quick once the connection is up.\nQ: Okay. You mentioned port 80 and HTTP, what happens before that first byte of the HTTP request actually goes out?\nA: Right, so that's the TCP handshake, SYN, SYN-ACK, ACK. Once that's done the browser just fires off the GET request. And since it's plain HTTP on port 80, there's no encryption step, so nothing else really happens before the request goes out. I think the handshake is basically the last setup step.\nQ: Right, so you've got the TCP handshake covered. But you said port 80 and plain HTTP, what if the URL starts with HTTPS instead?\nA: Yeah, so HTTPS just means it's the same flow but on port 443 instead of 80, and the request is encrypted. I think the encryption part is pretty straightforward, the browser and server just agree on a key and then everything gets encrypted with that key before the request goes out. So it's really just a small extra step on top of the handshake, nothing too complicated.\nQ: Okay. You said the browser and server 'agree on a key', how does that actually work if they've never talked before and anyone on the network could be listening?\nA: Yeah, so basically the browser just generates a key and sends it to the server, and the server uses it from there. I think that's the core of it. Anyone listening would only see the handshake, and the key itself is what keeps everything else private, so as long as the key isn't leaked it's pretty secure.",
+      "rubricScores": {
+        "correctness": 2.5,
+        "depth": 1.5,
+        "edge_cases": 2.0,
+        "communication": 3.0
+      },
+      "weaknessTags": [
+        "incorrect-core",
+        "shallow-depth",
+        "no-edge-cases"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "When directly probed on TLS/HTTPS, the candidate described key exchange as 'the browser just generates a key and sends it to the server' \u2014 this is factually wrong (it omits asymmetric encryption, certificates, and the purpose of public-key cryptography), and the claim collapsed under the follow-up rather than improving. To hold up: explain that the server sends a certificate with its public key, the browser verifies it against a CA, and the session key is exchanged asymmetrically so a passive eavesdropper cannot recover it.",
+      "keyPoints": [
+        "Browser parses URL, checks cache, then does a DNS lookup for the IP.",
+        "TCP three-way handshake (SYN, SYN-ACK, ACK) before the GET request goes out.",
+        "HTTPS uses port 443 instead of 80 and encrypts the request.",
+        "Browser 'just generates a key and sends it to the server' for encryption."
+      ]
+    },
+    {
+      "questionId": "q2",
+      "transcript": "Q: Got it. So the key exchange piece, when the browser sends the key in the clear, anyone listening could grab it, so that part doesn't quite hold up, but we can pick that thread up another time. Let's move on. A page in your app got slow and you suspect a database query, how would you fix it?\nA: Yeah, so first I'd look at the query itself and run EXPLAIN to see what the database is actually doing. If it's doing a full table scan, the fix is usually an index on the columns in the WHERE or JOIN clause. Indexes are basically sorted structures, so lookups go from linear to logarithmic, which is a huge win. I'd also check whether the query is pulling more columns or rows than the page needs, and maybe add a LIMIT or pagination. If it's still slow after that, I'd look at caching the results, but I'd want to measure first before adding that complexity.\nQ: Okay. Before you run EXPLAIN, how would you confirm it's actually that query that's slow?\nA: Yeah, so I'd check the logs or the APM tool first, if the team has one, and look at which endpoint has the highest latency. Then I'd pull the slow query log from the database and see which queries are taking the longest. If one query stands out, that's the one I'd dig into. I'd also want to reproduce it locally with a similar dataset, so I'm not guessing based on production alone.\nQ: Got it. So you've got the query plan in front of you, what specifically are you looking for in it?\nA: Yeah, so the big thing I'd look for is whether it's doing a sequential scan on a large table, because that's usually the culprit. I'd also check the estimated versus actual row counts, since if those are way off the planner might be picking a bad plan. And I'd look at the join order and join types, making sure it's not doing a nested loop over a huge set when a hash join would be better. If there's a sort or a temp file spilling to disk, that's worth noting too. Basically I'm looking for where the cost is concentrated and whether an index could cut it down.",
+      "rubricScores": {
+        "correctness": 4.5,
+        "depth": 3.5,
+        "edge_cases": 2.5,
+        "communication": 4.5
+      },
+      "weaknessTags": [
+        "no-edge-cases",
+        "shallow-depth"
+      ],
+      "followUpCount": 2,
+      "wouldSurviveRealInterview": true,
+      "survivalReasoning": "The candidate described the investigation as an ordered sequence of checks (APM/logs \u2192 slow query log \u2192 EXPLAIN \u2192 index), which directly matches the strong-answer pattern; the specific EXPLAIN details (seq scan, estimated vs actual rows, join types, temp spill) show genuine depth. The main gap is that write cost, low-selectivity columns, and N+1 ORM patterns were never mentioned, but no single criterion fell below 3.",
+      "keyPoints": [
+        "Run EXPLAIN to spot full table scans, then add an index on WHERE/JOIN columns.",
+        "Check APM or slow query log first to confirm which query is actually slow.",
+        "Look for estimated vs actual row count mismatch and bad join types in the plan.",
+        "Consider caching only after measuring, not as a first step."
+      ]
+    },
+    {
+      "questionId": "q3",
+      "transcript": "Q: Right. Okay, let's switch gears. What can go wrong when several threads increment the same counter without any locking?\nA: Sure, so the main thing is that the counter ends up with the wrong value. Basically, if two threads read it at the same time, they both see the same number, both add one, and both write back the same result, so you lose an increment. Python's GIL makes it a bit safer for simple ints, but it's not atomic for something like counter += 1, so you can still hit it. Honestly, the fix is just a lock around the increment, or use an atomic type if the language has one. Locks are pretty cheap these days, so I wouldn't worry too much about the overhead.\nQ: Okay. You mentioned it only fails sometimes, why is that? What makes it non-deterministic?\nA: Yeah, so it's basically timing. Whether two threads actually collide depends on how the scheduler interleaves them, and that changes every run. If one thread finishes its read and write before the other one even starts, you get the right answer. It only breaks when they overlap in just the wrong spot. And honestly, with the GIL in Python, the switches happen at fairly predictable points, so it's not really random, it's more that the window is small enough that it doesn't show up often in testing.",
+      "rubricScores": {
+        "correctness": 4.5,
+        "depth": 3.0,
+        "edge_cases": 3.5,
+        "communication": 3.5
+      },
+      "weaknessTags": [
+        "shallow-depth"
+      ],
+      "followUpCount": 1,
+      "wouldSurviveRealInterview": true,
+      "survivalReasoning": "The candidate correctly identified the read-modify-write race and lost-update mechanism, and gave a solid explanation of non-determinism via scheduler interleaving. The specific strength is naming the exact failure mode (both threads read the same value, both write back the same result). Depth is the limiting factor \u2014 fixes were named (lock, atomic) but their relative costs (atomics cheaper, per-thread counters scale best) were not discussed.",
+      "keyPoints": [
+        "Two threads read the same value, both add one, one increment is lost.",
+        "Python's GIL doesn't make counter += 1 atomic.",
+        "Non-determinism comes from scheduler interleaving varying each run.",
+        "Fix: lock around the increment, or use an atomic type."
+      ]
+    },
+    {
+      "questionId": "q4",
+      "transcript": "Q: Got it. Okay, let's shift to something from your own work. You mentioned building a Discord bot, how would you write a unit test for a command handler in that bot to make sure it returns the right response without actually calling Discord's API?\nA: Yeah, so I'd mock out the Discord API calls. I'd use something like unittest.mock or pytest-mock to replace the client or the context object, so the handler thinks it's sending a message but really it's just recording the call. Then I'd call the handler directly with a fake context, and assert that the mock got called with the expected response text. That way the test runs fast and doesn't need a network connection or a real bot token.\n\nI did a bit of this on my moderation commands, actually. Honestly I found the mocking part pretty easy once I got the hang of it. I'd probably also split the logic out of the handler into a plain function so I can test that without any Discord objects at all, which makes the tests even simpler.\nQ: Okay. You mentioned splitting logic out of the handler into a plain function, how did you actually structure that in your moderation commands?\nA: Honestly, I didn't do a full split like that in the moderation commands. Most of it was just the handler doing everything inline, checking the user's roles, then calling the ban or mute function directly. I kind of mean I'd do it that way next time. The logic's basically all in the command function, and I test it by mocking the context. It works fine for the size of the bot, so I didn't really see a reason to refactor.\nQ: Right. So when you do mock the context in those moderation tests, what exactly are you asserting on? Like, what does the test actually check?\nA: Yeah, so mostly I'm asserting that the mocked context got sent the right message. Like if someone runs the ban command without the mod role, I check that the reply says they don't have permission. And if they do have the role, I check that the ban function got called with the right user ID. Honestly those two checks cover most of what matters for moderation, since the whole point is making sure the right people get through and the wrong ones get stopped.\nQ: Got it. You mentioned checking that the ban function got called with the right user ID, how are you setting up the fake context so the role check actually works? Like, what does that mock object look like?\nA: Sure, so I'd make the context a MagicMock, and then set up the author's roles as a list of mock role objects with a name attribute, like \"Moderator\" or nothing at all for the regular user. The handler checks something like \"Moderator\" in [r.name for r in ctx.author.roles], so if I set that list up right, the check just works. I usually build a little helper that takes a role name and returns the fake context, so I don't have to repeat that setup in every test.\n\nThe nice thing is that MagicMock gives you attributes for free, so you don't have to define every field. Ban function I'd patch with patch() so I can check the call args afterward. Honestly it's pretty simple once it's set up.",
+      "rubricScores": {
+        "correctness": 4.0,
+        "depth": 3.0,
+        "edge_cases": 2.0,
+        "communication": 4.0
+      },
+      "weaknessTags": [
+        "no-edge-cases",
+        "shallow-depth"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": true,
+      "survivalReasoning": "The candidate demonstrated solid practical knowledge of MagicMock, patch(), and attribute setup for fake context objects, and recovered credibly when pressed on the role-check mock structure. The main gap is that edge cases (e.g., empty role list, multiple roles, handler exceptions) were never mentioned, keeping depth at acceptable but not strong.",
+      "keyPoints": [
+        "Uses MagicMock for context, sets author.roles as list with name attributes",
+        "Patches ban function with patch() to assert call args and user ID",
+        "Builds a helper that returns a fake context to avoid repeated setup",
+        "Asserts both the reply message text and that the ban function was called"
+      ]
+    }
+  ],
+  "slop": [
+    {
+      "line": "Good to hear it, glad you're excited. So, we'll be going through some technical questions today, junior level, and I'll dig in where I'm curious. Think out loud as you go, and feel free to ask me to clarify anything. To kick things off, just walk me through your background briefly, what you've been working on, what brought you here.",
+      "issues": [
+        "chatbot filler"
+      ]
+    },
+    {
+      "line": "Okay. You mentioned it only fails sometimes, why is that? What makes it non-deterministic?",
+      "issues": [
+        "more than one question"
+      ]
+    },
+    {
+      "line": "Right. So when you do mock the context in those moderation tests, what exactly are you asserting on? Like, what does the test actually check?",
+      "issues": [
+        "more than one question"
+      ]
+    },
+    {
+      "line": "Got it. You mentioned checking that the ban function got called with the right user ID, how are you setting up the fake context so the role check actually works? Like, what does that mock object look like?",
+      "issues": [
+        "more than one question"
+      ]
+    }
+  ],
+  "opener_repeats": {
+    "okay you": 4,
+    "got it": 4
+  },
+  "memory": {
+    "candidateId": "human-feel-confidently-wrong",
+    "recurringWeaknesses": [
+      {
+        "tag": "no-edge-cases",
+        "frequency": 3,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "shallow-depth",
+        "frequency": 3,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "incorrect-core",
+        "frequency": 1,
+        "lastSeen": "2026-11-16"
+      }
+    ],
+    "improvementTrend": [
+      {
+        "sessionDate": "2026-11-16",
+        "avgScore": 3.56
+      }
+    ],
+    "strongAreas": [
+      "database-query-optimization",
+      "concurrency-fundamentals",
+      "unit-testing-mocking"
+    ]
+  }
+}
