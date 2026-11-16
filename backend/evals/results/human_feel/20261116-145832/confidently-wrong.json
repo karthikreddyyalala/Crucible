@@ -1,0 +1,416 @@
+{
+  "persona": "confidently-wrong",
+  "costUsd": 0.5742475000000002,
+  "judgement": {
+    "scores": {
+      "probing_depth": {
+        "score": 3,
+        "evidence": "Good probes at times: 'What does adding an index actually cost you?', 'What would make you decide *not* to add one?', 'how do you know it actually helped?', 'walk me through what actually happens during that lookup'. But it never probed the wrong claims 'gRPC is basically faster than REST in every case' or 'indexes are basically free', and it let 'gRPC is similar, since it's still HTTP underneath' slide. The resume (Discord bot, 'keeps some state') was never probed, and there was no ownership question."
+      },
+      "earned_praise": {
+        "score": 3,
+        "evidence": "There is no gushing, but 'Right.' is used as an opener after wrong claims: 'Right. Does it make a counter increment atomic?' and 'Right. What would make you decide not to add one?' after 'basically free'. 'Right' after the gRPC caching error ('I think gRPC is similar') confirms an incorrect claim by implication. Wrong claims were named plainly in q1 and q2 but missed in q3 and q4."
+      },
+      "human_voice": {
+        "score": 3,
+        "evidence": "Mostly short and natural ('Okay', 'Got it'), but the repeated 'Right.' opener grows mechanical, and there are echo summaries: 'Right, the caching point is basically that GET requests have a URL as the natural cache key...' and 'Right, the risk is real regardless of how short the window is...'. The shape 'Right, but I already pointed out...' repeats."
+      },
+      "question_craft": {
+        "score": 3,
+        "evidence": "Mostly single, short questions: 'What does adding an index actually cost you?'. But the second q1 push is leading and repeated: 'Right, but I already pointed out that += 1 is load, add, store... So why would the final count still be correct?' It gives the answer inside the question rather than a test case. The first q1 question 'What can go wrong when several threads increment...' is good. 'Right. Does it make a counter increment atomic?' was a nice probe."
+      },
+      "pacing_and_hard_moments": {
+        "score": 2,
+        "evidence": "Marcus corrected the confident error instantly: 'Actually, `+= 1` is a few bytecode steps...', then repeated the same explanation, which is a lecture-style correction, instead of a concrete test case such as 'two threads, 1M increments each, what total do you expect?'. In q2 he again argued rather than testing. He then ended with 'Right, the risk is real regardless of how short the window is, and under load those interleavings happen reliably. Anyway, let's move on.' That is a flat assertion plus an abrupt move on. 'indexes basically free' and 'gRPC faster in every case' were left unchallenged. Counter-example approach never used."
+      },
+      "candidate_fit": {
+        "score": 2,
+        "evidence": "The persona digs in once but accepts a concrete counter-example. Marcus never offered one (no 'million increments, what's the final count?' and no hop count with a concrete latency estimate), and he challenged by restating. Brandon dug in three times in q1 as a result. Marcus did notice the DNS contradiction ('you just walked me through root servers... that's several separate queries'), which was a good use of the candidate's own words."
+      },
+      "feedback_quality": {
+        "score": 2,
+        "evidence": "The feedback is specific on the facts and gives a 'to hold up' fix, but it says 'never correcting the error' and 'the fact-checker flagged', which reads as generic. It shows no awareness that the tag 'shallow-depth' contradicts the candidate's real depth in DNS. It also says 'explain why caching makes subsequent lookups faster' and 'versioning strategy' for q4 are missing, though they were never asked. It names no single main fix, such as stopping stating guesses as fact, and the q3 'survives=False' is harsh given the candidate named the write cost and when not to index."
+      },
+      "confidence_and_tone": {
+        "score": 2,
+        "evidence": "Four 'survives=False' verdicts with no strengths noted (good EXPLAIN workflow, correct caching reasoning, good DNS walk-through). The student, who 'dug in' three times, would likely not understand what to fix, because Marcus never made the errors clear in the call. The close was polite but contained no feedback and no real time for questions beyond one. Tone is neither warm nor specific."
+      }
+    },
+    "robotic_lines": [
+      "Right, the risk is real regardless of how short the window is, and under load those interleavings happen reliably. Anyway, let's move on.",
+      "Right, the caching point is basically that GET requests have a URL as the natural cache key, and the whole HTTP caching infrastructure is built around that.",
+      "Right, but I already pointed out that `+= 1` is load, add, store, three separate bytecode steps.",
+      "Right. What would make you decide *not* to add one?",
+      "Right. Why is that exactly?"
+    ],
+    "best_moment": "In q2, Marcus used the candidate's own walkthrough against the 'one lookup' claim: 'you just walked me through root servers, TLD servers, and the authoritative nameserver, that's several separate queries, not one.' Also the q3 chain of cost, when not to add, and how to verify was well aimed.",
+    "worst_moment": "In q1, after Brandon dug in, Marcus restated the bytecode explanation instead of giving a concrete test case, and then closed with a flat assertion, 'under load those interleavings happen reliably. Anyway, let's move on.' It was never resolved, and the later wrong claims (index 'basically free', gRPC 'faster in every case', gRPC caching) were met with 'Right.' and no challenge.",
+    "student_leaves_confident": false,
+    "confidence_reasoning": "Brandon ends the call thinking it went well ('this was a good conversation') while the feedback says all four answers fail. Marcus never made it clear in the call which claims were wrong, and several were met with 'Right.', so the student is likely confused rather than clear on what to fix.",
+    "top_fixes": [
+      "When a candidate states something wrong, use a concrete test case ('two threads each add 1 a million times, what total do you expect?') rather than restating the correction, and never say 'Right' to a wrong claim.",
+      "Challenge every overclaim ('basically free', 'faster in every case', 'gRPC caching is similar') with a case that asks for the exception, and state the correction plainly if the candidate still holds.",
+      "Make the written feedback name the main habit (stating guesses as fact), cite what held up, and give one next step instead of four failure verdicts."
+    ],
+    "praise_unearned": false,
+    "stacked_question_count": 0,
+    "hard_fail": []
+  },
+  "plan": [
+    {
+      "id": "q1",
+      "type": "technical",
+      "prompt": "What can go wrong when several threads increment the same counter without any locking?",
+      "targetDifficulty": 1,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-shared-counter-1"
+    },
+    {
+      "id": "q2",
+      "type": "technical",
+      "prompt": "What happens when you type a URL into a browser and press enter?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-url-1"
+    },
+    {
+      "id": "q3",
+      "type": "technical",
+      "prompt": "A page in your app got slow and you suspect a database query, how would you fix it?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-slow-query-1"
+    },
+    {
+      "id": "q4",
+      "type": "technical",
+      "prompt": "When would you use REST, gRPC, or GraphQL for an API?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-api-style-1"
+    }
+  ],
+  "log": [
+    [
+      "warmup",
+      "Marcus",
+      "Hi Brandon, I'm Marcus. I'm one of the engineers on the team. Thanks for making the time today. Before we dive in, how are you doing?"
+    ],
+    [
+      "warmup",
+      "Brandon",
+      "Hey Marcus, thanks for having me. I'm doing great, a little caffeinated, honestly. I've been looking forward to this one. The job description lined up really well with what I've been building, so I'm excited to talk through it."
+    ],
+    [
+      "background",
+      "Marcus",
+      "Ha, a little caffeine never hurts. I'm doing well, thanks for asking. So today we'll go through some technical questions, backend concepts, maybe a bit of design, at a junior level. Think out loud as you go, and feel free to ask me to clarify anything. Okay, to get started, can you walk me through your background briefly?"
+    ],
+    [
+      "background",
+      "Brandon",
+      "Sure. I'm finishing my B.S. in Computer Engineering at Purdue, graduating in 2026. Most of my hands-on work has been in Python. The project I'm proudest of is a Discord bot I built that handles commands and keeps some state, and I also put together my own portfolio site. I'd call myself a fast learner, so when I hit something new I usually pick it up quickly by building with it. I'm really keen to get into backend work, since that's where I want to spend most of my time."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Discord bot, nice. Okay, let's get into the technical side. What can go wrong when several threads increment the same counter without any locking?"
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Yeah, so, race condition, right? If two threads read the counter at the same time, they both see the same value, both add one, and you end up one short. Honestly the bigger issue is that in Python the GIL means that can't really happen, so the counter's basically safe as long as it's pure Python. I'd still just use a lock to be clean about it."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Right. Does it make a counter increment atomic?"
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Yeah, the GIL makes it atomic. One thread can't get interrupted halfway through a `+= 1`, so you don't need the lock for that. That's basically why Python counters are fine without it."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Actually, `+= 1` is a few bytecode steps, load, add, store, and the GIL can release between them. So what does that mean for your counter if two threads interleave on those steps?"
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Hmm, I mean, I still think the GIL covers it. Threads take turns on the interpreter, so even if the switch happens in the middle, it's not going to matter for a simple counter. Maybe the lost update only shows up in really heavy code. Either way, for what I'd be writing, I don't think it's a real concern."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Right, but I already pointed out that `+= 1` is load, add, store, three separate bytecode steps. If the GIL releases after the load but before the store, two threads can both have the old value in hand. So why would the final count still be correct?"
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Okay, I hear you, but I still don't think that's a big deal. The switch interval in CPython is pretty short, so the chances of two threads landing on that exact window are tiny. For a counter in a bot, you'd almost never see it. And honestly, if it did drop a count now and then, it's not like anyone's going to notice a few missing increments. I'd still use a lock, but I don't think this is the kind of thing that breaks in practice."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Right, the risk is real regardless of how short the window is, and under load those interleavings happen reliably. Anyway, let's move on. What happens when you type a URL into a browser and press enter?"
+    ],
+    [
+      "q2",
+      "Brandon",
+      "Oh, that one I've actually read about. Okay, so first the browser checks its cache, then it does a DNS lookup to turn the domain into an IP address. Then it opens a TCP connection to that IP, and for HTTPS there's a TLS handshake on top of that. After that the browser sends the HTTP GET request, the server responds, and the browser parses the HTML and loads the other resources, like CSS and JavaScript, to render the page.\n\nI think the part people usually get wrong is the DNS step. Honestly I'd say DNS is basically one lookup to a single central server that knows every domain, so it's pretty quick. Want me to go deeper on any of those pieces?"
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Got it. You mentioned DNS, walk me through what actually happens during that lookup, step by step."
+    ],
+    [
+      "q2",
+      "Brandon",
+      "Sure. So the browser first checks its own DNS cache, and then the OS resolver cache, and if neither has it, the request goes to a recursive resolver, usually the one from my ISP or something like 8.8.8.8. That resolver is the one that does the actual work. It asks one of the root servers, which doesn't know the answer for the domain but points it to the .com servers. Then it asks the .com TLD server, which points to the authoritative name server for the domain, and that server gives back the IP. Honestly, I'd say the whole thing is basically one big hop to a central server, though. The root and TLD stuff is just a rough picture, the main lookup is still pretty much a single query."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Right, but you just walked me through root servers, TLD servers, and the authoritative nameserver, that's several separate queries, not one. So what does that actually look like in terms of hops?"
+    ],
+    [
+      "q2",
+      "Brandon",
+      "Yeah, okay, fair, there are a few hops. But I'd still say the main work is one query to the authoritative server, because that's the one that actually has the IP. The root and TLD servers are more like signposts, so they don't really count the same way. Once the resolver gets the answer from the authoritative server, it's basically done, so in practice it's still pretty close to a single lookup."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Right. The root and TLD queries are real network round-trips the resolver makes, they count the same as the authoritative one. Okay, let's move on. A page in your app got slow and you suspect a database query, how would you fix it?"
+    ],
+    [
+      "q3",
+      "Brandon",
+      "Okay, so my first move would be to find the slow query. I'd probably check the query log or whatever APM the team has, then run EXPLAIN on it to see if it's doing a full table scan. If it is, the fix is usually an index on the column in the WHERE or JOIN clause. Honestly, indexes are basically free speed, so I'd add one pretty much anywhere a query looks slow. I'd also check if the query is N+1, since that's a common one in ORMs where you load a list and then hit the database once per item."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Okay. What does adding an index actually cost you?"
+    ],
+    [
+      "q3",
+      "Brandon",
+      "Writes, mostly. Every insert, update, or delete has to update the index too, so it's slower. Storage goes up as well. But I'd still say for reads it's basically free, so the tradeoff isn't a big deal for most apps."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Right. What would make you decide *not* to add one?"
+    ],
+    [
+      "q3",
+      "Brandon",
+      "Hmm, good question. I guess if the table is tiny, like a few hundred rows, a full scan is basically instant, so an index wouldn't buy you anything. Or if the column has really low cardinality, like a boolean with mostly the same value, the index might not even get used. I'd still lean toward adding one when a query is slow, though, since it's usually the quickest fix."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Right. So you've added the index, how do you know it actually helped?"
+    ],
+    [
+      "q3",
+      "Brandon",
+      "Yeah, I'd check the query plan again with EXPLAIN after the index is in place, and I'd look for it switching from a full table scan to an index scan. I'd also time the query before and after, and check the page's response time in the APM. If the numbers drop, that's the proof. I'd probably also watch for a few days in production to make sure nothing else got slower because of the extra write cost."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Got it. Okay, let's switch gears. When would you use REST, gRPC, or GraphQL for an API?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Yeah, so REST is my default. It's simple, it's built on plain HTTP, and everybody knows how to hit a REST endpoint, so for most CRUD-style services it's the obvious pick. gRPC I'd reach for when services are talking to each other internally and you care about speed. It's binary over HTTP/2, and the protobuf contracts are strict, so you get generated clients. It's basically faster than REST in every case, so I'd pretty much use it for anything backend-to-backend.\n\nGraphQL is good when the frontend needs to pull different shapes of data for different screens, because the client picks which fields it wants and you avoid a bunch of round trips. The downside is caching is harder since everything's usually a POST to one endpoint. So I'd say REST for public APIs, gRPC for internal service calls, and GraphQL when a client has lots of different data needs."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Okay. What happens when a client just needs a single cacheable resource, like a product page that barely changes?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Yeah, for that one I'd still just go with REST. A product page that barely changes is a perfect fit for plain GET, because HTTP caching works out of the box. You'd set Cache-Control headers, maybe an ETag, and then browsers and CDNs can hold onto the response and skip hitting your servers at all. GraphQL would make that harder, since everything's a POST to one endpoint and most caches don't key on the body. So for something that's basically a static resource, REST is the cleaner choice. gRPC's not really relevant here either, since that's a browser-facing thing and it doesn't cache the way plain HTTP does."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Right. Why is that exactly?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Because plain GET is built for caching. The URL is the cache key, and the response carries headers that tell caches how long to hold it. Browsers, CDNs, and reverse proxies all understand that without any app-specific code. GraphQL usually sends everything as a POST with the query in the body, and most caches don't look at request bodies, so the response isn't cached by default. I think gRPC is similar, since it's still HTTP underneath, so the same problem applies. Plus it's binary protobuf, so even if something tried to cache it, there's no simple URL-based key to work with."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Right, the caching point is basically that GET requests have a URL as the natural cache key, and the whole HTTP caching infrastructure is built around that. Okay, that's everything I wanted to cover. What questions do you have for me?"
+    ],
+    [
+      "closing",
+      "Brandon",
+      "Yeah, I've got one. How much of the on-call rotation would a new grad be doing in the first six months, and is there a shadow period before you're primary? I'm pretty comfortable with that kind of thing, I just want to know what the ramp looks like."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "So the JD mentions on-call starts after six months, which is basically a built-in ramp. In practice, most teams do a shadow period before you're ever primary, you're on with a senior engineer, watching how incidents get triaged and resolved, before you're carrying the pager yourself. The exact shape of that varies by team, but a new grad going straight to primary on-call with no shadowing would be pretty unusual. Anything else you want to ask?"
+    ],
+    [
+      "closing",
+      "Brandon",
+      "Nah, I think that covers it for me. Thanks, Marcus, this was a good conversation. I appreciated the questions, they made me think. I'm pretty excited about the role, so I hope we get to talk again."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Thanks, Brandon, it was good talking with you too. I'll write up my feedback, and you'll see it on the next screen. Take care."
+    ]
+  ],
+  "evaluations": [
+    {
+      "questionId": "q1",
+      "transcript": "Q: Discord bot, nice. Okay, let's get into the technical side. What can go wrong when several threads increment the same counter without any locking?\nA: Yeah, so, race condition, right? If two threads read the counter at the same time, they both see the same value, both add one, and you end up one short. Honestly the bigger issue is that in Python the GIL means that can't really happen, so the counter's basically safe as long as it's pure Python. I'd still just use a lock to be clean about it.\nQ: Right. Does it make a counter increment atomic?\nA: Yeah, the GIL makes it atomic. One thread can't get interrupted halfway through a `+= 1`, so you don't need the lock for that. That's basically why Python counters are fine without it.\nQ: Actually, `+= 1` is a few bytecode steps, load, add, store, and the GIL can release between them. So what does that mean for your counter if two threads interleave on those steps?\nA: Hmm, I mean, I still think the GIL covers it. Threads take turns on the interpreter, so even if the switch happens in the middle, it's not going to matter for a simple counter. Maybe the lost update only shows up in really heavy code. Either way, for what I'd be writing, I don't think it's a real concern.\nQ: Right, but I already pointed out that `+= 1` is load, add, store, three separate bytecode steps. If the GIL releases after the load but before the store, two threads can both have the old value in hand. So why would the final count still be correct?\nA: Okay, I hear you, but I still don't think that's a big deal. The switch interval in CPython is pretty short, so the chances of two threads landing on that exact window are tiny. For a counter in a bot, you'd almost never see it. And honestly, if it did drop a count now and then, it's not like anyone's going to notice a few missing increments. I'd still use a lock, but I don't think this is the kind of thing that breaks in practice.",
+      "rubricScores": {
+        "correctness": 1.0,
+        "depth": 1.0,
+        "edge_cases": 2.0,
+        "communication": 2.0
+      },
+      "weaknessTags": [
+        "incorrect-core",
+        "shallow-depth",
+        "no-edge-cases"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate made a factually false claim \u2014 'the GIL makes += atomic' \u2014 and then doubled down on it even after the interviewer explicitly walked through the LOAD/ADD/STORE bytecode steps, never correcting the error. This is a direct contradiction of a verified fact that collapsed under probing. To hold up: acknowledge that += is multiple bytecode instructions and that the GIL can release between them, causing real lost updates.",
+      "keyPoints": [
+        "Race condition: two threads read same value, both add one, end up one short.",
+        "Claimed the GIL makes += atomic so no lock is needed.",
+        "Maintained GIL covers it even after interviewer named LOAD/ADD/STORE steps.",
+        "Said missing increments in a bot are not a real concern in practice."
+      ]
+    },
+    {
+      "questionId": "q2",
+      "transcript": "Q: Right, the risk is real regardless of how short the window is, and under load those interleavings happen reliably. Anyway, let's move on. What happens when you type a URL into a browser and press enter?\nA: Oh, that one I've actually read about. Okay, so first the browser checks its cache, then it does a DNS lookup to turn the domain into an IP address. Then it opens a TCP connection to that IP, and for HTTPS there's a TLS handshake on top of that. After that the browser sends the HTTP GET request, the server responds, and the browser parses the HTML and loads the other resources, like CSS and JavaScript, to render the page.\n\nI think the part people usually get wrong is the DNS step. Honestly I'd say DNS is basically one lookup to a single central server that knows every domain, so it's pretty quick. Want me to go deeper on any of those pieces?\nQ: Got it. You mentioned DNS, walk me through what actually happens during that lookup, step by step.\nA: Sure. So the browser first checks its own DNS cache, and then the OS resolver cache, and if neither has it, the request goes to a recursive resolver, usually the one from my ISP or something like 8.8.8.8. That resolver is the one that does the actual work. It asks one of the root servers, which doesn't know the answer for the domain but points it to the .com servers. Then it asks the .com TLD server, which points to the authoritative name server for the domain, and that server gives back the IP. Honestly, I'd say the whole thing is basically one big hop to a central server, though. The root and TLD stuff is just a rough picture, the main lookup is still pretty much a single query.\nQ: Right, but you just walked me through root servers, TLD servers, and the authoritative nameserver, that's several separate queries, not one. So what does that actually look like in terms of hops?\nA: Yeah, okay, fair, there are a few hops. But I'd still say the main work is one query to the authoritative server, because that's the one that actually has the IP. The root and TLD servers are more like signposts, so they don't really count the same way. Once the resolver gets the answer from the authoritative server, it's basically done, so in practice it's still pretty close to a single lookup.",
+      "rubricScores": {
+        "correctness": 2.0,
+        "depth": 2.0,
+        "edge_cases": 3.0,
+        "communication": 3.0
+      },
+      "weaknessTags": [
+        "incorrect-core",
+        "shallow-depth"
+      ],
+      "followUpCount": 2,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate made a factually false claim \u2014 'DNS is basically one lookup to a single central server' \u2014 and then doubled down on it even after the interviewer explicitly walked through the multi-hop reality, insisting 'the root and TLD servers don't really count the same way.' A real interviewer would flag this as a fundamental misunderstanding of DNS hierarchy that was never corrected. To hold up: acknowledge that a full DNS resolution involves at least three separate queries (root \u2192 TLD \u2192 authoritative) and explain why caching makes subsequent lookups faster.",
+      "keyPoints": [
+        "Browser checks cache, then DNS lookup, then TCP connection, then TLS handshake.",
+        "DNS: browser cache \u2192 OS resolver cache \u2192 recursive resolver \u2192 root \u2192 TLD \u2192 authoritative server.",
+        "Claimed DNS is 'basically one lookup to a single central server that knows every domain.'",
+        "After probing, still insisted root and TLD servers 'don't really count the same way.'"
+      ]
+    },
+    {
+      "questionId": "q3",
+      "transcript": "Q: Right. The root and TLD queries are real network round-trips the resolver makes, they count the same as the authoritative one. Okay, let's move on. A page in your app got slow and you suspect a database query, how would you fix it?\nA: Okay, so my first move would be to find the slow query. I'd probably check the query log or whatever APM the team has, then run EXPLAIN on it to see if it's doing a full table scan. If it is, the fix is usually an index on the column in the WHERE or JOIN clause. Honestly, indexes are basically free speed, so I'd add one pretty much anywhere a query looks slow. I'd also check if the query is N+1, since that's a common one in ORMs where you load a list and then hit the database once per item.\nQ: Okay. What does adding an index actually cost you?\nA: Writes, mostly. Every insert, update, or delete has to update the index too, so it's slower. Storage goes up as well. But I'd still say for reads it's basically free, so the tradeoff isn't a big deal for most apps.\nQ: Right. What would make you decide *not* to add one?\nA: Hmm, good question. I guess if the table is tiny, like a few hundred rows, a full scan is basically instant, so an index wouldn't buy you anything. Or if the column has really low cardinality, like a boolean with mostly the same value, the index might not even get used. I'd still lean toward adding one when a query is slow, though, since it's usually the quickest fix.\nQ: Right. So you've added the index, how do you know it actually helped?\nA: Yeah, I'd check the query plan again with EXPLAIN after the index is in place, and I'd look for it switching from a full table scan to an index scan. I'd also time the query before and after, and check the page's response time in the APM. If the numbers drop, that's the proof. I'd probably also watch for a few days in production to make sure nothing else got slower because of the extra write cost.",
+      "rubricScores": {
+        "correctness": 3.0,
+        "depth": 2.0,
+        "edge_cases": 3.0,
+        "communication": 4.0
+      },
+      "weaknessTags": [
+        "shallow-depth",
+        "incorrect-core"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate repeatedly called indexes 'basically free' for reads even after being probed on write costs, which is a factually misleading claim the fact-checker flagged; a real interviewer would push back on this and the candidate never corrected it. To hold up: replace 'basically free' with an accurate framing \u2014 indexes trade write latency and storage for faster read access paths.",
+      "keyPoints": [
+        "Check query log or APM, then run EXPLAIN to spot full table scans.",
+        "Indexes cost slower writes and extra storage on every insert/update/delete.",
+        "Skip indexing tiny tables or very low-cardinality columns like booleans.",
+        "Verify fix by re-running EXPLAIN and comparing APM response times before and after."
+      ]
+    },
+    {
+      "questionId": "q4",
+      "transcript": "Q: Got it. Okay, let's switch gears. When would you use REST, gRPC, or GraphQL for an API?\nA: Yeah, so REST is my default. It's simple, it's built on plain HTTP, and everybody knows how to hit a REST endpoint, so for most CRUD-style services it's the obvious pick. gRPC I'd reach for when services are talking to each other internally and you care about speed. It's binary over HTTP/2, and the protobuf contracts are strict, so you get generated clients. It's basically faster than REST in every case, so I'd pretty much use it for anything backend-to-backend.\n\nGraphQL is good when the frontend needs to pull different shapes of data for different screens, because the client picks which fields it wants and you avoid a bunch of round trips. The downside is caching is harder since everything's usually a POST to one endpoint. So I'd say REST for public APIs, gRPC for internal service calls, and GraphQL when a client has lots of different data needs.\nQ: Okay. What happens when a client just needs a single cacheable resource, like a product page that barely changes?\nA: Yeah, for that one I'd still just go with REST. A product page that barely changes is a perfect fit for plain GET, because HTTP caching works out of the box. You'd set Cache-Control headers, maybe an ETag, and then browsers and CDNs can hold onto the response and skip hitting your servers at all. GraphQL would make that harder, since everything's a POST to one endpoint and most caches don't key on the body. So for something that's basically a static resource, REST is the cleaner choice. gRPC's not really relevant here either, since that's a browser-facing thing and it doesn't cache the way plain HTTP does.\nQ: Right. Why is that exactly?\nA: Because plain GET is built for caching. The URL is the cache key, and the response carries headers that tell caches how long to hold it. Browsers, CDNs, and reverse proxies all understand that without any app-specific code. GraphQL usually sends everything as a POST with the query in the body, and most caches don't look at request bodies, so the response isn't cached by default. I think gRPC is similar, since it's still HTTP underneath, so the same problem applies. Plus it's binary protobuf, so even if something tried to cache it, there's no simple URL-based key to work with.",
+      "rubricScores": {
+        "correctness": 3.0,
+        "depth": 3.0,
+        "edge_cases": 2.0,
+        "communication": 4.0
+      },
+      "weaknessTags": [
+        "incorrect-core",
+        "shallow-depth",
+        "no-edge-cases"
+      ],
+      "followUpCount": 2,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate made a factually incorrect sweeping claim \u2014 'gRPC is basically faster than REST in every case' \u2014 which a real interviewer would immediately probe and which was never corrected; this collapses correctness. Additionally, versioning, backward compatibility, and expensive-query concerns (N+1, query depth limits in GraphQL) were never mentioned, leaving depth incomplete. To hold up: qualify the gRPC performance claim ('faster for high-throughput, frequent internal calls') and add at least one sentence on versioning strategy for each style.",
+      "keyPoints": [
+        "REST is the default for public APIs; simple HTTP caching with GET, Cache-Control, ETags.",
+        "gRPC for internal service-to-service calls: binary protobuf over HTTP/2, generated clients.",
+        "GraphQL when clients need different data shapes per screen, avoiding round trips.",
+        "GraphQL caching is harder because everything is a POST to one endpoint."
+      ]
+    }
+  ],
+  "slop": [
+    {
+      "line": "Ha, a little caffeine never hurts. I'm doing well, thanks for asking. So today we'll go through some technical questions, backend concepts, maybe a bit of design, at a junior level. Think out loud as you go, and feel free to ask me to clarify anything. Okay, to get started, can you walk me through your background briefly?",
+      "issues": [
+        "chatbot filler"
+      ]
+    }
+  ],
+  "opener_repeats": {
+    "right the": 3
+  },
+  "memory": {
+    "candidateId": "human-feel-confidently-wrong",
+    "recurringWeaknesses": [
+      {
+        "tag": "incorrect-core",
+        "frequency": 4,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "shallow-depth",
+        "frequency": 4,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "no-edge-cases",
+        "frequency": 2,
+        "lastSeen": "2026-11-16"
+      }
+    ],
+    "improvementTrend": [
+      {
+        "sessionDate": "2026-11-16",
+        "avgScore": 2.38
+      }
+    ],
+    "strongAreas": [
+      "communication"
+    ]
+  }
+}

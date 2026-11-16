@@ -1,0 +1,519 @@
+{
+  "persona": "vague-generalist",
+  "costUsd": 0.6836538000000003,
+  "judgement": {
+    "scores": {
+      "probing_depth": {
+        "score": 4,
+        "evidence": "Marcus aimed at the weakest part: 'You mentioned 'best practices', what specifically did you change in the code to make it faster?' then 'How much faster did it get...' then 'do you have a number there, like a load time before and after?' This kept at it until the 9s to 3s number came out. He probes every answer in q2-q5 with specific questions ('What was your part in that specifically?', 'who actually made the final call'). Gaps: he never asks for the result in q3 (what was shipped, how it went), never asks who was told about the auth slip in q4, and in q5 never asks how long to ship or what the stack was. Probes often fell into a fixed 'what exactly' pattern."
+      },
+      "earned_praise": {
+        "score": 4,
+        "evidence": "Almost no praise during the interview, which fits. 'Good questions' to the candidate's closing questions is mild and fine. But he never names the weak pattern aloud (e.g., 'that answer was vague at first') and says 'Got it, nine seconds to three' with no assessment. Nothing unearned, but nothing plainly named either."
+      },
+      "human_voice": {
+        "score": 3,
+        "evidence": "Short acknowledgments ('Okay', 'Got it', 'Right') are natural, but they are heavily repetitive. The transition 'Okay, let's move on.' is used almost identically three times. Echo of 'Got it, nine seconds to three.' is a mild summary echo. The repeated 'like, what...' tail on questions gives the same sentence shape every turn. The closing 'Alright, Tyler, thanks for coming in. I'll write up my feedback' is fine."
+      },
+      "question_craft": {
+        "score": 4,
+        "evidence": "One short question per turn, tied to earlier answers: 'What was the strongest argument for going with Postgres, like, what was the best case for their side?' is a good, non-leading question. Slight issues: 'what exactly were the two approaches' is fine, but some questions contain a 'like' restatement that doubles the question ('How much faster did it get, like, what did you actually measure?'), and 'do you have a number there, like a load time before and after?' hints at the answer format. Questions never used the resume beyond the Halvorsen mention."
+      },
+      "pacing_and_hard_moments": {
+        "score": 3,
+        "evidence": "Handled vagueness steadily, but the opening five behavioral questions are walked at an even pace with abrupt transitions ('Okay, let's move on.') and no signposting. He accepts 'it was more of a general habit thing, I guess' in q2 and 'we just agreed' in q3 and moves on rather than pressing for a concrete example or admitting the gap. He also let the candidate recycle the hackathon for q2, q3 and q4 without noting the repetition or asking for a different example. In the closing, he invents or generalizes facts: 'most teams at this level pair new grads with a more senior engineer' - vague speculation."
+      },
+      "candidate_fit": {
+        "score": 4,
+        "evidence": "Marcus used the right instinct for this persona: asked for one specific and persisted. 'How much faster did it get...' followed by 'do you have a number there' is exactly right. He kept to this approach across all questions. He didn't escalate to 'do you know, or not?' when answers stayed fuzzy (q3 ownership, q2 lesson), and didn't test whether the candidate could give a number for the hackathon outcome."
+      },
+      "feedback_quality": {
+        "score": 3,
+        "evidence": "Feedback cites the exact moment in q1 (three asks before the number) and gives a clear fix: 'lead with the result, '9 seconds down to 3,' in the first sentence.' q2 fix is concrete. But it contains inaccuracies: q1 says 'asked three times' (it was three probes, ok) while q3 claims 'even after three follow-up probes' fine, yet q3 'the outcome for the code and relationship was entirely absent' ignores that Postgres was chosen. Rubric jargon leaks ('the impact criterion stays at 1.5', 'probe-collapse'), no overall top fix, and all five answers marked survives=False without differentiating that q1 is the strongest, with real details."
+      },
+      "confidence_and_tone": {
+        "score": 2,
+        "evidence": "Feedback is entirely negative: five 'survives=False', no strength named, no overall main fix or encouragement. Tags like 'no-star-structure' and 'rambling' are cold. The interview closing is brief ('Take care') with no reflection. Student would know several things to fix but not which matters most, and would likely feel deflated."
+      }
+    },
+    "robotic_lines": [
+      "Okay, let's move on.",
+      "Got it. Okay, let's move on.",
+      "Right. Okay, let's move on.",
+      "Got it, nine seconds to three. Okay, let's move on to something different.",
+      "Good questions. So, on-call, the JD mentions around six months before you'd be expected to join the rotation, which is pretty standard."
+    ],
+    "best_moment": "In q1, after 'a lot faster', Marcus asked 'do you have a number there, like a load time before and after?' and got 'about nine seconds before... around three.'",
+    "worst_moment": "Accepting 'we just agreed' in q3 and 'a general habit thing, I guess' in q2 without pressing, and the closing where he speculates ('most teams at this level pair new grads...') instead of admitting he doesn't know.",
+    "student_leaves_confident": false,
+    "confidence_reasoning": "The feedback marks every answer as failing, names no strengths, offers no single priority, and uses rubric jargon. The student knows a recurring problem (vagueness until pressed) only implicitly and would likely feel deflated.",
+    "top_fixes": [
+      "When an answer stays vague after a probe, say so plainly and ask once more or ask if they remember, rather than moving on; always ask for the outcome in each story.",
+      "Vary transitions and drop the repeated 'Okay, let's move on'; signal a topic change in a different way and cut the 'like, what...' tail.",
+      "In feedback, name one main fix (lead with the number and result), one real strength (the q1 caching story has substance), and avoid rubric jargon."
+    ],
+    "praise_unearned": false,
+    "stacked_question_count": 0,
+    "hard_fail": []
+  },
+  "plan": [
+    {
+      "id": "q1",
+      "type": "behavioral",
+      "prompt": "Walk me through your background.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-intro-1"
+    },
+    {
+      "id": "q2",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you failed.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-failure-1"
+    },
+    {
+      "id": "q3",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you disagreed with a teammate about a technical approach.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-conflict-1"
+    },
+    {
+      "id": "q4",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you had more work than you could finish.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-priorities-1"
+    },
+    {
+      "id": "q5",
+      "type": "behavioral",
+      "prompt": "Tell me about a time you had to become productive fast in a codebase or technology you'd never used.",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-beh-ramp-up-1"
+    }
+  ],
+  "log": [
+    [
+      "warmup",
+      "Marcus",
+      "Hi Tyler, I'm Marcus. I'm one of the engineers on the team. Thanks for making the time today. Before we dive in, how are you doing?"
+    ],
+    [
+      "warmup",
+      "Tyler",
+      "Hi Marcus, yeah, I'm doing good, thanks for having me. Pretty good day so far."
+    ],
+    [
+      "background",
+      "Marcus",
+      "Good to hear. So, today we'll be going through some behavioral questions, I'll ask about real situations you've been in, and I'll dig in where I'm curious. Think out loud, and feel free to ask me to clarify anything. Okay, to kick things off, walk me through your background."
+    ],
+    [
+      "background",
+      "Tyler",
+      "Sure, so I just finished my B.S. in Information Systems at Arizona State, graduating in 2026. During school I did an internship at Halvorsen Logistics last year, mostly working on their internal dashboard. I worked on improving performance and made things faster, and it went well. I also got into a few hackathons, which were fun. Mostly I've been trying to get better at building backend stuff and writing solid code."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Halvorsen dashboard, okay. Let's get into the behavioral side of things. Tell me about a time you had to debug a tricky problem in code you didn't write."
+    ],
+    [
+      "q1",
+      "Tyler",
+      "Yeah, so there was a time at Halvorsen where the dashboard was super slow and I had to figure out why. It wasn't code I wrote, it was older stuff. I looked into it and we used some best practices to get it sorted out, and the team was happy with how it turned out."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Got it. You mentioned 'best practices', what specifically did you change in the code to make it faster?"
+    ],
+    [
+      "q1",
+      "Tyler",
+      "Yeah, so it was mostly one query that was running every time the page loaded. I ended up caching the results so it wasn't hitting the database each time, and that made a big difference."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Okay. How much faster did it get, like, what did you actually measure?"
+    ],
+    [
+      "q1",
+      "Tyler",
+      "Um, yeah, it got a lot faster. I think it went from pretty slow to way better, so that was good."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Right. 'A lot faster', do you have a number there, like a load time before and after?"
+    ],
+    [
+      "q1",
+      "Tyler",
+      "Yeah, so it was about nine seconds before, and after the caching it came down to around three."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Got it, nine seconds to three. Okay, let's move to something different. Tell me about a time you failed."
+    ],
+    [
+      "q2",
+      "Tyler",
+      "Hmm, yeah, so there was a time during the hackathon where we didn't quite finish what we set out to do. We had a lot going on and I think we tried to do too much at once. It was a learning thing, I guess. We kind of pivoted near the end and the team was pretty understanding about it."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Okay. What exactly went wrong, like, what was the specific thing that didn't get finished?"
+    ],
+    [
+      "q2",
+      "Tyler",
+      "Um, so we were building a small web app for the hackathon, like a scheduling tool, and we had the front end and the back end both planned out. We got the front end mostly done, but the back end didn't really get finished. We kind of ran out of time and had to cut some stuff down at the end."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Got it. What was your part in that specifically?"
+    ],
+    [
+      "q2",
+      "Tyler",
+      "Um, I was mostly on the back end, so I was working on the API and the database part. I had some of the endpoints written but not all of them, and I kind of ran out of time on the rest."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Right. What did you actually change afterwards, like, how do you work differently now because of that?"
+    ],
+    [
+      "q2",
+      "Tyler",
+      "Honestly, I think I've gotten better about not overcommitting. Like, I try to scope things down earlier and be realistic about what I can get done in the time I have. I also try to flag it sooner if I'm falling behind, instead of waiting until the last minute. It's more of a general habit thing, I guess."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Right. Okay, let's move on. Tell me about a time you disagreed with a teammate about a technical approach."
+    ],
+    [
+      "q3",
+      "Tyler",
+      "Yeah, so, um, this was also during the hackathon, I think. We had a couple of different ideas on how to set up the data stuff, and we kind of talked it through. I think we ended up going with a approach that made sense for the time we had, and everybody was pretty much on board by the end. It was a good discussion, I think."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Okay. What exactly were the two approaches on the table?"
+    ],
+    [
+      "q3",
+      "Tyler",
+      "Um, so one person wanted to use a relational database, like Postgres, and I was kind of leaning toward just storing things in a simpler JSON file setup, since we were on a tight timeline. We talked through the tradeoffs for a bit, and we ended up going with the database, mostly because it would be easier to work with later on."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Okay. What was the strongest argument for going with Postgres, like, what was the best case for their side?"
+    ],
+    [
+      "q3",
+      "Tyler",
+      "Hmm, yeah, I think the main thing was that it would be easier to scale later and keep the data organized. Like, if we wanted to add more features after the hackathon, having an actual schema would make that less of a headache. The other person kind of made a good point that JSON files can get messy fast, so I kind of came around to it."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Got it. So who actually made the final call to go with Postgres?"
+    ],
+    [
+      "q3",
+      "Tyler",
+      "Hmm, I think we kind of landed on it together? Like, nobody really pulled rank or anything. The other person had made the case pretty well, so when we talked it through, we just agreed that Postgres made more sense. I don't think it was one person's call, it was more of a group thing."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Got it. Okay, let's move on. Tell me about a time you had more work than you could finish."
+    ],
+    [
+      "q4",
+      "Tyler",
+      "Yeah, so, um, this was pretty much the hackathon again, honestly. We had a bunch of stuff on the list and I was trying to get through it all over the weekend. I think I just kind of prioritized the stuff that seemed important and worked through it as best I could. Some things got pushed to the end, and we ended up cutting a few things. It was a lot, but I think I managed it okay."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Okay. What was actually on your plate that weekend, like, what were the specific things competing for your time?"
+    ],
+    [
+      "q4",
+      "Tyler",
+      "Um, yeah, so I was on the back end, so it was mostly the API endpoints and the database setup. There were like five or six endpoints I needed, plus getting the Postgres schema set up, and then some auth stuff that kind of came up late. I think I got through the schema and a couple endpoints first, and then the rest just kind of piled up."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Got it. How did you actually decide what to tackle first?"
+    ],
+    [
+      "q4",
+      "Tyler",
+      "Um, yeah, so I kind of went with what seemed most important. The schema had to be done first, because everything else depended on it, so that was the first thing. After that I think I just went with the endpoints that the front end was waiting on the most. I didn't really write it down or anything, it was more of a gut feeling in the moment, I guess."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Right. What actually got dropped or pushed?"
+    ],
+    [
+      "q4",
+      "Tyler",
+      "So the stuff that got dropped was mostly the auth piece, and then a couple of the endpoints that were lower on the list. Auth came up late, and by then I was kind of out of runway. We ended up doing a basic version with less going on than we originally wanted, and the front end just had to work around the missing pieces."
+    ],
+    [
+      "q5",
+      "Marcus",
+      "Got it. Okay, let's move on. Tell me about a time you had to become productive fast in a codebase or technology you'd never used."
+    ],
+    [
+      "q5",
+      "Tyler",
+      "Yeah, so, um, the Halvorsen internship was kind of like that at the start. I hadn't really worked with their setup before, so there was a lot to get up to speed on. I spent the first week or so just reading through the code and asking people questions, and then I started picking up smaller tickets. It got easier after that, I think."
+    ],
+    [
+      "q5",
+      "Marcus",
+      "Okay. What was the very first thing you did when you sat down with that codebase?"
+    ],
+    [
+      "q5",
+      "Tyler",
+      "Um, yeah, so the first thing I did was just get the project running on my machine. I think I cloned the repo and tried to get the dev environment set up, which took a bit longer than I expected because some of the dependencies were out of date. After that I kind of just poked around the folders to see how things were laid out."
+    ],
+    [
+      "q5",
+      "Marcus",
+      "Got it. How did you figure out where the important code actually lived?"
+    ],
+    [
+      "q5",
+      "Tyler",
+      "Um, yeah, so mostly I just followed the dashboard page. I'd look at what the page was calling, then trace it back to the route or the view, and from there find the query or the service it was using. Some of the folder names were kind of confusing at first, so I'd ask my mentor when I got stuck. It was a lot of clicking around, honestly, but after a few days it started to make sense."
+    ],
+    [
+      "q5",
+      "Marcus",
+      "Right. So after all that, what was the first actual change you shipped?"
+    ],
+    [
+      "q5",
+      "Tyler",
+      "Um, yeah, so the first real change was a small ticket on the dashboard. I think it was fixing a filter that wasn't showing the right results for one of the date ranges. It was pretty small, but I got it through review and it got merged, so that felt good."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Okay. That's everything I wanted to cover. What questions do you have for me?"
+    ],
+    [
+      "closing",
+      "Tyler",
+      "Yeah, I do have one. What does the first few months look like for a new grad on the team, like how soon would I be on call, and is there a mentor assigned?"
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Good questions. So, on-call, the JD mentions around six months before you'd be expected to join the rotation, which is pretty standard. That gives you time to get comfortable with the systems first. As for mentorship, most teams at this level pair new grads with a more senior engineer, at least informally, though the structure varies. You'd likely have someone to go to with questions day-to-day. Anything else you want to know?"
+    ],
+    [
+      "closing",
+      "Tyler",
+      "Nah, I think that covers it for me. Thanks, Marcus, I appreciate you taking the time. I'm all set."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Alright, Tyler, thanks for coming in. I'll write up my feedback, and you'll see it on the next screen. Take care."
+    ]
+  ],
+  "evaluations": [
+    {
+      "questionId": "q1",
+      "transcript": "Q: Halvorsen dashboard, okay. Let's get into the behavioral side of things. Tell me about a time you had to debug a tricky problem in code you didn't write.\nA: Yeah, so there was a time at Halvorsen where the dashboard was super slow and I had to figure out why. It wasn't code I wrote, it was older stuff. I looked into it and we used some best practices to get it sorted out, and the team was happy with how it turned out.\nQ: Got it. You mentioned 'best practices', what specifically did you change in the code to make it faster?\nA: Yeah, so it was mostly one query that was running every time the page loaded. I ended up caching the results so it wasn't hitting the database each time, and that made a big difference.\nQ: Okay. How much faster did it get, like, what did you actually measure?\nA: Um, yeah, it got a lot faster. I think it went from pretty slow to way better, so that was good.\nQ: Right. 'A lot faster', do you have a number there, like a load time before and after?\nA: Yeah, so it was about nine seconds before, and after the caching it came down to around three.",
+      "rubricScores": {
+        "structure": 2.0,
+        "specificity": 3.0,
+        "impact": 3.0,
+        "ownership": 3.0
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "vague-impact",
+        "rambling"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate only produced a concrete number (9 seconds to 3 seconds) after the interviewer asked three times, meaning the result was extracted by the interviewer rather than volunteered \u2014 a classic probe-collapse. To hold up: lead with the result, '9 seconds down to 3,' in the first sentence.",
+      "keyPoints": [
+        "Dashboard at Halvorsen was super slow, code they didn't write",
+        "One query running every page load; fixed it with caching",
+        "Load time went from about nine seconds down to around three"
+      ]
+    },
+    {
+      "questionId": "q2",
+      "transcript": "Q: Got it, nine seconds to three. Okay, let's move to something different. Tell me about a time you failed.\nA: Hmm, yeah, so there was a time during the hackathon where we didn't quite finish what we set out to do. We had a lot going on and I think we tried to do too much at once. It was a learning thing, I guess. We kind of pivoted near the end and the team was pretty understanding about it.\nQ: Okay. What exactly went wrong, like, what was the specific thing that didn't get finished?\nA: Um, so we were building a small web app for the hackathon, like a scheduling tool, and we had the front end and the back end both planned out. We got the front end mostly done, but the back end didn't really get finished. We kind of ran out of time and had to cut some stuff down at the end.\nQ: Got it. What was your part in that specifically?\nA: Um, I was mostly on the back end, so I was working on the API and the database part. I had some of the endpoints written but not all of them, and I kind of ran out of time on the rest.\nQ: Right. What did you actually change afterwards, like, how do you work differently now because of that?\nA: Honestly, I think I've gotten better about not overcommitting. Like, I try to scope things down earlier and be realistic about what I can get done in the time I have. I also try to flag it sooner if I'm falling behind, instead of waiting until the last minute. It's more of a general habit thing, I guess.",
+      "rubricScores": {
+        "structure": 2.5,
+        "specificity": 2.5,
+        "impact": 1.5,
+        "ownership": 2.5
+      },
+      "weaknessTags": [
+        "vague-impact",
+        "no-star-structure",
+        "shallow-depth"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate only reached meaningful ownership details ('I was mostly on the back end') after the interviewer explicitly asked 'What was your part in that specifically?' \u2014 the most direct probe possible \u2014 and the lesson ('I try to scope things down earlier') is a slogan with no concrete later situation where the change paid off, matching the weak-answer sign of a lesson with no evidence it held. To hold up: name a specific later project where the earlier scoping habit prevented the same failure.",
+      "keyPoints": [
+        "Built a scheduling web app at a hackathon; back end didn't get finished.",
+        "Was personally responsible for the API and database endpoints.",
+        "Ran out of time with some endpoints written but not all.",
+        "Now tries to scope down earlier and flag delays sooner instead of waiting."
+      ]
+    },
+    {
+      "questionId": "q3",
+      "transcript": "Q: Right. Okay, let's move on. Tell me about a time you disagreed with a teammate about a technical approach.\nA: Yeah, so, um, this was also during the hackathon, I think. We had a couple of different ideas on how to set up the data stuff, and we kind of talked it through. I think we ended up going with a approach that made sense for the time we had, and everybody was pretty much on board by the end. It was a good discussion, I think.\nQ: Okay. What exactly were the two approaches on the table?\nA: Um, so one person wanted to use a relational database, like Postgres, and I was kind of leaning toward just storing things in a simpler JSON file setup, since we were on a tight timeline. We talked through the tradeoffs for a bit, and we ended up going with the database, mostly because it would be easier to work with later on.\nQ: Okay. What was the strongest argument for going with Postgres, like, what was the best case for their side?\nA: Hmm, yeah, I think the main thing was that it would be easier to scale later and keep the data organized. Like, if we wanted to add more features after the hackathon, having an actual schema would make that less of a headache. The other person kind of made a good point that JSON files can get messy fast, so I kind of came around to it.\nQ: Got it. So who actually made the final call to go with Postgres?\nA: Hmm, I think we kind of landed on it together? Like, nobody really pulled rank or anything. The other person had made the case pretty well, so when we talked it through, we just agreed that Postgres made more sense. I don't think it was one person's call, it was more of a group thing.",
+      "rubricScores": {
+        "structure": 2.0,
+        "specificity": 2.0,
+        "impact": 1.0,
+        "ownership": 2.0
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "vague-impact",
+        "shallow-depth",
+        "no-ownership"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate never described any concrete evidence used to settle the dispute (no prototype, benchmark, or written comparison), and the outcome for the code and relationship was entirely absent \u2014 even after three follow-up probes, the answer remained 'we just agreed.' To hold up: name one specific piece of evidence you brought to the discussion (e.g., a quick benchmark or a written tradeoff list) and state what was actually shipped and how it performed.",
+      "keyPoints": [
+        "One teammate wanted Postgres; candidate leaned toward a JSON file setup.",
+        "Chose Postgres because it would be easier to scale and maintain a schema.",
+        "JSON files 'can get messy fast' was the teammate's strongest argument.",
+        "Decision described as a group consensus with no single person making the call."
+      ]
+    },
+    {
+      "questionId": "q4",
+      "transcript": "Q: Got it. Okay, let's move on. Tell me about a time you had more work than you could finish.\nA: Yeah, so, um, this was pretty much the hackathon again, honestly. We had a bunch of stuff on the list and I was trying to get through it all over the weekend. I think I just kind of prioritized the stuff that seemed important and worked through it as best I could. Some things got pushed to the end, and we ended up cutting a few things. It was a lot, but I think I managed it okay.\nQ: Okay. What was actually on your plate that weekend, like, what were the specific things competing for your time?\nA: Um, yeah, so I was on the back end, so it was mostly the API endpoints and the database setup. There were like five or six endpoints I needed, plus getting the Postgres schema set up, and then some auth stuff that kind of came up late. I think I got through the schema and a couple endpoints first, and then the rest just kind of piled up.\nQ: Got it. How did you actually decide what to tackle first?\nA: Um, yeah, so I kind of went with what seemed most important. The schema had to be done first, because everything else depended on it, so that was the first thing. After that I think I just went with the endpoints that the front end was waiting on the most. I didn't really write it down or anything, it was more of a gut feeling in the moment, I guess.\nQ: Right. What actually got dropped or pushed?\nA: So the stuff that got dropped was mostly the auth piece, and then a couple of the endpoints that were lower on the list. Auth came up late, and by then I was kind of out of runway. We ended up doing a basic version with less going on than we originally wanted, and the front end just had to work around the missing pieces.",
+      "rubricScores": {
+        "structure": 2.5,
+        "specificity": 3.0,
+        "impact": 2.0,
+        "ownership": 2.5
+      },
+      "weaknessTags": [
+        "no-star-structure",
+        "vague-impact",
+        "no-ownership"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate never mentioned communicating what would slip to teammates or stakeholders \u2014 a key rubric criterion \u2014 and the outcome was described only as 'I managed it okay' with no concrete result for the dropped auth work. To hold up: name who you told about the auth slip, when you told them, and what the actual consequence was for the project.",
+      "keyPoints": [
+        "Schema had to go first because everything else depended on it.",
+        "Prioritized endpoints the front end was waiting on most.",
+        "Auth came up late and got cut to a basic version.",
+        "Front end had to work around the missing endpoints."
+      ]
+    },
+    {
+      "questionId": "q5",
+      "transcript": "Q: Got it. Okay, let's move on. Tell me about a time you had to become productive fast in a codebase or technology you'd never used.\nA: Yeah, so, um, the Halvorsen internship was kind of like that at the start. I hadn't really worked with their setup before, so there was a lot to get up to speed on. I spent the first week or so just reading through the code and asking people questions, and then I started picking up smaller tickets. It got easier after that, I think.\nQ: Okay. What was the very first thing you did when you sat down with that codebase?\nA: Um, yeah, so the first thing I did was just get the project running on my machine. I think I cloned the repo and tried to get the dev environment set up, which took a bit longer than I expected because some of the dependencies were out of date. After that I kind of just poked around the folders to see how things were laid out.\nQ: Got it. How did you figure out where the important code actually lived?\nA: Um, yeah, so mostly I just followed the dashboard page. I'd look at what the page was calling, then trace it back to the route or the view, and from there find the query or the service it was using. Some of the folder names were kind of confusing at first, so I'd ask my mentor when I got stuck. It was a lot of clicking around, honestly, but after a few days it started to make sense.\nQ: Right. So after all that, what was the first actual change you shipped?\nA: Um, yeah, so the first real change was a small ticket on the dashboard. I think it was fixing a filter that wasn't showing the right results for one of the date ranges. It was pretty small, but I got it through review and it got merged, so that felt good.",
+      "rubricScores": {
+        "structure": 2.5,
+        "specificity": 2.0,
+        "impact": 1.5,
+        "ownership": 2.5
+      },
+      "weaknessTags": [
+        "vague-impact",
+        "shallow-depth",
+        "no-star-structure"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate never named the technology stack, the codebase's domain, or why speed mattered, and the only deliverable ('fixing a filter for a date range') was described with no timeline or measurable outcome \u2014 the impact criterion stays at 1.5. To hold up: name the specific technology and state how long it took to ship that first fix.",
+      "keyPoints": [
+        "Cloned the repo and set up the dev environment, hit outdated dependencies.",
+        "Traced the dashboard page back through routes, views, and services to understand layout.",
+        "Asked mentor when folder names were confusing, after trying to figure it out first.",
+        "First shipped change: fixed a date-range filter on the dashboard, got it merged."
+      ]
+    }
+  ],
+  "slop": [
+    {
+      "line": "Good to hear. So, today we'll be going through some behavioral questions, I'll ask about real situations you've been in, and I'll dig in where I'm curious. Think out loud, and feel free to ask me to clarify anything. Okay, to kick things off, walk me through your background.",
+      "issues": [
+        "chatbot filler"
+      ]
+    }
+  ],
+  "opener_repeats": {
+    "got it": 8,
+    "okay what": 5
+  },
+  "memory": {
+    "candidateId": "human-feel-vague-generalist",
+    "recurringWeaknesses": [
+      {
+        "tag": "no-star-structure",
+        "frequency": 5,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "vague-impact",
+        "frequency": 5,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "shallow-depth",
+        "frequency": 3,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "no-ownership",
+        "frequency": 2,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "rambling",
+        "frequency": 1,
+        "lastSeen": "2026-11-16"
+      }
+    ],
+    "improvementTrend": [
+      {
+        "sessionDate": "2026-11-16",
+        "avgScore": 2.2
+      }
+    ],
+    "strongAreas": []
+  }
+}

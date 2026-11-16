@@ -201,6 +201,18 @@ Phase 2 split into 2a to 2d. 2a, built with parallel workers and reviewed:
 - Flux auth and keyterms on /v2 are not yet confirmed live; the fallback covers a rejection.
 - Barge-in can misfire if speaker echo is misheard as new words; not yet tested live.
 
+## Human-feel eval (2026-11-16)
+
+Karthik asked for tests of a natural, human interview flow, run on his Claude API credits
+instead of Bedrock. Built a full-interview eval: simulated students from 8 researched
+personas, the real app routes, and a judge scoring Marcus on 8 points. The pilot found Marcus
+read every answer back ("Okay, so you did X and Y", taught by our own prompt examples) and let
+confident wrong claims pass ("That's the right instinct" to a wrong LEFT JOIN claim). Prompt
+rules alone moved nothing measurable; a code-level recap cut and a small fact-check call did:
+recap lines 50 of 100 to 9 of 106, and every false claim is now named and failed. Lesson: one
+run is noisy, compare on two. About $11 of credits. Details:
+[evals-human-feel.md](evals-human-feel.md).
+
 ## Next
 
 1. **Now:** redeploy backend and frontend so the live site has Phase 1
