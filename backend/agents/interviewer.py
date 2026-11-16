@@ -23,6 +23,25 @@ def one_ask(text: str) -> str:
     return _SECOND_ASK.sub("?", text, count=1)
 
 
+# "Right. So you cut the export and trimmed the reminders, who did you tell?" reads the answer back
+# before the probe; real interviewers just ask. Cut a summary clause (6+ words, no quoted words:
+# quoting their word IS the probe) between the acknowledgment and the question.
+_RECAP = re.compile(
+    r"^((?:Okay|Ok|Got it|Right|Sure|Mm, okay|Mm)[.,]\s+)"
+    r"((?:So,?\s+)?(?:you said|you mentioned|you)\b[^?'\"\u2018\u2019\u201c\u201d]*?),\s+"
+    r"((?:what|how|why|who|when|where|which|did|do|does|is|are|was|were|could|can|would)\b[^?]*\?)$",
+    re.IGNORECASE,
+)
+
+
+def no_recap(text: str) -> str:
+    m = _RECAP.match(text.strip())
+    if not m or len(m.group(2).split()) < 6:
+        return text
+    question = m.group(3)
+    return f"{m.group(1)}{question[0].upper()}{question[1:]}"
+
+
 # Marcus is heard (and shown) as plain speech: a dash reads as written prose, so it becomes a comma.
 _DASH = re.compile(r",?\s*[—–]\s*")
 
@@ -122,7 +141,7 @@ class InterviewerAgent:
         )
         if decision.action == "follow_up":
             decision = decision.model_copy(update={
-                "say": one_ask(decision.say),
+                "say": no_recap(one_ask(decision.say)),
                 "follow_up_prompt": decision.follow_up_prompt and one_ask(decision.follow_up_prompt),
             })
         decision = decision.model_copy(update={
