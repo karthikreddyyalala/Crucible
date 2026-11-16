@@ -133,13 +133,19 @@ def candidate_reply(claude, meter: Meter, persona: dict, transcript: list[tuple[
     return _text(msg).strip().strip('"')
 
 
+def feedback_lines(evals: list[dict]) -> str:
+    """Each answer's feedback as the student sees it on Results: verdict, reasoning, what worked."""
+    return "\n".join(
+        f"- {e['questionId']}: survives={e['wouldSurviveRealInterview']}; {e['survivalReasoning']} "
+        + (f"What worked: {e['strength']} " if e.get("strength") else "")
+        + f"(tags: {', '.join(e['weaknessTags']) or 'none'})" for e in evals)
+
+
 def judge(claude, meter: Meter, rubric: dict, persona: dict, transcript_md: str, evals: list[dict]) -> Judgement:
     criteria = "\n".join(
         f"- {c['id']}: {c['question']}\n  1 = {c['anchors']['1']}\n  3 = {c['anchors']['3']}\n  5 = {c['anchors']['5']}"
         for c in rubric["criteria"])
-    feedback = "\n".join(
-        f"- {e['questionId']}: survives={e['wouldSurviveRealInterview']}; {e['survivalReasoning']} "
-        f"(tags: {', '.join(e['weaknessTags']) or 'none'})" for e in evals)
+    feedback = feedback_lines(evals)
     system = (
         "You are a veteran hiring manager who has run hundreds of real interviews and trains new interviewers. "
         "You are reviewing a transcript of an AI interviewer named Marcus with a student, plus the written "

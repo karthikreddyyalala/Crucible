@@ -50,8 +50,9 @@ What changed:
 
 - **Feedback discourages more than it teaches** (confidence 2.2 of 5): almost every answer is
   "would not survive" with no strength named. The judge sees only the verdicts, not the
-  model answers on the Results page, so this is partly harsher than the real screen. Next:
-  a one-line strength plus one fix per answer on Results.
+  model answers on the Results page, so this is partly harsher than the real screen. Done
+  on `feat/encouraging-feedback`: each answer now has one earned strength ("What worked")
+  next to the "To hold up:" fix, and the judge sees it. Not yet re-measured.
 - **Marcus corrects too directly**: he now names the wrong claim, but often as a flat
   correction instead of a counter-case first ("two threads, a million increments each, what
   total do you expect?").

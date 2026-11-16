@@ -136,7 +136,8 @@ Write-up: [evals-human-feel.md](evals-human-feel.md).
 - [x] Claude API switch for local evals (`INTERVIEWAI_LLM_PROVIDER=anthropic`, `ant auth login`)
 - [x] 8 student personas and an 8-point judge rubric from research
 - [x] Recaps cut (prompt + `no_recap`), fact check of technical claims
-- [ ] Results: one strength plus one fix per answer (confidence score is the weakest)
+- [x] Results: one strength plus one fix per answer (`strength` field, "What worked" on each card; branch `feat/encouraging-feedback`)
+- [ ] Re-measure confidence and feedback quality after the strength change (about $3.90, ask first)
 - [ ] Marcus: counter-case before correcting a wrong claim
 - [ ] Run the other 5 personas (about $3.30)
 

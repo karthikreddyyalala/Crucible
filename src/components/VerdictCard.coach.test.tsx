@@ -68,6 +68,23 @@ describe("VerdictCard key points", () => {
   });
 });
 
+describe("VerdictCard strength", () => {
+  it("shows what worked after the verdict when strength is set", () => {
+    render(<VerdictCard evaluation={{ ...evaluation, strength: "You named the real bottleneck." }} question={question} index={0} />);
+    const label = screen.getByText("What worked");
+    expect(screen.getByText("You named the real bottleneck.")).toBeTruthy();
+    const heading = screen.getByRole("heading", { level: 3 });
+    expect(heading.compareDocumentPosition(label) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("shows nothing for empty or missing strength", () => {
+    const { rerender } = render(<VerdictCard evaluation={{ ...evaluation, strength: "" }} question={question} index={0} />);
+    expect(screen.queryByText("What worked")).toBeNull();
+    rerender(<VerdictCard evaluation={evaluation} question={question} index={0} />);
+    expect(screen.queryByText("What worked")).toBeNull();
+  });
+});
+
 describe("VerdictCard layout", () => {
   it("leads with the verdict and reasoning, and frames tags as next to work on in plain words", () => {
     render(<VerdictCard evaluation={{ ...evaluation, weaknessTags: ["vague-impact", "no_edge_cases"] }} question={question} index={0} />);

@@ -213,6 +213,11 @@ recap lines 50 of 100 to 9 of 106, and every false claim is now named and failed
 run is noisy, compare on two. About $11 of credits. Details:
 [evals-human-feel.md](evals-human-feel.md).
 
+Follow-up the same day: feedback named only what went wrong, so students did not know what
+to keep (confidence 2.2 of 5). Each answer now carries one earned `strength` ("What worked")
+next to the existing "To hold up:" fix. It never changes a score or the verdict. Spec:
+[specs/2026-11-16-encouraging-feedback-design.md](superpowers/specs/2026-11-16-encouraging-feedback-design.md).
+
 ## Next
 
 1. **Now:** redeploy backend and frontend so the live site has Phase 1

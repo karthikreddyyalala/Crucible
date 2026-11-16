@@ -63,6 +63,14 @@ Output schema (camelCase keys):
     actually said, in their own terms: their numbers, names, technologies. Take them only
     from the candidate's own lines (the A: lines), never from the interviewer's (Q:) lines.
     No judgement words. [] when there was no real answer. Does not change any scoring rule.)
+- strength: string  (one specific thing the candidate did well in this answer, under 25 words,
+    from their own lines (the A: lines): name or quote what they said and why it helps, e.g.
+    "You gave a real number, 9 seconds down to 3, so the result is checkable." Find it on a
+    failing answer too when something real is there: a student who only hears what went wrong
+    does not know what to keep. never generic praise ("good effort", "great answer", "nice
+    structure" with nothing named). "" when nothing real was there. When the answer survives,
+    survivalReasoning already names what carried it, so name a different thing or "". It
+    never changes a score or wouldSurviveRealInterview.)
 
 Hard rules:
 - wouldSurviveRealInterview = true ONLY if ALL rubric scores are >= 3 AND the answer held
