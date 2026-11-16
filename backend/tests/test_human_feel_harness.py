@@ -26,8 +26,10 @@ class _FakeLLM:
 
     def __init__(self):
         self.turns = 0
+        self.users: list[str] = []
 
-    def structured(self, *, schema, **_):
+    def structured(self, *, schema, user="", **_):
+        self.users.append(user)
         name = schema.__name__
         if name == "InterviewDecision":
             self.turns += 1
@@ -90,7 +92,7 @@ def test_slop_checks_flag_ai_lines_and_pass_human_ones():
 
 
 def test_opener_repeats_counts_scripted_starts():
-    lines = ["Got it. What next?", "Got it. Why?", "Got it, how?", "Okay. Say more."]
+    lines = ["Got it. What next?", "Got it. Why?", "Got it, how?", "Okay, so what broke?", "Okay, so why?"]  # two of a kind is fine
     assert hf.opener_repeats(lines) == {"got it": 3}
 
 
@@ -105,3 +107,11 @@ def test_data_files_line_up():
     assert len({p["id"] for p in personas}) == len(personas) == 8
     assert all({"resume", "jd", "style", "sample_lines", "good_interviewer", "mode"} <= p.keys() for p in personas)
     assert len(rubric["criteria"]) == 8 and all(set(c["anchors"]) == {"1", "3", "5"} for c in rubric["criteria"])
+
+
+def test_follow_ups_reach_the_evaluator_like_the_app_counts_them():
+    llm = _FakeLLM()
+    client = TestClient(create_app(llm=llm, store=InMemoryStore()))
+    hf.run_interview(client, _FakeClaude(), hf.Meter(), PERSONA)
+    graded = [u for u in llm.users if u.startswith("Question ID:")]  # evaluator prompts
+    assert len(graded) == 2 and all("Follow-up count: 1" in u for u in graded)
