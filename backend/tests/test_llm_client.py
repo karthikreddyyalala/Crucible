@@ -207,3 +207,29 @@ def test_lambda_ships_the_sdk_version_the_tests_ran_on():
     pin = re.search(r"^anthropic==(\S+)", req, re.M)
     assert pin, "pin anthropic to an exact version in deploy/requirements-lambda.txt"
     assert pin.group(1) == version("anthropic")
+
+
+@pytest.mark.parametrize("bedrock, direct", [
+    ("us.anthropic.claude-haiku-4-5-20251001-v1:0", "claude-haiku-4-5"),
+    ("us.anthropic.claude-sonnet-4-6", "claude-sonnet-4-6"),
+    ("anthropic.claude-sonnet-4-6-v1:0", "claude-sonnet-4-6"),
+    ("claude-sonnet-4-6", "claude-sonnet-4-6"),
+])
+def test_direct_model_id(bedrock, direct):
+    from llm.client import direct_model_id
+    assert direct_model_id(bedrock) == direct
+
+
+def test_direct_provider_sends_claude_api_model_ids():
+    fake = _FakeClient('{"name": "a", "count": 1}')
+    LLMClient(client=fake, provider="anthropic").structured(
+        agent="t", model="us.anthropic.claude-sonnet-4-6", system="s", user="u", schema=_Shape)
+    assert fake.calls[0]["model"] == "claude-sonnet-4-6"
+
+
+def test_bedrock_is_the_default_provider(monkeypatch):
+    monkeypatch.delenv("INTERVIEWAI_LLM_PROVIDER", raising=False)
+    fake = _FakeClient('{"name": "a", "count": 1}')
+    LLMClient(client=fake).structured(
+        agent="t", model="us.anthropic.claude-sonnet-4-6", system="s", user="u", schema=_Shape)
+    assert fake.calls[0]["model"] == "us.anthropic.claude-sonnet-4-6"
