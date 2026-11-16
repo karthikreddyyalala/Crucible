@@ -1,0 +1,427 @@
+{
+  "persona": "confidently-wrong",
+  "costUsd": 0.5196021999999998,
+  "judgement": {
+    "scores": {
+      "probing_depth": {
+        "score": 3,
+        "evidence": "Good on q1 ('Walk me through exactly what happens when two threads interleave') and q3 ('how would you confirm it's actually that query'). But Marcus never probes the confident wrong claims: 'increments are atomic at the CPU level', 'a LEFT JOIN is going to drop rows', 'gRPC is basically just REST but faster', and 'the order doesn't matter much'. He also never asks the concrete test case (e.g. 'what happens with a million increments?'). Behavioral background ('fast learner') is not probed at all."
+      },
+      "earned_praise": {
+        "score": 2,
+        "evidence": "'That's the right instinct' follows the equality-first answer, immediately after which Brandon said order doesn't matter, so it was only half right and the other half went unremarked. 'that's a good place to start' is mild filler. Wrong claims (GIL makes it safe, LEFT JOIN drops rows, Python/atomic claims) are never named plainly. Several errors left unremarked."
+      },
+      "human_voice": {
+        "score": 2,
+        "evidence": "Constant echo summaries almost every turn: 'Okay, gRPC for internal, REST as the default.', 'Okay, EXPLAIN, full scan, index on the filter columns.', 'Okay, seq scan, WHERE on one column, index on that column.', 'Right, patching where the name is looked up, not where it's defined.', 'Got it, fast tests, manual spot-checks for drift.' Same sentence shape each turn."
+      },
+      "question_craft": {
+        "score": 2,
+        "evidence": "Mostly one question per turn and tied to earlier answers ('If the query filters on two columns, say status and created_at...'). But the q3 transition glitch is a stacked/garbled turn: 'how do you change a field without breaking them? Okay, let's move to something different. A page in your app got slow...' Two unrelated questions in one turn. 'One thing you didn't mention: who are the clients of the API?' is leading, hands the answer."
+      },
+      "pacing_and_hard_moments": {
+        "score": 2,
+        "evidence": "Brandon repeatedly states confident wrong claims and Marcus never tests them. After 'a LEFT JOIN is going to drop rows that don't have a match' he moves straight on to 'Okay, EXPLAIN...'. After 'GIL basically keeps it in line' across q1 turns he never offers a counter-case; he just accepts 'the timing window is small but real'. The abandoned versioning question in q3 is an unsignalled fumble."
+      },
+      "candidate_fit": {
+        "score": 2,
+        "evidence": "The persona calls for a test case so the candidate discovers the error and a plain, kind statement if they dig in. Marcus does the step-by-step walk in q1, which partly works (Brandon concedes lost update), but he never challenges the GIL dismissal, the LEFT JOIN claim, the gRPC claim or index ordering. Brandon never gets the chance to dig in or accept a counter-example."
+      },
+      "feedback_quality": {
+        "score": 3,
+        "evidence": "Cites quotes ('basically just REST but faster', 'the order doesn't matter much as long as both columns are in there') and gives honest survives flags. But it says q2 candidate 'never mentioned versioning', a question Marcus never really asked. It misses the LEFT JOIN error and the 'atomic at the CPU level' claim, calls q3's order claim contradictory but doesn't give a clear single main fix, and calls q4 fully surviving though 'skip integration test' was never pressed."
+      },
+      "confidence_and_tone": {
+        "score": 2,
+        "evidence": "Student is left with false reassurance: Marcus never named any wrong claim in the call, and 'That's the right instinct' reinforces it. The feedback then says three of four answers fail, which is surprising and gives no single actionable fix. Closing is functional with time for questions, but 'Okay, Brandon, thanks for coming in today' is flat."
+      }
+    },
+    "robotic_lines": [
+      "Okay, gRPC for internal, REST as the default.",
+      "Okay, EXPLAIN, full scan, index on the filter columns.",
+      "Okay, seq scan, WHERE on one column, index on that column.",
+      "Right, client type, caching, typed contracts.",
+      "Right, patching where the name is looked up, not where it's defined.",
+      "Okay, side_effect as a list, or a function that checks the URL.",
+      "Got it, fast tests, manual spot-checks for drift.",
+      "Right, so you've got the lost-update picture, both read 5, both write 6.",
+      "Okay, equality column first, range second. That's the right instinct."
+    ],
+    "best_moment": "In q1, 'Walk me through exactly what happens when two threads interleave on that single increment, like, step by step.' This let Brandon articulate the lost-update himself, and the 'Why does it only fail sometimes' follow-up was well aimed.",
+    "worst_moment": "After Brandon said 'a LEFT JOIN is going to drop rows that don't have a match' and 'the order doesn't matter much', Marcus let both pass, even saying 'That's the right instinct', so the student leaves unaware of the errors.",
+    "student_leaves_confident": false,
+    "confidence_reasoning": "Brandon gets no correction in the call and is told 'That's the right instinct', then the written feedback says three answers fail. He is confused about what he got wrong, and the feedback misses the LEFT JOIN error, so he cannot clearly tell what to fix.",
+    "top_fixes": [
+      "When a candidate states something wrong, pose a concrete test case ('say a million increments, what count do you expect?', 'a LEFT JOIN with an unmatched row, what comes back?') and, if they dig in, state the correction plainly and kindly.",
+      "Drop echo summaries ('Okay, X, Y, Z'); use short acknowledgments like 'Okay' or 'Got it' and go straight to the next question.",
+      "Ask one clean question per turn, never leading, and don't abandon a half-asked question (the API versioning/transition glitch)."
+    ],
+    "praise_unearned": true,
+    "stacked_question_count": 1,
+    "hard_fail": []
+  },
+  "plan": [
+    {
+      "id": "q1",
+      "type": "technical",
+      "prompt": "What can go wrong when several threads increment the same counter without any locking?",
+      "targetDifficulty": 1,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-shared-counter-1"
+    },
+    {
+      "id": "q2",
+      "type": "technical",
+      "prompt": "When would you use REST, gRPC, or GraphQL for an API?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-api-style-1"
+    },
+    {
+      "id": "q3",
+      "type": "technical",
+      "prompt": "A page in your app got slow and you suspect a database query, how would you fix it?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": "sde-tech-slow-query-1"
+    },
+    {
+      "id": "q4",
+      "type": "technical",
+      "prompt": "How would you write a test for a Python function in your Discord bot that fetches data from an external API?",
+      "targetDifficulty": 2,
+      "weightedFromWeakness": false,
+      "exemplarId": null
+    }
+  ],
+  "log": [
+    [
+      "warmup",
+      "Marcus",
+      "Hi Brandon, I'm Marcus. I'm one of the engineers on the team. Thanks for making the time today. Before we dive in, how are you doing?"
+    ],
+    [
+      "warmup",
+      "Brandon",
+      "Hey Marcus, doing great, thanks for having me. Pretty pumped about this one, the team's work on the backend stuff is exactly the kind of thing I want to be doing. Hope your day's going well too."
+    ],
+    [
+      "background",
+      "Marcus",
+      "Doing well, thanks for asking, and good to hear you're excited about it. So, we'll be going through some technical questions today, junior level, mix of concepts and maybe some design. Think out loud as you go, I'll dig in where I'm curious, and feel free to ask me to clarify anything. To kick things off, just walk me through your background briefly."
+    ],
+    [
+      "background",
+      "Brandon",
+      "Sure thing. I just finished my B.S. in Computer Engineering at Purdue this past spring. Most of my hands-on backend stuff has been side projects. The big one is a Discord bot I wrote in Python, which handles commands, stores user data, and runs a bunch of background tasks. I also built my own portfolio site from scratch. I'd describe myself as a fast learner, so whenever I hit something new I can pick it up pretty quickly. I'm really looking forward to getting into the technical side with you."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "The Discord bot with background tasks, okay, that's a good place to start. Let's get into the technical stuff. What can go wrong when several threads increment the same counter without any locking?"
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Yeah, so a counter with no locking is basically fine most of the time because increments are atomic at the CPU level, so you'd just get the right number eventually. The only real risk is if you're reading it and writing it back in two steps, and even then it's pretty rare in practice. I mean, in Python the GIL handles most of that anyway, so I wouldn't worry too much about it for a simple counter."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Okay, so you mentioned the read-then-write being the risky part. Walk me through exactly what happens when two threads interleave on that single increment, like, step by step."
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Yeah, so, um, the way I'd think about it is each thread reads the value, adds one, and writes it back. If they interleave, both might read the same number, say 5, and then both write back 6. So you'd lose one increment. But honestly I'd say that's still pretty unlikely for a simple counter, and the GIL basically keeps it in line, so it's not something I'd lose sleep over."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Right, so you've got the lost-update picture, both read 5, both write 6. But you said it's unlikely. Why does it only fail sometimes and not every single time?"
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Yeah, so it's a timing thing. Most of the time the threads don't actually overlap on that read-add-write, so each one finishes before the other starts and you get the right count. It only breaks when the switch happens right in between the read and the write. And honestly the GIL kind of helps there too, since Python only lets one thread run bytecode at a time, so the window is pretty small. I'd still say it's rare enough that for a simple counter it's not really a big deal."
+    ],
+    [
+      "q1",
+      "Marcus",
+      "Okay, so the timing window is small but real. How would you actually fix it?"
+    ],
+    [
+      "q1",
+      "Brandon",
+      "Yeah, so the simplest fix is a lock. You wrap the read-add-write in a mutex so only one thread can be in that section at a time. In Python that's a threading.Lock, and you use it with a with statement. Honestly though, for a counter that's barely touched, I'd probably still lean toward just leaving it, since the GIL already makes it pretty safe in practice."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Got it, threading.Lock with a with statement. Okay, let's move on. When would you use REST, gRPC, or GraphQL for an API?"
+    ],
+    [
+      "q2",
+      "Brandon",
+      "Yeah, so REST is my default. It's simple, everything speaks HTTP, and most of the tooling you'd need is already there. I'd use it for most CRUD-style services. gRPC I'd reach for when I need service-to-service calls that are fast and strongly typed, since it's binary and uses protobuf, so it's a good fit for internal traffic. GraphQL is useful when clients need to pick exactly which fields they want and you don't want a bunch of separate endpoints. Honestly, gRPC is basically just REST but faster, so for most projects I'd probably still just go with REST."
+    ],
+    [
+      "q2",
+      "Marcus",
+      "Okay, gRPC for internal, REST as the default. One thing you didn't mention: who are the clients of the API?"
+    ],
+    [
+      "q2",
+      "Brandon",
+      "Yeah, good point, that matters a lot. If the clients are browsers or outside partners, REST is the safer call since everything can hit it and it caches well. If it's internal services talking to each other, gRPC makes more sense for the speed and typed contracts. And if you've got a bunch of different frontends that each need different slices of the same data, GraphQL starts to earn its keep. So I'd say it depends on who's calling, but honestly I'd still lean REST unless there's a specific reason not to."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Right, client type, caching, typed contracts. One thing neither of us touched on: once you've shipped an API and clients are depending on it, how do you change a field without breaking them? Okay, let's move to something different. A page in your app got slow and you suspect a database query, how would you fix it?"
+    ],
+    [
+      "q3",
+      "Brandon",
+      "Yeah, so my first move would be to look at the query itself. I'd run EXPLAIN on it and see whether it's doing a full table scan. If it is, the usual fix is adding an index on the columns it filters or joins on. I'd also check whether it's pulling back more columns or rows than the page actually needs. And honestly, if it's a join, a LEFT JOIN is going to drop rows that don't have a match, so I'd make sure I'm using the join type that actually gives the results the page expects."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Okay, EXPLAIN, full scan, index on the filter columns. Before you add that index, how would you confirm it's actually that query that's making the page slow?"
+    ],
+    [
+      "q3",
+      "Brandon",
+      "Yeah, so I'd start by timing the page and seeing where the time actually goes. If the app has any kind of request logging or APM, I'd pull up the slow endpoint and check how long the database calls take compared to everything else. I'd also turn on the slow query log on the database and see which statements are over the threshold. Honestly though, if the query is obviously doing a full scan on a big table, I'd probably just go ahead and add the index, since that's almost always the culprit."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Right, slow query log and APM to confirm it first. So once you've got the query plan in front of you, what are you actually looking at in there to decide whether an index will help?"
+    ],
+    [
+      "q3",
+      "Brandon",
+      "Yeah, so I'd look for the scan type first. If it says full table scan on a big table, that's the red flag. Then I'd check the estimated rows against the actual rows, because if the planner's way off, the plan might be bad for a different reason. I'd also look at the filter and join conditions and see whether there's an index that matches them. Honestly, if I see a seq scan with a WHERE on one column, I'm pretty confident an index on that column is the answer."
+    ],
+    [
+      "q3",
+      "Marcus",
+      "Okay, seq scan, WHERE on one column, index on that column. If the query filters on two columns, say status and created_at, how do you decide which one goes first in the index?"
+    ],
+    [
+      "q3",
+      "Brandon",
+      "Yeah, so for a two-column filter I'd usually put the equality column first and the range column second. So status first, since it's probably an exact match, and created_at second. Honestly, though, the order doesn't matter much as long as both columns are in there, because the database will pick whichever index it likes best anyway. I'd just make a composite index on both and move on."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Okay, equality column first, range second. That's the right instinct. Let's switch gears. How would you write a test for a Python function in your Discord bot that fetches data from an external API?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Yeah, so I'd mock the external API call so the test doesn't actually hit the network. In Python I'd use unittest.mock, patch the request function in the module where the bot calls it, and have it return a fake response. Then I'd assert that my function parses that response correctly. Honestly, for a function that just fetches and formats data, I'd probably skip a separate integration test, since the mock covers the logic and the real API is outside my control anyway."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Okay, patching in the module where it's called. How exactly would you set that patch up, like, what does that unittest.mock call look like in practice?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Yeah, so you'd use patch as a decorator or a context manager. Something like with patch(\"bot.commands.requests.get\") as mock_get, and then you set mock_get.return_value to a fake response object with a json method that returns whatever data you want. Then you call your function and assert on the output. The key part is the string path, it has to point to where the name is looked up, not where it's defined, which is why I'd patch it in the bot's module. Honestly, I've done this a bunch in my Discord bot, so it's pretty second nature at this point."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Right, patching where the name is looked up, not where it's defined. What would you do if the function you're testing makes two separate API calls, and you need them to return different responses?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Yeah, so that's easy with side_effect. You set mock_get.side_effect to a list of fake responses, and each call returns the next one in order. Or if the calls go to different URLs, you can make side_effect a function that checks the URL and returns the matching response. Honestly, I'd probably just go with the list since it's quicker to write, and as long as the calls happen in the same order every time, it's pretty solid."
+    ],
+    [
+      "q4",
+      "Marcus",
+      "Okay, side_effect as a list, or a function that checks the URL. One more thing: you mentioned skipping a separate integration test. What's the tradeoff you're making there?"
+    ],
+    [
+      "q4",
+      "Brandon",
+      "Yeah, so the tradeoff is mostly speed and control versus realism. Mocks are fast and they let me hit edge cases, like a 500 or a weird payload, without having to trigger them on the real API. The downside is the mock only knows what I told it, so if the real API changes its response shape, my tests will still pass and the bot breaks in production. Honestly though, for a small Discord bot I think that's an acceptable risk. I'd rather have fast unit tests and maybe check the real API by hand once in a while."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Got it, fast tests, manual spot-checks for drift. Okay, that's everything I wanted to cover. What questions do you have for me?"
+    ],
+    [
+      "closing",
+      "Brandon",
+      "Yeah, thanks. I do have one question. What does on-call look like for a new grad on the team? Like how often you rotate in, and how much support you get the first few months before you're taking pages on your own?"
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Yeah, that's a common one to wonder about. So the JD mentions on-call kicks in around six months in, the idea being you've had time to get familiar with the systems first. In practice, new grads usually shadow someone on-call before they're ever the primary, and there's typically a runbook or escalation path so you're not just staring at a page alone at 2am. The ramp varies by team, but you'd have a buddy or a senior on-call alongside you early on. Anything else you want to ask?"
+    ],
+    [
+      "closing",
+      "Brandon",
+      "Nope, that answers it for me. I think I'm all set, thanks Marcus. Appreciate you walking me through everything today."
+    ],
+    [
+      "closing",
+      "Marcus",
+      "Okay, Brandon, thanks for coming in today. I'll write up my feedback, and you'll see it on the next screen. Take care."
+    ]
+  ],
+  "evaluations": [
+    {
+      "questionId": "q1",
+      "transcript": "Q: The Discord bot with background tasks, okay, that's a good place to start. Let's get into the technical stuff. What can go wrong when several threads increment the same counter without any locking?\nA: Yeah, so a counter with no locking is basically fine most of the time because increments are atomic at the CPU level, so you'd just get the right number eventually. The only real risk is if you're reading it and writing it back in two steps, and even then it's pretty rare in practice. I mean, in Python the GIL handles most of that anyway, so I wouldn't worry too much about it for a simple counter.\nQ: Okay, so you mentioned the read-then-write being the risky part. Walk me through exactly what happens when two threads interleave on that single increment, like, step by step.\nA: Yeah, so, um, the way I'd think about it is each thread reads the value, adds one, and writes it back. If they interleave, both might read the same number, say 5, and then both write back 6. So you'd lose one increment. But honestly I'd say that's still pretty unlikely for a simple counter, and the GIL basically keeps it in line, so it's not something I'd lose sleep over.\nQ: Right, so you've got the lost-update picture, both read 5, both write 6. But you said it's unlikely. Why does it only fail sometimes and not every single time?\nA: Yeah, so it's a timing thing. Most of the time the threads don't actually overlap on that read-add-write, so each one finishes before the other starts and you get the right count. It only breaks when the switch happens right in between the read and the write. And honestly the GIL kind of helps there too, since Python only lets one thread run bytecode at a time, so the window is pretty small. I'd still say it's rare enough that for a simple counter it's not really a big deal.\nQ: Okay, so the timing window is small but real. How would you actually fix it?\nA: Yeah, so the simplest fix is a lock. You wrap the read-add-write in a mutex so only one thread can be in that section at a time. In Python that's a threading.Lock, and you use it with a with statement. Honestly though, for a counter that's barely touched, I'd probably still lean toward just leaving it, since the GIL already makes it pretty safe in practice.",
+      "rubricScores": {
+        "correctness": 3.0,
+        "depth": 2.0,
+        "edge_cases": 2.0,
+        "communication": 3.0
+      },
+      "weaknessTags": [
+        "shallow-depth",
+        "incorrect-core"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate only reached the correct lost-update mechanism after the interviewer walked them through it step by step, and they repeatedly downplayed the real risk by over-relying on the GIL \u2014 a claim that collapses under scrutiny since the GIL does not make counter increments atomic across bytecode boundaries. They never discussed the cost tradeoffs between locks, atomics, and per-thread counters, leaving depth well below the 3-threshold.",
+      "keyPoints": [
+        "Both threads read 5, both write back 6, losing one increment.",
+        "It only fails when the thread switch happens between read and write.",
+        "The GIL keeps the window small, so it's rare in practice.",
+        "Fix is threading.Lock with a with statement, but might leave it for a simple counter."
+      ]
+    },
+    {
+      "questionId": "q2",
+      "transcript": "Q: Got it, threading.Lock with a with statement. Okay, let's move on. When would you use REST, gRPC, or GraphQL for an API?\nA: Yeah, so REST is my default. It's simple, everything speaks HTTP, and most of the tooling you'd need is already there. I'd use it for most CRUD-style services. gRPC I'd reach for when I need service-to-service calls that are fast and strongly typed, since it's binary and uses protobuf, so it's a good fit for internal traffic. GraphQL is useful when clients need to pick exactly which fields they want and you don't want a bunch of separate endpoints. Honestly, gRPC is basically just REST but faster, so for most projects I'd probably still just go with REST.\nQ: Okay, gRPC for internal, REST as the default. One thing you didn't mention: who are the clients of the API?\nA: Yeah, good point, that matters a lot. If the clients are browsers or outside partners, REST is the safer call since everything can hit it and it caches well. If it's internal services talking to each other, gRPC makes more sense for the speed and typed contracts. And if you've got a bunch of different frontends that each need different slices of the same data, GraphQL starts to earn its keep. So I'd say it depends on who's calling, but honestly I'd still lean REST unless there's a specific reason not to.",
+      "rubricScores": {
+        "correctness": 3.5,
+        "depth": 2.5,
+        "edge_cases": 1.5,
+        "communication": 3.0
+      },
+      "weaknessTags": [
+        "shallow-depth",
+        "no-edge-cases"
+      ],
+      "followUpCount": 1,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate never mentioned versioning or backward compatibility for any style, and dismissed gRPC as 'basically just REST but faster,' which misses the schema-driven contract and streaming advantages \u2014 a real interviewer probing on those points would expose the shallow depth.",
+      "keyPoints": [
+        "REST is the default for CRUD services; everything speaks HTTP and tooling is there.",
+        "gRPC for internal service-to-service calls: binary, protobuf, fast and strongly typed.",
+        "GraphQL when different frontends need different slices of the same data.",
+        "Client type (browser, partner, internal service) drives the choice."
+      ]
+    },
+    {
+      "questionId": "q3",
+      "transcript": "Q: Right, client type, caching, typed contracts. One thing neither of us touched on: once you've shipped an API and clients are depending on it, how do you change a field without breaking them? Okay, let's move to something different. A page in your app got slow and you suspect a database query, how would you fix it?\nA: Yeah, so my first move would be to look at the query itself. I'd run EXPLAIN on it and see whether it's doing a full table scan. If it is, the usual fix is adding an index on the columns it filters or joins on. I'd also check whether it's pulling back more columns or rows than the page actually needs. And honestly, if it's a join, a LEFT JOIN is going to drop rows that don't have a match, so I'd make sure I'm using the join type that actually gives the results the page expects.\nQ: Okay, EXPLAIN, full scan, index on the filter columns. Before you add that index, how would you confirm it's actually that query that's making the page slow?\nA: Yeah, so I'd start by timing the page and seeing where the time actually goes. If the app has any kind of request logging or APM, I'd pull up the slow endpoint and check how long the database calls take compared to everything else. I'd also turn on the slow query log on the database and see which statements are over the threshold. Honestly though, if the query is obviously doing a full scan on a big table, I'd probably just go ahead and add the index, since that's almost always the culprit.\nQ: Right, slow query log and APM to confirm it first. So once you've got the query plan in front of you, what are you actually looking at in there to decide whether an index will help?\nA: Yeah, so I'd look for the scan type first. If it says full table scan on a big table, that's the red flag. Then I'd check the estimated rows against the actual rows, because if the planner's way off, the plan might be bad for a different reason. I'd also look at the filter and join conditions and see whether there's an index that matches them. Honestly, if I see a seq scan with a WHERE on one column, I'm pretty confident an index on that column is the answer.\nQ: Okay, seq scan, WHERE on one column, index on that column. If the query filters on two columns, say status and created_at, how do you decide which one goes first in the index?\nA: Yeah, so for a two-column filter I'd usually put the equality column first and the range column second. So status first, since it's probably an exact match, and created_at second. Honestly, though, the order doesn't matter much as long as both columns are in there, because the database will pick whichever index it likes best anyway. I'd just make a composite index on both and move on.",
+      "rubricScores": {
+        "correctness": 4.0,
+        "depth": 3.0,
+        "edge_cases": 2.0,
+        "communication": 4.0
+      },
+      "weaknessTags": [
+        "shallow-depth",
+        "no-edge-cases"
+      ],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": false,
+      "survivalReasoning": "The candidate's claim that 'the order doesn't matter much as long as both columns are in there' on composite index column ordering is technically incorrect and contradicts the correct intuition they showed earlier; a real interviewer probing write costs, low-selectivity columns, or N+1 patterns would expose that these were never considered.",
+      "keyPoints": [
+        "Run EXPLAIN to spot full table scans, then add an index on filter columns.",
+        "Use slow query log and APM to confirm which query is actually slow.",
+        "Check estimated vs actual rows in the query plan for planner accuracy.",
+        "Put equality column (status) first, range column (created_at) second in composite index."
+      ]
+    },
+    {
+      "questionId": "q4",
+      "transcript": "Q: Okay, equality column first, range second. That's the right instinct. Let's switch gears. How would you write a test for a Python function in your Discord bot that fetches data from an external API?\nA: Yeah, so I'd mock the external API call so the test doesn't actually hit the network. In Python I'd use unittest.mock, patch the request function in the module where the bot calls it, and have it return a fake response. Then I'd assert that my function parses that response correctly. Honestly, for a function that just fetches and formats data, I'd probably skip a separate integration test, since the mock covers the logic and the real API is outside my control anyway.\nQ: Okay, patching in the module where it's called. How exactly would you set that patch up, like, what does that unittest.mock call look like in practice?\nA: Yeah, so you'd use patch as a decorator or a context manager. Something like with patch(\"bot.commands.requests.get\") as mock_get, and then you set mock_get.return_value to a fake response object with a json method that returns whatever data you want. Then you call your function and assert on the output. The key part is the string path, it has to point to where the name is looked up, not where it's defined, which is why I'd patch it in the bot's module. Honestly, I've done this a bunch in my Discord bot, so it's pretty second nature at this point.\nQ: Right, patching where the name is looked up, not where it's defined. What would you do if the function you're testing makes two separate API calls, and you need them to return different responses?\nA: Yeah, so that's easy with side_effect. You set mock_get.side_effect to a list of fake responses, and each call returns the next one in order. Or if the calls go to different URLs, you can make side_effect a function that checks the URL and returns the matching response. Honestly, I'd probably just go with the list since it's quicker to write, and as long as the calls happen in the same order every time, it's pretty solid.\nQ: Okay, side_effect as a list, or a function that checks the URL. One more thing: you mentioned skipping a separate integration test. What's the tradeoff you're making there?\nA: Yeah, so the tradeoff is mostly speed and control versus realism. Mocks are fast and they let me hit edge cases, like a 500 or a weird payload, without having to trigger them on the real API. The downside is the mock only knows what I told it, so if the real API changes its response shape, my tests will still pass and the bot breaks in production. Honestly though, for a small Discord bot I think that's an acceptable risk. I'd rather have fast unit tests and maybe check the real API by hand once in a while.",
+      "rubricScores": {
+        "correctness": 5.0,
+        "depth": 4.0,
+        "edge_cases": 4.0,
+        "communication": 5.0
+      },
+      "weaknessTags": [],
+      "followUpCount": 3,
+      "wouldSurviveRealInterview": true,
+      "survivalReasoning": "The candidate correctly explained patching at the lookup site, demonstrated concrete knowledge of side_effect as both a list and a callable, and articulated the mock-vs-integration tradeoff (speed/control vs. API drift) without prompting \u2014 all rubric criteria held up under three follow-up probes.",
+      "keyPoints": [
+        "Patch 'bot.commands.requests.get' where the name is looked up, not defined.",
+        "Set mock_get.return_value with a fake response object and json method.",
+        "Use side_effect as a list or URL-checking function for multiple API calls.",
+        "Mocks are fast but won't catch real API response shape changes in production."
+      ]
+    }
+  ],
+  "slop": [
+    {
+      "line": "Doing well, thanks for asking, and good to hear you're excited about it. So, we'll be going through some technical questions today, junior level, mix of concepts and maybe some design. Think out loud as you go, I'll dig in where I'm curious, and feel free to ask me to clarify anything. To kick things off, just walk me through your background briefly.",
+      "issues": [
+        "chatbot filler"
+      ]
+    },
+    {
+      "line": "Right, client type, caching, typed contracts. One thing neither of us touched on: once you've shipped an API and clients are depending on it, how do you change a field without breaking them? Okay, let's move to something different. A page in your app got slow and you suspect a database query, how would you fix it?",
+      "issues": [
+        "more than one question"
+      ]
+    },
+    {
+      "line": "Yeah, that's a common one to wonder about. So the JD mentions on-call kicks in around six months in, the idea being you've had time to get familiar with the systems first. In practice, new grads usually shadow someone on-call before they're ever the primary, and there's typically a runbook or escalation path so you're not just staring at a page alone at 2am. The ramp varies by team, but you'd have a buddy or a senior on-call alongside you early on. Anything else you want to ask?",
+      "issues": [
+        "monologue (70+ words)"
+      ]
+    }
+  ],
+  "opener_repeats": {},
+  "memory": {
+    "candidateId": "human-feel-confidently-wrong",
+    "recurringWeaknesses": [
+      {
+        "tag": "shallow-depth",
+        "frequency": 3,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "no-edge-cases",
+        "frequency": 2,
+        "lastSeen": "2026-11-16"
+      },
+      {
+        "tag": "incorrect-core",
+        "frequency": 1,
+        "lastSeen": "2026-11-16"
+      }
+    ],
+    "improvementTrend": [
+      {
+        "sessionDate": "2026-11-16",
+        "avgScore": 3.44
+      }
+    ],
+    "strongAreas": [
+      "testing-mocking",
+      "api-design-tradeoffs",
+      "database-optimization"
+    ]
+  }
+}
